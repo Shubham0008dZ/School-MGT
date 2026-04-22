@@ -16,7 +16,10 @@
         </a>
     </div>
     <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
-    <div class="top-right"><span>⚏ User Management 🔔</span></div>
+    <div class="top-right" style="display:flex; align-items:center; gap:15px;">
+        <span>⚏ User Management 🔔</span>
+        <button id="btnLogout" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:3px; cursor:pointer; font-weight:bold;">🚪 Logout</button>
+    </div>
 </div>
 
 <div class="erp-wrapper">
@@ -73,7 +76,6 @@
                 </div>
 
                 <div class="modules-tree" id="modulesTree">
-                    
                     <div class="module-group">
                         <label class="parent-label"><input type="checkbox" class="mod-parent" value="SIS"> Student Information System (SIS)</label>
                         <div class="child-group">
@@ -84,7 +86,6 @@
                             <label><input type="checkbox" class="mod-child" data-parent="SIS" value="SIS_Setup"> Master Setup Controls</label>
                         </div>
                     </div>
-
                     <div class="module-group">
                         <label class="parent-label"><input type="checkbox" class="mod-parent" value="FEE"> Fee Management</label>
                         <div class="child-group">
@@ -94,7 +95,6 @@
                             <label><input type="checkbox" class="mod-child" data-parent="FEE" value="FEE_Setup"> Manage Fee Heads (Setup)</label>
                         </div>
                     </div>
-
                     <div class="module-group">
                         <label class="parent-label"><input type="checkbox" class="mod-parent" value="ATT"> Student Attendance</label>
                         <div class="child-group">
@@ -103,7 +103,6 @@
                             <label><input type="checkbox" class="mod-child" data-parent="ATT" value="ATT_Edit"> Edit/Delete Attendance</label>
                         </div>
                     </div>
-
                     <div class="module-group">
                         <label class="parent-label"><input type="checkbox" class="mod-parent" value="HR"> Employee HR Management</label>
                         <div class="child-group">
@@ -113,7 +112,6 @@
                             <label><input type="checkbox" class="mod-child" data-parent="HR" value="HR_Setup"> HR Setup Controls</label>
                         </div>
                     </div>
-
                 </div>
 
                 <div style="text-align:right; margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
@@ -123,6 +121,48 @@
             </div>
         </div>
 
+    </div>
+</div>
+
+<div id="authModal" class="modal-overlay">
+    <div class="modal-card" style="width: 500px;">
+        <div class="modal-header">
+            <h3 style="color:white; margin:0;">Send User Credentials</h3>
+            <span class="close-modal" id="closeAuthModal">&times;</span>
+        </div>
+        <div class="modal-body" style="padding: 25px;">
+            <p style="margin-bottom: 15px; color:#555;">Choose how you want to provision access for: <strong id="authEmpName" style="color:#2980b9;">-</strong></p>
+            
+            <form id="authForm">
+                <input type="hidden" id="authEmpId">
+                <input type="hidden" id="authEmpEmail">
+
+                <div style="margin-bottom: 15px;">
+                    <label style="cursor:pointer; display:block; padding:10px; background:#f9f9f9; border:1px solid #ddd; border-radius:4px; margin-bottom:10px;">
+                        <input type="radio" name="authOption" value="1" id="optCustom"> <b>Option 1:</b> Create Custom UserID & Password
+                    </label>
+                    <label style="cursor:pointer; display:block; padding:10px; background:#f9f9f9; border:1px solid #ddd; border-radius:4px;">
+                        <input type="radio" name="authOption" value="2" id="optAuto" checked> <b>Option 2:</b> Auto Generate UserID & Send Setup Link
+                    </label>
+                </div>
+
+                <div id="customAuthFields" style="display:none; background:#ecf0f1; padding:15px; border-radius:4px; margin-bottom:15px;">
+                    <div style="margin-bottom:10px;">
+                        <label style="font-weight:bold; font-size:12px;">Custom User ID *</label>
+                        <input type="text" id="customUid" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:3px;" placeholder="Enter ID">
+                    </div>
+                    <div>
+                        <label style="font-weight:bold; font-size:12px;">Custom Password *</label>
+                        <input type="text" id="customPass" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:3px;" placeholder="Enter Password">
+                    </div>
+                </div>
+
+                <div style="text-align:right; margin-top:20px;">
+                    <button type="button" class="btn btn-dark" id="btnCancelAuth">Cancel</button>
+                    <button type="submit" class="btn btn-green" id="btnSendAuth">📧 Send to User</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
