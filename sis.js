@@ -1,13 +1,79 @@
+// CUSTOM NON-NATIVE ALERT MODAL (NO BROWSER PROMPTS)
+window.customAlert = function(message) {
+    let overlay = document.createElement('div');
+    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+    overlay.innerHTML = `
+        <div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;">
+            <p style="color:#333;margin-bottom:20px;font-size:15px;font-weight:bold;">${message}</p>
+            <button onclick="this.parentElement.parentElement.remove()" style="padding:8px 25px;background:#3498db;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">OK</button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+};
+
+// CUSTOM NON-NATIVE CONFIRM MODAL
+window.customConfirm = function(message, onConfirm) {
+    let overlay = document.createElement('div');
+    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+    overlay.innerHTML = `
+        <div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;">
+            <p style="color:#555;margin-bottom:20px;">${message}</p>
+            <div style="display:flex;justify-content:center;gap:10px;">
+                <button id="cc-cancel" style="padding:8px 20px;background:#95a5a6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Cancel</button>
+                <button id="cc-ok" style="padding:8px 20px;background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Confirm</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    document.getElementById('cc-cancel').addEventListener('click', () => overlay.remove());
+    document.getElementById('cc-ok').addEventListener('click', () => { overlay.remove(); onConfirm(); });
+};
+
 document.addEventListener('DOMContentLoaded', () => {
+    // 0. SECURITY CHECK & RBAC ENFORCEMENT
+    const activeUserStr = localStorage.getItem('erp_active_user');
+    if (!activeUserStr) { window.location.href = 'login.html'; return; }
+    
+    const activeUser = JSON.parse(activeUserStr);
+    const isSA = activeUser.Is_SuperAdmin === "Yes";
+    let userRights = [];
+    try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
+
+    // Check module-level access
+    if (!isSA && !userRights.some(r => r.startsWith("SIS_"))) {
+        window.location.href = 'index.html'; return; // Kick back to dash if no rights at all
+    }
+
+    // Apply Granular Controls inside SIS
+    if (!isSA) {
+        if(!userRights.includes("SIS_Add")) {
+            let addBtn = document.getElementById('btn-add-student');
+            if(addBtn) addBtn.style.display = 'none';
+        }
+        if(!userRights.includes("SIS_Setup")) {
+            let setupLink = document.querySelector('a[href="setup.html"]');
+            if(setupLink) setupLink.style.display = 'none';
+        }
+    }
+
+    // LOGOUT LOGIC
+    const btnLogout = document.getElementById('btnLogout');
+    if(btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            customConfirm("Are you sure you want to logout?", () => {
+                localStorage.removeItem('erp_active_user'); window.location.href = 'login.html';
+            });
+        });
+    }
+
     // API URL - REPLACE THIS WITH YOUR NEW DEPLOYMENT URL!
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
     
     let appData = []; 
     let setupData = null;
-    let feeHeads = [];     // Storing for Ledger
-    let feeReceipts = [];  // Storing for Ledger
+    let feeHeads = [];     
+    let feeReceipts = [];  
     let charts = { class: null, blood: null, cat: null, rel: null, house: null, age: null };
-
     const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
 
     // ==========================================
@@ -54,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if(!isNaN(num) && num > maxReg) maxReg = num;
         });
         document.getElementById('lastRegNoDisplay').innerText = maxReg;
-        
         if(document.getElementById('editMode').value === "false") {
             document.getElementById('regNo').value = maxReg + 1;
         }
@@ -102,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         }
-
         fillSelect('studentClass', setupData.classes, true); fillSelect('gender', setupData.genders);
         fillSelect('category', setupData.categories); fillSelect('bloodGroup', setupData.bloodGroups);
         fillSelect('house', setupData.houses); fillSelect('religion', setupData.religions);
@@ -124,7 +188,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const tr = document.createElement('tr');
             const studentJson = JSON.stringify(student).replace(/'/g, "&#39;");
             
-            // Added link class to Name column pointing to openLedger
+            // Edit & Delete Buttons RBAC rendering
+            let btnHTML = "";
+            if(isSA || userRights.includes("SIS_Edit")) {
+                btnHTML += `<button style="background:#f39c12; color:white; border:none; padding:5px; cursor:pointer;" onclick='editStudent(${studentJson})'>✏️ Edit</button> `;
+            }
+            if(isSA || userRights.includes("SIS_Delete")) {
+                btnHTML += `<button style="background:#e74c3c; color:white; border:none; padding:5px; cursor:pointer;" onclick="deleteStudent('${student.regNo}')">🗑️ Del</button>`;
+            }
+
             tr.innerHTML = `
                 <td>${student.regNo || '-'}</td>
                 <td>${student.studentClass || '-'}</td>
@@ -133,10 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${student.category || '-'}</td>
                 <td>${student.bloodGroup || '-'}</td>
                 <td>${student.house || '-'}</td>
-                <td>
-                    <button style="background:#f39c12; color:white; border:none; padding:5px; cursor:pointer;" onclick='editStudent(${studentJson})'>✏️ Edit</button>
-                    <button style="background:#e74c3c; color:white; border:none; padding:5px; cursor:pointer;" onclick="deleteStudent('${student.regNo}')">🗑️ Del</button>
-                </td>
+                <td>${btnHTML}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -200,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
-
         Chart.defaults.font.family = 'Arial';
         createChart('class', 'chartClass', counts.class, '#64b5f6'); createChart('blood', 'chartBlood', counts.blood, '#e57373');
         createChart('cat', 'chartCat', counts.cat, '#ffb74d'); createChart('rel', 'chartRel', counts.rel, '#ba68c8');
@@ -216,12 +284,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.editStudent = function(s) {
         document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
         document.getElementById('module-admission').classList.add('active-module');
-        
         document.getElementById('formTitle').innerText = "Edit Student Profile";
         document.getElementById('saveSubmitBtn').innerText = "Update Record in DB";
         document.getElementById('saveSubmitBtn').style.background = "#f39c12";
         document.getElementById('editMode').value = "true";
-
         formTabs[0].click(); 
 
         setVal('regNo', s.regNo); document.getElementById('regNo').readOnly = true; 
@@ -253,16 +319,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.deleteStudent = function(regNo) {
-        if(confirm(`Are you sure you want to delete Reg No: ${regNo} from Database?`)) {
+        customConfirm(`Are you sure you want to delete Reg No: ${regNo} from Database?`, () => {
             fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "delete", regNo: regNo }) })
             .then(res => res.json())
             .then(data => {
                 if(data.status === "Success") {
-                    alert(data.message || "Deleted from DB!");
+                    customAlert(data.message || "Deleted from DB!");
                     syncWithDatabase(); 
                 }
             });
-        }
+        });
     };
 
     document.getElementById('admissionForm').addEventListener('submit', function(e) {
@@ -295,10 +361,10 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(res => res.json())
         .then(data => {
             if(data.status === "Success") {
-                alert(data.message || (isEdit ? "Updated in DB!" : "Added to DB!"));
+                customAlert(data.message || (isEdit ? "Updated in DB!" : "Added to DB!"));
                 document.getElementById('btn-back-to-profiles').click();
                 syncWithDatabase();
-            } else alert("Error: " + data.message);
+            } else customAlert("Error: " + data.message);
         })
         .finally(() => { submitBtn.textContent = 'Save Record to DB'; submitBtn.disabled = false; });
     });
@@ -382,10 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.innerHTML = '';
         let totalDue = 0, totalPaid = 0;
 
-        // Splitting into Monthly Tuition and Other Monthly separately to avoid confusion
         academicMonths.forEach(month => {
-            
-            // 1. Tuition Fee (Explicit Separation)
             let tAmt = classFeeAmount;
             let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0;
             let tBal = tAmt - tPaid;
@@ -394,7 +457,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let tStyle = tBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
             tbody.innerHTML += `<tr><td><b>Monthly Tuition Fee (${month})</b></td><td>₹${tAmt.toFixed(2)}</td><td style="color:#2980b9;">₹${tPaid.toFixed(2)}</td><td style="${tStyle} font-weight:bold;">₹${tBal.toFixed(2)}</td></tr>`;
 
-            // 2. Other Monthly Fees
             feeHeads.forEach(fh => {
                 if(fh.Frequency === "Monthly") {
                     let fhAmt = parseFloat(fh.Amount) || 0;
@@ -408,7 +470,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // 3. Annual Fees
         feeHeads.forEach(fh => {
             if(fh.Frequency === "Annually" || fh.Frequency === "One Time (Annually)") {
                 let amt = parseFloat(fh.Amount) || 0;
