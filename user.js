@@ -2,6 +2,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // API URL - REPLACE WITH YOUR DEPLOYMENT URL
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
     
+    // SECURITY & LOGOUT LOGIC
+    const activeUser = localStorage.getItem('erp_active_user');
+    if (!activeUser) {
+        window.location.href = 'login.html'; 
+        return;
+    }
+    const btnLogout = document.getElementById('btnLogout');
+    if(btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            if(confirm("Are you sure you want to logout?")) {
+                localStorage.removeItem('erp_active_user');
+                window.location.href = 'login.html';
+            }
+        });
+    }
+
     let allEmployees = [];
 
     // ==========================================
@@ -55,7 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${emp.empDept || '-'}</td>
                     <td>${emp.empDesig || '-'}</td>
                     <td>${badge}</td>
-                    <td><button class="btn-action" title="Edit Rights" onclick='openRights(${safeEmp})'>✏️ Assign Rights</button></td>
+                    <td style="display:flex; gap:5px;">
+                        <button class="btn-action" title="Edit Rights" onclick='openRights(${safeEmp})'>✏️ Assign Rights</button>
+                        <button class="btn-auth" title="Send Setup Link" onclick="openAuthModal('${emp.empId}', '${emp.empName}', '${emp.empEmail}')">🔑 Send Auth</button>
+                    </td>
                 </tr>
             `;
         });
@@ -126,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             } catch(e) {}
         }
-        
         showView('module-assign-rights');
     }
 
@@ -144,30 +162,103 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        const payload = {
-            action: "saveUserRights",
-            empId: empId,
-            isSuperAdmin: isSA,
-            rights: rightsArray
-        };
+        const payload = { action: "saveUserRights", empId: empId, isSuperAdmin: isSA, rights: rightsArray };
 
         let oldText = this.innerText;
-        this.innerText = "Saving Rights...";
-        this.disabled = true;
+        this.innerText = "Saving Rights..."; this.disabled = true;
+
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === "Success") {
+                alert(data.message); initData(); showView('module-user-list');
+            } else alert("Error: " + data.message);
+        }).finally(() => { this.innerText = oldText; this.disabled = false; });
+    });
+
+    // ==========================================
+    // 6. SEND CREDENTIALS (AUTH MODAL LOGIC)
+    // ==========================================
+    const authModal = document.getElementById('authModal');
+    const customAuthFields = document.getElementById('customAuthFields');
+    
+    window.openAuthModal = function(empId, empName, empEmail) {
+        if(!empEmail || empEmail.trim() === "undefined" || empEmail.trim() === "") {
+            alert("Error: This employee does not have an email ID registered. Please update their profile first.");
+            return;
+        }
+
+        document.getElementById('authEmpName').innerText = `${empName} (${empId})`;
+        document.getElementById('authEmpId').value = empId;
+        document.getElementById('authEmpEmail').value = empEmail;
+        
+        document.getElementById('optAuto').checked = true;
+        customAuthFields.style.display = 'none';
+        document.getElementById('authForm').reset();
+        
+        authModal.classList.add('active');
+    };
+
+    document.getElementById('closeAuthModal').addEventListener('click', () => authModal.classList.remove('active'));
+    document.getElementById('btnCancelAuth').addEventListener('click', () => authModal.classList.remove('active'));
+
+    document.querySelectorAll('input[name="authOption"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            if(this.value === "1") {
+                customAuthFields.style.display = 'block';
+                document.getElementById('customUid').required = true;
+                document.getElementById('customPass').required = true;
+            } else {
+                customAuthFields.style.display = 'none';
+                document.getElementById('customUid').required = false;
+                document.getElementById('customPass').required = false;
+            }
+        });
+    });
+
+    document.getElementById('authForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const empId = document.getElementById('authEmpId').value;
+        const empEmail = document.getElementById('authEmpEmail').value;
+        const empName = document.getElementById('authEmpName').innerText.split(' (')[0];
+        const opt = parseInt(document.querySelector('input[name="authOption"]:checked').value);
+        
+        let cUid = "", cPass = "";
+        if(opt === 1) {
+            cUid = document.getElementById('customUid').value.trim();
+            cPass = document.getElementById('customPass').value.trim();
+        }
+
+        // We derive the login URL dynamically based on where they are hosted
+        const loginUrl = window.location.origin + window.location.pathname.replace('user.html', 'login.html');
+
+        const payload = {
+            action: "sendUserCredentials",
+            empId: empId,
+            empName: empName,
+            empEmail: empEmail,
+            option: opt,
+            customUid: cUid,
+            customPass: cPass,
+            loginUrl: loginUrl
+        };
+
+        const btnSendAuth = document.getElementById('btnSendAuth');
+        let oldText = btnSendAuth.innerText;
+        btnSendAuth.innerText = "Sending...";
+        btnSendAuth.disabled = true;
 
         fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
         .then(res => res.json())
         .then(data => {
             if(data.status === "Success") {
                 alert(data.message);
-                initData(); 
-                showView('module-user-list');
-            } else {
-                alert("Error: " + data.message);
-            }
+                authModal.classList.remove('active');
+            } else alert("Error: " + data.message);
         }).finally(() => {
-            this.innerText = oldText;
-            this.disabled = false;
+            btnSendAuth.innerText = oldText;
+            btnSendAuth.disabled = false;
         });
     });
 
