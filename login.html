@@ -22,7 +22,11 @@
         .btn-login:hover { background-color: #1abc9c; }
         .btn-login:disabled { background-color: #95a5a6; cursor: not-allowed; }
 
+        .btn-green { background-color: #27ae60; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-green:hover { background-color: #2ecc71; }
+
         .error-msg { color: #e74c3c; font-size: 13px; font-weight: bold; margin-bottom: 15px; display: none; }
+        .success-msg { color: #27ae60; font-size: 13px; font-weight: bold; margin-bottom: 15px; display: none; }
         
         .footer-text { margin-top: 20px; font-size: 12px; color: #999; }
     </style>
@@ -32,21 +36,43 @@
     <div class="login-container">
         <div class="login-logo">🏫</div>
         <div class="login-title">Vanasthali Public School</div>
-        <div class="login-subtitle">ERP System Authentication</div>
+        
+        <div id="errorBox" class="error-msg"></div>
+        <div id="successBox" class="success-msg"></div>
 
-        <div id="errorBox" class="error-msg">Invalid Credentials</div>
+        <div id="loginView">
+            <div class="login-subtitle">ERP System Authentication</div>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>User ID / Email / Employee ID</label>
+                    <input type="text" id="userId" placeholder="Enter your ID" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn-login" id="btnLogin">LOGIN SECURELY</button>
+            </form>
+        </div>
 
-        <form id="loginForm">
-            <div class="input-group">
-                <label>Employee ID or Email</label>
-                <input type="text" id="userId" placeholder="Enter Employee ID (e.g. Super)" required>
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" id="password" placeholder="Enter your password" required>
-            </div>
-            <button type="submit" class="btn-login" id="btnLogin">LOGIN SECURELY</button>
-        </form>
+        <div id="setupView" style="display:none;">
+            <div class="login-subtitle" style="color:#e67e22; font-weight:bold;">Account Setup Required</div>
+            <form id="setupForm">
+                <div class="input-group">
+                    <label>Your User ID</label>
+                    <input type="text" id="setupUserId" readonly style="background:#f9f9f9; font-weight:bold; color:#333;">
+                </div>
+                <div class="input-group">
+                    <label>Create New Password</label>
+                    <input type="password" id="newPassword" placeholder="Enter new password" required>
+                </div>
+                <div class="input-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm new password" required>
+                </div>
+                <button type="submit" class="btn-green" id="btnSetup">SET PASSWORD</button>
+            </form>
+        </div>
 
         <div class="footer-text">Protected by Edunext Secure Login</div>
     </div>
