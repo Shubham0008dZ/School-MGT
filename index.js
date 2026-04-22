@@ -34,16 +34,23 @@ document.addEventListener('DOMContentLoaded', () => {
     let userRights = [];
     try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
 
+    // DYNAMIC USER NAME INJECTION (Dashboard Header)
+    const dashHeader = document.querySelector('.dashboard-header');
+    if(dashHeader) {
+        let nameBadge = document.createElement('div');
+        nameBadge.style.cssText = "color:white; font-size:16px; font-weight:bold; margin-right:auto; margin-left:30px; background:#e67e22; padding:5px 15px; border-radius:4px;";
+        nameBadge.innerHTML = `👤 Welcome, ${activeUser.empName}`;
+        dashHeader.insertBefore(nameBadge, document.getElementById('btnLogout'));
+    }
+
     // 2. ENFORCE RBAC (ROLE BASED ACCESS CONTROL) ON DASHBOARD
     if (!isSA) {
         document.querySelectorAll('.module-card').forEach(card => {
             const reqMod = card.getAttribute('data-req-module');
             if (reqMod) {
                 if (reqMod === "SUPER") {
-                    // Only Super Admins can see this
                     card.style.display = 'none';
                 } else {
-                    // Hide if user doesn't have ANY right starting with the module code
                     const hasAccess = userRights.some(r => r.startsWith(reqMod + "_"));
                     if(!hasAccess) {
                         card.style.display = 'none';
