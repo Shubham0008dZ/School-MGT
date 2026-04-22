@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - School ERP</title>
+    <link rel="stylesheet" href="user.css">
+</head>
+<body>
+
+<div class="top-navbar">
+    <div class="top-left">
+        <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
+            <span class="school-logo" style="font-size: 24px; cursor: pointer;">🏫</span> 
+            <span class="school-name" style="font-weight: bold; cursor: pointer;">Vanasthali Public School</span>
+        </a>
+    </div>
+    <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
+    <div class="top-right"><span>⚏ User Management 🔔</span></div>
+</div>
+
+<div class="erp-wrapper">
+    <div class="sidebar yellow-sidebar">
+        <div class="sidebar-header yellow-header"><h2>📚 EDUNEXT</h2></div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-btn">🏠 Dashboard</a></li>
+            <li><a href="#" class="nav-btn active" data-target="module-user-list">👥 User List</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        
+        <div id="module-user-list" class="app-module active-module">
+            <div class="profile-header">
+                <h2>USER MANAGEMENT (EMPLOYEES) ℹ️</h2>
+            </div>
+            <div class="table-container">
+                <div class="table-toolbar" style="background:#fcf3cf; border-left:4px solid #f1c40f;">
+                    <div class="filters" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                        <div><input type="text" id="searchUser" placeholder="🔍 Search User..." class="search-small"></div>
+                        <div><button class="btn btn-dark" id="btnSyncUsers">🔄 Sync Data</button></div>
+                    </div>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Sr No.</th><th>Employee Id</th><th>Employee Name</th>
+                            <th>Department</th><th>Designation</th><th>Super Admin</th><th>Assign Rights</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr><td colspan="7" style="text-align: center;">Fetching Users...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="module-assign-rights" class="app-module">
+            <div class="profile-header" style="display:flex; justify-content:space-between;">
+                <h2>ASSIGN MODULE RIGHTS: <span id="displayEmpName" style="color:#e74c3c;">-</span></h2>
+                <button class="btn btn-dark" id="btn-back-to-users">← Back</button>
+            </div>
+            
+            <div class="rights-container">
+                <div class="super-admin-box">
+                    <label class="switch-container">
+                        <input type="checkbox" id="isSuperAdmin">
+                        <span class="slider"></span>
+                    </label>
+                    <span style="font-size:18px; font-weight:bold; margin-left:15px; color:#2c3e50;">Is Super Admin</span>
+                    <p style="margin-left: 60px; font-size:12px; color:#7f8c8d;">(Grants full access to all modules and functions. Disables individual module selection below.)</p>
+                </div>
+
+                <div class="modules-tree" id="modulesTree">
+                    
+                    <div class="module-group">
+                        <label class="parent-label"><input type="checkbox" class="mod-parent" value="SIS"> Student Information System (SIS)</label>
+                        <div class="child-group">
+                            <label><input type="checkbox" class="mod-child" data-parent="SIS" value="SIS_View"> View Dashboard</label>
+                            <label><input type="checkbox" class="mod-child" data-parent="SIS" value="SIS_Add"> Add Student</label>
+                            <label><input type="checkbox" class="mod-child" data-parent="SIS" value="SIS_Edit"> Edit Student</label>
+                            <label><input type="checkbox" class="mod-child" data-parent="SIS" value="SIS_Delete"> Delete Student</label>
+                            <label><input type="checkbox" class="mod-child" data-parent="SIS" value="SIS_Setup"> Master Setup Controls</label>
+                        </div>
+                    </div>
+
+                    <div class="module-group">
+                        <label class="parent-label"><input type="checkbox" class="mod-parent" value="FEE"> Fee Management</label>
+                        <div class="child-group">
+                            <label><input type="checkbox" class="mod-child" data-parent="FEE" value="FEE_View"> View Receipts & Ledger</label>
+                            <label><input type="checkbox" class="mod-child" data-parent="FEE" value="FEE_Add"> Generate Receipt</label>
+                            <label><input type="checkbox" class="mod-child" data-parent="FEE" value="FEE_Delete"> Delete Receipt</label>
+                            <label><input type="checkbox" class="mod-child" data-parent="FEE" value="FEE_Setup"> Manage Fee Heads (Setup)</label>
+                        </div>
+                    </div>
+
+                    <div class="module-group">
+                        <label class="parent-label"><input type="checkbox" class="mod-parent" value="ATT"> Student Attendance</label>
+                        <div class="child-group">
+                            <label><input type="checkbox" class="mod-child" data-parent="ATT" value="ATT_View"> View Attendance History</label>
+                            <label><input type="checkbox" class="mod-child" data-parent="ATT" value="ATT_Mark"> Mark Daily Attendance</label>
+                            <label><input type="checkbox" class="mod-child" data-parent="ATT" value="ATT_Edit"> Edit/Delete Attendance</label>
+                        </div>
+                    </div>
+
+                    <div class="module-group">
+                        <label class="parent-label"><input type="checkbox" class="mod-parent" value="HR"> Employee HR Management</label>
+                        <div class="child-group">
+                            <label><input type="checkbox" class="mod-child" data-parent="HR" value="HR_View"> View Employee List</label>
+                            <label><input type="checkbox" class="mod-child" data-parent="HR" value="HR_Add"> Add/Edit Employee</label>
+                            <label><input type="checkbox" class="mod-child" data-parent="HR" value="HR_Inactive"> Manage Inactive Employees</label>
+                            <label><input type="checkbox" class="mod-child" data-parent="HR" value="HR_Setup"> HR Setup Controls</label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div style="text-align:right; margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
+                    <input type="hidden" id="currentEditEmpId">
+                    <button class="btn btn-green" id="btnSaveRights" style="font-size:16px; padding:10px 30px;">💾 Update User Rights</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="user.js"></script>
+</body>
+</html>

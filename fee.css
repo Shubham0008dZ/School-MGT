@@ -1,0 +1,118 @@
+* { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+body, html { height: 100%; background-color: #f4f4f9; }
+
+.top-navbar { background-color: #0d284a; color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; height: 50px; }
+.top-left { display: flex; align-items: center; gap: 15px; font-weight: bold; }
+.top-center { flex: 1; display: flex; justify-content: center; }
+.global-search { width: 50%; padding: 5px 10px; border-radius: 3px; border: none; }
+
+.erp-wrapper { display: flex; height: calc(100vh - 50px); }
+
+.sidebar { width: 250px; display: flex; flex-direction: column; background-color: #f04336; color: white; }
+.red-header { background-color: #d63024; padding: 15px; text-align: center; }
+.red-header h2 { font-size: 18px; margin: 0; }
+.nav-links { list-style: none; padding: 0; margin-top: 10px; }
+.nav-links li a { display: block; color: #fff; text-decoration: none; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; }
+.nav-links li a:hover, .nav-links li a.active { background-color: rgba(0,0,0,0.1); border-left: 5px solid white; font-weight: bold;}
+
+.main-content { flex: 1; overflow-y: auto; padding: 20px; background: white; }
+.app-module { display: none; }
+.app-module.active-module { display: block; animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.profile-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; }
+.profile-header h2 { font-size: 18px; color: #333; margin: 0; text-transform: uppercase;}
+
+.table-toolbar { padding: 10px; margin-bottom: 15px; border: 1px solid #eee; }
+.search-small { padding: 6px; border: 1px solid #ccc; border-radius:3px;}
+
+.btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-size: 13px; font-weight: bold; }
+.btn-dark { background-color: #333; color: white;}
+.btn-green { background-color: #5cb85c; color: white; }
+.btn-green:hover { background-color: #4cae4c; }
+.btn-green-outline { background-color: white; color: #5cb85c; border: 1px solid #5cb85c; }
+.btn-red { background-color: #e74c3c; color: white; border-radius: 50%; width: 30px; height: 30px; display:inline-flex; align-items:center; justify-content:center; border:none; cursor:pointer;}
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th, .data-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+.data-table th { background-color: #f1f1f1; color: #333; font-weight: bold; }
+.data-table tr:nth-child(even) { background-color: #fafafa; }
+
+/* Student Link in Table */
+.student-ledger-link { color: #2980b9; text-decoration: none; font-weight: bold; cursor: pointer; border-bottom: 1px dashed #2980b9;}
+.student-ledger-link:hover { color: #e74c3c; border-bottom-color: #e74c3c;}
+
+.fee-form-wrapper { background: #fff; }
+.fee-top-bar { display: flex; gap: 15px; background: #fdfdfd; padding: 15px; border: 1px solid #ddd; margin-bottom: 15px; align-items: center; }
+.fee-top-bar .input-group { display: flex; flex-direction: column; gap: 5px; }
+.fee-top-bar label { font-size: 12px; font-weight: bold; color: #555; }
+.fee-top-bar input, .fee-top-bar select { padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 13px;}
+
+.fee-main-split { display: flex; gap: 20px; }
+
+.fee-profile-panel { width: 28%; background: #4e7389; color: white; border-radius: 5px; overflow: hidden; display: flex; flex-direction: column;}
+.profile-img-box { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); }
+.profile-img-box img { width: 80px; height: 80px; border-radius: 50%; background: #fff; padding: 2px; }
+.profile-details { padding: 15px; flex: 1; font-size: 13px;}
+.profile-details p { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 5px;}
+.payable-box { background: #2c3e50; padding: 15px; text-align: center; font-size: 18px; font-weight: bold; }
+
+.fee-details-panel { width: 72%; display: flex; flex-direction: column; gap: 20px; }
+
+.fee-heads-table { width: 100%; border-collapse: collapse; font-size: 12px; border: 1px solid #ccc; }
+.fee-heads-table th { background: #ecf0f1; color: #333; padding: 8px 4px; border: 1px solid #ccc; text-align:center;}
+.fee-heads-table td { padding: 8px 4px; border: 1px solid #ccc; text-align:center; vertical-align: middle;}
+.fee-heads-table input[type="number"] { width: 100%; min-width: 60px; padding: 6px; border: 1px solid #ddd; border-radius:3px; box-sizing: border-box; text-align:right;}
+.fee-heads-table input[type="checkbox"] { cursor: pointer; width: 16px; height: 16px;}
+
+.f-row { transition: 0.2s; }
+.f-row.disabled-row { opacity: 0.6; background-color: #fce4e4; }
+.f-row.disabled-row td { text-decoration: line-through; color: #e74c3c; }
+.f-row.disabled-row input[type="number"] { pointer-events: none; background: transparent; text-decoration: line-through; color: #e74c3c; }
+.f-row.disabled-row .f-chk { pointer-events: auto; }
+
+.section-title-red { background: #e74c3c; color: white; padding: 8px 15px; font-weight: bold; font-size: 14px; margin-top: 10px; border-radius: 3px;}
+.total-info-grid { display: flex; gap: 20px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; align-items: center; font-size: 13px; font-weight: bold;}
+.total-info-grid input { width: 120px; padding: 6px; margin-left: 5px; border: 1px solid #ccc; font-weight: bold; text-align: right;}
+
+.payment-table { width: 100%; border-collapse: collapse; font-size: 12px; border: 1px solid #ccc; }
+.payment-table th { background: #ecf0f1; color: #333; padding: 8px; border: 1px solid #ccc; }
+.payment-table td { padding: 8px; border: 1px solid #ccc; }
+.payment-table input, .payment-table select { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius:3px;}
+
+/* MODAL STYLES */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+.modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
+.modal-card { background: #fff; border-radius: 8px; display: flex; flex-direction: column; box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
+.modal-header { padding: 15px 20px; background: #2c3e50; color: white; display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0; }
+.close-modal { font-size: 24px; cursor: pointer; color: #ecf0f1; font-weight: bold;}
+
+#printSection { display: none; }
+
+@media print {
+    * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; print-color-adjust: exact !important; }
+    body * { visibility: hidden; }
+    .top-navbar, .erp-wrapper { display: none !important; }
+    
+    #printSection { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: white; margin:0; padding:0;}
+    #printSection * { visibility: visible; }
+    
+    .print-container { padding: 20px; font-family: Arial, sans-serif; border: 2px solid #000;}
+    .print-header { display: flex; align-items: center; justify-content: center; gap: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px;}
+    .print-logo { font-size: 50px; }
+    .print-school-info { text-align: center; }
+    .print-school-info h2 { margin: 0 0 5px 0; font-size: 24px; color: #000; }
+    .print-school-info p { margin: 2px 0; font-size: 13px; color: #333;}
+    .print-title { text-align: center; font-size: 16px; margin: 10px 0; font-weight: bold;}
+    .print-details-wrapper { display: flex; border: 1px solid #000; margin-bottom: 0; }
+    .print-info-table { width: 50%; border-collapse: collapse; font-size: 13px; }
+    .print-info-table:first-child { border-right: 1px solid #000; }
+    .print-info-table th { border-bottom: 1px solid #000; padding: 5px; font-size: 14px;}
+    .print-info-table td { padding: 4px 8px; vertical-align: top;}
+    
+    .print-particulars-table { width: 100%; border-collapse: collapse; font-size: 13px; border: 1px solid #000; border-top: none;}
+    .print-particulars-table th, .print-particulars-table td { border: 1px solid #000; padding: 6px; }
+    .print-particulars-table th { font-weight: bold; }
+    .print-particulars-table td { text-align: right; }
+    .print-particulars-table td:first-child { text-align: left; }
+}

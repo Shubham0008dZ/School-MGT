@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apps Dashboard - School ERP</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <div class="dashboard-header" style="display:flex; justify-content:space-between; align-items:center; padding: 20px;">
+        <h1 style="margin:0;">APPS DASHBOARD</h1>
+        <button id="btnLogout" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.2);">🚪 Logout</button>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="section-title">
+            <span>📄 Recently Accessed Modules</span>
+            <button class="view-all-btn">View All ⌄</button>
+        </div>
+
+        <div class="modules-grid">
+            <a href="employee.html" class="module-card">
+                <div class="icon-circle orange-bg"><span class="icon-text">E</span></div>
+                <p>Employee Information</p>
+            </a>
+
+            <a href="user.html" class="module-card">
+                <div class="icon-circle yellow-bg"><span class="icon-text">U</span></div>
+                <p>User Management</p>
+            </a>
+
+            <a href="fee.html" class="module-card">
+                <div class="icon-circle red-bg"><span class="icon-text">F</span></div>
+                <p>Fee Management</p>
+            </a>
+
+            <a href="sis.html" class="module-card">
+                <div class="icon-circle blue-bg"><span class="icon-text">S</span></div>
+                <p>Student Information System</p>
+            </a>
+
+            <a href="#" class="module-card">
+                <div class="icon-circle green-bg"><span class="icon-text">L</span></div>
+                <p>Library Management (N)</p>
+            </a>
+
+            <a href="#" class="module-card">
+                <div class="icon-circle yellow-bg"><span class="icon-text">E</span></div>
+                <p>Employee Attendance</p>
+            </a>
+
+            <a href="attendance.html" class="module-card">
+                <div class="icon-circle yellow-bg" style="background: linear-gradient(to bottom, #f1c40f, #f39c12);">
+                    <span class="icon-text" style="font-size: 35px;">SA</span>
+                </div>
+                <p>Student Attendance</p>
+            </a>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>

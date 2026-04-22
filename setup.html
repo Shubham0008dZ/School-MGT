@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Setup Config</title>
+    <link rel="stylesheet" href="setup.css">
+</head>
+<body>
+    <div class="top-navbar">
+        <div class="top-left">
+            <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
+                <span class="school-logo" style="font-size: 24px; cursor: pointer;">🏫</span> 
+                <span class="school-name" style="font-weight: bold; cursor: pointer;">Vanasthali Public School</span>
+            </a>
+        </div>
+        <div class="top-right"><a href="index.html" class="btn-home">🏠 Back to Dashboard</a></div>
+    </div>
+
+    <div class="setup-container">
+        <div class="setup-form-panel">
+            <h3 id="formTitle">Add Single Master Entry</h3>
+            <form id="masterSetupForm">
+                <input type="hidden" id="editSetupCategory" value="">
+                <input type="hidden" id="editSetupIndex" value="-1">
+                <div class="form-group">
+                    <label>Setup Category</label>
+                    <select id="setupCategory" required>
+                        <option value="classes">Class & Section</option>
+                        <option value="genders">Gender</option>
+                        <option value="categories">Caste Category</option>
+                        <option value="bloodGroups">Blood Group</option>
+                        <option value="houses">House</option>
+                        <option value="religions">Religion</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Name / Value</label><input type="text" id="setupValue" required placeholder="e.g., Class X, Male, A+"></div>
+                <div id="classExtraFields">
+                    <div class="form-group"><label>Section</label><input type="text" id="setupSection" placeholder="e.g., A"></div>
+                    <div class="form-group"><label>Monthly Fee (₹)</label><input type="number" id="setupFee" placeholder="e.g., 1500"></div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-save" id="btnSaveEntry">Save Entry</button>
+                    <button type="button" class="btn-cancel" id="btnCancelEdit" style="display: none;">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="setup-list-panel">
+            <h3>Current Configurations</h3>
+            <div class="config-grid" id="configDisplay"></div>
+        </div>
+    </div>
+
+    <div id="setupModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalTitle">Manage Category</h3>
+                <span class="close-modal" id="closeModalBtn">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBodyContent"></div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="btnCancelModal" style="display:inline-block;">Cancel</button>
+                <button class="btn-save" id="btnSaveModal">Update All Changes</button> 
+            </div>
+        </div>
+    </div>
+    <script src="setup.js"></script>
+</body>
+</html>

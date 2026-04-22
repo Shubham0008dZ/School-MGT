@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management - School ERP</title>
+    <link rel="stylesheet" href="employee.css">
+</head>
+<body>
+
+<div class="top-navbar">
+    <div class="top-left">
+        <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
+            <span class="school-logo" style="font-size: 24px; cursor: pointer;">🏫</span> 
+            <span class="school-name" style="font-weight: bold; cursor: pointer;">Vanasthali Public School</span>
+        </a>
+    </div>
+    <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
+    <div class="top-right" style="display:flex; align-items:center; gap:15px;">
+        <span>⚏ HR Module 🔔</span>
+        <button id="btnLogout" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:3px; cursor:pointer; font-weight:bold;">🚪 Logout</button>
+    </div>
+</div>
+
+<div class="erp-wrapper">
+    <div class="sidebar red-sidebar">
+        <div class="sidebar-header red-header"><h2>📚 EDUNEXT</h2></div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-btn">🏠 Dashboard</a></li>
+            <li><a href="#" class="nav-btn active" data-target="module-employees-list">👥 Employees</a></li>
+            <li><a href="#" class="nav-btn" data-target="module-manage-employee">⚙️ Manage Employee</a></li>
+            <li><a href="#" class="nav-btn" data-target="module-employment-history">⏳ Employment History</a></li>
+            <li><a href="#" class="nav-btn" data-target="module-emp-setup">🔧 Employee Setup</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        
+        <div id="module-employees-list" class="app-module active-module">
+            <div class="profile-header">
+                <h2>EMPLOYEES ℹ️</h2>
+            </div>
+            <div class="table-container">
+                <div class="table-toolbar" style="background:#e8f4f8; border-left:4px solid #3498db;">
+                    <div class="filters" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                        <div>
+                            <button class="btn btn-dark">▼ Filters</button>
+                            <input type="text" id="searchEmp" placeholder="🔍 Search Employee..." class="search-small">
+                        </div>
+                        <div>
+                            <button class="btn btn-green" id="btn-open-add-emp">⊕ Add Employee</button>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Sr No.</th><th>Image</th><th>Employee Id</th><th>Salutation</th>
+                            <th>Employee Name</th><th>Department</th><th>Designation</th>
+                            <th>Mobile No.</th><th>Biometric Code</th><th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="empTableBody">
+                        <tr><td colspan="10" style="text-align: center;">Fetching Employees...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="module-add-employee" class="app-module">
+            <div class="profile-header" style="display:flex; justify-content:space-between;">
+                <h2>ADD/EDIT EMPLOYEE ℹ️</h2>
+                <button class="btn btn-dark" id="btn-back-to-emps">← Back</button>
+            </div>
+            
+            <div class="form-container">
+                <div class="form-tabs">
+                    <button class="tab active" data-target="tab-basic">Basic Information</button>
+                    <button class="tab" data-target="tab-additional">Additional Information</button>
+                    <button class="tab" data-target="tab-qual">Qualification Information</button>
+                    <button class="tab" data-target="tab-exp">Work Experience Information</button>
+                </div>
+
+                <form id="employeeForm" class="form-body">
+                    <input type="hidden" id="editEmpMode" value="false">
+
+                    <div id="tab-basic" class="form-tab-content active">
+                        <h4 class="section-title">Personal Information</h4>
+                        <div class="form-row grid-row">
+                            <div class="input-group"><label>Salutation</label><select id="empSalutation"><option>Mr.</option><option>Ms.</option><option>Mrs.</option><option>Dr.</option></select></div>
+                            <div class="input-group"><label>Employee Id *</label><input type="text" id="empId" required placeholder="e.g. VPS/001"></div>
+                            <div class="input-group"><label>Name *</label><input type="text" id="empName" required></div>
+                            <div class="input-group"><label>Primary Mobile No. *</label><input type="tel" id="empMobile" required></div>
+                            
+                            <div class="input-group"><label>Place of Birth</label><input type="text" id="empPOB"></div>
+                            <div class="input-group"><label>Nationality</label><input type="text" id="empNat" value="Indian"></div>
+                            
+                            <div class="input-group"><label>Staff Type *</label><select id="empStaffType" required></select></div>
+                            <div class="input-group"><label>Gender</label><select id="empGender"></select></div>
+                            <div class="input-group"><label>Blood Group</label><select id="empBlood"></select></div>
+                            <div class="input-group"><label>Department *</label><select id="empDept" required></select></div>
+                            <div class="input-group"><label>Designation *</label><select id="empDesig" required></select></div>
+                            <div class="input-group"><label>Marital Status</label><select id="empMarital"></select></div>
+                            <div class="input-group"><label>Religion</label><select id="empRel"></select></div>
+                            <div class="input-group"><label>User Type</label><select id="empUserType"></select></div>
+                            <div class="input-group"><label>Wing</label><select id="empWing"></select></div>
+                            <div class="input-group"><label>Reporting Authority</label><select id="empRepAuth"></select></div>
+
+                            <div class="input-group"><label>Joining Date *</label><input type="date" id="empJoinDate" required></div>
+                            <div class="input-group"><label>Date of Birth</label><input type="date" id="empDob"></div>
+                            <div class="input-group"><label>Personal Email Id</label><input type="email" id="empEmail"></div>
+                            <div class="input-group"><label>Official Email Id</label><input type="email" id="empOffEmail"></div>
+                            <div class="input-group"><label>Biometric Code</label><input type="text" id="empBio"></div>
+                        </div>
+                    </div>
+
+                    <div id="tab-additional" class="form-tab-content">
+                        <h4 class="section-title">Additional Information</h4>
+                        <div class="form-row grid-row">
+                            <div class="input-group"><label>PAN No</label><input type="text" id="empPan"></div>
+                            <div class="input-group"><label>Aadhaar No.</label><input type="text" id="empAadhaar"></div>
+                            <div class="input-group"><label>Marriage Date</label><input type="date" id="empMarDate"></div>
+                        </div>
+
+                        <h4 class="section-title">Bank Account Information</h4>
+                        <div class="form-row grid-row">
+                            <div class="input-group"><label>Employee Bank</label><input type="text" id="empBank"></div>
+                            <div class="input-group"><label>Bank Branch</label><input type="text" id="empBranch"></div>
+                            <div class="input-group"><label>Account No.</label><input type="text" id="empAccNo"></div>
+                            <div class="input-group"><label>IFSC Code</label><input type="text" id="empIfsc"></div>
+                            <div class="input-group"><label>PF No.</label><input type="text" id="empPf"></div>
+                            <div class="input-group"><label>ESI No.</label><input type="text" id="empEsi"></div>
+                            <div class="input-group"><label>Account Type</label><select id="empAccType"></select></div>
+                        </div>
+                    </div>
+
+                    <div id="tab-qual" class="form-tab-content">
+                        <h4 class="section-title">Qualification Information</h4>
+                        <div style="overflow-x:auto; background:white; padding:15px; border-radius:5px;">
+                            <table class="dynamic-table" id="qualTable">
+                                <thead>
+                                    <tr>
+                                        <th>Sr. No.</th><th>Course Type</th><th>Qualification Name</th>
+                                        <th>Institute Name</th><th>University/Board</th><th>Duration in Months</th>
+                                        <th>Passing Year</th><th>Percentage</th><th>Subject</th>
+                                        <th>Reference No:</th><th>Unverified</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="qualTableBody"></tbody>
+                            </table>
+                            <div style="display:flex; justify-content:space-between; margin-top:15px;">
+                                <button type="button" class="btn btn-green" id="btnDelQualRow">🗑️ Delete Row</button>
+                                <button type="button" class="btn btn-green" id="btnAddQualRow">⊕ Add Row</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-exp" class="form-tab-content">
+                        <h4 class="section-title">Work Experience Information</h4>
+                        <div style="overflow-x:auto; background:white; padding:15px; border-radius:5px;">
+                            <table class="dynamic-table" id="expTable">
+                                <thead>
+                                    <tr>
+                                        <th>Sr. No.</th><th>Organization Name</th><th>Organization Address</th>
+                                        <th>From Date</th><th>To Date</th><th>Department</th>
+                                        <th>Designation</th><th>Responsibilities</th><th>Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expTableBody"></tbody>
+                            </table>
+                            <div style="text-align:right; margin-top:15px;">
+                                <button type="button" class="btn btn-green" id="btnAddExpRow">⊕ Add Work Experience Row</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="submit-section">
+                        <button type="submit" class="submit-btn" id="btnSaveEmp">💾 Save Employee</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="module-manage-employee" class="app-module">
+            <div class="profile-header">
+                <h2>IN ACTIVE EMPLOYEE INFORMATION ℹ️</h2>
+            </div>
+            
+            <div style="background:white; padding:30px; border:1px solid #ccc; border-radius:5px; max-width:800px; margin:auto;">
+                <div class="form-row grid-row" style="grid-template-columns: 1fr 1fr;">
+                    <div class="input-group" style="margin-bottom:20px;">
+                        <label style="color:#333; font-weight:bold;">Employee *</label>
+                        <select id="inactiveEmpSelect" required style="border:1px solid #aaa; color:#333;">
+                            <option value="">--Select Employee--</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="margin-bottom:20px;">
+                        <label style="color:#333; font-weight:bold;">Relieving Date *</label>
+                        <input type="date" id="inactiveDate" required style="border:1px solid #aaa; color:#333;">
+                    </div>
+                    <div class="input-group" style="margin-bottom:20px; grid-column: span 2;">
+                        <label style="color:#333; font-weight:bold;">Reason of Leaving *</label>
+                        <input type="text" id="inactiveReason" required placeholder="Enter valid reason..." style="border:1px solid #aaa; color:#333; width:100%;">
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <button class="btn btn-green" id="btnMarkInactive" style="padding:10px 30px;">💾 Save</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="module-emp-setup" class="app-module">
+            <div class="profile-header"><h2>EMPLOYEE SETUP ℹ️</h2></div>
+            <div style="display:flex; gap:20px;">
+                <div style="width:35%; background:white; padding:20px; border:1px solid #ccc; border-radius:5px; align-self:flex-start;">
+                    <h3>Add Setup Details</h3>
+                    <form id="empSetupForm" style="margin-top:15px;">
+                        <div style="margin-bottom:15px;">
+                            <label style="font-weight:bold; display:block; margin-bottom:5px;">Category *</label>
+                            <select id="esCategory" required style="width:100%; padding:8px;">
+                                <option value="departments">Department</option>
+                                <option value="designations">Designation</option>
+                                <option value="staffTypes">Staff Type</option>
+                                <option value="bloodGroups">Blood Group</option>
+                                <option value="maritalStatus">Marital Status</option>
+                                <option value="religions">Religion</option>
+                                <option value="genders">Gender</option>
+                                <option value="userTypes">User Type</option>
+                                <option value="wings">Wing</option>
+                                <option value="reportingAuths">Reporting Authority</option>
+                                <option value="accountTypes">Account Type</option>
+                                <option value="courseTypes">Course Type</option>
+                                <option value="qualNames">Qualification Name</option>
+                            </select>
+                        </div>
+                        
+                        <input type="hidden" id="esEditIndex" value="-1">
+                        <input type="hidden" id="esEditCategory" value="">
+
+                        <div style="margin-bottom:15px;">
+                            <label style="font-weight:bold; display:block; margin-bottom:5px;">Value *</label>
+                            <input type="text" id="esValue" required style="width:100%; padding:8px;">
+                        </div>
+                        
+                        <div style="display:flex; gap:10px;">
+                            <button type="submit" class="btn btn-green" style="flex:1;" id="btnSaveES">Add Entry</button>
+                            <button type="button" class="btn btn-dark" style="flex:1; display:none;" id="btnCancelESEdit">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+                <div style="width:65%; background:white; padding:20px; border:1px solid #ccc; border-radius:5px;">
+                    <h3>Configured Setup</h3>
+                    <div id="esDisplay" style="margin-top:15px; display:flex; flex-wrap:wrap; gap:15px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="module-employment-history" class="app-module">
+            <div class="profile-header">
+                <h2>EMPLOYMENT HISTORY (INACTIVE) ℹ️</h2>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Sr No.</th><th>Employee Id</th><th>Employee Name</th>
+                            <th>Department</th><th>Designation</th><th>Relieving Date</th>
+                            <th>Reason of Leaving</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inactiveEmpTableBody">
+                        <tr><td colspan="7" style="text-align: center;">Fetching History...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="employee.js"></script>
+</body>
+</html>

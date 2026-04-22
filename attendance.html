@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance</title>
+    <link rel="stylesheet" href="attendance.css">
+</head>
+<body>
+
+<div class="top-navbar">
+    <div class="top-left">
+        <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
+            <span class="school-logo" style="font-size: 24px; cursor: pointer;">🏫</span> 
+            <span class="school-name" style="font-weight: bold; cursor: pointer;">Shubham Public School</span>
+        </a>
+    </div>
+    <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
+    <div class="top-right"><span>⚏ Attendance Module 🔔</span></div>
+</div>
+
+<div class="erp-wrapper">
+    <div class="sidebar red-sidebar">
+        <div class="sidebar-header red-header"><h2>📚 Shubham</h2></div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-btn">🏠 Dashboard</a></li>
+            <li><a href="#" class="nav-btn">📊 Attendance Dashboard</a></li>
+            <li><a href="#" class="nav-btn active" id="sideMarkAtt">📅 Mark Attendance</a></li>
+            <li><a href="#" class="nav-btn">📝 Attendance Register</a></li>
+            <li><a href="#" class="nav-btn">✅ Approve Leave</a></li>
+            <li><a href="#" class="nav-btn">✉️ Send SMS/Email</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        
+        <div id="view-history" class="app-module active-module">
+            <div class="profile-header">
+                <h2>MARK ATTENDANCE ℹ️</h2>
+            </div>
+            
+            <div class="table-container">
+                <div class="table-toolbar" style="background:#e8f4f8; border-left:4px solid #3498db;">
+                    <div class="filters" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                        <div>
+                            <strong>Filters: </strong> <span id="currentDateFilter"></span>
+                            <button class="btn btn-dark" style="margin-left:10px;">▼ Filters</button>
+                        </div>
+                        <div>
+                            <button class="btn btn-green" id="btn-open-mark">⊕ Add Daily Attendance</button>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Sr No.</th><th>Class-Section</th><th>Date</th><th>Status</th><th>Creation date</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr><td colspan="6" style="text-align: center;">Fetching History...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="view-pre-mark" class="app-module">
+            <div class="profile-header">
+                <h2>DAILY ATTENDANCE INFORMATION ℹ️</h2>
+            </div>
+            
+            <div class="pre-mark-container">
+                <div class="pre-mark-row">
+                    <label>Academic Year</label>
+                    <select id="preAttYear"><option>2026-2027</option></select>
+                </div>
+                <div class="pre-mark-row">
+                    <label>Class-Section</label>
+                    <select id="preAttClass"><option value="">--Select Class-Section--</option></select>
+                </div>
+                <div class="pre-mark-row">
+                    <label>Default Status</label>
+                    <select id="preAttStatus">
+                        <option value="P">Present</option>
+                        <option value="AB">Absent</option>
+                        <option value="L">Leave</option>
+                    </select>
+                </div>
+                <div class="pre-mark-row">
+                    <label>Date</label>
+                    <input type="date" id="preAttDate">
+                </div>
+                
+                <div style="clear: both; overflow: hidden; padding-top: 20px;">
+                    <button class="btn-proceed" id="btn-proceed-mark">💾 Proceed</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-mark" class="app-module">
+            <div class="profile-header">
+                <h2>ENTER ATTENDANCE ℹ️</h2>
+            </div>
+            
+            <div class="table-container">
+                <div class="table-toolbar" style="background:#e8f4f8; border-left:4px solid #3498db;">
+                    <div class="filters" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <strong style="font-size:16px;">Class: <span id="displayClass" style="color:#e74c3c;">-</span> | Date: <span id="displayDate" style="color:#e74c3c;">-</span></strong>
+                            <input type="date" id="attDateSelect" style="display:none;">
+                            <select id="attClassSelect" style="display:none;"></select>
+                        </div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn btn-green-outline">Export To Excel</button>
+                            <button class="btn btn-green" id="btnSaveAttendance">⊕ Save</button>
+                            <button class="btn btn-green" id="btnSaveAndNew">⊕ Save & New</button>
+                            <button class="btn btn-green" id="btnSaveAndClose">⊕ Save & Close</button>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="data-table att-entry-table">
+                    <thead>
+                        <tr><th>Sr No.</th><th>Reg No.</th><th>Student Name</th><th style="width: 400px;">Status</th><th>Remarks</th></tr>
+                    </thead>
+                    <tbody id="studentAttList">
+                        <tr><td colspan="5" style="text-align: center;">Loading students...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="emailOptionsModal" class="modal-overlay">
+    <div class="modal-card" style="width: 500px;">
+        <div class="modal-header">
+            <h3 style="color:white; margin:0;">Save & Send Notifications</h3>
+            <span class="close-modal" id="closeEmailModalBtn">&times;</span>
+        </div>
+        <div class="modal-body" style="padding: 25px;">
+            <h4 style="color:#333; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom:5px;">Email Communication Options</h4>
+            <div style="display:flex; flex-direction: column; gap: 15px;">
+                <label style="cursor:pointer; font-size:14px;"><input type="radio" name="modalMailOpt" value="absent"> Send mail to <b>Absent</b> students</label>
+                <label style="cursor:pointer; font-size:14px;"><input type="radio" name="modalMailOpt" value="present"> Send mail to <b>Present</b> students</label>
+                <label style="cursor:pointer; font-size:14px;"><input type="radio" name="modalMailOpt" value="both"> <b>Both</b> (Present & Absent)</label>
+                <label style="cursor:pointer; font-size:14px;"><input type="radio" name="modalMailOpt" value="none" checked> <b>None</b> (Save without Email)</label>
+            </div>
+            <input type="hidden" id="pendingSaveAction" value="">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-dark" id="btnCancelEmailModal">Cancel</button>
+            <button class="btn btn-green" id="btnConfirmSave">Confirm & Save</button>
+        </div>
+    </div>
+</div>
+
+<script src="attendance.js"></script>
+</body>
+</html>

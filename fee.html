@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Management - School ERP</title>
+    <link rel="stylesheet" href="fee.css">
+</head>
+<body>
+
+<div class="top-navbar">
+    <div class="top-left">
+        <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
+            <span class="school-logo" style="font-size: 24px; cursor: pointer;">🏫</span> 
+            <span class="school-name" style="font-weight: bold; cursor: pointer;">Shubham Public School</span>
+        </a>
+    </div>
+    <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
+    <div class="top-right"><span>⚏ Fee Module 🔔</span></div>
+</div>
+
+<div class="erp-wrapper">
+    <div class="sidebar red-sidebar">
+        <div class="sidebar-header red-header"><h2>📚 Shubham</h2></div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-btn">🏠 Dashboard</a></li>
+            <li><a href="#" class="nav-btn active" data-target="module-receipts-list">📄 Student Fee Receipts</a></li>
+            <li><a href="#" class="nav-btn" data-target="module-add-receipt" id="sideAddReceipt">➕ Add Receipt</a></li>
+            <li><a href="#" class="nav-btn" data-target="module-fee-setup">⚙️ Fee Setup</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div id="module-receipts-list" class="app-module active-module">
+            <div class="profile-header">
+                <h2>STUDENT FEE RECEIPTS ℹ️</h2>
+            </div>
+            <div class="table-container">
+                <div class="table-toolbar" style="background:#e8f4f8; border-left:4px solid #e74c3c;">
+                    <div class="filters" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                        <div>
+                            <strong>Filters: </strong> Academic Year : 2026-2027
+                            <button class="btn btn-dark" style="margin-left:10px;">▼ Filters</button>
+                            <input type="text" id="searchReceipt" placeholder="🔍 Search..." class="search-small">
+                        </div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn btn-green" id="btn-open-add-receipt">⊕ Add Receipt</button>
+                            <button class="btn btn-green-outline">Export to Excel</button>
+                            <button class="btn btn-dark" id="btnSyncFees">🔄 Sync Data</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Sr No.</th><th>Receipt No.</th><th>Admission No.</th><th>Student Name</th>
+                            <th>Class-Section</th><th>Payment Mode</th><th>Amount</th><th>Fee Deposit Date</th>
+                            <th>Created On</th><th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="receiptsTableBody"><tr><td colspan="10" style="text-align: center;">Fetching Receipts...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="module-add-receipt" class="app-module">
+            <div class="profile-header"><h2 style="font-size:24px; color:#2c3e50;">FEE RECEIPTS</h2></div>
+            <div class="fee-form-wrapper">
+                <div class="fee-top-bar">
+                    <div class="input-group" style="flex:2;"><label>Student*</label><select id="feeStudentSelect" style="width:100%; padding:8px; font-weight:bold;"><option value="">-- Search and Select Student --</option></select></div>
+                    <div class="input-group" style="flex:1;"><label>Receipt No.</label><input type="text" id="feeReceiptNo" readonly style="background:#f1f1f1;"></div>
+                    <div class="input-group" style="flex:1;"><label>Fee Date*</label><input type="date" id="feeDate"></div>
+                    <div class="input-group" style="flex:1;">
+                        <label>Fee Installment*</label>
+                        <select id="feeMonthSelect">
+                            <option value="Apr, 26">Apr, 26</option><option value="May, 26">May, 26</option><option value="Jun, 26">Jun, 26</option>
+                            <option value="Jul, 26">Jul, 26</option><option value="Aug, 26">Aug, 26</option><option value="Sep, 26">Sep, 26</option>
+                            <option value="Oct, 26">Oct, 26</option><option value="Nov, 26">Nov, 26</option><option value="Dec, 26">Dec, 26</option>
+                            <option value="Jan, 27">Jan, 27</option><option value="Feb, 27">Feb, 27</option><option value="Mar, 27">Mar, 27</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="fee-main-split">
+                    <div class="fee-profile-panel">
+                        <div class="profile-img-box"><img src="https://via.placeholder.com/100" alt="Student"><h4 id="profName" style="color:white; margin-top:10px;">STUDENT NAME</h4></div>
+                        <div class="profile-details">
+                            <p><span>Admission No.</span> <span id="profReg">-</span></p>
+                            <p><span>Class - Section</span> <span id="profClass">-</span></p>
+                            <p><span>Father Name</span> <span id="profFather">-</span></p>
+                            <p><span>Mother Name</span> <span id="profMother">-</span></p>
+                        </div>
+                        <div class="payable-box">Payable Amount: ₹<span id="profPayable">0.00</span></div>
+                    </div>
+
+                    <div class="fee-details-panel">
+                        <table class="fee-heads-table">
+                            <thead>
+                                <tr><th>Delete</th><th>Fee Head</th><th>Fee Period</th><th>Actual</th><th>Concession</th><th>Waiver</th><th>Net Payable</th><th>Paid</th><th>Balance</th></tr>
+                            </thead>
+                            <tbody id="feeHeadsTbody"><tr><td colspan="9" style="text-align:center;">Select a student to view fee heads</td></tr></tbody>
+                            <tfoot>
+                                <tr style="font-weight:bold; background:#ecf0f1;">
+                                    <td colspan="3">Total</td>
+                                    <td id="totActual">0.00</td><td id="totConcession">0.00</td><td id="totWaiver">0.00</td>
+                                    <td id="totNet">0.00</td><td id="totPaid">0.00</td><td id="totBal">0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <div class="section-title-red">Total Amount Information</div>
+                        <div class="total-info-grid">
+                            <p>Payable Amount: <input type="text" id="finalPayable" readonly value="0.00"></p>
+                            <p>Advance in Current Receipt: <input type="text" id="finalAdvance" value="0.00"></p>
+                            <p>Total Paid Amount: <input type="text" id="finalTotalPaid" readonly value="0.00"></p>
+                        </div>
+
+                        <div class="section-title-red">Payment Information</div>
+                        <table class="payment-table">
+                            <thead><tr><th>Payment Type</th><th>Amount</th><th>Cheque/DD/UTR</th><th>Date of Issue</th><th>Bank</th><th>Remarks</th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td><select id="payType"><option value="Cash">Cash</option><option value="Cheque">Cheque</option><option value="UPI">UPI</option><option value="NEFT/IMPS">NEFT/IMPS</option></select></td>
+                                    <td><input type="text" id="payAmount" readonly style="width:100%; font-weight:bold; background:#eee;"></td>
+                                    <td><input type="text" id="payRef" placeholder="Ref No."></td>
+                                    <td><input type="date" id="payDate"></td>
+                                    <td><input type="text" id="payBank" placeholder="Bank Name"></td>
+                                    <td><input type="text" id="payRemarks" placeholder="Remarks"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="text-align:right; margin-top:20px;">
+                            <button class="btn btn-green" id="btnSaveReceiptClose">💾 Save and Close</button>
+                            <button class="btn btn-green" id="btnSaveReceiptNew">💾 Save and New</button>
+                            <button class="btn btn-green" id="btnSaveReceiptPrint">🖨️ Save and Print</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="module-fee-setup" class="app-module">
+            <div class="profile-header"><h2>FEE SETUP (HEADS) ℹ️</h2></div>
+            <div style="display:flex; gap:20px;">
+                <div style="width:35%; background:white; padding:20px; border:1px solid #ccc; border-radius:5px;">
+                    <h3>Create New Fee Head</h3>
+                    <form id="feeSetupForm" style="margin-top:15px;">
+                        <div style="margin-bottom:15px;"><label style="font-weight:bold;">Fee Head Name *</label><input type="text" id="headName" required style="width:100%; padding:8px;"></div>
+                        <div style="margin-bottom:15px;">
+                            <label style="font-weight:bold;">Frequency *</label>
+                            <select id="headFreq" required style="width:100%; padding:8px;">
+                                <option value="One Time">One Time</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="Quarterly">Quarterly</option>
+                                <option value="Annually">Annually</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom:15px;"><label style="font-weight:bold;">Default Amount (₹)</label><input type="number" id="headAmount" value="0" style="width:100%; padding:8px;"></div>
+                        <button type="submit" class="btn btn-green" style="width:100%;" id="btnSubmitFeeHead">Add Fee Head</button>
+                    </form>
+                </div>
+                <div style="width:65%; background:white; padding:20px; border:1px solid #ccc; border-radius:5px;">
+                    <h3>Configured Fee Heads</h3>
+                    <table class="data-table" style="margin-top:15px;">
+                        <thead><tr><th>Sr No.</th><th>Fee Head Name</th><th>Frequency</th><th>Default Amount</th><th>Action</th></tr></thead>
+                        <tbody id="feeHeadsListBody"><tr><td colspan="5" style="text-align:center;">Fetching...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ledgerModal" class="modal-overlay">
+    <div class="modal-card" style="width:900px; max-height:95vh;">
+        <div class="modal-header">
+            <h3 style="margin:0; color:white;">Student Fee Ledger (2026-27)</h3>
+            <span class="close-modal" id="closeLedgerBtn">&times;</span>
+        </div>
+        <div class="modal-body" style="padding:20px; overflow-y:auto; background:#f9f9f9;">
+            <div style="display:flex; justify-content:space-between; background:white; padding:15px; border-radius:5px; border-left:4px solid #3498db; box-shadow:0 2px 4px rgba(0,0,0,0.1); margin-bottom:20px;">
+                <div><strong style="color:#555;">Student Name:</strong> <span id="l-name" style="font-size:16px; font-weight:bold;">-</span></div>
+                <div><strong style="color:#555;">Reg No:</strong> <span id="l-reg">-</span></div>
+                <div><strong style="color:#555;">Class:</strong> <span id="l-class">-</span></div>
+                <div><strong style="color:#555;">Father Name:</strong> <span id="l-father">-</span></div>
+            </div>
+            
+            <div style="display:flex; gap:15px; margin-bottom:20px;">
+                <div style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border-bottom:4px solid #e67e22; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Yearly Total Dues</div>
+                    <div id="l-tot-due" style="font-size:24px; font-weight:bold; color:#e67e22;">₹0.00</div>
+                </div>
+                <div style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border-bottom:4px solid #27ae60; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Total Amount Paid</div>
+                    <div id="l-tot-paid" style="font-size:24px; font-weight:bold; color:#27ae60;">₹0.00</div>
+                </div>
+                <div style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border-bottom:4px solid #e74c3c; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Current Balance</div>
+                    <div id="l-tot-bal" style="font-size:24px; font-weight:bold; color:#e74c3c;">₹0.00</div>
+                </div>
+            </div>
+
+            <table class="data-table" style="background:white;">
+                <thead style="background:#2c3e50; color:white;">
+                    <tr><th>Month / Fee Head</th><th>Applicable Amount</th><th>Total Paid</th><th>Balance Pending</th></tr>
+                </thead>
+                <tbody id="ledgerTableBody"></tbody>
+            </table>
+
+            <h4 style="margin-top:25px; margin-bottom:10px; color:#2c3e50; border-bottom:2px solid #ddd; padding-bottom:5px;">Payment History Log</h4>
+            <table class="data-table" style="background:white; font-size:12px;">
+                <thead style="background:#ecf0f1;"><tr><th>Date</th><th>Receipt No</th><th>Mode</th><th>Amount Paid</th></tr></thead>
+                <tbody id="ledgerHistoryBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="printSection">
+    <div class="print-container">
+        <div class="print-header">
+            <div class="print-logo">🏫</div>
+            <div class="print-school-info">
+                <h2>Shubham PUBLIC SCHOOL</h2>
+                <p>Sector-3, Vasundhara, Ghaziabad, Uttar Pradesh</p>
+                <p>0120-4111062, 4111061</p>
+                <p>vpsvasundhara@gmail.com, www.Shubhamschool.in</p>
+            </div>
+        </div>
+        <h3 class="print-title"><u>Fee Receipt</u></h3>
+
+        <div class="print-details-wrapper">
+            <table class="print-info-table">
+                <tr><th colspan="2" style="background:#e4e4e4;">Student Details</th></tr>
+                <tr><td width="30%"><b>Admission No.</b></td><td>: <span id="p-adm">-</span></td></tr>
+                <tr><td><b>Student Name</b></td><td>: <span id="p-name">-</span></td></tr>
+                <tr><td><b>Parent's Name</b></td><td>: <span id="p-father">-</span></td></tr>
+                <tr><td><b>Class - Section</b></td><td>: <span id="p-class">-</span></td></tr>
+            </table>
+            <table class="print-info-table">
+                <tr><th colspan="2" style="background:#e4e4e4;">Receipt Details</th></tr>
+                <tr><td width="30%"><b>Receipt No.</b></td><td>: <span id="p-receipt">-</span></td></tr>
+                <tr><td><b>Receipt Date</b></td><td>: <span id="p-date">-</span></td></tr>
+                <tr><td><b>Billing Period</b></td><td>: <span id="p-period">-</span></td></tr>
+                <tr><td><b>Session</b></td><td>: 2026-2027</td></tr>
+            </table>
+        </div>
+
+        <table class="print-particulars-table">
+            <thead>
+                <tr><th colspan="6" style="background:#e4e4e4; text-align:center;">FEES PARTICULARS</th></tr>
+                <tr><th>Particulars</th><th>Fees</th><th>Adjustment</th><th>Payable</th><th>Paid Amount</th><th>Balance</th></tr>
+            </thead>
+            <tbody id="print-particulars-body"></tbody>
+            <tfoot>
+                <tr style="font-weight:bold;">
+                    <td style="text-align:right;">Total Amount</td>
+                    <td id="p-t-fees">0</td><td id="p-t-adj">0</td><td id="p-t-pay">0</td><td id="p-t-paid">0</td><td id="p-t-bal">0</td>
+                </tr>
+                <tr>
+                    <td style="text-align:right; font-weight:bold;">Paid Amount</td>
+                    <td colspan="5" style="text-align:right;">Rs. <span id="p-words" style="font-weight:bold;">-</span></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <table class="print-particulars-table" style="margin-top:0;">
+            <thead>
+                <tr><th colspan="5" style="background:#e4e4e4; text-align:center;">PAYMENT DETAILS</th></tr>
+                <tr><th>Payment Mode</th><th>Bank Name</th><th>Date</th><th>Details</th><th>Amount</th></tr>
+            </thead>
+            <tbody>
+                <tr><td id="p-pmode">-</td><td id="p-pbank">-</td><td id="p-pdate">-</td><td id="p-pdet">-</td><td id="p-pamt">-</td></tr>
+                <tr>
+                    <td colspan="5" style="padding:30px 10px 10px 10px; border-bottom:none;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                            <div>*Cheque/DD is subject to realization<br>Note:</div>
+                            <div style="text-align:right;"><b>For Shubham PUBLIC SCHOOL</b><br><br><br><b>AUTH.SIGNATORY</b></div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="fee.js"></script>
+</body>
+</html>
