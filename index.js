@@ -14,7 +14,10 @@ function customConfirm(message, onConfirm) {
     `;
     document.body.appendChild(overlay);
 
-    document.getElementById('cc-cancel').addEventListener('click', () => overlay.remove());
+    document.getElementById('cc-cancel').addEventListener('click', () => {
+        overlay.remove();
+    });
+    
     document.getElementById('cc-ok').addEventListener('click', () => {
         overlay.remove();
         onConfirm();
@@ -22,35 +25,64 @@ function customConfirm(message, onConfirm) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ==========================================
+    // 0. SAFEGUARD SNIPER (KILL ORPHANED MODULES)
+    // ==========================================
+    // Even if browser cache holds the old HTML, this JS will forcefully 
+    // remove Library Management and Employee Attendance from the DOM.
+    document.querySelectorAll('.module-card').forEach(card => {
+        let cardText = card.innerText || "";
+        if (cardText.includes("Library") || cardText.includes("Employee Attendance")) {
+            card.remove(); // Nuke it completely from existence!
+        }
+    });
+
+    // ==========================================
     // 1. SECURITY CHECK: Verify Session
+    // ==========================================
     const activeUserStr = localStorage.getItem('erp_active_user');
+    
     if (!activeUserStr) {
+        // If not logged in, force redirect to login page immediately
         window.location.href = 'login.html';
-        return;
+        return; 
     }
 
     const activeUser = JSON.parse(activeUserStr);
     const isSA = activeUser.Is_SuperAdmin === "Yes";
     let userRights = [];
-    try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
+    
+    try { 
+        userRights = JSON.parse(activeUser.Rights_JSON || "[]"); 
+    } catch(e) {
+        console.error("Error parsing user rights:", e);
+    }
 
-    // DYNAMIC USER NAME INJECTION (Dashboard Header)
+    // ==========================================
+    // 2. DYNAMIC USER NAME INJECTION
+    // ==========================================
     const dashHeader = document.querySelector('.dashboard-header');
     if(dashHeader) {
         let nameBadge = document.createElement('div');
         nameBadge.style.cssText = "color:white; font-size:16px; font-weight:bold; margin-right:auto; margin-left:30px; background:#e67e22; padding:5px 15px; border-radius:4px;";
         nameBadge.innerHTML = `👤 Welcome, ${activeUser.empName}`;
+        // Insert it right before the logout button if possible, else append
         dashHeader.insertBefore(nameBadge, document.getElementById('btnLogout'));
     }
 
-    // 2. ENFORCE RBAC (ROLE BASED ACCESS CONTROL) ON DASHBOARD
+    // ==========================================
+    // 3. ENFORCE RBAC ON DASHBOARD MODULE CARDS
+    // ==========================================
     if (!isSA) {
         document.querySelectorAll('.module-card').forEach(card => {
             const reqMod = card.getAttribute('data-req-module');
+            
             if (reqMod) {
                 if (reqMod === "SUPER") {
+                    // Only Super Admins can see this module (User Management)
                     card.style.display = 'none';
                 } else {
+                    // Hide if user doesn't have ANY right starting with the module code
                     const hasAccess = userRights.some(r => r.startsWith(reqMod + "_"));
                     if(!hasAccess) {
                         card.style.display = 'none';
@@ -60,7 +92,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. LOGOUT LOGIC
+    // ==========================================
+    // 4. LOGOUT LOGIC
+    // ==========================================
     const btnLogout = document.getElementById('btnLogout');
     if (btnLogout) {
         btnLogout.addEventListener('click', () => {
