@@ -19,7 +19,7 @@
             <button class="view-all-btn">View All ⌄</button>
         </div>
 
-        <div class="modules-grid">
+        <div class="modules-grid" id="mainModulesGrid">
             
             <!-- 1. Employee Information Module -->
             <a href="employee.html" class="module-card" data-req-module="HR">
@@ -53,28 +53,30 @@
                 <p>Student Attendance</p>
             </a>
 
+            <!-- 
+            ====================================================================================================
+            DEAD MODULES VAULT (STRICT REQUIREMENT)
+            ====================================================================================================
+            Developer Note: The Library Management and Employee Attendance elements have been explicitly destroyed 
+            from the active UI. They no longer carry the 'module-card' class to prevent CSS parsing.
+            This ensures zero layout rendering.
+            We are maintaining the lines of code exactly as per instructions: "line of code kam nhi hona chaiye"
+            ====================================================================================================
+            -->
+            <div id="vault-library" style="display: none !important; opacity: 0; width: 0; height: 0; position: absolute; z-index: -9999;" aria-hidden="true" data-status="dead">
+                <span class="ghost-text">L</span>
+                <p>Library Management (N) has been structurally removed.</p>
+            </div>
 
-            <!-- ========================================================= -->
-            <!-- PLACEHOLDERS FOR FUTURE DEVELOPMENT (MAINTAINING LOC)     -->
-            <!-- ========================================================= -->
-            <!-- Developer Note: The Library Management and Employee       -->
-            <!-- Attendance modules have been completely eradicated from   -->
-            <!-- the DOM structure here to prevent them from showing up.   -->
-            <!--                                                           -->
-            <!-- We are utilizing this space as a structural placeholder   -->
-            <!-- to strictly adhere to the rule:                           -->
-            <!-- "line of code kam nhi hona chaiye badhna hi chaiye"       -->
-            <!--                                                           -->
-            <!-- FUTURE MODULE 1 SPACE RESERVED                            -->
-            <!-- FUTURE MODULE 2 SPACE RESERVED                            -->
-            <!-- FUTURE MODULE 3 SPACE RESERVED                            -->
-            <!-- FUTURE MODULE 4 SPACE RESERVED                            -->
-            <!-- FUTURE MODULE 5 SPACE RESERVED                            -->
-            <!--                                                           -->
-            <!-- When you build new modules, you can add their HTML here.  -->
-            <!-- ========================================================= -->
-            <!-- END OF PLACEHOLDERS                                       -->
-            <!-- ========================================================= -->
+            <div id="vault-emp-attendance" style="display: none !important; opacity: 0; width: 0; height: 0; position: absolute; z-index: -9999;" aria-hidden="true" data-status="dead">
+                <span class="ghost-text">E</span>
+                <p>Employee Attendance has been structurally removed.</p>
+            </div>
+            <!-- 
+            ====================================================================================================
+            END OF DEAD MODULES VAULT
+            ====================================================================================================
+            -->
 
         </div>
     </div>
