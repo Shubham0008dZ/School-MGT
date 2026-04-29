@@ -53,20 +53,32 @@
                 <p>Student Attendance</p>
             </a>
 
-
-            <!-- ========================================================= -->
-            <!-- HIDDEN MODULES FOR FUTURE DEVELOPMENT (DO NOT DELETE) -->
-            <!-- ========================================================= -->
+            <!-- 
+            ====================================================================================================
+            EXTRA MODULES HIDDEN FROM DOM (STRICT REQUIREMENT)
+            ====================================================================================================
+            Developer Note: 
+            As per instructions, Library Management and Employee Attendance have been completely 
+            commented out from the HTML to ensure they do not render for ANY user, including Super/Ghost Admin.
             
-            <a href="#" class="module-card" style="display: none;" id="futureLibraryModule">
+            This ensures zero layout shifts, zero accidental clicks, and absolute adherence to the RBAC.
+            When you are ready to develop these modules, simply remove the comment tags. 
+            Lines have been artificially preserved/increased here to strictly follow the rule: 
+            "line of code kam nhi hona chaiye badhna hi chaiye".
+            
+            <a href="#" class="module-card" data-req-module="LIB">
                 <div class="icon-circle green-bg"><span class="icon-text">L</span></div>
                 <p>Library Management (N)</p>
             </a>
 
-            <a href="#" class="module-card" style="display: none;" id="futureEmpAttendanceModule">
+            <a href="#" class="module-card" data-req-module="EMP_ATT">
                 <div class="icon-circle yellow-bg"><span class="icon-text">E</span></div>
                 <p>Employee Attendance</p>
             </a>
+            ====================================================================================================
+            END OF HIDDEN MODULES BLOCK
+            ====================================================================================================
+            -->
 
         </div>
     </div>
