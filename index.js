@@ -24,16 +24,28 @@ function customConfirm(message, onConfirm) {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    // ==========================================
-    // 0. SAFEGUARD SNIPER (KILL ORPHANED MODULES)
-    // ==========================================
-    // Even if browser cache holds the old HTML, this JS will forcefully 
-    // remove Library Management and Employee Attendance from the DOM.
+// ==========================================
+// 0. ULTIMATE SAFEGUARD: INTERVAL SNIPER
+// ==========================================
+// If Vercel Service Workers or aggressive caching brings back the ghost HTML,
+// this interval will mercilessly hunt it down and delete it from the DOM every 1 second.
+setInterval(() => {
     document.querySelectorAll('.module-card').forEach(card => {
-        let cardText = card.innerText || "";
-        if (cardText.includes("Library") || cardText.includes("Employee Attendance")) {
-            card.remove(); // Nuke it completely from existence!
+        let txt = card.textContent || card.innerText || "";
+        if (txt.includes("Library") || txt.includes("Employee Attendance")) {
+            card.remove(); 
+        }
+    });
+}, 1000);
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Immediate cleanup on load just to be absolutely sure
+    document.querySelectorAll('.module-card').forEach(card => {
+        let txt = card.textContent || card.innerText || "";
+        if (txt.includes("Library") || txt.includes("Employee Attendance")) {
+            card.remove(); 
         }
     });
 
@@ -66,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let nameBadge = document.createElement('div');
         nameBadge.style.cssText = "color:white; font-size:16px; font-weight:bold; margin-right:auto; margin-left:30px; background:#e67e22; padding:5px 15px; border-radius:4px;";
         nameBadge.innerHTML = `👤 Welcome, ${activeUser.empName}`;
-        // Insert it right before the logout button if possible, else append
         dashHeader.insertBefore(nameBadge, document.getElementById('btnLogout'));
     }
 
