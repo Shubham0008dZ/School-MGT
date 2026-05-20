@@ -4,6 +4,7 @@ window.customAlert = function(message) {
     overlay.innerHTML = `<div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;"><p style="color:#333;margin-bottom:20px;font-size:15px;font-weight:bold;">${message}</p><button onclick="this.parentElement.parentElement.remove()" style="padding:8px 25px;background:#3498db;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">OK</button></div>`;
     document.body.appendChild(overlay);
 };
+
 window.customConfirm = function(message, onConfirm) {
     let overlay = document.createElement('div');
     overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
@@ -24,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
 
-    // REAL-TIME SESSION VERIFICATION
     fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }) })
     .then(res => res.json())
     .then(data => {
@@ -186,25 +186,87 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // ==========================================
+    // 8. THE "KUNDLI" - STUDENT FEE LEDGER 
+    // ==========================================
     window.openLedger = function(regNo) {
-        let student = appData.find(s => String(s.regNo) === String(regNo)); if(!student) return;
-        document.getElementById('l-name').innerText = student.studentFirstName || student.studentName || 'N/A'; document.getElementById('l-reg').innerText = student.regNo; document.getElementById('l-class').innerText = student.studentClass || '-'; document.getElementById('l-father').innerText = student.fatherName || '-';
+        let student = appData ? appData.find(s => String(s.regNo) === String(regNo)) : null;
+        
+        let sName = "Unknown (Deleted)";
+        let sClass = "-";
+        let sFather = "-";
+
+        if (student) {
+            sName = student.studentFirstName || student.studentName || 'N/A';
+            sClass = student.studentClass || '-';
+            sFather = student.fatherName || '-';
+        } else {
+            let rec = feeReceipts.find(r => String(r.Reg_No) === String(regNo));
+            if(rec) {
+                sName = rec.Student_Name;
+                sClass = rec.Class_Section;
+            }
+        }
+        
+        document.getElementById('l-name').innerText = sName; 
+        document.getElementById('l-reg').innerText = regNo; 
+        document.getElementById('l-class').innerText = sClass; 
+        document.getElementById('l-father').innerText = sFather;
+        
         let classFeeAmount = 0;
-        if(student.studentClass && setupData && setupData.classes) { let cSetup = setupData.classes.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass); if(cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); } }
-        let paidMap = {}; let histBody = document.getElementById('ledgerHistoryBody'); histBody.innerHTML = '';
+        if(student && student.studentClass && setupData && setupData.classes) { 
+            let cSetup = setupData.classes.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass); 
+            if(cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); } 
+        }
+        
+        let paidMap = {}; 
+        let histBody = document.getElementById('ledgerHistoryBody'); 
+        histBody.innerHTML = '';
+        
         feeReceipts.forEach(r => {
             if(String(r.Reg_No).trim() === String(regNo).trim()) {
-                try { let details = JSON.parse(r.Paid_Heads || "[]"); details.forEach(d => { let uid = d.head + "_" + d.period; paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0); }); } catch(e){}
-                let rNo = String(r.Receipt_No).replace("'", ""); let rDate = String(r.Date).replace("'", "");
-                histBody.innerHTML += `<tr><td>${rDate}</td><td>${rNo}</td><td>${r.Payment_Mode}</td><td style="color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td></tr>`;
+                
+                let particularsStr = "";
+                try { 
+                    let details = JSON.parse(r.Paid_Heads || "[]"); 
+                    let pList = [];
+                    details.forEach(d => { 
+                        let uid = d.head + "_" + d.period; 
+                        paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0); 
+                        
+                        let pName = d.head;
+                        if(d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") {
+                            pName += ` (${d.period})`;
+                        } else if (d.period) {
+                            pName += ` (${d.period})`;
+                        }
+                        pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
+                    }); 
+                    particularsStr = pList.join("<br>");
+                } catch(e){
+                    particularsStr = "Details Unavailable";
+                }
+                
+                let rNo = String(r.Receipt_No).replace("'", ""); 
+                let rDate = String(r.Date).replace("'", "");
+                
+                histBody.innerHTML += `<tr><td>${rDate}</td><td>${rNo}</td><td>${r.Payment_Mode}</td><td style="text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td><td style="color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td></tr>`;
             }
         });
-        if(histBody.innerHTML === '') { histBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No payment history found.</td></tr>'; }
-        let tbody = document.getElementById('ledgerTableBody'); tbody.innerHTML = ''; let totalDue = 0, totalPaid = 0;
+        
+        if(histBody.innerHTML === '') {
+            histBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No payment history found.</td></tr>';
+        }
+        
+        let tbody = document.getElementById('ledgerTableBody'); 
+        tbody.innerHTML = ''; 
+        let totalDue = 0, totalPaid = 0;
+        
         academicMonths.forEach(month => {
             let tAmt = classFeeAmount; let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0; let tBal = tAmt - tPaid; totalDue += tAmt; totalPaid += tPaid;
             let tStyle = tBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
             tbody.innerHTML += `<tr><td><b>Monthly Tuition Fee (${month})</b></td><td>₹${tAmt.toFixed(2)}</td><td style="color:#2980b9;">₹${tPaid.toFixed(2)}</td><td style="${tStyle} font-weight:bold;">₹${tBal.toFixed(2)}</td></tr>`;
+            
             feeHeads.forEach(fh => {
                 if(fh.Frequency === "Monthly") {
                     let fhAmt = parseFloat(fh.Amount) || 0; let fhPaid = paidMap[fh.Head_Name + "_" + month] || 0; let fhBal = fhAmt - fhPaid; totalDue += fhAmt; totalPaid += fhPaid;
@@ -213,6 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
+        
         feeHeads.forEach(fh => {
             if(fh.Frequency === "Annually" || fh.Frequency === "One Time (Annually)") {
                 let amt = parseFloat(fh.Amount) || 0; let pd = paidMap[fh.Head_Name + "_" + fh.Frequency] || paidMap[fh.Head_Name + "_Annually"] || 0; let bal = amt - pd; totalDue += amt; totalPaid += pd;
@@ -220,11 +283,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 tbody.innerHTML += `<tr><td><b>${fh.Head_Name} (Annual)</b></td><td>₹${amt.toFixed(2)}</td><td style="color:#2980b9;">₹${pd.toFixed(2)}</td><td style="${balStyle} font-weight:bold;">₹${bal.toFixed(2)}</td></tr>`;
             }
         });
-        document.getElementById('l-tot-due').innerText = "₹" + totalDue.toFixed(2); document.getElementById('l-tot-paid').innerText = "₹" + totalPaid.toFixed(2); document.getElementById('l-tot-bal').innerText = "₹" + (totalDue - totalPaid).toFixed(2);
+        
+        document.getElementById('l-tot-due').innerText = "₹" + totalDue.toFixed(2); 
+        document.getElementById('l-tot-paid').innerText = "₹" + totalPaid.toFixed(2); 
+        document.getElementById('l-tot-bal').innerText = "₹" + (totalDue - totalPaid).toFixed(2);
+        
         document.getElementById('ledgerModal').classList.add('active');
     }
     
-    document.getElementById('closeLedgerBtn').addEventListener('click', () => { document.getElementById('ledgerModal').classList.remove('active'); });
+    document.getElementById('closeLedgerBtn').addEventListener('click', () => { 
+        document.getElementById('ledgerModal').classList.remove('active'); 
+    });
 
     syncWithDatabase();
 });
