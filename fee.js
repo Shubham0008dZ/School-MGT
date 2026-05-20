@@ -1,12 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // ==========================================
     // 0. SECURITY & RBAC
+    // ==========================================
     const activeUserStr = localStorage.getItem('erp_active_user');
-    if (!activeUserStr) { window.location.href = 'login.html'; return; }
+    
+    if (!activeUserStr) { 
+        window.location.href = 'login.html'; 
+        return; 
+    }
     
     const activeUser = JSON.parse(activeUserStr);
     const isSA = activeUser.Is_SuperAdmin === "Yes";
     let userRights = [];
-    try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
+    
+    try { 
+        userRights = JSON.parse(activeUser.Rights_JSON || "[]"); 
+    } catch(e) {
+        console.error("Rights parsing error:", e);
+    }
 
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
 
@@ -57,8 +68,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('feeDate').value = new Date().toISOString().split('T')[0];
 
+    // ==========================================
+    // CUSTOM PRINT EXECUTION (RENAMES PDF FILE)
+    // ==========================================
+    function executePrint(studentName, receiptNo) {
+        let originalTitle = document.title;
+        let safeName = studentName ? studentName.replace(/[^a-zA-Z0-9]/g, "_") : "Student";
+        let safeReceipt = receiptNo ? String(receiptNo).replace(/[^a-zA-Z0-9]/g, "_") : "Receipt";
+        
+        // This forces the browser to use this name when saving as PDF
+        document.title = `${safeName}_Receipt_${safeReceipt}`;
+        
+        window.print();
+        
+        // Restore title after print dialog closes
+        document.title = originalTitle;
+    }
+
     function initData() {
-        document.getElementById('receiptsTableBody').innerHTML = '<tr><td colspan="10" style="text-align: center;">Fetching Database... ⏳</td></tr>';
+        document.getElementById('receiptsTableBody').innerHTML = '<tr><td colspan="11" style="text-align: center;">Fetching Database... ⏳</td></tr>';
         fetch(scriptURL).then(res => res.json()).then(res => {
             if(res.status === "Success") {
                 allStudents = res.data; feeHeads = res.feeHeads || []; feeReceipts = res.receipts || [];
@@ -218,12 +246,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         if(paidDetails.length === 0) { alert("No fees selected to pay."); return; }
         const payload = { action: "saveReceipt", data: { receiptNo: document.getElementById('feeReceiptNo').value, regNo: regNo, studentName: document.getElementById('profName').innerText, classSec: document.getElementById('profClass').innerText, installment: month, totalAmount: document.getElementById('finalTotalPaid').value, paymentMode: document.getElementById('payType').value, date: formatToDDMMYYYY(document.getElementById('feeDate').value), bankName: document.getElementById('payBank').value || '-', refNo: document.getElementById('payRef').value || '-', paidHeads: paidDetails } };
-        if(onSuccessAction === 'print') { populatePrintTemplate(payload.data, paidDetails, document.getElementById('profFather').innerText); }
+        
+        if(onSuccessAction === 'print') { 
+            // FETCH FATHER AND MOTHER NAME FOR PRINT TEMPLATE
+            populatePrintTemplate(payload.data, paidDetails, document.getElementById('profFather').innerText, document.getElementById('profMother').innerText); 
+        }
+        
         document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '0.5');
         fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) }).then(res => res.json()).then(data => {
             document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '1');
             if(data.status === "Success") {
-                if(onSuccessAction === 'print') { window.print(); initData(); } else { alert(data.message); if(onSuccessAction === 'close') { showView('module-receipts-list'); initData(); } if(onSuccessAction === 'new') { document.getElementById('feeStudentSelect').value = ""; clearProfilePanel(); initData(); } }
+                if(onSuccessAction === 'print') { 
+                    executePrint(document.getElementById('profName').innerText, payload.data.receiptNo); 
+                    initData(); 
+                } else { 
+                    alert(data.message); 
+                    if(onSuccessAction === 'close') { showView('module-receipts-list'); initData(); } 
+                    if(onSuccessAction === 'new') { document.getElementById('feeStudentSelect').value = ""; clearProfilePanel(); initData(); } 
+                }
             }
         });
     }
@@ -232,9 +272,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderReceiptsTable() {
         const tbody = document.getElementById('receiptsTableBody'); tbody.innerHTML = '';
-        if(feeReceipts.length === 0) { tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No receipts generated yet.</td></tr>'; return; }
+        if(feeReceipts.length === 0) { tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">No receipts generated yet.</td></tr>'; return; }
         
         [...feeReceipts].reverse().forEach((r, idx) => {
+            
+            // ==========================================
+            // DEEP PARSE LOGIC FOR 'PAID PARTICULARS' COLUMN
+            // ==========================================
+            let particularsStr = "";
+            try { 
+                let rawHeads = String(r.Paid_Heads || "").trim();
+                let rawSummary = String(r.Receipt_Summary || "").trim();
+                
+                if(rawHeads !== "" && rawHeads !== "[]" && rawHeads.startsWith("[")) {
+                    let details = JSON.parse(rawHeads); 
+                    let pList = [];
+                    details.forEach(d => { 
+                        let pName = d.head || "Fee";
+                        if(d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") {
+                            pName += ` (${d.period})`;
+                        } else if (d.period) {
+                            pName += ` (${d.period})`;
+                        }
+                        pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
+                    }); 
+                    particularsStr = pList.join("<br>");
+                    if (particularsStr === "") particularsStr = rawSummary || "Fee Payment";
+                } else if (rawSummary !== "") {
+                    particularsStr = rawSummary;
+                } else {
+                    particularsStr = "Fee Payment";
+                }
+            } catch(e){
+                particularsStr = r.Receipt_Summary || "Details Unavailable";
+            }
+
             let rNo = String(r.Receipt_No).replace("'", ""); let rDate = String(r.Date).replace("'", ""); let safeReceipt = JSON.stringify(r).replace(/'/g, "&#39;"); 
             let btnHTML = `<button class="btn-red" style="background:#3498db;" title="Print" onclick='printFromHistory(${safeReceipt})'>🖨️</button>`;
             if(isSA || userRights.includes("FEE_Delete")) {
@@ -245,7 +317,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <tr>
                     <td>${idx + 1}</td><td><b>${rNo}</b></td><td>${r.Reg_No}</td>
                     <td><a href="#" class="student-ledger-link" onclick="openLedger('${r.Reg_No}')" title="View Fee Ledger">${r.Student_Name}</a></td>
-                    <td>${r.Class_Section}</td><td>${r.Payment_Mode}</td><td style="color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td>
+                    <td>${r.Class_Section}</td>
+                    <td style="text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td>
+                    <td>${r.Payment_Mode}</td><td style="color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td>
                     <td>${rDate}</td><td>${new Date(r.Timestamp).toLocaleString()}</td>
                     <td>${btnHTML}</td>
                 </tr>
@@ -254,14 +328,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.printFromHistory = function(r) {
-        let student = allStudents.find(s => String(s.regNo) === String(r.Reg_No)); let fName = student ? (student.fatherName || '-') : '-';
-        let detailsArray = []; try { if(typeof r.Paid_Heads === 'string') { detailsArray = JSON.parse(r.Paid_Heads || "[]"); } } catch(e){}
+        let student = allStudents.find(s => String(s.regNo) === String(r.Reg_No)); 
+        let fName = student ? (student.fatherName || '-') : '-';
+        let mName = student ? (student.motherName || '-') : '-';
+        
+        let detailsArray = []; 
+        try { if(typeof r.Paid_Heads === 'string') { detailsArray = JSON.parse(r.Paid_Heads || "[]"); } } catch(e){}
         let rData = { receiptNo: String(r.Receipt_No).replace("'", ""), regNo: r.Reg_No, studentName: r.Student_Name, classSec: r.Class_Section, installment: String(r.Installment).replace("'", ""), date: String(r.Date).replace("'", ""), totalAmount: r.Amount, paymentMode: r.Payment_Mode, bankName: r.Bank_Name || '-', refNo: String(r.Ref_No).replace("'", "") || '-' };
-        populatePrintTemplate(rData, detailsArray, fName); window.print();
+        
+        // PASS BOTH FATHER AND MOTHER NAME
+        populatePrintTemplate(rData, detailsArray, fName, mName); 
+        executePrint(rData.studentName, rData.receiptNo);
     }
 
-    function populatePrintTemplate(rData, detailsArray, fName) {
-        document.getElementById('p-adm').innerText = rData.regNo; document.getElementById('p-name').innerText = rData.studentName; document.getElementById('p-father').innerText = fName; document.getElementById('p-class').innerText = rData.classSec; document.getElementById('p-receipt').innerText = rData.receiptNo; document.getElementById('p-date').innerText = rData.date; document.getElementById('p-period').innerText = rData.installment;
+    function populatePrintTemplate(rData, detailsArray, fName, mName) {
+        document.getElementById('p-adm').innerText = rData.regNo; 
+        document.getElementById('p-name').innerText = rData.studentName; 
+        document.getElementById('p-father').innerText = fName; 
+        document.getElementById('p-mother').innerText = mName; 
+        document.getElementById('p-class').innerText = rData.classSec; 
+        document.getElementById('p-receipt').innerText = rData.receiptNo; 
+        document.getElementById('p-date').innerText = rData.date; 
+        document.getElementById('p-period').innerText = rData.installment;
+        
         let pBody = document.getElementById('print-particulars-body'); pBody.innerHTML = ''; let tAct=0, tAdj=0, tPay=0, tPaid=0, tBal=0;
         detailsArray.forEach(d => {
             let fee = parseFloat(d.actual) || 0; let adj = parseFloat(d.adj) || 0; let pay = parseFloat(d.payable) || 0; let pd = parseFloat(d.paid) || 0; let bal = parseFloat(d.bal) || 0;
@@ -308,9 +397,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ==========================================
-    // 8. THE "KUNDLI" - STUDENT FEE LEDGER (AGGRESSIVE JSON PARSER)
-    // ==========================================
     window.openLedger = function(regNo) {
         let student = allStudents ? allStudents.find(s => String(s.regNo) === String(regNo)) : null;
         
@@ -348,7 +434,6 @@ document.addEventListener('DOMContentLoaded', () => {
         feeReceipts.forEach(r => {
             if(String(r.Reg_No).trim() === String(regNo).trim()) {
                 
-                // DEEP PARSE LOGIC WITH FALLBACK
                 let particularsStr = "";
                 try { 
                     let rawHeads = String(r.Paid_Heads || "").trim();
