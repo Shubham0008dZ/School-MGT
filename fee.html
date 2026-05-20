@@ -12,7 +12,7 @@
     <div class="top-left">
         <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
             <span class="school-logo" style="font-size: 24px; cursor: pointer;">🏫</span> 
-            <span class="school-name" style="font-weight: bold; cursor: pointer;">Vinayak International Associates</span>
+            <span class="school-name" style="font-weight: bold; cursor: pointer;">Vanasthali Public School</span>
         </a>
     </div>
     <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
@@ -57,11 +57,11 @@
                     <thead>
                         <tr>
                             <th>Sr No.</th><th>Receipt No.</th><th>Admission No.</th><th>Student Name</th>
-                            <th>Class-Section</th><th>Payment Mode</th><th>Amount</th><th>Fee Deposit Date</th>
+                            <th>Class-Section</th><th>Paid Particulars</th><th>Payment Mode</th><th>Amount</th><th>Fee Deposit Date</th>
                             <th>Created On</th><th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="receiptsTableBody"><tr><td colspan="10" style="text-align: center;">Fetching Receipts...</td></tr></tbody>
+                    <tbody id="receiptsTableBody"><tr><td colspan="11" style="text-align: center;">Fetching Receipts...</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -236,19 +236,41 @@
         <h3 class="print-title"><u>Fee Receipt</u></h3>
 
         <div class="print-details-wrapper">
-            <table class="print-info-table">
-                <tr><th colspan="2" style="background:#e4e4e4;">Student Details</th></tr>
-                <tr><td width="30%"><b>Admission No.</b></td><td>: <span id="p-adm">-</span></td></tr>
-                <tr><td><b>Student Name</b></td><td>: <span id="p-name">-</span></td></tr>
-                <tr><td><b>Parent's Name</b></td><td>: <span id="p-father">-</span></td></tr>
-                <tr><td><b>Class - Section</b></td><td>: <span id="p-class">-</span></td></tr>
-            </table>
-            <table class="print-info-table">
-                <tr><th colspan="2" style="background:#e4e4e4;">Receipt Details</th></tr>
-                <tr><td width="30%"><b>Receipt No.</b></td><td>: <span id="p-receipt">-</span></td></tr>
-                <tr><td><b>Receipt Date</b></td><td>: <span id="p-date">-</span></td></tr>
-                <tr><td><b>Billing Period</b></td><td>: <span id="p-period">-</span></td></tr>
-                <tr><td><b>Session</b></td><td>: 2026-2027</td></tr>
+            <table class="print-info-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <tr>
+                    <th colspan="2" style="background:#e4e4e4; width:50%; border:1px solid #333; padding: 6px 10px; text-align: left; font-size: 13px;">Student Details</th>
+                    <th colspan="2" style="background:#e4e4e4; width:50%; border:1px solid #333; padding: 6px 10px; text-align: left; font-size: 13px;">Receipt Details</th>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Admission No.</b></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span id="p-adm">-</span></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Receipt No.</b></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span id="p-receipt">-</span></td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Student Name</b></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span id="p-name">-</span></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Receipt Date</b></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span id="p-date">-</span></td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Father Name</b></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span id="p-father">-</span></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Billing Period</b></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span id="p-period">-</span></td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Mother Name</b></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span id="p-mother">-</span></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Session</b></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: 2026-2027</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Class - Section</b></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span id="p-class">-</span></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"></td>
+                    <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"></td>
+                </tr>
             </table>
         </div>
 
