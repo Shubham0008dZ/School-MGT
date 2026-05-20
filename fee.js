@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
 
+    // REAL-TIME SESSION VERIFICATION
     fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }) })
     .then(res => res.json())
     .then(data => {
@@ -19,11 +20,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (data.status === "Valid" && data.user) { localStorage.setItem('erp_active_user', JSON.stringify(data.user)); }
     }).catch(err => console.log("Background sync paused."));
 
+    // USER NAME INJECTION
     const topRightSpans = document.querySelectorAll('.top-right span');
     if(topRightSpans.length > 0) { topRightSpans[0].innerHTML = `👤 Welcome, <b>${activeUser.empName}</b>`; }
 
     if (!isSA && !userRights.some(r => r.startsWith("FEE_"))) { window.location.href = 'index.html'; return; }
 
+    // AGGRESSIVE DOM REMOVAL
     if (!isSA) {
         if(!userRights.includes("FEE_Add")) {
             let addBtn1 = document.getElementById('btn-open-add-receipt');
@@ -306,10 +309,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 8. THE "KUNDLI" - STUDENT FEE LEDGER (FIXED MISSING STUDENT FALLBACK)
+    // 8. THE "KUNDLI" - STUDENT FEE LEDGER (AGGRESSIVE JSON PARSER)
     // ==========================================
     window.openLedger = function(regNo) {
-        // Robust Fallback: If student is deleted from DB but receipt exists, it will still open.
         let student = allStudents ? allStudents.find(s => String(s.regNo) === String(regNo)) : null;
         
         let sName = "Unknown (Deleted)";
@@ -321,7 +323,6 @@ document.addEventListener('DOMContentLoaded', () => {
             sClass = student.studentClass || '-';
             sFather = student.fatherName || '-';
         } else {
-            // Attempt to grab details from receipt history instead
             let rec = feeReceipts.find(r => String(r.Reg_No) === String(regNo));
             if(rec) {
                 sName = rec.Student_Name;
@@ -347,32 +348,44 @@ document.addEventListener('DOMContentLoaded', () => {
         feeReceipts.forEach(r => {
             if(String(r.Reg_No).trim() === String(regNo).trim()) {
                 
-                // NEW: PARSE JSON FOR PAID PARTICULARS COLUMN
+                // DEEP PARSE LOGIC WITH FALLBACK
                 let particularsStr = "";
                 try { 
-                    let details = JSON.parse(r.Paid_Heads || "[]"); 
-                    let pList = [];
-                    details.forEach(d => { 
-                        let uid = d.head + "_" + d.period; 
-                        paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0); 
+                    let rawHeads = String(r.Paid_Heads || "").trim();
+                    let rawSummary = String(r.Receipt_Summary || "").trim();
+                    
+                    if(rawHeads !== "" && rawHeads !== "[]" && rawHeads.startsWith("[")) {
+                        let details = JSON.parse(rawHeads); 
+                        let pList = [];
+                        details.forEach(d => { 
+                            let pName = d.head || "Fee";
+                            if(d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") {
+                                pName += ` (${d.period})`;
+                            } else if (d.period) {
+                                pName += ` (${d.period})`;
+                            }
+                            pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
+                            
+                            let uid = d.head + "_" + d.period; 
+                            paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
+                        }); 
+                        particularsStr = pList.join("<br>");
                         
-                        let pName = d.head;
-                        if(d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") {
-                            pName += ` (${d.period})`;
-                        } else if (d.period) {
-                            pName += ` (${d.period})`;
+                        if (particularsStr === "") {
+                             particularsStr = rawSummary || "Fee Payment";
                         }
-                        pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
-                    }); 
-                    particularsStr = pList.join("<br>");
+                    } else if (rawSummary !== "") {
+                        particularsStr = rawSummary;
+                    } else {
+                        particularsStr = "Fee Payment";
+                    }
                 } catch(e){
-                    particularsStr = "Details Unavailable";
+                    particularsStr = r.Receipt_Summary || "Details Unavailable";
                 }
                 
                 let rNo = String(r.Receipt_No).replace("'", ""); 
                 let rDate = String(r.Date).replace("'", "");
                 
-                // INJECT NEW PAID PARTICULARS STRING INTO HISTORY TABLE
                 histBody.innerHTML += `<tr><td>${rDate}</td><td>${rNo}</td><td>${r.Payment_Mode}</td><td style="text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td><td style="color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td></tr>`;
             }
         });
