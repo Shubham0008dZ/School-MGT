@@ -248,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const payload = { action: "saveReceipt", data: { receiptNo: document.getElementById('feeReceiptNo').value, regNo: regNo, studentName: document.getElementById('profName').innerText, classSec: document.getElementById('profClass').innerText, installment: month, totalAmount: document.getElementById('finalTotalPaid').value, paymentMode: document.getElementById('payType').value, date: formatToDDMMYYYY(document.getElementById('feeDate').value), bankName: document.getElementById('payBank').value || '-', refNo: document.getElementById('payRef').value || '-', paidHeads: paidDetails } };
         
         if(onSuccessAction === 'print') { 
-            // FETCH FATHER AND MOTHER NAME FOR PRINT TEMPLATE
             populatePrintTemplate(payload.data, paidDetails, document.getElementById('profFather').innerText, document.getElementById('profMother').innerText); 
         }
         
@@ -276,9 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         [...feeReceipts].reverse().forEach((r, idx) => {
             
-            // ==========================================
-            // DEEP PARSE LOGIC FOR 'PAID PARTICULARS' COLUMN
-            // ==========================================
             let particularsStr = "";
             try { 
                 let rawHeads = String(r.Paid_Heads || "").trim();
@@ -336,7 +332,6 @@ document.addEventListener('DOMContentLoaded', () => {
         try { if(typeof r.Paid_Heads === 'string') { detailsArray = JSON.parse(r.Paid_Heads || "[]"); } } catch(e){}
         let rData = { receiptNo: String(r.Receipt_No).replace("'", ""), regNo: r.Reg_No, studentName: r.Student_Name, classSec: r.Class_Section, installment: String(r.Installment).replace("'", ""), date: String(r.Date).replace("'", ""), totalAmount: r.Amount, paymentMode: r.Payment_Mode, bankName: r.Bank_Name || '-', refNo: String(r.Ref_No).replace("'", "") || '-' };
         
-        // PASS BOTH FATHER AND MOTHER NAME
         populatePrintTemplate(rData, detailsArray, fName, mName); 
         executePrint(rData.studentName, rData.receiptNo);
     }
@@ -357,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tAct += fee; tAdj += adj; tPay += pay; tPaid += pd; tBal += bal;
             let displayName = d.head;
             if(d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") { displayName += ` <span style="color:#555; font-size:11px;">(${d.period})</span>`; } else { displayName += ` <span style="color:#555; font-size:11px;">(${d.period})</span>`; }
-            pBody.innerHTML += `<tr><td style="text-align:left;">${displayName}</td><td>${fee.toFixed(2)}</td><td>${adj.toFixed(2)}</td><td>${pay.toFixed(2)}</td><td>${pd.toFixed(2)}</td><td>${bal.toFixed(2)}</td></tr>`;
+            pBody.innerHTML += `<tr><td style="text-align:left; border:1px solid #333; padding:5px;">${displayName}</td><td style="border:1px solid #333; padding:5px;">${fee.toFixed(2)}</td><td style="border:1px solid #333; padding:5px;">${adj.toFixed(2)}</td><td style="border:1px solid #333; padding:5px;">${pay.toFixed(2)}</td><td style="border:1px solid #333; padding:5px;">${pd.toFixed(2)}</td><td style="border:1px solid #333; padding:5px;">${bal.toFixed(2)}</td></tr>`;
         });
         document.getElementById('p-t-fees').innerText = tAct.toFixed(2); document.getElementById('p-t-adj').innerText = tAdj.toFixed(2); document.getElementById('p-t-pay').innerText = tPay.toFixed(2); document.getElementById('p-t-paid').innerText = tPaid.toFixed(2); document.getElementById('p-t-bal').innerText = tBal.toFixed(2); document.getElementById('p-words').innerText = tPaid.toFixed(2) + " /-"; document.getElementById('p-pmode').innerText = rData.paymentMode; document.getElementById('p-pbank').innerText = rData.bankName; document.getElementById('p-pdate').innerText = rData.date; document.getElementById('p-pdet').innerText = rData.refNo; document.getElementById('p-pamt').innerText = rData.totalAmount;
     }
@@ -397,6 +392,90 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ==========================================
+    // EXPORT DROPDOWN LOGIC
+    // ==========================================
+    const exportToggle = document.getElementById('btnExportLedgerToggle');
+    const exportMenu = document.getElementById('ledgerExportMenu');
+    
+    if(exportToggle && exportMenu) {
+        exportToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            exportMenu.style.display = exportMenu.style.display === 'flex' ? 'none' : 'flex';
+        });
+        document.addEventListener('click', () => { 
+            exportMenu.style.display = 'none'; 
+        });
+    }
+
+    // ==========================================
+    // EXPORT TO PDF LOGIC (html2pdf)
+    // ==========================================
+    document.getElementById('exportLedgerPdfBtn').addEventListener('click', () => {
+        let sName = document.getElementById('l-name').innerText.replace(/[^a-zA-Z0-9]/g, "_");
+        let sReg = document.getElementById('l-reg').innerText.replace(/[^a-zA-Z0-9]/g, "_");
+        let sClass = document.getElementById('l-class').innerText.replace(/[^a-zA-Z0-9]/g, "_");
+        let fileName = `${sName}_${sReg}_${sClass}.pdf`;
+        
+        let element = document.getElementById('ledgerExportArea');
+        
+        let opt = {
+            margin:       0.3,
+            filename:     fileName,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+        
+        // Temporarily change background to white for clean PDF
+        let originalBg = element.style.background;
+        element.style.background = "#fff";
+        
+        html2pdf().set(opt).from(element).save().then(() => {
+            element.style.background = originalBg;
+        });
+    });
+
+    // ==========================================
+    // EXPORT TO EXCEL LOGIC (Raw HTML wrapper)
+    // ==========================================
+    document.getElementById('exportLedgerExcelBtn').addEventListener('click', () => {
+        let sName = document.getElementById('l-name').innerText.replace(/[^a-zA-Z0-9]/g, "_");
+        let sReg = document.getElementById('l-reg').innerText.replace(/[^a-zA-Z0-9]/g, "_");
+        let sClass = document.getElementById('l-class').innerText.replace(/[^a-zA-Z0-9]/g, "_");
+        let fileName = `${sName}_${sReg}_${sClass}.xls`;
+
+        let exportDiv = document.getElementById('ledgerExportArea').cloneNode(true);
+        
+        let htmlContent = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+            <meta charset="utf-8">
+            <style>
+                table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #2c3e50; color: white; font-weight: bold; }
+            </style>
+        </head>
+        <body>
+            ${exportDiv.innerHTML}
+        </body>
+        </html>
+        `;
+
+        let blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    });
+
+    // ==========================================
+    // 8. THE "KUNDLI" - STUDENT FEE LEDGER 
+    // ==========================================
     window.openLedger = function(regNo) {
         let student = allStudents ? allStudents.find(s => String(s.regNo) === String(regNo)) : null;
         
@@ -471,12 +550,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 let rNo = String(r.Receipt_No).replace("'", ""); 
                 let rDate = String(r.Date).replace("'", "");
                 
-                histBody.innerHTML += `<tr><td>${rDate}</td><td>${rNo}</td><td>${r.Payment_Mode}</td><td style="text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td><td style="color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td></tr>`;
+                histBody.innerHTML += `<tr><td style="padding:10px; border:1px solid #ccc;">${rDate}</td><td style="padding:10px; border:1px solid #ccc;">${rNo}</td><td style="padding:10px; border:1px solid #ccc;">${r.Payment_Mode}</td><td style="padding:10px; border:1px solid #ccc; text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td><td style="padding:10px; border:1px solid #ccc; color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td></tr>`;
             }
         });
         
         if(histBody.innerHTML === '') {
-            histBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No payment history found.</td></tr>';
+            histBody.innerHTML = '<tr><td colspan="5" style="padding:10px; border:1px solid #ccc; text-align:center;">No payment history found.</td></tr>';
         }
         
         let tbody = document.getElementById('ledgerTableBody'); 
@@ -484,24 +563,46 @@ document.addEventListener('DOMContentLoaded', () => {
         let totalDue = 0, totalPaid = 0;
         
         academicMonths.forEach(month => {
-            let tAmt = classFeeAmount; let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0; let tBal = tAmt - tPaid; totalDue += tAmt; totalPaid += tPaid;
+            let tAmt = classFeeAmount; 
+            let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0; 
+            let tBal = tAmt - tPaid; 
+            totalDue += tAmt; 
+            totalPaid += tPaid;
+            
+            // HIGHLIGHT FULLY PAID ROWS
+            let rowBg = (tAmt > 0 && tBal <= 0) ? 'background-color:#e8f5e9;' : '';
             let tStyle = tBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
-            tbody.innerHTML += `<tr><td><b>Monthly Tuition Fee (${month})</b></td><td>₹${tAmt.toFixed(2)}</td><td style="color:#2980b9;">₹${tPaid.toFixed(2)}</td><td style="${tStyle} font-weight:bold;">₹${tBal.toFixed(2)}</td></tr>`;
+            
+            tbody.innerHTML += `<tr style="${rowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>Monthly Tuition Fee (${month})</b></td><td style="padding:10px; border:1px solid #ccc;">₹${tAmt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${tPaid.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${tStyle} font-weight:bold;">₹${tBal.toFixed(2)}</td></tr>`;
             
             feeHeads.forEach(fh => {
                 if(fh.Frequency === "Monthly") {
-                    let fhAmt = parseFloat(fh.Amount) || 0; let fhPaid = paidMap[fh.Head_Name + "_" + month] || 0; let fhBal = fhAmt - fhPaid; totalDue += fhAmt; totalPaid += fhPaid;
+                    let fhAmt = parseFloat(fh.Amount) || 0; 
+                    let fhPaid = paidMap[fh.Head_Name + "_" + month] || 0; 
+                    let fhBal = fhAmt - fhPaid; 
+                    totalDue += fhAmt; 
+                    totalPaid += fhPaid;
+                    
+                    let subRowBg = (fhAmt > 0 && fhBal <= 0) ? 'background-color:#e8f5e9;' : '';
                     let fhStyle = fhBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
-                    tbody.innerHTML += `<tr><td><b>${fh.Head_Name} (${month})</b></td><td>₹${fhAmt.toFixed(2)}</td><td style="color:#2980b9;">₹${fhPaid.toFixed(2)}</td><td style="${fhStyle} font-weight:bold;">₹${fhBal.toFixed(2)}</td></tr>`;
+                    
+                    tbody.innerHTML += `<tr style="${subRowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (${month})</b></td><td style="padding:10px; border:1px solid #ccc;">₹${fhAmt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${fhPaid.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${fhStyle} font-weight:bold;">₹${fhBal.toFixed(2)}</td></tr>`;
                 }
             });
         });
         
         feeHeads.forEach(fh => {
             if(fh.Frequency === "Annually" || fh.Frequency === "One Time (Annually)") {
-                let amt = parseFloat(fh.Amount) || 0; let pd = paidMap[fh.Head_Name + "_" + fh.Frequency] || paidMap[fh.Head_Name + "_Annually"] || 0; let bal = amt - pd; totalDue += amt; totalPaid += pd;
+                let amt = parseFloat(fh.Amount) || 0; 
+                let pd = paidMap[fh.Head_Name + "_" + fh.Frequency] || paidMap[fh.Head_Name + "_Annually"] || 0; 
+                let bal = amt - pd; 
+                totalDue += amt; 
+                totalPaid += pd;
+                
+                let anRowBg = (amt > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
                 let balStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
-                tbody.innerHTML += `<tr><td><b>${fh.Head_Name} (Annual)</b></td><td>₹${amt.toFixed(2)}</td><td style="color:#2980b9;">₹${pd.toFixed(2)}</td><td style="${balStyle} font-weight:bold;">₹${bal.toFixed(2)}</td></tr>`;
+                
+                tbody.innerHTML += `<tr style="${anRowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (Annual)</b></td><td style="padding:10px; border:1px solid #ccc;">₹${amt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${pd.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${balStyle} font-weight:bold;">₹${bal.toFixed(2)}</td></tr>`;
             }
         });
         
