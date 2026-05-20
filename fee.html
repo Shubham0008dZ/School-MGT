@@ -12,16 +12,19 @@
     <div class="top-left">
         <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
             <span class="school-logo" style="font-size: 24px; cursor: pointer;">🏫</span> 
-            <span class="school-name" style="font-weight: bold; cursor: pointer;">Shubham Public School</span>
+            <span class="school-name" style="font-weight: bold; cursor: pointer;">Vanasthali Public School</span>
         </a>
     </div>
     <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
-    <div class="top-right"><span>⚏ Fee Module 🔔</span></div>
+    <div class="top-right" style="display:flex; align-items:center; gap:15px;">
+        <span>⚏ Fee Module 🔔</span>
+        <button id="btnLogout" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:3px; cursor:pointer; font-weight:bold;">🚪 Logout</button>
+    </div>
 </div>
 
 <div class="erp-wrapper">
     <div class="sidebar red-sidebar">
-        <div class="sidebar-header red-header"><h2>📚 Shubham</h2></div>
+        <div class="sidebar-header red-header"><h2>📚 EDUNEXT</h2></div>
         <ul class="nav-links">
             <li><a href="index.html" class="nav-btn">🏠 Dashboard</a></li>
             <li><a href="#" class="nav-btn active" data-target="module-receipts-list">📄 Student Fee Receipts</a></li>
@@ -210,7 +213,9 @@
 
             <h4 style="margin-top:25px; margin-bottom:10px; color:#2c3e50; border-bottom:2px solid #ddd; padding-bottom:5px;">Payment History Log</h4>
             <table class="data-table" style="background:white; font-size:12px;">
-                <thead style="background:#ecf0f1;"><tr><th>Date</th><th>Receipt No</th><th>Mode</th><th>Amount Paid</th></tr></thead>
+                <thead style="background:#ecf0f1;">
+                    <tr><th>Date</th><th>Receipt No</th><th>Mode</th><th>Paid Particulars</th><th>Amount Paid</th></tr>
+                </thead>
                 <tbody id="ledgerHistoryBody"></tbody>
             </table>
         </div>
@@ -222,10 +227,10 @@
         <div class="print-header">
             <div class="print-logo">🏫</div>
             <div class="print-school-info">
-                <h2>Shubham PUBLIC SCHOOL</h2>
+                <h2>VANASTHALI PUBLIC SCHOOL</h2>
                 <p>Sector-3, Vasundhara, Ghaziabad, Uttar Pradesh</p>
                 <p>0120-4111062, 4111061</p>
-                <p>vpsvasundhara@gmail.com, www.Shubhamschool.in</p>
+                <p>vpsvasundhara@gmail.com, www.vanasthalischool.in</p>
             </div>
         </div>
         <h3 class="print-title"><u>Fee Receipt</u></h3>
@@ -276,7 +281,7 @@
                     <td colspan="5" style="padding:30px 10px 10px 10px; border-bottom:none;">
                         <div style="display:flex; justify-content:space-between; align-items:flex-end;">
                             <div>*Cheque/DD is subject to realization<br>Note:</div>
-                            <div style="text-align:right;"><b>For Shubham PUBLIC SCHOOL</b><br><br><br><b>AUTH.SIGNATORY</b></div>
+                            <div style="text-align:right;"><b>For VANASTHALI PUBLIC SCHOOL</b><br><br><br><b>AUTH.SIGNATORY</b></div>
                         </div>
                     </td>
                 </tr>
