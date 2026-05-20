@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // 8. THE "KUNDLI" - STUDENT FEE LEDGER 
+    // 8. THE "KUNDLI" - STUDENT FEE LEDGER (AGGRESSIVE JSON PARSER)
     // ==========================================
     window.openLedger = function(regNo) {
         let student = appData ? appData.find(s => String(s.regNo) === String(regNo)) : null;
@@ -226,25 +226,42 @@ document.addEventListener('DOMContentLoaded', () => {
         feeReceipts.forEach(r => {
             if(String(r.Reg_No).trim() === String(regNo).trim()) {
                 
+                // DEEP PARSE LOGIC WITH FALLBACK
                 let particularsStr = "";
                 try { 
-                    let details = JSON.parse(r.Paid_Heads || "[]"); 
-                    let pList = [];
-                    details.forEach(d => { 
-                        let uid = d.head + "_" + d.period; 
-                        paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0); 
+                    let rawHeads = String(r.Paid_Heads || "").trim();
+                    let rawSummary = String(r.Receipt_Summary || "").trim();
+                    
+                    if(rawHeads !== "" && rawHeads !== "[]" && rawHeads.startsWith("[")) {
+                        let details = JSON.parse(rawHeads); 
+                        let pList = [];
+                        details.forEach(d => { 
+                            let pName = d.head || "Fee";
+                            if(d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") {
+                                pName += ` (${d.period})`;
+                            } else if (d.period) {
+                                pName += ` (${d.period})`;
+                            }
+                            pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
+                            
+                            // Map for ledger calculations
+                            let uid = d.head + "_" + d.period; 
+                            paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
+                        }); 
+                        particularsStr = pList.join("<br>");
                         
-                        let pName = d.head;
-                        if(d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") {
-                            pName += ` (${d.period})`;
-                        } else if (d.period) {
-                            pName += ` (${d.period})`;
+                        // If parsing array resulted in empty string, fallback to summary
+                        if (particularsStr === "") {
+                             particularsStr = rawSummary || "Fee Payment";
                         }
-                        pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
-                    }); 
-                    particularsStr = pList.join("<br>");
+                    } else if (rawSummary !== "") {
+                        // FALLBACK: Agar JSON empty array ya invalid hai toh Summary uthao
+                        particularsStr = rawSummary;
+                    } else {
+                        particularsStr = "Fee Payment";
+                    }
                 } catch(e){
-                    particularsStr = "Details Unavailable";
+                    particularsStr = r.Receipt_Summary || "Details Unavailable";
                 }
                 
                 let rNo = String(r.Receipt_No).replace("'", ""); 
