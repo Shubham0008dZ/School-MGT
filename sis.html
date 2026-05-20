@@ -6,6 +6,7 @@
     <title>Student Information System</title>
     <link rel="stylesheet" href="sis.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -13,7 +14,7 @@
     <div class="top-left">
         <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
             <span class="school-logo" style="font-size: 24px; cursor: pointer;">🏫</span> 
-            <span class="school-name" style="font-weight: bold; cursor: pointer;">Vinayak International Associates</span>
+            <span class="school-name" style="font-weight: bold; cursor: pointer;">Vanasthali Public School</span>
         </a>
     </div>
     <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
@@ -197,48 +198,75 @@
 
 <div id="ledgerModal" class="modal-overlay">
     <div class="modal-card" style="width:900px; max-height:95vh;">
-        <div class="modal-header">
-            <h3 style="margin:0; color:white;">Student Fee Ledger (2026-27)</h3>
-            <span class="close-modal" id="closeLedgerBtn">&times;</span>
+        
+        <div class="modal-header" style="display:flex; align-items:center; justify-content:space-between; padding:15px 20px; background:#2c3e50; border-radius:8px 8px 0 0;">
+            <div style="display:flex; align-items:center; gap:20px;">
+                <h3 style="margin:0; color:white;">Student Fee Ledger (2026-27)</h3>
+                
+                <div class="dropdown" style="position:relative;">
+                    <button id="btnExportLedgerToggle" style="background:#f39c12; color:white; border:none; padding:6px 15px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:13px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">Export ▼</button>
+                    <div id="ledgerExportMenu" style="display:none; position:absolute; top:110%; left:0; background:white; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 8px rgba(0,0,0,0.3); z-index:9999; flex-direction:column; min-width:160px; overflow:hidden;">
+                        <button id="exportLedgerPdfBtn" style="background:white; color:#333; border:none; padding:12px; text-align:left; cursor:pointer; width:100%; border-bottom:1px solid #eee; font-weight:bold;">📄 Export to PDF</button>
+                        <button id="exportLedgerExcelBtn" style="background:white; color:#333; border:none; padding:12px; text-align:left; cursor:pointer; width:100%; font-weight:bold;">📊 Export to EXCEL</button>
+                    </div>
+                </div>
+            </div>
+            <span class="close-modal" id="closeLedgerBtn" style="font-size:24px; color:white; cursor:pointer;">&times;</span>
         </div>
+
         <div class="modal-body" style="padding:20px; overflow-y:auto; background:#f9f9f9;">
-            <div style="display:flex; justify-content:space-between; background:white; padding:15px; border-radius:5px; border-left:4px solid #3498db; box-shadow:0 2px 4px rgba(0,0,0,0.1); margin-bottom:20px;">
-                <div><strong style="color:#555;">Student Name:</strong> <span id="l-name" style="font-size:16px; font-weight:bold;">-</span></div>
-                <div><strong style="color:#555;">Reg No:</strong> <span id="l-reg">-</span></div>
-                <div><strong style="color:#555;">Class:</strong> <span id="l-class">-</span></div>
-                <div><strong style="color:#555;">Father Name:</strong> <span id="l-father">-</span></div>
-            </div>
-            
-            <div style="display:flex; gap:15px; margin-bottom:20px;">
-                <div style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border-bottom:4px solid #e67e22; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-                    <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Yearly Total Dues</div>
-                    <div id="l-tot-due" style="font-size:24px; font-weight:bold; color:#e67e22;">₹0.00</div>
+            <div id="ledgerExportArea" style="background:#f9f9f9; padding:5px;">
+                
+                <div style="display:flex; justify-content:space-between; background:white; padding:15px; border-radius:5px; border-left:4px solid #3498db; border:1px solid #ddd; margin-bottom:20px; font-family:Arial,sans-serif;">
+                    <div><strong style="color:#555;">Student Name:</strong> <span id="l-name" style="font-size:16px; font-weight:bold; color:#000;">-</span></div>
+                    <div><strong style="color:#555;">Reg No:</strong> <span id="l-reg" style="color:#000;">-</span></div>
+                    <div><strong style="color:#555;">Class:</strong> <span id="l-class" style="color:#000;">-</span></div>
+                    <div><strong style="color:#555;">Father Name:</strong> <span id="l-father" style="color:#000;">-</span></div>
                 </div>
-                <div style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border-bottom:4px solid #27ae60; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-                    <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Total Amount Paid</div>
-                    <div id="l-tot-paid" style="font-size:24px; font-weight:bold; color:#27ae60;">₹0.00</div>
+                
+                <div style="display:flex; gap:15px; margin-bottom:20px; font-family:Arial,sans-serif;">
+                    <div style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border:1px solid #ddd; border-bottom:4px solid #e67e22;">
+                        <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Yearly Total Dues</div>
+                        <div id="l-tot-due" style="font-size:24px; font-weight:bold; color:#e67e22;">₹0.00</div>
+                    </div>
+                    <div style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border:1px solid #ddd; border-bottom:4px solid #27ae60;">
+                        <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Total Amount Paid</div>
+                        <div id="l-tot-paid" style="font-size:24px; font-weight:bold; color:#27ae60;">₹0.00</div>
+                    </div>
+                    <div style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border:1px solid #ddd; border-bottom:4px solid #e74c3c;">
+                        <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Current Balance</div>
+                        <div id="l-tot-bal" style="font-size:24px; font-weight:bold; color:#e74c3c;">₹0.00</div>
+                    </div>
                 </div>
-                <div style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border-bottom:4px solid #e74c3c; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-                    <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Current Balance</div>
-                    <div id="l-tot-bal" style="font-size:24px; font-weight:bold; color:#e74c3c;">₹0.00</div>
-                </div>
-            </div>
 
-            <table class="data-table" style="background:white;">
-                <thead style="background:#2c3e50; color:white;">
-                    <tr><th>Month / Fee Head</th><th>Applicable Amount</th><th>Total Paid</th><th>Balance Pending</th></tr>
-                </thead>
-                <tbody id="ledgerTableBody"></tbody>
-            </table>
+                <table class="data-table" style="background:white; width:100%; border-collapse:collapse; font-family:Arial,sans-serif; border:1px solid #ddd; margin-bottom:25px;">
+                    <thead style="background:#2c3e50; color:white;">
+                        <tr>
+                            <th style="padding:10px; border:1px solid #ccc; text-align:left;">Month / Fee Head</th>
+                            <th style="padding:10px; border:1px solid #ccc; text-align:left;">Applicable Amount</th>
+                            <th style="padding:10px; border:1px solid #ccc; text-align:left;">Total Paid</th>
+                            <th style="padding:10px; border:1px solid #ccc; text-align:left;">Balance Pending</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledgerTableBody"></tbody>
+                </table>
 
-            <h4 style="margin-top:25px; margin-bottom:10px; color:#2c3e50; border-bottom:2px solid #ddd; padding-bottom:5px;">Payment History Log</h4>
-            <table class="data-table" style="background:white; font-size:12px;">
-                <thead style="background:#ecf0f1;">
-                    <tr><th>Date</th><th>Receipt No</th><th>Mode</th><th>Paid Particulars</th><th>Amount Paid</th></tr>
-                </thead>
-                <tbody id="ledgerHistoryBody"></tbody>
-            </table>
-        </div>
+                <h4 style="margin-top:25px; margin-bottom:10px; color:#2c3e50; border-bottom:2px solid #ddd; padding-bottom:5px; font-family:Arial,sans-serif;">Payment History Log</h4>
+                <table class="data-table" style="background:white; font-size:12px; width:100%; border-collapse:collapse; font-family:Arial,sans-serif; border:1px solid #ddd;">
+                    <thead style="background:#ecf0f1; color:#333;">
+                        <tr>
+                            <th style="padding:8px; border:1px solid #ccc; text-align:left;">Date</th>
+                            <th style="padding:8px; border:1px solid #ccc; text-align:left;">Receipt No</th>
+                            <th style="padding:8px; border:1px solid #ccc; text-align:left;">Mode</th>
+                            <th style="padding:8px; border:1px solid #ccc; text-align:left;">Paid Particulars</th>
+                            <th style="padding:8px; border:1px solid #ccc; text-align:left;">Amount Paid</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledgerHistoryBody"></tbody>
+                </table>
+
+            </div> 
+            </div>
     </div>
 </div>
 
