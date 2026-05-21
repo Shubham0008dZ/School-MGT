@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
 
-    // Verify Session
     fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }) })
     .then(res => res.json())
     .then(data => {
@@ -102,9 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(document.getElementById('editMode').value === "false") document.getElementById('regNo').value = maxReg + 1;
     }
 
-    // ==========================================
-    // AUTO LOAD SYNC FUNCTION
-    // ==========================================
     function syncWithDatabase() {
         const tbody = document.getElementById('studentTableBody'); tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; font-weight:bold;">Syncing with Database... ⏳</td></tr>';
         
@@ -131,15 +127,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function fillSelectWithAll(id, array, isObj = false) { 
+        const el = document.getElementById(id); 
+        if(!el) return; 
+        el.innerHTML = '<option value="">All</option>'; 
+        if(array) { 
+            array.forEach(item => { 
+                let val = isObj ? `${item.name} (${item.section})` : item; 
+                el.innerHTML += `<option value="${val}">${val}</option>`; 
+            }); 
+        } 
+    }
+
     function loadSetupDropdowns() {
         if(!setupData) return; 
-        function fillSelect(id, array, isObj = false) { const el = document.getElementById(id); if(!el) return; el.innerHTML = '<option value="">Select</option>'; if(array) { array.forEach(item => { let val = isObj ? `${item.name} (${item.section})` : item; el.innerHTML += `<option value="${val}">${val}</option>`; }); } }
-        fillSelect('studentClass', setupData.classes, true); fillSelect('gender', setupData.genders); fillSelect('category', setupData.categories); fillSelect('bloodGroup', setupData.bloodGroups); fillSelect('house', setupData.houses); fillSelect('religion', setupData.religions); fillSelect('filterClass', setupData.classes, true);
+        function fillSelect(id, array, isObj = false) { 
+            const el = document.getElementById(id); 
+            if(!el) return; 
+            el.innerHTML = '<option value="">Select</option>'; 
+            if(array) { 
+                array.forEach(item => { 
+                    let val = isObj ? `${item.name} (${item.section})` : item; 
+                    el.innerHTML += `<option value="${val}">${val}</option>`; 
+                }); 
+            } 
+        }
+
+        // Standard forms
+        fillSelect('studentClass', setupData.classes, true); 
+        fillSelect('gender', setupData.genders); 
+        fillSelect('category', setupData.categories); 
+        fillSelect('bloodGroup', setupData.bloodGroups); 
+        fillSelect('house', setupData.houses); 
+        fillSelect('religion', setupData.religions); 
+
+        // New Dropdown Filters (Must start with "All")
+        fillSelectWithAll('filterClass', setupData.classes, true);
+        fillSelectWithAll('filterHouse', setupData.houses, false);
     }
 
     function renderTable(dataToRender) {
         const tbody = document.getElementById('studentTableBody'); tbody.innerHTML = '';
-        if(dataToRender.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No records found in DB.</td></tr>'; return; }
+        if(dataToRender.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No records found.</td></tr>'; return; }
         dataToRender.forEach(student => {
             const tr = document.createElement('tr'); const studentJson = JSON.stringify(student).replace(/'/g, "&#39;");
             let btnHTML = "";
@@ -150,15 +179,51 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.getElementById('btn-apply-filter').addEventListener('click', () => {
-        const fClass = document.getElementById('filterClass').value; const fGender = document.getElementById('filterGender').value; const fName = document.getElementById('searchName').value.toLowerCase();
+    // ==========================================
+    // NEW ADVANCED FILTER LOGIC
+    // ==========================================
+    const btnApplyFilter = document.getElementById('btn-apply-filter');
+    const searchNameInput = document.getElementById('searchName');
+
+    function applyAllFilters() {
+        const fClass = document.getElementById('filterClass').value; 
+        const fGender = document.getElementById('filterGender').value; 
+        const fHouse = document.getElementById('filterHouse').value;
+        const fName = searchNameInput.value.toLowerCase();
+        
         let filtered = appData.filter(s => {
-            let matchClass = fClass === "" || s.studentClass === fClass; let matchGender = fGender === "" || s.gender === fGender;
-            let sName = (s.studentFirstName || s.studentName || "").toLowerCase(); let matchName = fName === "" || sName.includes(fName);
-            return matchClass && matchGender && matchName;
+            let matchClass = fClass === "" || fClass === "All" || s.studentClass === fClass; 
+            let matchGender = fGender === "" || fGender === "All" || s.gender === fGender;
+            let matchHouse = fHouse === "" || fHouse === "All" || s.house === fHouse;
+            
+            let sNameStr = (s.studentFirstName || s.studentName || "").toLowerCase(); 
+            let matchName = fName === "" || sNameStr.includes(fName);
+            
+            return matchClass && matchGender && matchHouse && matchName;
         });
+        
         renderTable(filtered);
-    });
+        document.getElementById('filterDropdownPanel').style.display = 'none';
+    }
+
+    if(btnApplyFilter) btnApplyFilter.addEventListener('click', applyAllFilters);
+    if(searchNameInput) searchNameInput.addEventListener('input', applyAllFilters);
+
+    const btnToggleFilters = document.getElementById('btn-toggle-filters');
+    const filterPanel = document.getElementById('filterDropdownPanel');
+    
+    if(btnToggleFilters && filterPanel) {
+        btnToggleFilters.addEventListener('click', (e) => {
+            e.stopPropagation();
+            filterPanel.style.display = filterPanel.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (filterPanel.style.display === 'block' && !filterPanel.contains(e.target) && !btnToggleFilters.contains(e.target)) {
+                filterPanel.style.display = 'none';
+            }
+        });
+    }
 
     document.getElementById('btn-refresh-data').addEventListener('click', syncWithDatabase);
 
@@ -243,9 +308,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==========================================
-    // EXPORT TO PDF LOGIC (html2pdf)
-    // ==========================================
     document.getElementById('exportLedgerPdfBtn').addEventListener('click', () => {
         let sName = document.getElementById('l-name').innerText.replace(/[^a-zA-Z0-9]/g, "_");
         let sReg = document.getElementById('l-reg').innerText.replace(/[^a-zA-Z0-9]/g, "_");
@@ -253,26 +315,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let fileName = `${sName}_${sReg}_${sClass}.pdf`;
         
         let element = document.getElementById('ledgerExportArea');
-        
-        let opt = {
-            margin:       0.3,
-            filename:     fileName,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
-        
-        let originalBg = element.style.background;
-        element.style.background = "#fff";
-        
-        html2pdf().set(opt).from(element).save().then(() => {
-            element.style.background = originalBg;
-        });
+        let opt = { margin: 0.3, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+        let originalBg = element.style.background; element.style.background = "#fff";
+        html2pdf().set(opt).from(element).save().then(() => { element.style.background = originalBg; });
     });
 
-    // ==========================================
-    // EXPORT TO EXCEL LOGIC (Raw HTML wrapper)
-    // ==========================================
     document.getElementById('exportLedgerExcelBtn').addEventListener('click', () => {
         let sName = document.getElementById('l-name').innerText.replace(/[^a-zA-Z0-9]/g, "_");
         let sReg = document.getElementById('l-reg').innerText.replace(/[^a-zA-Z0-9]/g, "_");
@@ -280,38 +327,15 @@ document.addEventListener('DOMContentLoaded', () => {
         let fileName = `${sName}_${sReg}_${sClass}.xls`;
 
         let exportDiv = document.getElementById('ledgerExportArea').cloneNode(true);
-        
-        let htmlContent = `
-        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-        <head>
-            <meta charset="utf-8">
-            <style>
-                table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
-                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                th { background-color: #2c3e50; color: white; font-weight: bold; }
-            </style>
-        </head>
-        <body>
-            ${exportDiv.innerHTML}
-        </body>
-        </html>
-        `;
+        let htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; } th, td { border: 1px solid #ddd; padding: 8px; text-align: left; } th { background-color: #2c3e50; color: white; font-weight: bold; }</style></head><body>${exportDiv.innerHTML}</body></html>`;
 
         let blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a);
     });
 
     // ==========================================
-    // RESTORED NEW MODULE: MASTER SETUP INTEGRATION
+    // MASTER SETUP INTEGRATION
     // ==========================================
-    
-    // Dynamic Placeholder Logic for Master Setup Form
     const msCategoryEl = document.getElementById('msCategory');
     if(msCategoryEl) {
         msCategoryEl.addEventListener('change', function() {
@@ -344,22 +368,26 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const cat = document.getElementById('msCategory').value;
             const val = document.getElementById('msValue').value.trim();
+            const editIndex = document.getElementById('msEditIndex').value;
             
             if(!setupData) setupData = { classes: [], genders: [], categories: [], bloodGroups: [], houses: [], religions: [] };
             if(!setupData[cat]) setupData[cat] = [];
             
-            // Note: This is for single entry ADD only. Edit uses Modal now.
-            if(cat === 'classes') {
-                const sec = document.getElementById('msSection').value.trim();
-                const fee = document.getElementById('msFee').value.trim();
-                const exists = setupData.classes.some(c => c.name.toLowerCase() === val.toLowerCase() && c.section.toLowerCase() === sec.toLowerCase());
-                if(exists) { customAlert("Class and Section already exists!"); return; }
-                setupData.classes.push({ name: val, section: sec, fee: fee });
+            if(editIndex !== "-1") {
+                if(cat === 'classes') { setupData[cat][editIndex] = { name: val, section: document.getElementById('msSection').value.trim(), fee: document.getElementById('msFee').value.trim() }; } 
+                else { setupData[cat][editIndex] = val; }
             } else {
-                if(setupData[cat].includes(val)) { customAlert("Value already exists!"); return; }
-                setupData[cat].push(val);
+                if(cat === 'classes') {
+                    const sec = document.getElementById('msSection').value.trim();
+                    const fee = document.getElementById('msFee').value.trim();
+                    const exists = setupData.classes.some(c => c.name.toLowerCase() === val.toLowerCase() && c.section.toLowerCase() === sec.toLowerCase());
+                    if(exists) { customAlert("Class and Section already exists!"); return; }
+                    setupData.classes.push({ name: val, section: sec, fee: fee });
+                } else {
+                    if(setupData[cat].includes(val)) { customAlert("Value already exists!"); return; }
+                    setupData[cat].push(val);
+                }
             }
-            
             saveMasterSetupToDB();
         });
     }
@@ -370,6 +398,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if(data.status === "Success") {
                 customAlert("Master Setup Synced Successfully!");
                 document.getElementById('masterSetupForm').reset();
+                document.getElementById('msEditIndex').value = "-1";
+                document.getElementById('btnSaveMasterSetup').innerText = "Save Entry";
+                document.getElementById('btnSaveMasterSetup').style.background = "#27ae60";
+                document.getElementById('btnCancelEdit').style.display = "none";
                 document.getElementById('msCategory').dispatchEvent(new Event('change'));
                 renderMasterSetup();
                 loadSetupDropdowns(); 
@@ -377,9 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==========================================
-    // RESTORED: SINGLE EDIT MODAL LOGIC
-    // ==========================================
     window.editMasterSetup = function(cat, index) {
         const item = setupData[cat][index];
         document.getElementById('seCat').value = cat;
@@ -401,12 +430,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('singleEditModal').classList.add('active');
     };
 
-    document.getElementById('closeSingleEditModal').addEventListener('click', () => {
-        document.getElementById('singleEditModal').classList.remove('active');
-    });
-    document.getElementById('btnCancelSingleEdit').addEventListener('click', () => {
-        document.getElementById('singleEditModal').classList.remove('active');
-    });
+    document.getElementById('closeSingleEditModal').addEventListener('click', () => { document.getElementById('singleEditModal').classList.remove('active'); });
+    document.getElementById('btnCancelSingleEdit').addEventListener('click', () => { document.getElementById('singleEditModal').classList.remove('active'); });
 
     document.getElementById('singleEditForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -414,46 +439,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const idx = document.getElementById('seIndex').value;
         const val = document.getElementById('seValue').value.trim();
 
-        if(cat === 'classes') {
-            setupData[cat][idx] = { 
-                name: val, 
-                section: document.getElementById('seSection').value.trim(), 
-                fee: document.getElementById('seFee').value.trim() 
-            };
-        } else {
-            setupData[cat][idx] = val;
-        }
-
+        if(cat === 'classes') { setupData[cat][idx] = { name: val, section: document.getElementById('seSection').value.trim(), fee: document.getElementById('seFee').value.trim() }; } 
+        else { setupData[cat][idx] = val; }
         document.getElementById('singleEditModal').classList.remove('active');
         saveMasterSetupToDB();
     });
 
-    // ==========================================
-    // RESTORED: PROPER BULK EDIT TABLE LOGIC
-    // ==========================================
     window.openBulkManage = function(cat) {
         document.getElementById('bulkCatTitle').innerText = cat.toUpperCase();
         document.getElementById('bulkCatTitle').dataset.cat = cat;
 
         const thead = document.getElementById('bulkTableHeader');
         const tbody = document.getElementById('bulkTableBody');
-        thead.innerHTML = '';
-        tbody.innerHTML = '';
+        thead.innerHTML = ''; tbody.innerHTML = '';
 
         if(cat === 'classes') {
             thead.innerHTML = '<tr><th>Class Name</th><th>Section</th><th>Fee (₹)</th><th style="width:50px;">Action</th></tr>';
-            if(setupData[cat] && setupData[cat].length > 0) {
-                setupData[cat].forEach(c => addBulkRow(cat, c.name, c.section, c.fee));
-            } else {
-                addBulkRow(cat, '', '', '');
-            }
+            if(setupData[cat] && setupData[cat].length > 0) { setupData[cat].forEach(c => addBulkRow(cat, c.name, c.section, c.fee)); } else { addBulkRow(cat, '', '', ''); }
         } else {
             thead.innerHTML = '<tr><th>Name / Value</th><th style="width:50px;">Action</th></tr>';
-            if(setupData[cat] && setupData[cat].length > 0) {
-                setupData[cat].forEach(val => addBulkRow(cat, val));
-            } else {
-                addBulkRow(cat, '');
-            }
+            if(setupData[cat] && setupData[cat].length > 0) { setupData[cat].forEach(val => addBulkRow(cat, val)); } else { addBulkRow(cat, ''); }
         }
         document.getElementById('bulkManageModal').classList.add('active');
     };
@@ -462,32 +467,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const tbody = document.getElementById('bulkTableBody');
         const tr = document.createElement('tr');
         if(cat === 'classes') {
-            tr.innerHTML = `
-                <td><input type="text" class="blk-val1" value="${val1}" placeholder="Class"></td>
-                <td><input type="text" class="blk-val2" value="${val2}" placeholder="Section"></td>
-                <td><input type="number" class="blk-val3" value="${val3}" placeholder="Fee"></td>
-                <td><button type="button" class="btn-red" onclick="this.closest('tr').remove()">🗑️</button></td>
-            `;
+            tr.innerHTML = `<td><input type="text" class="blk-val1" value="${val1}" placeholder="Class"></td><td><input type="text" class="blk-val2" value="${val2}" placeholder="Section"></td><td><input type="number" class="blk-val3" value="${val3}" placeholder="Fee"></td><td><button type="button" class="btn-red" onclick="this.closest('tr').remove()">🗑️</button></td>`;
         } else {
-            tr.innerHTML = `
-                <td><input type="text" class="blk-val1" value="${val1}" placeholder="Value"></td>
-                <td><button type="button" class="btn-red" onclick="this.closest('tr').remove()">🗑️</button></td>
-            `;
+            tr.innerHTML = `<td><input type="text" class="blk-val1" value="${val1}" placeholder="Value"></td><td><button type="button" class="btn-red" onclick="this.closest('tr').remove()">🗑️</button></td>`;
         }
         tbody.appendChild(tr);
     }
 
-    document.getElementById('btnAddBulkRow').addEventListener('click', () => {
-        const cat = document.getElementById('bulkCatTitle').dataset.cat;
-        addBulkRow(cat);
-    });
-
-    document.getElementById('closeBulkModal').addEventListener('click', () => {
-        document.getElementById('bulkManageModal').classList.remove('active');
-    });
-    document.getElementById('btnCancelBulk').addEventListener('click', () => {
-        document.getElementById('bulkManageModal').classList.remove('active');
-    });
+    document.getElementById('btnAddBulkRow').addEventListener('click', () => { const cat = document.getElementById('bulkCatTitle').dataset.cat; addBulkRow(cat); });
+    document.getElementById('closeBulkModal').addEventListener('click', () => { document.getElementById('bulkManageModal').classList.remove('active'); });
+    document.getElementById('btnCancelBulk').addEventListener('click', () => { document.getElementById('bulkManageModal').classList.remove('active'); });
 
     document.getElementById('btnSaveBulk').addEventListener('click', () => {
         const cat = document.getElementById('bulkCatTitle').dataset.cat;
@@ -496,9 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         rows.forEach(tr => {
             if(cat === 'classes') {
-                let n = tr.querySelector('.blk-val1').value.trim();
-                let s = tr.querySelector('.blk-val2').value.trim();
-                let f = tr.querySelector('.blk-val3').value.trim();
+                let n = tr.querySelector('.blk-val1').value.trim(); let s = tr.querySelector('.blk-val2').value.trim(); let f = tr.querySelector('.blk-val3').value.trim();
                 if(n && s) newData.push({name: n, section: s, fee: f || 0});
             } else {
                 let v = tr.querySelector('.blk-val1').value.trim();
@@ -511,12 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveMasterSetupToDB();
     });
 
-    window.deleteMasterSetup = function(cat, index) {
-        customConfirm("Delete this setup entry?", () => {
-            setupData[cat].splice(index, 1);
-            saveMasterSetupToDB();
-        });
-    }
+    window.deleteMasterSetup = function(cat, index) { customConfirm("Delete this setup entry?", () => { setupData[cat].splice(index, 1); saveMasterSetupToDB(); }); }
 
     function renderMasterSetup() {
         const area = document.getElementById('msDisplayArea');
@@ -527,31 +509,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const titles = { classes: "CLASSES", genders: "GENDERS", categories: "CATEGORIES", bloodGroups: "BLOOD GROUPS", houses: "HOUSES", religions: "RELIGIONS" };
         
         Object.keys(titles).forEach(key => {
-            // RESTORED: Bulk Manage Button in Header
-            let html = `<div style="border:1px solid #eee; border-radius:4px; padding:15px; margin-bottom:10px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #3498db; padding-bottom:5px;">
-                                <h4 style="margin:0; color:#2c3e50; text-transform:uppercase;">${titles[key]}</h4>
-                                <button class="btn-purple" onclick="openBulkManage('${key}')">⚙️ Bulk Manage</button>
-                            </div>
-                            <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">`;
-            
+            let html = `<div style="border:1px solid #eee; border-radius:4px; padding:15px; margin-bottom:10px;"><div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #3498db; padding-bottom:5px;"><h4 style="margin:0; color:#2c3e50; text-transform:uppercase;">${titles[key]}</h4><button class="btn-purple" onclick="openBulkManage('${key}')">⚙️ Bulk Manage</button></div><div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">`;
             if(setupData[key] && setupData[key].length > 0) {
                 setupData[key].forEach((item, idx) => {
                     let displayTxt = "";
-                    if(key === 'classes') displayTxt = `${item.name} (${item.section}) - ₹${item.fee}`;
-                    else displayTxt = item;
-                    
-                    // RESTORED: Edit Icon and Delete Icon inside Pill
-                    html += `<div style="background:#3498db; color:white; padding:5px 12px; border-radius:20px; font-size:13px; display:flex; align-items:center; gap:8px;">
-                        <span>${displayTxt}</span>
-                        <span style="cursor:pointer; font-weight:bold; color:#f1c40f;" onclick="editMasterSetup('${key}', ${idx})" title="Edit">✏️</span>
-                        <span style="cursor:pointer; font-weight:bold; color:#ffcccc;" onclick="deleteMasterSetup('${key}', ${idx})" title="Delete">✕</span>
-                    </div>`;
+                    if(key === 'classes') displayTxt = `${item.name} (${item.section}) - ₹${item.fee}`; else displayTxt = item;
+                    html += `<div style="background:#3498db; color:white; padding:5px 12px; border-radius:20px; font-size:13px; display:flex; align-items:center; gap:8px;"><span>${displayTxt}</span><span style="cursor:pointer; font-weight:bold; color:#f1c40f;" onclick="editMasterSetup('${key}', ${idx})" title="Edit">✏️</span><span style="cursor:pointer; font-weight:bold; color:#ffcccc;" onclick="deleteMasterSetup('${key}', ${idx})" title="Delete">✕</span></div>`;
                 });
-            } else {
-                html += `<span style="color:#999; font-size:12px;">No entries found.</span>`;
-            }
-            
+            } else { html += `<span style="color:#999; font-size:12px;">No entries found.</span>`; }
             html += `</div></div>`;
             area.innerHTML += html;
         });
@@ -562,114 +527,55 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     window.openLedger = function(regNo) {
         let student = appData ? appData.find(s => String(s.regNo) === String(regNo)) : null;
-        
-        let sName = "Unknown (Deleted)";
-        let sClass = "-";
-        let sFather = "-";
+        let sName = "Unknown (Deleted)"; let sClass = "-"; let sFather = "-";
 
-        if (student) {
-            sName = student.studentFirstName || student.studentName || 'N/A';
-            sClass = student.studentClass || '-';
-            sFather = student.fatherName || '-';
-        } else {
-            let rec = feeReceipts.find(r => String(r.Reg_No) === String(regNo));
-            if(rec) {
-                sName = rec.Student_Name;
-                sClass = rec.Class_Section;
-            }
-        }
+        if (student) { sName = student.studentFirstName || student.studentName || 'N/A'; sClass = student.studentClass || '-'; sFather = student.fatherName || '-'; } 
+        else { let rec = feeReceipts.find(r => String(r.Reg_No) === String(regNo)); if(rec) { sName = rec.Student_Name; sClass = rec.Class_Section; } }
         
-        document.getElementById('l-name').innerText = sName; 
-        document.getElementById('l-reg').innerText = regNo; 
-        document.getElementById('l-class').innerText = sClass; 
-        document.getElementById('l-father').innerText = sFather;
+        document.getElementById('l-name').innerText = sName; document.getElementById('l-reg').innerText = regNo; document.getElementById('l-class').innerText = sClass; document.getElementById('l-father').innerText = sFather;
         
         let classFeeAmount = 0;
-        if(student && student.studentClass && setupData && setupData.classes) { 
-            let cSetup = setupData.classes.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass); 
-            if(cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); } 
-        }
+        if(student && student.studentClass && setupData && setupData.classes) { let cSetup = setupData.classes.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass); if(cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); } }
         
-        let paidMap = {}; 
-        let histBody = document.getElementById('ledgerHistoryBody'); 
-        histBody.innerHTML = '';
+        let paidMap = {}; let histBody = document.getElementById('ledgerHistoryBody'); histBody.innerHTML = '';
         
         feeReceipts.forEach(r => {
             if(String(r.Reg_No).trim() === String(regNo).trim()) {
-                
                 let particularsStr = "";
                 try { 
-                    let rawHeads = String(r.Paid_Heads || "").trim();
-                    let rawSummary = String(r.Receipt_Summary || "").trim();
-                    
+                    let rawHeads = String(r.Paid_Heads || "").trim(); let rawSummary = String(r.Receipt_Summary || "").trim();
                     if(rawHeads !== "" && rawHeads !== "[]" && rawHeads.startsWith("[")) {
-                        let details = JSON.parse(rawHeads); 
-                        let pList = [];
+                        let details = JSON.parse(rawHeads); let pList = [];
                         details.forEach(d => { 
                             let pName = d.head || "Fee";
-                            if(d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") {
-                                pName += ` (${d.period})`;
-                            } else if (d.period) {
-                                pName += ` (${d.period})`;
-                            }
+                            if(d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") { pName += ` (${d.period})`; } 
+                            else if (d.period) { pName += ` (${d.period})`; }
                             pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
-                            
-                            let uid = d.head + "_" + d.period; 
-                            paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
+                            let uid = d.head + "_" + d.period; paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
                         }); 
                         particularsStr = pList.join("<br>");
-                        
-                        if (particularsStr === "") {
-                             particularsStr = rawSummary || "Fee Payment";
-                        }
-                    } else if (rawSummary !== "") {
-                        particularsStr = rawSummary;
-                    } else {
-                        particularsStr = "Fee Payment";
-                    }
-                } catch(e){
-                    particularsStr = r.Receipt_Summary || "Details Unavailable";
-                }
+                        if (particularsStr === "") { particularsStr = rawSummary || "Fee Payment"; }
+                    } else if (rawSummary !== "") { particularsStr = rawSummary; } else { particularsStr = "Fee Payment"; }
+                } catch(e){ particularsStr = r.Receipt_Summary || "Details Unavailable"; }
                 
-                let rNo = String(r.Receipt_No).replace("'", ""); 
-                let rDate = String(r.Date).replace("'", "");
-                
+                let rNo = String(r.Receipt_No).replace("'", ""); let rDate = String(r.Date).replace("'", "");
                 histBody.innerHTML += `<tr><td style="padding:10px; border:1px solid #ccc;">${rDate}</td><td style="padding:10px; border:1px solid #ccc;">${rNo}</td><td style="padding:10px; border:1px solid #ccc;">${r.Payment_Mode}</td><td style="padding:10px; border:1px solid #ccc; text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td><td style="padding:10px; border:1px solid #ccc; color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td></tr>`;
             }
         });
         
-        if(histBody.innerHTML === '') {
-            histBody.innerHTML = '<tr><td colspan="5" style="padding:10px; border:1px solid #ccc; text-align:center;">No payment history found.</td></tr>';
-        }
+        if(histBody.innerHTML === '') { histBody.innerHTML = '<tr><td colspan="5" style="padding:10px; border:1px solid #ccc; text-align:center;">No payment history found.</td></tr>'; }
         
-        let tbody = document.getElementById('ledgerTableBody'); 
-        tbody.innerHTML = ''; 
-        let totalDue = 0, totalPaid = 0;
+        let tbody = document.getElementById('ledgerTableBody'); tbody.innerHTML = ''; let totalDue = 0, totalPaid = 0;
         
         academicMonths.forEach(month => {
-            let tAmt = classFeeAmount; 
-            let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0; 
-            let tBal = tAmt - tPaid; 
-            totalDue += tAmt; 
-            totalPaid += tPaid;
-            
-            // HIGHLIGHT FULLY PAID ROWS
-            let rowBg = (tAmt > 0 && tBal <= 0) ? 'background-color:#e8f5e9;' : '';
-            let tStyle = tBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
-            
+            let tAmt = classFeeAmount; let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0; let tBal = tAmt - tPaid; totalDue += tAmt; totalPaid += tPaid;
+            let rowBg = (tAmt > 0 && tBal <= 0) ? 'background-color:#e8f5e9;' : ''; let tStyle = tBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
             tbody.innerHTML += `<tr style="${rowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>Monthly Tuition Fee (${month})</b></td><td style="padding:10px; border:1px solid #ccc;">₹${tAmt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${tPaid.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${tStyle} font-weight:bold;">₹${tBal.toFixed(2)}</td></tr>`;
             
             feeHeads.forEach(fh => {
                 if(fh.Frequency === "Monthly") {
-                    let fhAmt = parseFloat(fh.Amount) || 0; 
-                    let fhPaid = paidMap[fh.Head_Name + "_" + month] || 0; 
-                    let fhBal = fhAmt - fhPaid; 
-                    totalDue += fhAmt; 
-                    totalPaid += fhPaid;
-                    
-                    let subRowBg = (fhAmt > 0 && fhBal <= 0) ? 'background-color:#e8f5e9;' : '';
-                    let fhStyle = fhBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
-                    
+                    let fhAmt = parseFloat(fh.Amount) || 0; let fhPaid = paidMap[fh.Head_Name + "_" + month] || 0; let fhBal = fhAmt - fhPaid; totalDue += fhAmt; totalPaid += fhPaid;
+                    let subRowBg = (fhAmt > 0 && fhBal <= 0) ? 'background-color:#e8f5e9;' : ''; let fhStyle = fhBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
                     tbody.innerHTML += `<tr style="${subRowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (${month})</b></td><td style="padding:10px; border:1px solid #ccc;">₹${fhAmt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${fhPaid.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${fhStyle} font-weight:bold;">₹${fhBal.toFixed(2)}</td></tr>`;
                 }
             });
@@ -677,32 +583,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         feeHeads.forEach(fh => {
             if(fh.Frequency === "Annually" || fh.Frequency === "One Time (Annually)") {
-                let amt = parseFloat(fh.Amount) || 0; 
-                let pd = paidMap[fh.Head_Name + "_" + fh.Frequency] || paidMap[fh.Head_Name + "_Annually"] || 0; 
-                let bal = amt - pd; 
-                totalDue += amt; 
-                totalPaid += pd;
-                
-                let anRowBg = (amt > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
-                let balStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
-                
+                let amt = parseFloat(fh.Amount) || 0; let pd = paidMap[fh.Head_Name + "_" + fh.Frequency] || paidMap[fh.Head_Name + "_Annually"] || 0; let bal = amt - pd; totalDue += amt; totalPaid += pd;
+                let anRowBg = (amt > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : ''; let balStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
                 tbody.innerHTML += `<tr style="${anRowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (Annual)</b></td><td style="padding:10px; border:1px solid #ccc;">₹${amt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${pd.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${balStyle} font-weight:bold;">₹${bal.toFixed(2)}</td></tr>`;
             }
         });
         
-        document.getElementById('l-tot-due').innerText = "₹" + totalDue.toFixed(2); 
-        document.getElementById('l-tot-paid').innerText = "₹" + totalPaid.toFixed(2); 
-        document.getElementById('l-tot-bal').innerText = "₹" + (totalDue - totalPaid).toFixed(2);
-        
+        document.getElementById('l-tot-due').innerText = "₹" + totalDue.toFixed(2); document.getElementById('l-tot-paid').innerText = "₹" + totalPaid.toFixed(2); document.getElementById('l-tot-bal').innerText = "₹" + (totalDue - totalPaid).toFixed(2);
         document.getElementById('ledgerModal').classList.add('active');
     }
     
-    document.getElementById('closeLedgerBtn').addEventListener('click', () => { 
-        document.getElementById('ledgerModal').classList.remove('active'); 
-    });
+    document.getElementById('closeLedgerBtn').addEventListener('click', () => { document.getElementById('ledgerModal').classList.remove('active'); });
 
-    // Ensure initial call triggers after DOM is fully ready
-    setTimeout(() => {
-        syncWithDatabase();
-    }, 100);
+    setTimeout(() => { syncWithDatabase(); }, 100);
 });
