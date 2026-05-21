@@ -41,19 +41,40 @@
                 <h2>STUDENT PROFILES</h2>
             </div>
             <div class="table-container">
-                <div class="table-toolbar" style="background:#e8f4f8; border-left:4px solid #3498db;">
+                
+                <div class="table-toolbar" style="background:#e8f4f8; border-left:4px solid #3498db; position:relative;">
                     <div class="filters" style="display:flex; gap:10px; align-items:center; width:100%;">
-                        <strong>Filter By: </strong>
-                        <select id="filterClass" class="search-small"><option value="">All Classes</option></select>
-                        <select id="filterGender" class="search-small">
-                            <option value="">All Genders</option>
-                            <option value="Male">Male</option><option value="Female">Female</option>
-                        </select>
-                        <input type="text" id="searchName" placeholder="🔍 Search Name..." class="search-small" style="flex:1;">
-                        <button class="btn btn-green-outline" id="btn-apply-filter">Apply Filter</button>
-                        <button class="btn btn-dark" id="btn-refresh-data">🔄 Sync with DB</button>
+                        
+                        <button class="btn btn-dark" id="btn-toggle-filters" style="display:flex; align-items:center; gap:6px; font-size:14px; padding:8px 15px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M3 4c0-.552.448-1 1-1h16c.552 0 1 .448 1 1v3.059c0 .265-.105.52-.293.707l-6.414 6.414A.997.997 0 0 0 14 14.879V20a1 1 0 0 1-1.555.832l-3-2A1 1 0 0 1 9 18v-3.121a.997.997 0 0 0-.293-.707L2.293 7.766A.999.999 0 0 1 2 7.059V4zm2 1.5v1.059l6.707 6.707a1 1 0 0 1 .293.707v3.382l2 1.333v-4.715a1 1 0 0 1 .293-.707L20 6.559V5.5H5z"/></svg>
+                            Filters
+                        </button>
+                        
+                        <div style="position:relative; display:flex; align-items:center; background:white; border:1px solid #27ae60; border-radius:3px; padding:0 10px; flex:1; max-width:400px;">
+                            <span style="color:#7f8c8d; font-size:16px;">⚲</span>
+                            <input type="text" id="searchName" placeholder="Search" style="border:none; outline:none; padding:10px; width:100%; font-size:14px;">
+                        </div>
+                        
+                        <button class="btn btn-dark" id="btn-refresh-data" style="margin-left:auto;">🔄 Sync with DB</button>
+
+                        <div id="filterDropdownPanel" class="filter-dropdown-panel">
+                            <div class="filter-group"><label>Academic Year</label><select id="filterAcadYear"><option>2026-2027</option></select></div>
+                            <div class="filter-group"><label>Class</label><select id="filterClass"><option value="">All</option></select></div>
+                            <div class="filter-group"><label>Section</label><select id="filterSection"><option value="">All</option></select></div>
+                            <div class="filter-group"><label>Student Type</label><select id="filterStudentType"><option value="">All</option><option value="New">New</option><option value="Old">Old</option></select></div>
+                            <div class="filter-group"><label>Status</label><select id="filterStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div>
+                            <div class="filter-group"><label>Group</label><select id="filterGroup"><option value="">Select Group</option></select></div>
+                            <div class="filter-group"><label>Gender</label><select id="filterGender"><option value="">All</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
+                            <div class="filter-group"><label>Wing</label><select id="filterWing"><option value="">All</option></select></div>
+                            <div class="filter-group"><label>Boarding Type</label><select id="filterBoarding"><option value="">All</option><option value="Day Scholar">Day Scholar</option><option value="Hosteler">Hosteler</option></select></div>
+                            <div class="filter-group"><label>Search-on</label><select id="filterSearchOn"><option value="">All</option></select></div>
+                            <div class="filter-group"><label>House</label><select id="filterHouse"><option value="">All</option></select></div>
+                            <div class="filter-group"><label>Fee Category</label><select id="filterFeeCategory"><option value="">All</option></select></div>
+                            <button class="btn" style="background:#5b6e8a; color:white; margin-top:15px; width:100%; border-radius:3px; padding:10px; font-weight:bold;" id="btn-apply-filter">Apply Filter</button>
+                        </div>
                     </div>
                 </div>
+
                 <div style="text-align: right; margin-bottom:10px;">
                     <button class="btn btn-green" id="btn-add-student">⊕ Add Student</button>
                 </div>
@@ -202,6 +223,9 @@
                 <div style="width:35%; background:white; padding:20px; border:1px solid #ccc; border-radius:5px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
                     <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; color:#2c3e50;">Add Single Master Entry</h3>
                     <form id="masterSetupForm" style="margin-top:15px;">
+                        
+                        <input type="hidden" id="msEditIndex" value="-1">
+
                         <div style="margin-bottom:15px;">
                             <label style="font-weight:bold; display:block; margin-bottom:5px; color:#555;">Setup Category *</label>
                             <select id="msCategory" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
@@ -227,7 +251,10 @@
                                 <input type="number" id="msFee" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;" placeholder="e.g., 2000" required>
                             </div>
                         </div>
-                        <button type="submit" id="btnSaveMasterSetup" class="btn btn-green" style="width:100%; padding:10px; font-size:15px;">Save Entry</button>
+                        <div style="display:flex; gap:10px;">
+                            <button type="submit" id="btnSaveMasterSetup" class="btn btn-green" style="flex:1; padding:10px; font-size:15px;">Save Entry</button>
+                            <button type="button" id="btnCancelEdit" class="btn btn-dark" style="display:none; padding:10px;">Cancel</button>
+                        </div>
                     </form>
                 </div>
 
@@ -355,10 +382,8 @@
         <div class="modal-body" style="padding:20px; overflow-y:auto; background:#fcfcfc;">
             
             <table class="bulk-table">
-                <thead id="bulkTableHeader">
-                    </thead>
-                <tbody id="bulkTableBody">
-                    </tbody>
+                <thead id="bulkTableHeader"></thead>
+                <tbody id="bulkTableBody"></tbody>
             </table>
             
             <button type="button" class="btn btn-green-outline" id="btnAddBulkRow" style="margin-top:15px;">⊕ Add Row</button>
