@@ -200,8 +200,11 @@
             <div style="display:flex; gap:20px; align-items: flex-start;">
                 
                 <div style="width:35%; background:white; padding:20px; border:1px solid #ccc; border-radius:5px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-                    <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; color:#2c3e50;">Add Single Master Entry</h3>
+                    <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; color:#2c3e50;">Add / Edit Master Entry</h3>
                     <form id="masterSetupForm" style="margin-top:15px;">
+                        
+                        <input type="hidden" id="msEditIndex" value="-1">
+
                         <div style="margin-bottom:15px;">
                             <label style="font-weight:bold; display:block; margin-bottom:5px; color:#555;">Setup Category *</label>
                             <select id="msCategory" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
@@ -227,7 +230,10 @@
                                 <input type="number" id="msFee" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;" placeholder="e.g., 2000" required>
                             </div>
                         </div>
-                        <button type="submit" id="btnSaveMasterSetup" class="btn btn-green" style="width:100%; padding:10px; font-size:15px;">Save Entry</button>
+                        <div style="display:flex; gap:10px;">
+                            <button type="submit" id="btnSaveMasterSetup" class="btn btn-green" style="flex:1; padding:10px; font-size:15px;">Save Entry</button>
+                            <button type="button" id="btnCancelEdit" class="btn btn-dark" style="display:none; padding:10px;">Cancel</button>
+                        </div>
                     </form>
                 </div>
 
@@ -309,6 +315,23 @@
                     <tbody id="ledgerHistoryBody"></tbody>
                 </table>
             </div> 
+        </div>
+    </div>
+</div>
+
+<div id="bulkManageModal" class="modal-overlay">
+    <div class="modal-card" style="width: 600px;">
+        <div class="modal-header" style="background:#8e44ad;">
+            <h3 style="margin:0; color:white;">Bulk Manage: <span id="bulkCatTitle"></span></h3>
+            <span class="close-modal" id="closeBulkModal" style="cursor:pointer; color:white;">&times;</span>
+        </div>
+        <div class="modal-body" style="padding:20px;">
+            <p style="color:#555; margin-bottom:10px;">Enter comma-separated values (e.g., A, B, C). <br><b>For classes, format exactly as:</b> <code>ClassName (Section) - Fee</code>, e.g., <code>10 (A) - 2000, 10 (B) - 2000</code></p>
+            <textarea id="bulkInputArea" style="width:100%; height:150px; padding:10px; border:1px solid #ccc; border-radius:4px; font-family:monospace; font-size:14px; line-height:1.5;"></textarea>
+            <div style="text-align:right; margin-top:15px; display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn btn-dark" id="btnCancelBulk">Cancel</button>
+                <button class="btn btn-green" id="btnSaveBulk">💾 Save Bulk Entries</button>
+            </div>
         </div>
     </div>
 </div>
