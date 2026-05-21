@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // AUTO LOAD SYNC FUNCTION (FIXED RELIABILITY)
+    // AUTO LOAD SYNC FUNCTION
     // ==========================================
     function syncWithDatabase() {
         const tbody = document.getElementById('studentTableBody'); tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; font-weight:bold;">Syncing with Database... ⏳</td></tr>';
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderTable(appData); 
                 renderDashboard(); 
                 updateNextRegNo(); 
-                renderMasterSetup(); // Load Master Setup Data silently
+                renderMasterSetup(); 
             } else { 
                 tbody.innerHTML = `<tr><td colspan="8" style="color:red;">Error: ${res.message}</td></tr>`; 
             }
@@ -344,19 +344,30 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const cat = document.getElementById('msCategory').value;
             const val = document.getElementById('msValue').value.trim();
+            const editIndex = document.getElementById('msEditIndex').value;
             
             if(!setupData) setupData = { classes: [], genders: [], categories: [], bloodGroups: [], houses: [], religions: [] };
             if(!setupData[cat]) setupData[cat] = [];
             
-            if(cat === 'classes') {
-                const sec = document.getElementById('msSection').value.trim();
-                const fee = document.getElementById('msFee').value.trim();
-                const exists = setupData.classes.some(c => c.name.toLowerCase() === val.toLowerCase() && c.section.toLowerCase() === sec.toLowerCase());
-                if(exists) { customAlert("Class and Section already exists!"); return; }
-                setupData.classes.push({ name: val, section: sec, fee: fee });
+            if(editIndex !== "-1") {
+                // EDIT EXISTING ENTRY
+                if(cat === 'classes') {
+                    setupData[cat][editIndex] = { name: val, section: document.getElementById('msSection').value.trim(), fee: document.getElementById('msFee').value.trim() };
+                } else {
+                    setupData[cat][editIndex] = val;
+                }
             } else {
-                if(setupData[cat].includes(val)) { customAlert("Value already exists!"); return; }
-                setupData[cat].push(val);
+                // ADD NEW ENTRY
+                if(cat === 'classes') {
+                    const sec = document.getElementById('msSection').value.trim();
+                    const fee = document.getElementById('msFee').value.trim();
+                    const exists = setupData.classes.some(c => c.name.toLowerCase() === val.toLowerCase() && c.section.toLowerCase() === sec.toLowerCase());
+                    if(exists) { customAlert("Class and Section already exists!"); return; }
+                    setupData.classes.push({ name: val, section: sec, fee: fee });
+                } else {
+                    if(setupData[cat].includes(val)) { customAlert("Value already exists!"); return; }
+                    setupData[cat].push(val);
+                }
             }
             
             saveMasterSetupToDB();
@@ -372,18 +383,113 @@ document.addEventListener('DOMContentLoaded', () => {
             if(data.status === "Success") {
                 customAlert("Master Setup Synced Successfully!");
                 document.getElementById('masterSetupForm').reset();
+                document.getElementById('msEditIndex').value = "-1";
+                document.getElementById('btnSaveMasterSetup').innerText = "Save Entry";
+                document.getElementById('btnSaveMasterSetup').style.background = "#27ae60";
+                document.getElementById('btnCancelEdit').style.display = "none";
                 document.getElementById('msCategory').dispatchEvent(new Event('change'));
                 renderMasterSetup();
                 loadSetupDropdowns(); 
             }
         }).finally(() => {
-            if(btnSave) { btnSave.innerText = "Save Entry"; btnSave.disabled = false; }
+            if(btnSave) { btnSave.disabled = false; }
         });
     }
     
     window.deleteMasterSetup = function(cat, index) {
         customConfirm("Delete this setup entry?", () => {
             setupData[cat].splice(index, 1);
+            saveMasterSetupToDB();
+        });
+    }
+
+    // RESTORED: Edit Icon Logic
+    window.editMasterSetup = function(cat, index) {
+        const item = setupData[cat][index];
+        document.getElementById('msCategory').value = cat;
+        document.getElementById('msCategory').dispatchEvent(new Event('change'));
+
+        if(cat === 'classes') {
+            document.getElementById('msValue').value = item.name;
+            document.getElementById('msSection').value = item.section;
+            document.getElementById('msFee').value = item.fee;
+        } else {
+            document.getElementById('msValue').value = item;
+        }
+
+        document.getElementById('msEditIndex').value = index; 
+        document.getElementById('btnSaveMasterSetup').innerText = "Update Entry";
+        document.getElementById('btnSaveMasterSetup').style.background = "#f39c12";
+        document.getElementById('btnCancelEdit').style.display = "block";
+    };
+
+    const btnCancelEdit = document.getElementById('btnCancelEdit');
+    if(btnCancelEdit) {
+        btnCancelEdit.addEventListener('click', () => {
+            document.getElementById('masterSetupForm').reset();
+            document.getElementById('msEditIndex').value = "-1";
+            document.getElementById('btnSaveMasterSetup').innerText = "Save Entry";
+            document.getElementById('btnSaveMasterSetup').style.background = "#27ae60";
+            btnCancelEdit.style.display = "none";
+            document.getElementById('msCategory').dispatchEvent(new Event('change'));
+        });
+    }
+
+    // RESTORED: Bulk Manage Logic
+    window.openBulkManage = function(cat) {
+        document.getElementById('bulkCatTitle').innerText = cat.toUpperCase();
+        document.getElementById('bulkCatTitle').dataset.cat = cat;
+
+        let existingStr = "";
+        if(setupData[cat] && setupData[cat].length > 0) {
+             if(cat === 'classes') {
+                 existingStr = setupData[cat].map(c => `${c.name} (${c.section}) - ${c.fee}`).join(", \n");
+             } else {
+                 existingStr = setupData[cat].join(", \n");
+             }
+        }
+        document.getElementById('bulkInputArea').value = existingStr;
+        document.getElementById('bulkManageModal').classList.add('active');
+    };
+
+    const closeBulkModalBtn = document.getElementById('closeBulkModal');
+    if(closeBulkModalBtn) {
+        closeBulkModalBtn.addEventListener('click', () => {
+            document.getElementById('bulkManageModal').classList.remove('active');
+        });
+    }
+
+    const btnCancelBulk = document.getElementById('btnCancelBulk');
+    if(btnCancelBulk) {
+        btnCancelBulk.addEventListener('click', () => {
+            document.getElementById('bulkManageModal').classList.remove('active');
+        });
+    }
+
+    const btnSaveBulk = document.getElementById('btnSaveBulk');
+    if(btnSaveBulk) {
+        btnSaveBulk.addEventListener('click', () => {
+            const cat = document.getElementById('bulkCatTitle').dataset.cat;
+            const rawVal = document.getElementById('bulkInputArea').value;
+            const items = rawVal.split(',').map(s => s.trim()).filter(s => s !== "");
+
+            if(cat === 'classes') {
+                let newClasses = [];
+                items.forEach(str => {
+                     // Regex to match "10 (A) - 2000"
+                     let match = str.match(/(.*?)\((.*?)\)\s*-\s*(\d+)/);
+                     if(match) {
+                         newClasses.push({name: match[1].trim(), section: match[2].trim(), fee: match[3].trim()});
+                     } else {
+                         console.warn("Skipping invalid format:", str);
+                     }
+                });
+                if(newClasses.length > 0) setupData[cat] = newClasses;
+            } else {
+                setupData[cat] = items;
+            }
+
+            document.getElementById('bulkManageModal').classList.remove('active');
             saveMasterSetupToDB();
         });
     }
@@ -397,23 +503,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const titles = { classes: "CLASSES", genders: "GENDERS", categories: "CATEGORIES", bloodGroups: "BLOOD GROUPS", houses: "HOUSES", religions: "RELIGIONS" };
         
         Object.keys(titles).forEach(key => {
+            // RESTORED: Bulk Manage Button in Header
+            let html = `<div style="border:1px solid #eee; border-radius:4px; padding:15px; margin-bottom:10px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #3498db; padding-bottom:5px;">
+                                <h4 style="margin:0; color:#2c3e50; text-transform:uppercase;">${titles[key]}</h4>
+                                <button class="btn-purple" onclick="openBulkManage('${key}')">⚙️ Bulk Manage</button>
+                            </div>
+                            <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">`;
+            
             if(setupData[key] && setupData[key].length > 0) {
-                let html = `<div style="border:1px solid #eee; border-radius:4px; padding:15px; margin-bottom:10px;"><h4 style="margin-top:0; color:#2c3e50; border-bottom:2px solid #3498db; display:inline-block; padding-bottom:5px;">${titles[key]}</h4><div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">`;
-                
                 setupData[key].forEach((item, idx) => {
                     let displayTxt = "";
                     if(key === 'classes') displayTxt = `${item.name} (${item.section}) - ₹${item.fee}`;
                     else displayTxt = item;
                     
+                    // RESTORED: Edit Icon and Delete Icon inside Pill
                     html += `<div style="background:#3498db; color:white; padding:5px 12px; border-radius:20px; font-size:13px; display:flex; align-items:center; gap:8px;">
                         <span>${displayTxt}</span>
-                        <span style="cursor:pointer; font-weight:bold; color:#ffcccc;" onclick="deleteMasterSetup('${key}', ${idx})">✕</span>
+                        <span style="cursor:pointer; font-weight:bold; color:#f1c40f;" onclick="editMasterSetup('${key}', ${idx})" title="Edit">✏️</span>
+                        <span style="cursor:pointer; font-weight:bold; color:#ffcccc;" onclick="deleteMasterSetup('${key}', ${idx})" title="Delete">✕</span>
                     </div>`;
                 });
-                
-                html += `</div></div>`;
-                area.innerHTML += html;
+            } else {
+                html += `<span style="color:#999; font-size:12px;">No entries found.</span>`;
             }
+            
+            html += `</div></div>`;
+            area.innerHTML += html;
         });
     }
 
@@ -513,7 +629,6 @@ document.addEventListener('DOMContentLoaded', () => {
             totalDue += tAmt; 
             totalPaid += tPaid;
             
-            // HIGHLIGHT FULLY PAID ROWS
             let rowBg = (tAmt > 0 && tBal <= 0) ? 'background-color:#e8f5e9;' : '';
             let tStyle = tBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
             
