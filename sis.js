@@ -57,6 +57,28 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let appData = []; let setupData = null; let feeHeads = []; let feeReceipts = [];  
     let charts = { class: null, blood: null, cat: null, rel: null, house: null, age: null };
+    const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
+
+    // ==========================================
+    // IMAGE PREVIEW LOGIC FOR ALL 3 PHOTOS
+    // ==========================================
+    function handleImagePreview(inputId, imgId) {
+        const input = document.getElementById(inputId);
+        const img = document.getElementById(imgId);
+        if(input && img) {
+            input.addEventListener('change', function() {
+                const file = this.files[0];
+                if(file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) { img.src = e.target.result; }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    }
+    handleImagePreview('photoUpload', 'photoPreview');
+    handleImagePreview('fatherPhotoUpload', 'fatherPhotoPreview');
+    handleImagePreview('motherPhotoUpload', 'motherPhotoPreview');
 
     // TABS LOGIC
     const formTabs = document.querySelectorAll('.form-tabs .tab');
@@ -105,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(array) { array.forEach(item => { let val = isObj ? `${item.name} (${item.section})` : item; el.innerHTML += `<option value="${val}">${val}</option>`; }); } 
     }
 
+    // SALUTATIONS LOGIC FOR FATHER/MOTHER
     function fillSalutations() {
         const fSal = document.getElementById('fatherSalutation'); const mSal = document.getElementById('motherSalutation');
         if(fSal) fSal.innerHTML = '<option value="">Select</option>'; if(mSal) mSal.innerHTML = '<option value="">Select</option>';
@@ -116,25 +139,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(gender === 'male' && fSal) fSal.innerHTML += `<option value="${title}">${title}</option>`;
                     if(gender === 'female' && mSal) mSal.innerHTML += `<option value="${title}">${title}</option>`;
                 } else {
-                    // Fallback for old unformatted setup
                     if(fSal) fSal.innerHTML += `<option value="${item}">${item}</option>`;
                 }
             });
         }
     }
 
+    // ==========================================
+    // CASCADING FILTERS WITH ALPHABETICAL SORT
+    // ==========================================
     function loadSetupDropdowns() {
         if(!setupData) return; 
         function fillSelect(id, array, isObj = false) { const el = document.getElementById(id); if(!el) return; el.innerHTML = '<option value="">Select</option>'; if(array) { array.forEach(item => { let val = isObj ? `${item.name} (${item.section})` : item; el.innerHTML += `<option value="${val}">${val}</option>`; }); } }
         
         fillSelect('studentClass', setupData.classes, true); fillSelect('gender', setupData.genders); fillSelect('category', setupData.categories); fillSelect('bloodGroup', setupData.bloodGroups); fillSelect('house', setupData.houses); fillSelect('religion', setupData.religions);
         
-        // Extract unique classes and sections for Filter
         let uniqueClasses = [...new Set((setupData.classes || []).map(c => c.name))];
-        let uniqueSections = [...new Set((setupData.classes || []).map(c => c.section))];
+        // Custom natural sort for classes (e.g. 1, 2, 10 instead of 1, 10, 2)
+        uniqueClasses.sort((a,b) => a.localeCompare(b, undefined, {numeric:true, sensitivity:'base'}));
         
         fillSelectWithAll('filterClass', uniqueClasses);
+        
+        let uniqueSections = [...new Set((setupData.classes || []).map(c => c.section))].sort();
         fillSelectWithAll('filterSection', uniqueSections);
+
         fillSelectWithAll('filterGender', setupData.genders);
         fillSelectWithAll('filterCategory', setupData.categories);
         fillSelectWithAll('filterBloodGroup', setupData.bloodGroups);
@@ -144,7 +172,24 @@ document.addEventListener('DOMContentLoaded', () => {
         fillSalutations();
     }
 
-    // RENDER TABLE WITH SEPARATE CLASS AND SECTION
+    // Dynamic Section Sync based on Selected Class
+    const fClassDropdown = document.getElementById('filterClass');
+    const fSecDropdown = document.getElementById('filterSection');
+    if(fClassDropdown && fSecDropdown) {
+        fClassDropdown.addEventListener('change', function() {
+            let selClass = this.value;
+            fSecDropdown.innerHTML = '<option value="">All</option>';
+            if(selClass && selClass !== "All" && setupData && setupData.classes) {
+                let filteredSecs = setupData.classes.filter(c => c.name === selClass).map(c => c.section);
+                let uniqueSecs = [...new Set(filteredSecs)].sort(); // Ascending order A, B, C
+                uniqueSecs.forEach(sec => { fSecDropdown.innerHTML += `<option value="${sec}">${sec}</option>`; });
+            } else if (setupData && setupData.classes) {
+                let allSecs = [...new Set(setupData.classes.map(c => c.section))].sort();
+                allSecs.forEach(sec => { fSecDropdown.innerHTML += `<option value="${sec}">${sec}</option>`; });
+            }
+        });
+    }
+
     function renderTable(dataToRender) {
         const tbody = document.getElementById('studentTableBody'); tbody.innerHTML = '';
         if(dataToRender.length === 0) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">No records found.</td></tr>'; return; }
@@ -155,21 +200,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if(isSA || userRights.includes("SIS_Edit")) btnHTML += `<button style="background:#f39c12; color:white; border:none; padding:5px; cursor:pointer;" onclick='editStudent(${studentJson})'>✏️ Edit</button> `;
             if(isSA || userRights.includes("SIS_Delete")) btnHTML += `<button style="background:#e74c3c; color:white; border:none; padding:5px; cursor:pointer;" onclick="deleteStudent('${student.regNo}')">🗑️ Del</button>`;
             
-            // Extract Class and Section
             let sClass = "-", sSec = "-";
             if(student.studentClass) {
                 let match = student.studentClass.match(/(.*?)\s*\((.*?)\)/);
                 if(match) { sClass = match[1].trim(); sSec = match[2].trim(); } else { sClass = student.studentClass; }
             }
 
-            tr.innerHTML = `<td>${student.regNo || '-'}</td><td>${sClass}</td><td>${sSec}</td><td>${student.studentFirstName || student.studentName || '-'}</td><td>${student.gender || '-'}</td><td>${student.category || '-'}</td><td>${student.bloodGroup || '-'}</td><td>${student.house || '-'}</td><td>${btnHTML}</td>`;
+            tr.innerHTML = `<td>${student.regNo || '-'}</td><td>${sClass}</td><td>${sSec}</td><td><a href="#" class="student-ledger-link" onclick="openLedger('${student.regNo}')" title="View Fee Ledger">${student.studentFirstName || student.studentName || '-'}</a></td><td>${student.gender || '-'}</td><td>${student.category || '-'}</td><td>${student.bloodGroup || '-'}</td><td>${student.house || '-'}</td><td>${btnHTML}</td>`;
             tbody.appendChild(tr);
         });
     }
 
-    // ==========================================
-    // NEW ADVANCED FILTER & SEARCH (ENTER KEY)
-    // ==========================================
     const btnApplyFilter = document.getElementById('btn-apply-filter');
     const searchNameInput = document.getElementById('searchName');
 
@@ -210,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(btnApplyFilter) btnApplyFilter.addEventListener('click', applyAllFilters);
     
-    // SEARCH ON ENTER KEY ONLY
     if(searchNameInput) {
         searchNameInput.addEventListener('keydown', function(e) {
             if(e.key === 'Enter') { e.preventDefault(); applyAllFilters(); }
@@ -296,16 +336,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // ==========================================
-    // EXPORT DROPDOWN LOGIC (MAIN TABLE)
-    // ==========================================
+    // EXPORT DROPDOWN LOGIC
     const exportToggle = document.getElementById('btnExportStudentsToggle');
     const exportMenu = document.getElementById('studentsExportMenu');
-    
     if(exportToggle && exportMenu) {
-        exportToggle.addEventListener('click', (e) => {
-            e.stopPropagation(); exportMenu.style.display = exportMenu.style.display === 'flex' ? 'none' : 'flex';
-        });
+        exportToggle.addEventListener('click', (e) => { e.stopPropagation(); exportMenu.style.display = exportMenu.style.display === 'flex' ? 'none' : 'flex'; });
         document.addEventListener('click', () => { exportMenu.style.display = 'none'; });
     }
 
@@ -318,7 +353,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('exportStudentsExcelBtn').addEventListener('click', () => {
         let exportDiv = document.getElementById('studentsExportArea').cloneNode(true);
-        // Remove Action columns for clean excel
         exportDiv.querySelectorAll('th:last-child, td:last-child').forEach(el => el.remove());
         let htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; } th, td { border: 1px solid #ddd; padding: 8px; text-align: left; } th { background-color: #2c3e50; color: white; font-weight: bold; }</style></head><body>${exportDiv.innerHTML}</body></html>`;
         let blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
@@ -326,25 +360,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // MASTER SETUP INTEGRATION WITH SALUTATIONS
+    // MASTER SETUP INTEGRATION
     // ==========================================
     const msCategoryEl = document.getElementById('msCategory');
     if(msCategoryEl) {
         msCategoryEl.addEventListener('change', function() {
-            const valInput = document.getElementById('msValue');
-            const classExtra = document.getElementById('msClassExtra');
-            const salExtra = document.getElementById('msSalutationExtra');
-            const cat = this.value;
-            
+            const valInput = document.getElementById('msValue'); const classExtra = document.getElementById('msClassExtra'); const salExtra = document.getElementById('msSalutationExtra'); const cat = this.value;
             classExtra.style.display = 'none'; salExtra.style.display = 'none';
             document.getElementById('msSection').required = false; document.getElementById('msFee').required = false;
-            
-            if(cat === 'classes') {
-                valInput.placeholder = "e.g., Class X (or 10)"; classExtra.style.display = 'block';
-                document.getElementById('msSection').required = true; document.getElementById('msFee').required = true;
-            } else if(cat === 'salutations') {
-                valInput.placeholder = "e.g., Mr., Mrs., Dr."; salExtra.style.display = 'block';
-            } else {
+            if(cat === 'classes') { valInput.placeholder = "e.g., Class X (or 10)"; classExtra.style.display = 'block'; document.getElementById('msSection').required = true; document.getElementById('msFee').required = true; } 
+            else if(cat === 'salutations') { valInput.placeholder = "e.g., Mr., Mrs., Dr."; salExtra.style.display = 'block'; } 
+            else {
                 if(cat === 'genders') valInput.placeholder = "e.g., Male, Female";
                 else if(cat === 'categories') valInput.placeholder = "e.g., General, OBC, SC";
                 else if(cat === 'bloodGroups') valInput.placeholder = "e.g., A+, O-";
@@ -358,19 +384,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if(masterSetupForm) {
         masterSetupForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            const cat = document.getElementById('msCategory').value;
-            const val = document.getElementById('msValue').value.trim();
-            const editIndex = document.getElementById('msEditIndex').value;
-            
+            const cat = document.getElementById('msCategory').value; const val = document.getElementById('msValue').value.trim(); const editIndex = document.getElementById('msEditIndex').value;
             if(!setupData) setupData = { classes: [], genders: [], categories: [], bloodGroups: [], houses: [], religions: [], salutations: [] };
             if(!setupData[cat]) setupData[cat] = [];
             
             if(editIndex !== "-1") {
                 if(cat === 'classes') { setupData[cat][editIndex] = { name: val, section: document.getElementById('msSection').value.trim(), fee: document.getElementById('msFee').value.trim() }; } 
-                else if(cat === 'salutations') {
-                    const gender = document.querySelector('input[name="salGender"]:checked').value;
-                    setupData[cat][editIndex] = `${val} (${gender})`;
-                } else { setupData[cat][editIndex] = val; }
+                else if(cat === 'salutations') { const gender = document.querySelector('input[name="salGender"]:checked').value; setupData[cat][editIndex] = `${val} (${gender})`; } 
+                else { setupData[cat][editIndex] = val; }
             } else {
                 if(cat === 'classes') {
                     const sec = document.getElementById('msSection').value.trim(); const fee = document.getElementById('msFee').value.trim();
@@ -378,8 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(exists) { customAlert("Class and Section already exists!"); return; }
                     setupData.classes.push({ name: val, section: sec, fee: fee });
                 } else if(cat === 'salutations') {
-                    const gender = document.querySelector('input[name="salGender"]:checked').value;
-                    const fullVal = `${val} (${gender})`;
+                    const gender = document.querySelector('input[name="salGender"]:checked').value; const fullVal = `${val} (${gender})`;
                     if(setupData[cat].includes(fullVal)) { customAlert("Value already exists!"); return; }
                     setupData[cat].push(fullVal);
                 } else {
@@ -395,41 +415,17 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "saveSetup", data: setupData }) })
         .then(res => res.json()).then(data => {
             if(data.status === "Success") {
-                customAlert("Master Setup Synced Successfully!");
-                document.getElementById('masterSetupForm').reset();
-                document.getElementById('msEditIndex').value = "-1";
-                document.getElementById('btnSaveMasterSetup').innerText = "Save Entry";
-                document.getElementById('btnSaveMasterSetup').style.background = "#27ae60";
-                document.getElementById('btnCancelEdit').style.display = "none";
-                document.getElementById('msCategory').dispatchEvent(new Event('change'));
-                renderMasterSetup(); loadSetupDropdowns(); 
+                customAlert("Master Setup Synced Successfully!"); document.getElementById('masterSetupForm').reset(); document.getElementById('msEditIndex').value = "-1"; document.getElementById('btnSaveMasterSetup').innerText = "Save Entry"; document.getElementById('btnSaveMasterSetup').style.background = "#27ae60"; document.getElementById('btnCancelEdit').style.display = "none"; document.getElementById('msCategory').dispatchEvent(new Event('change')); renderMasterSetup(); loadSetupDropdowns(); 
             }
         });
     }
 
     window.editMasterSetup = function(cat, index) {
-        const item = setupData[cat][index];
-        document.getElementById('seCat').value = cat; document.getElementById('seIndex').value = index;
-
-        document.getElementById('seClassExtra').style.display = 'none'; document.getElementById('seSection').required = false; document.getElementById('seFee').required = false;
-        document.getElementById('seSalutationExtra').style.display = 'none';
-
-        if(cat === 'classes') {
-            document.getElementById('seValue').value = item.name; document.getElementById('seSection').value = item.section; document.getElementById('seFee').value = item.fee;
-            document.getElementById('seClassExtra').style.display = 'block'; document.getElementById('seSection').required = true; document.getElementById('seFee').required = true;
-        } else if(cat === 'salutations') {
-            let match = item.match(/(.*?)\s*\((.*?)\)/);
-            if(match) {
-                document.getElementById('seValue').value = match[1].trim();
-                let gen = match[2].trim().toLowerCase();
-                document.querySelector(`input[name="seSalGender"][value="${gen === 'male' ? 'Male' : 'Female'}"]`).checked = true;
-            } else {
-                document.getElementById('seValue').value = item;
-            }
-            document.getElementById('seSalutationExtra').style.display = 'block';
-        } else {
-            document.getElementById('seValue').value = item;
-        }
+        const item = setupData[cat][index]; document.getElementById('seCat').value = cat; document.getElementById('seIndex').value = index;
+        document.getElementById('seClassExtra').style.display = 'none'; document.getElementById('seSection').required = false; document.getElementById('seFee').required = false; document.getElementById('seSalutationExtra').style.display = 'none';
+        if(cat === 'classes') { document.getElementById('seValue').value = item.name; document.getElementById('seSection').value = item.section; document.getElementById('seFee').value = item.fee; document.getElementById('seClassExtra').style.display = 'block'; document.getElementById('seSection').required = true; document.getElementById('seFee').required = true; } 
+        else if(cat === 'salutations') { let match = item.match(/(.*?)\s*\((.*?)\)/); if(match) { document.getElementById('seValue').value = match[1].trim(); let gen = match[2].trim().toLowerCase(); document.querySelector(`input[name="seSalGender"][value="${gen === 'male' ? 'Male' : 'Female'}"]`).checked = true; } else { document.getElementById('seValue').value = item; } document.getElementById('seSalutationExtra').style.display = 'block'; } 
+        else { document.getElementById('seValue').value = item; }
         document.getElementById('singleEditModal').classList.add('active');
     };
 
@@ -439,29 +435,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('singleEditForm').addEventListener('submit', function(e) {
         e.preventDefault(); const cat = document.getElementById('seCat').value; const idx = document.getElementById('seIndex').value; const val = document.getElementById('seValue').value.trim();
         if(cat === 'classes') { setupData[cat][idx] = { name: val, section: document.getElementById('seSection').value.trim(), fee: document.getElementById('seFee').value.trim() }; } 
-        else if (cat === 'salutations') {
-            const gender = document.querySelector('input[name="seSalGender"]:checked').value;
-            setupData[cat][idx] = `${val} (${gender})`;
-        } else { setupData[cat][idx] = val; }
+        else if (cat === 'salutations') { const gender = document.querySelector('input[name="seSalGender"]:checked').value; setupData[cat][idx] = `${val} (${gender})`; } 
+        else { setupData[cat][idx] = val; }
         document.getElementById('singleEditModal').classList.remove('active'); saveMasterSetupToDB();
     });
 
     window.openBulkManage = function(cat) {
         document.getElementById('bulkCatTitle').innerText = cat.toUpperCase(); document.getElementById('bulkCatTitle').dataset.cat = cat;
-        const thead = document.getElementById('bulkTableHeader'); const tbody = document.getElementById('bulkTableBody');
-        thead.innerHTML = ''; tbody.innerHTML = '';
-
+        const thead = document.getElementById('bulkTableHeader'); const tbody = document.getElementById('bulkTableBody'); thead.innerHTML = ''; tbody.innerHTML = '';
         if(cat === 'classes') {
             thead.innerHTML = '<tr><th>Class Name</th><th>Section</th><th>Fee (₹)</th><th style="width:50px;">Action</th></tr>';
             if(setupData[cat] && setupData[cat].length > 0) { setupData[cat].forEach(c => addBulkRow(cat, c.name, c.section, c.fee)); } else { addBulkRow(cat, '', '', ''); }
         } else if (cat === 'salutations') {
             thead.innerHTML = '<tr><th>Salutation</th><th>Gender (Male/Female)</th><th style="width:50px;">Action</th></tr>';
-            if(setupData[cat] && setupData[cat].length > 0) { 
-                setupData[cat].forEach(val => {
-                    let match = val.match(/(.*?)\s*\((.*?)\)/);
-                    if(match) addBulkRow(cat, match[1].trim(), match[2].trim()); else addBulkRow(cat, val, '');
-                }); 
-            } else { addBulkRow(cat, '', ''); }
+            if(setupData[cat] && setupData[cat].length > 0) { setupData[cat].forEach(val => { let match = val.match(/(.*?)\s*\((.*?)\)/); if(match) addBulkRow(cat, match[1].trim(), match[2].trim()); else addBulkRow(cat, val, ''); }); } else { addBulkRow(cat, '', ''); }
         } else {
             thead.innerHTML = '<tr><th>Name / Value</th><th style="width:50px;">Action</th></tr>';
             if(setupData[cat] && setupData[cat].length > 0) { setupData[cat].forEach(val => addBulkRow(cat, val)); } else { addBulkRow(cat, ''); }
@@ -471,13 +458,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function addBulkRow(cat, val1='', val2='', val3='') {
         const tbody = document.getElementById('bulkTableBody'); const tr = document.createElement('tr');
-        if(cat === 'classes') {
-            tr.innerHTML = `<td><input type="text" class="blk-val1" value="${val1}" placeholder="Class"></td><td><input type="text" class="blk-val2" value="${val2}" placeholder="Section"></td><td><input type="number" class="blk-val3" value="${val3}" placeholder="Fee"></td><td><button type="button" class="btn-red" onclick="this.closest('tr').remove()">🗑️</button></td>`;
-        } else if (cat === 'salutations') {
-            tr.innerHTML = `<td><input type="text" class="blk-val1" value="${val1}" placeholder="e.g. Mr."></td><td><input type="text" class="blk-val2" value="${val2}" placeholder="Male or Female"></td><td><button type="button" class="btn-red" onclick="this.closest('tr').remove()">🗑️</button></td>`;
-        } else {
-            tr.innerHTML = `<td><input type="text" class="blk-val1" value="${val1}" placeholder="Value"></td><td><button type="button" class="btn-red" onclick="this.closest('tr').remove()">🗑️</button></td>`;
-        }
+        if(cat === 'classes') { tr.innerHTML = `<td><input type="text" class="blk-val1" value="${val1}" placeholder="Class"></td><td><input type="text" class="blk-val2" value="${val2}" placeholder="Section"></td><td><input type="number" class="blk-val3" value="${val3}" placeholder="Fee"></td><td><button type="button" class="btn-red" onclick="this.closest('tr').remove()">🗑️</button></td>`; } 
+        else if (cat === 'salutations') { tr.innerHTML = `<td><input type="text" class="blk-val1" value="${val1}" placeholder="e.g. Mr."></td><td><input type="text" class="blk-val2" value="${val2}" placeholder="Male or Female"></td><td><button type="button" class="btn-red" onclick="this.closest('tr').remove()">🗑️</button></td>`; } 
+        else { tr.innerHTML = `<td><input type="text" class="blk-val1" value="${val1}" placeholder="Value"></td><td><button type="button" class="btn-red" onclick="this.closest('tr').remove()">🗑️</button></td>`; }
         tbody.appendChild(tr);
     }
 
@@ -488,15 +471,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnSaveBulk').addEventListener('click', () => {
         const cat = document.getElementById('bulkCatTitle').dataset.cat; const rows = document.querySelectorAll('#bulkTableBody tr'); let newData = [];
         rows.forEach(tr => {
-            if(cat === 'classes') {
-                let n = tr.querySelector('.blk-val1').value.trim(); let s = tr.querySelector('.blk-val2').value.trim(); let f = tr.querySelector('.blk-val3').value.trim();
-                if(n && s) newData.push({name: n, section: s, fee: f || 0});
-            } else if(cat === 'salutations') {
-                let t = tr.querySelector('.blk-val1').value.trim(); let g = tr.querySelector('.blk-val2').value.trim();
-                if(t && g) newData.push(`${t} (${g})`);
-            } else {
-                let v = tr.querySelector('.blk-val1').value.trim(); if(v) newData.push(v);
-            }
+            if(cat === 'classes') { let n = tr.querySelector('.blk-val1').value.trim(); let s = tr.querySelector('.blk-val2').value.trim(); let f = tr.querySelector('.blk-val3').value.trim(); if(n && s) newData.push({name: n, section: s, fee: f || 0}); } 
+            else if(cat === 'salutations') { let t = tr.querySelector('.blk-val1').value.trim(); let g = tr.querySelector('.blk-val2').value.trim(); if(t && g) newData.push(`${t} (${g})`); } 
+            else { let v = tr.querySelector('.blk-val1').value.trim(); if(v) newData.push(v); }
         });
         setupData[cat] = newData; document.getElementById('bulkManageModal').classList.remove('active'); saveMasterSetupToDB();
     });
@@ -520,5 +497,79 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ==========================================
+    // 8. THE "KUNDLI" - STUDENT FEE LEDGER (RESTORED)
+    // ==========================================
+    window.openLedger = function(regNo) {
+        let student = appData ? appData.find(s => String(s.regNo) === String(regNo)) : null;
+        let sName = "Unknown (Deleted)"; let sClass = "-"; let sFather = "-";
+
+        if (student) { sName = student.studentFirstName || student.studentName || 'N/A'; sClass = student.studentClass || '-'; sFather = student.fatherName || '-'; } 
+        else { let rec = feeReceipts.find(r => String(r.Reg_No) === String(regNo)); if(rec) { sName = rec.Student_Name; sClass = rec.Class_Section; } }
+        
+        document.getElementById('l-name').innerText = sName; document.getElementById('l-reg').innerText = regNo; document.getElementById('l-class').innerText = sClass; document.getElementById('l-father').innerText = sFather;
+        
+        let classFeeAmount = 0;
+        if(student && student.studentClass && setupData && setupData.classes) { let cSetup = setupData.classes.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass); if(cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); } }
+        
+        let paidMap = {}; let histBody = document.getElementById('ledgerHistoryBody'); histBody.innerHTML = '';
+        
+        feeReceipts.forEach(r => {
+            if(String(r.Reg_No).trim() === String(regNo).trim()) {
+                let particularsStr = "";
+                try { 
+                    let rawHeads = String(r.Paid_Heads || "").trim(); let rawSummary = String(r.Receipt_Summary || "").trim();
+                    if(rawHeads !== "" && rawHeads !== "[]" && rawHeads.startsWith("[")) {
+                        let details = JSON.parse(rawHeads); let pList = [];
+                        details.forEach(d => { 
+                            let pName = d.head || "Fee";
+                            if(d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") { pName += ` (${d.period})`; } 
+                            else if (d.period) { pName += ` (${d.period})`; }
+                            pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
+                            let uid = d.head + "_" + d.period; paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
+                        }); 
+                        particularsStr = pList.join("<br>");
+                        if (particularsStr === "") { particularsStr = rawSummary || "Fee Payment"; }
+                    } else if (rawSummary !== "") { particularsStr = rawSummary; } else { particularsStr = "Fee Payment"; }
+                } catch(e){ particularsStr = r.Receipt_Summary || "Details Unavailable"; }
+                
+                let rNo = String(r.Receipt_No).replace("'", ""); let rDate = String(r.Date).replace("'", "");
+                histBody.innerHTML += `<tr><td style="padding:10px; border:1px solid #ccc;">${rDate}</td><td style="padding:10px; border:1px solid #ccc;">${rNo}</td><td style="padding:10px; border:1px solid #ccc;">${r.Payment_Mode}</td><td style="padding:10px; border:1px solid #ccc; text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td><td style="padding:10px; border:1px solid #ccc; color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td></tr>`;
+            }
+        });
+        
+        if(histBody.innerHTML === '') { histBody.innerHTML = '<tr><td colspan="5" style="padding:10px; border:1px solid #ccc; text-align:center;">No payment history found.</td></tr>'; }
+        
+        let tbody = document.getElementById('ledgerTableBody'); tbody.innerHTML = ''; let totalDue = 0, totalPaid = 0;
+        
+        academicMonths.forEach(month => {
+            let tAmt = classFeeAmount; let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0; let tBal = tAmt - tPaid; totalDue += tAmt; totalPaid += tPaid;
+            let rowBg = (tAmt > 0 && tBal <= 0) ? 'background-color:#e8f5e9;' : ''; let tStyle = tBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
+            tbody.innerHTML += `<tr style="${rowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>Monthly Tuition Fee (${month})</b></td><td style="padding:10px; border:1px solid #ccc;">₹${tAmt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${tPaid.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${tStyle} font-weight:bold;">₹${tBal.toFixed(2)}</td></tr>`;
+            
+            feeHeads.forEach(fh => {
+                if(fh.Frequency === "Monthly") {
+                    let fhAmt = parseFloat(fh.Amount) || 0; let fhPaid = paidMap[fh.Head_Name + "_" + month] || 0; let fhBal = fhAmt - fhPaid; totalDue += fhAmt; totalPaid += fhPaid;
+                    let subRowBg = (fhAmt > 0 && fhBal <= 0) ? 'background-color:#e8f5e9;' : ''; let fhStyle = fhBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
+                    tbody.innerHTML += `<tr style="${subRowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (${month})</b></td><td style="padding:10px; border:1px solid #ccc;">₹${fhAmt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${fhPaid.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${fhStyle} font-weight:bold;">₹${fhBal.toFixed(2)}</td></tr>`;
+                }
+            });
+        });
+        
+        feeHeads.forEach(fh => {
+            if(fh.Frequency === "Annually" || fh.Frequency === "One Time (Annually)") {
+                let amt = parseFloat(fh.Amount) || 0; let pd = paidMap[fh.Head_Name + "_" + fh.Frequency] || paidMap[fh.Head_Name + "_Annually"] || 0; let bal = amt - pd; totalDue += amt; totalPaid += pd;
+                let anRowBg = (amt > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : ''; let balStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
+                tbody.innerHTML += `<tr style="${anRowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (Annual)</b></td><td style="padding:10px; border:1px solid #ccc;">₹${amt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${pd.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${balStyle} font-weight:bold;">₹${bal.toFixed(2)}</td></tr>`;
+            }
+        });
+        
+        document.getElementById('l-tot-due').innerText = "₹" + totalDue.toFixed(2); document.getElementById('l-tot-paid').innerText = "₹" + totalPaid.toFixed(2); document.getElementById('l-tot-bal').innerText = "₹" + (totalDue - totalPaid).toFixed(2);
+        document.getElementById('ledgerModal').classList.add('active');
+    }
+    
+    document.getElementById('closeLedgerBtn').addEventListener('click', () => { document.getElementById('ledgerModal').classList.remove('active'); });
+
+    // Initial Trigger
     setTimeout(() => { syncWithDatabase(); }, 100);
 });
