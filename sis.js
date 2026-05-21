@@ -15,6 +15,21 @@ window.customConfirm = function(message, onConfirm) {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // ==========================================
+    // 0. SIDEBAR TOGGLE LOGIC
+    // ==========================================
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('appSidebar');
+    if(sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+    }
+
+    // ==========================================
+    // 1. SECURITY & RBAC
+    // ==========================================
     const activeUserStr = localStorage.getItem('erp_active_user');
     if (!activeUserStr) { window.location.href = 'login.html'; return; }
     
@@ -25,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
 
+    // Verify Session
     fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }) })
     .then(res => res.json())
     .then(data => {
@@ -41,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!isSA) {
         if(!userRights.includes("SIS_Add")) { let addBtn = document.getElementById('btn-add-student'); if(addBtn) addBtn.remove(); }
-        if(!userRights.includes("SIS_Setup")) { let setupLink = document.querySelector('a[href="setup.html"]'); if(setupLink) setupLink.remove(); }
+        if(!userRights.includes("SIS_Setup")) { let setupLink = document.getElementById('setupLinkBtn'); if(setupLink) setupLink.remove(); }
     }
 
     const btnLogout = document.getElementById('btnLogout');
@@ -53,6 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let charts = { class: null, blood: null, cat: null, rel: null, house: null, age: null };
     const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
 
+    // ==========================================
+    // FORM TABS & UI HELPERS
+    // ==========================================
     const formTabs = document.querySelectorAll('.form-tabs .tab');
     const tabContents = document.querySelectorAll('.form-tab-content');
     formTabs.forEach(tab => {
@@ -83,11 +102,33 @@ document.addEventListener('DOMContentLoaded', () => {
         if(document.getElementById('editMode').value === "false") document.getElementById('regNo').value = maxReg + 1;
     }
 
+    // ==========================================
+    // AUTO LOAD SYNC FUNCTION (FIXED RELIABILITY)
+    // ==========================================
     function syncWithDatabase() {
         const tbody = document.getElementById('studentTableBody'); tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; font-weight:bold;">Syncing with Database... ⏳</td></tr>';
-        fetch(scriptURL).then(res => res.json()).then(res => {
-            if(res.status === "Success") { appData = res.data; setupData = res.setup; feeHeads = res.feeHeads || []; feeReceipts = res.receipts || []; loadSetupDropdowns(); renderTable(appData); renderDashboard(); updateNextRegNo(); } else { tbody.innerHTML = `<tr><td colspan="8" style="color:red;">Error: ${res.message}</td></tr>`; }
-        }).catch(e => { tbody.innerHTML = '<tr><td colspan="8" style="color:red; text-align:center;">API Connection Failed</td></tr>'; });
+        
+        fetch(scriptURL)
+        .then(res => res.json())
+        .then(res => {
+            if(res.status === "Success") { 
+                appData = res.data; 
+                setupData = res.setup; 
+                feeHeads = res.feeHeads || []; 
+                feeReceipts = res.receipts || []; 
+                
+                loadSetupDropdowns(); 
+                renderTable(appData); 
+                renderDashboard(); 
+                updateNextRegNo(); 
+                renderMasterSetup(); // Load Master Setup Data silently
+            } else { 
+                tbody.innerHTML = `<tr><td colspan="8" style="color:red;">Error: ${res.message}</td></tr>`; 
+            }
+        }).catch(e => { 
+            tbody.innerHTML = '<tr><td colspan="8" style="color:red; text-align:center;">API Connection Failed</td></tr>'; 
+            console.error(e);
+        });
     }
 
     function loadSetupDropdowns() {
@@ -267,6 +308,116 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
+    // NEW MODULE: MASTER SETUP INTEGRATION
+    // ==========================================
+    
+    // Dynamic Placeholder Logic for Master Setup Form
+    const msCategoryEl = document.getElementById('msCategory');
+    if(msCategoryEl) {
+        msCategoryEl.addEventListener('change', function() {
+            const valInput = document.getElementById('msValue');
+            const classExtra = document.getElementById('msClassExtra');
+            const cat = this.value;
+            
+            if(cat === 'classes') {
+                valInput.placeholder = "e.g., Class X (or 10)";
+                classExtra.style.display = 'block';
+                document.getElementById('msSection').required = true;
+                document.getElementById('msFee').required = true;
+            } else {
+                classExtra.style.display = 'none';
+                document.getElementById('msSection').required = false;
+                document.getElementById('msFee').required = false;
+                
+                if(cat === 'genders') valInput.placeholder = "e.g., Male, Female";
+                else if(cat === 'categories') valInput.placeholder = "e.g., General, OBC, SC";
+                else if(cat === 'bloodGroups') valInput.placeholder = "e.g., A+, O-";
+                else if(cat === 'houses') valInput.placeholder = "e.g., Red House, Blue House";
+                else if(cat === 'religions') valInput.placeholder = "e.g., Hindu, Muslim";
+            }
+        });
+    }
+
+    const masterSetupForm = document.getElementById('masterSetupForm');
+    if(masterSetupForm) {
+        masterSetupForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const cat = document.getElementById('msCategory').value;
+            const val = document.getElementById('msValue').value.trim();
+            
+            if(!setupData) setupData = { classes: [], genders: [], categories: [], bloodGroups: [], houses: [], religions: [] };
+            if(!setupData[cat]) setupData[cat] = [];
+            
+            if(cat === 'classes') {
+                const sec = document.getElementById('msSection').value.trim();
+                const fee = document.getElementById('msFee').value.trim();
+                const exists = setupData.classes.some(c => c.name.toLowerCase() === val.toLowerCase() && c.section.toLowerCase() === sec.toLowerCase());
+                if(exists) { customAlert("Class and Section already exists!"); return; }
+                setupData.classes.push({ name: val, section: sec, fee: fee });
+            } else {
+                if(setupData[cat].includes(val)) { customAlert("Value already exists!"); return; }
+                setupData[cat].push(val);
+            }
+            
+            saveMasterSetupToDB();
+        });
+    }
+
+    function saveMasterSetupToDB() {
+        const btnSave = document.getElementById('btnSaveMasterSetup');
+        if(btnSave) { btnSave.innerText = "Saving..."; btnSave.disabled = true; }
+        
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "saveSetup", data: setupData }) })
+        .then(res => res.json()).then(data => {
+            if(data.status === "Success") {
+                customAlert("Master Setup Synced Successfully!");
+                document.getElementById('masterSetupForm').reset();
+                document.getElementById('msCategory').dispatchEvent(new Event('change'));
+                renderMasterSetup();
+                loadSetupDropdowns(); 
+            }
+        }).finally(() => {
+            if(btnSave) { btnSave.innerText = "Save Entry"; btnSave.disabled = false; }
+        });
+    }
+    
+    window.deleteMasterSetup = function(cat, index) {
+        customConfirm("Delete this setup entry?", () => {
+            setupData[cat].splice(index, 1);
+            saveMasterSetupToDB();
+        });
+    }
+
+    function renderMasterSetup() {
+        const area = document.getElementById('msDisplayArea');
+        if(!area) return;
+        area.innerHTML = '';
+        if(!setupData) return;
+        
+        const titles = { classes: "CLASSES", genders: "GENDERS", categories: "CATEGORIES", bloodGroups: "BLOOD GROUPS", houses: "HOUSES", religions: "RELIGIONS" };
+        
+        Object.keys(titles).forEach(key => {
+            if(setupData[key] && setupData[key].length > 0) {
+                let html = `<div style="border:1px solid #eee; border-radius:4px; padding:15px; margin-bottom:10px;"><h4 style="margin-top:0; color:#2c3e50; border-bottom:2px solid #3498db; display:inline-block; padding-bottom:5px;">${titles[key]}</h4><div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">`;
+                
+                setupData[key].forEach((item, idx) => {
+                    let displayTxt = "";
+                    if(key === 'classes') displayTxt = `${item.name} (${item.section}) - ₹${item.fee}`;
+                    else displayTxt = item;
+                    
+                    html += `<div style="background:#3498db; color:white; padding:5px 12px; border-radius:20px; font-size:13px; display:flex; align-items:center; gap:8px;">
+                        <span>${displayTxt}</span>
+                        <span style="cursor:pointer; font-weight:bold; color:#ffcccc;" onclick="deleteMasterSetup('${key}', ${idx})">✕</span>
+                    </div>`;
+                });
+                
+                html += `</div></div>`;
+                area.innerHTML += html;
+            }
+        });
+    }
+
+    // ==========================================
     // 8. THE "KUNDLI" - STUDENT FEE LEDGER 
     // ==========================================
     window.openLedger = function(regNo) {
@@ -410,5 +561,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('ledgerModal').classList.remove('active'); 
     });
 
-    initData();
+    // Ensure initial call triggers after DOM is fully ready
+    setTimeout(() => {
+        syncWithDatabase();
+    }, 100);
 });
