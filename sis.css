@@ -45,6 +45,10 @@ body, html { height: 100%; background-color: #f4f4f9; }
 .btn-green-outline { background: white; color: #27ae60; border: 1px solid #27ae60; }
 .btn-red { background: #e74c3c; color: white; cursor: pointer; border: none; padding: 5px; border-radius: 3px;}
 
+/* BULK MANAGE BUTTON STYLE */
+.btn-purple { background: #8e44ad; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.3s;}
+.btn-purple:hover { background: #9b59b6; }
+
 .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .data-table th, .data-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
 .data-table th { background-color: #f1f1f1; color: #333; font-weight: bold; }
