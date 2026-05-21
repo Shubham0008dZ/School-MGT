@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // NEW MODULE: MASTER SETUP INTEGRATION
+    // RESTORED NEW MODULE: MASTER SETUP INTEGRATION
     // ==========================================
     
     // Dynamic Placeholder Logic for Master Setup Form
@@ -344,30 +344,20 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const cat = document.getElementById('msCategory').value;
             const val = document.getElementById('msValue').value.trim();
-            const editIndex = document.getElementById('msEditIndex').value;
             
             if(!setupData) setupData = { classes: [], genders: [], categories: [], bloodGroups: [], houses: [], religions: [] };
             if(!setupData[cat]) setupData[cat] = [];
             
-            if(editIndex !== "-1") {
-                // EDIT EXISTING ENTRY
-                if(cat === 'classes') {
-                    setupData[cat][editIndex] = { name: val, section: document.getElementById('msSection').value.trim(), fee: document.getElementById('msFee').value.trim() };
-                } else {
-                    setupData[cat][editIndex] = val;
-                }
+            // Note: This is for single entry ADD only. Edit uses Modal now.
+            if(cat === 'classes') {
+                const sec = document.getElementById('msSection').value.trim();
+                const fee = document.getElementById('msFee').value.trim();
+                const exists = setupData.classes.some(c => c.name.toLowerCase() === val.toLowerCase() && c.section.toLowerCase() === sec.toLowerCase());
+                if(exists) { customAlert("Class and Section already exists!"); return; }
+                setupData.classes.push({ name: val, section: sec, fee: fee });
             } else {
-                // ADD NEW ENTRY
-                if(cat === 'classes') {
-                    const sec = document.getElementById('msSection').value.trim();
-                    const fee = document.getElementById('msFee').value.trim();
-                    const exists = setupData.classes.some(c => c.name.toLowerCase() === val.toLowerCase() && c.section.toLowerCase() === sec.toLowerCase());
-                    if(exists) { customAlert("Class and Section already exists!"); return; }
-                    setupData.classes.push({ name: val, section: sec, fee: fee });
-                } else {
-                    if(setupData[cat].includes(val)) { customAlert("Value already exists!"); return; }
-                    setupData[cat].push(val);
-                }
+                if(setupData[cat].includes(val)) { customAlert("Value already exists!"); return; }
+                setupData[cat].push(val);
             }
             
             saveMasterSetupToDB();
@@ -375,121 +365,155 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveMasterSetupToDB() {
-        const btnSave = document.getElementById('btnSaveMasterSetup');
-        if(btnSave) { btnSave.innerText = "Saving..."; btnSave.disabled = true; }
-        
         fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "saveSetup", data: setupData }) })
         .then(res => res.json()).then(data => {
             if(data.status === "Success") {
                 customAlert("Master Setup Synced Successfully!");
                 document.getElementById('masterSetupForm').reset();
-                document.getElementById('msEditIndex').value = "-1";
-                document.getElementById('btnSaveMasterSetup').innerText = "Save Entry";
-                document.getElementById('btnSaveMasterSetup').style.background = "#27ae60";
-                document.getElementById('btnCancelEdit').style.display = "none";
                 document.getElementById('msCategory').dispatchEvent(new Event('change'));
                 renderMasterSetup();
                 loadSetupDropdowns(); 
             }
-        }).finally(() => {
-            if(btnSave) { btnSave.disabled = false; }
-        });
-    }
-    
-    window.deleteMasterSetup = function(cat, index) {
-        customConfirm("Delete this setup entry?", () => {
-            setupData[cat].splice(index, 1);
-            saveMasterSetupToDB();
         });
     }
 
-    // RESTORED: Edit Icon Logic
+    // ==========================================
+    // RESTORED: SINGLE EDIT MODAL LOGIC
+    // ==========================================
     window.editMasterSetup = function(cat, index) {
         const item = setupData[cat][index];
-        document.getElementById('msCategory').value = cat;
-        document.getElementById('msCategory').dispatchEvent(new Event('change'));
+        document.getElementById('seCat').value = cat;
+        document.getElementById('seIndex').value = index;
 
         if(cat === 'classes') {
-            document.getElementById('msValue').value = item.name;
-            document.getElementById('msSection').value = item.section;
-            document.getElementById('msFee').value = item.fee;
+            document.getElementById('seValue').value = item.name;
+            document.getElementById('seSection').value = item.section;
+            document.getElementById('seFee').value = item.fee;
+            document.getElementById('seClassExtra').style.display = 'block';
+            document.getElementById('seSection').required = true;
+            document.getElementById('seFee').required = true;
         } else {
-            document.getElementById('msValue').value = item;
+            document.getElementById('seValue').value = item;
+            document.getElementById('seClassExtra').style.display = 'none';
+            document.getElementById('seSection').required = false;
+            document.getElementById('seFee').required = false;
         }
-
-        document.getElementById('msEditIndex').value = index; 
-        document.getElementById('btnSaveMasterSetup').innerText = "Update Entry";
-        document.getElementById('btnSaveMasterSetup').style.background = "#f39c12";
-        document.getElementById('btnCancelEdit').style.display = "block";
+        document.getElementById('singleEditModal').classList.add('active');
     };
 
-    const btnCancelEdit = document.getElementById('btnCancelEdit');
-    if(btnCancelEdit) {
-        btnCancelEdit.addEventListener('click', () => {
-            document.getElementById('masterSetupForm').reset();
-            document.getElementById('msEditIndex').value = "-1";
-            document.getElementById('btnSaveMasterSetup').innerText = "Save Entry";
-            document.getElementById('btnSaveMasterSetup').style.background = "#27ae60";
-            btnCancelEdit.style.display = "none";
-            document.getElementById('msCategory').dispatchEvent(new Event('change'));
-        });
-    }
+    document.getElementById('closeSingleEditModal').addEventListener('click', () => {
+        document.getElementById('singleEditModal').classList.remove('active');
+    });
+    document.getElementById('btnCancelSingleEdit').addEventListener('click', () => {
+        document.getElementById('singleEditModal').classList.remove('active');
+    });
 
-    // RESTORED: Bulk Manage Logic
+    document.getElementById('singleEditForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const cat = document.getElementById('seCat').value;
+        const idx = document.getElementById('seIndex').value;
+        const val = document.getElementById('seValue').value.trim();
+
+        if(cat === 'classes') {
+            setupData[cat][idx] = { 
+                name: val, 
+                section: document.getElementById('seSection').value.trim(), 
+                fee: document.getElementById('seFee').value.trim() 
+            };
+        } else {
+            setupData[cat][idx] = val;
+        }
+
+        document.getElementById('singleEditModal').classList.remove('active');
+        saveMasterSetupToDB();
+    });
+
+    // ==========================================
+    // RESTORED: PROPER BULK EDIT TABLE LOGIC
+    // ==========================================
     window.openBulkManage = function(cat) {
         document.getElementById('bulkCatTitle').innerText = cat.toUpperCase();
         document.getElementById('bulkCatTitle').dataset.cat = cat;
 
-        let existingStr = "";
-        if(setupData[cat] && setupData[cat].length > 0) {
-             if(cat === 'classes') {
-                 existingStr = setupData[cat].map(c => `${c.name} (${c.section}) - ${c.fee}`).join(", \n");
-             } else {
-                 existingStr = setupData[cat].join(", \n");
-             }
+        const thead = document.getElementById('bulkTableHeader');
+        const tbody = document.getElementById('bulkTableBody');
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
+
+        if(cat === 'classes') {
+            thead.innerHTML = '<tr><th>Class Name</th><th>Section</th><th>Fee (₹)</th><th style="width:50px;">Action</th></tr>';
+            if(setupData[cat] && setupData[cat].length > 0) {
+                setupData[cat].forEach(c => addBulkRow(cat, c.name, c.section, c.fee));
+            } else {
+                addBulkRow(cat, '', '', '');
+            }
+        } else {
+            thead.innerHTML = '<tr><th>Name / Value</th><th style="width:50px;">Action</th></tr>';
+            if(setupData[cat] && setupData[cat].length > 0) {
+                setupData[cat].forEach(val => addBulkRow(cat, val));
+            } else {
+                addBulkRow(cat, '');
+            }
         }
-        document.getElementById('bulkInputArea').value = existingStr;
         document.getElementById('bulkManageModal').classList.add('active');
     };
 
-    const closeBulkModalBtn = document.getElementById('closeBulkModal');
-    if(closeBulkModalBtn) {
-        closeBulkModalBtn.addEventListener('click', () => {
-            document.getElementById('bulkManageModal').classList.remove('active');
-        });
+    function addBulkRow(cat, val1='', val2='', val3='') {
+        const tbody = document.getElementById('bulkTableBody');
+        const tr = document.createElement('tr');
+        if(cat === 'classes') {
+            tr.innerHTML = `
+                <td><input type="text" class="blk-val1" value="${val1}" placeholder="Class"></td>
+                <td><input type="text" class="blk-val2" value="${val2}" placeholder="Section"></td>
+                <td><input type="number" class="blk-val3" value="${val3}" placeholder="Fee"></td>
+                <td><button type="button" class="btn-red" onclick="this.closest('tr').remove()">🗑️</button></td>
+            `;
+        } else {
+            tr.innerHTML = `
+                <td><input type="text" class="blk-val1" value="${val1}" placeholder="Value"></td>
+                <td><button type="button" class="btn-red" onclick="this.closest('tr').remove()">🗑️</button></td>
+            `;
+        }
+        tbody.appendChild(tr);
     }
 
-    const btnCancelBulk = document.getElementById('btnCancelBulk');
-    if(btnCancelBulk) {
-        btnCancelBulk.addEventListener('click', () => {
-            document.getElementById('bulkManageModal').classList.remove('active');
-        });
-    }
+    document.getElementById('btnAddBulkRow').addEventListener('click', () => {
+        const cat = document.getElementById('bulkCatTitle').dataset.cat;
+        addBulkRow(cat);
+    });
 
-    const btnSaveBulk = document.getElementById('btnSaveBulk');
-    if(btnSaveBulk) {
-        btnSaveBulk.addEventListener('click', () => {
-            const cat = document.getElementById('bulkCatTitle').dataset.cat;
-            const rawVal = document.getElementById('bulkInputArea').value;
-            const items = rawVal.split(',').map(s => s.trim()).filter(s => s !== "");
+    document.getElementById('closeBulkModal').addEventListener('click', () => {
+        document.getElementById('bulkManageModal').classList.remove('active');
+    });
+    document.getElementById('btnCancelBulk').addEventListener('click', () => {
+        document.getElementById('bulkManageModal').classList.remove('active');
+    });
 
+    document.getElementById('btnSaveBulk').addEventListener('click', () => {
+        const cat = document.getElementById('bulkCatTitle').dataset.cat;
+        const rows = document.querySelectorAll('#bulkTableBody tr');
+        let newData = [];
+
+        rows.forEach(tr => {
             if(cat === 'classes') {
-                let newClasses = [];
-                items.forEach(str => {
-                     // Regex to match "10 (A) - 2000"
-                     let match = str.match(/(.*?)\((.*?)\)\s*-\s*(\d+)/);
-                     if(match) {
-                         newClasses.push({name: match[1].trim(), section: match[2].trim(), fee: match[3].trim()});
-                     } else {
-                         console.warn("Skipping invalid format:", str);
-                     }
-                });
-                if(newClasses.length > 0) setupData[cat] = newClasses;
+                let n = tr.querySelector('.blk-val1').value.trim();
+                let s = tr.querySelector('.blk-val2').value.trim();
+                let f = tr.querySelector('.blk-val3').value.trim();
+                if(n && s) newData.push({name: n, section: s, fee: f || 0});
             } else {
-                setupData[cat] = items;
+                let v = tr.querySelector('.blk-val1').value.trim();
+                if(v) newData.push(v);
             }
+        });
 
-            document.getElementById('bulkManageModal').classList.remove('active');
+        setupData[cat] = newData;
+        document.getElementById('bulkManageModal').classList.remove('active');
+        saveMasterSetupToDB();
+    });
+
+    window.deleteMasterSetup = function(cat, index) {
+        customConfirm("Delete this setup entry?", () => {
+            setupData[cat].splice(index, 1);
             saveMasterSetupToDB();
         });
     }
@@ -629,6 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
             totalDue += tAmt; 
             totalPaid += tPaid;
             
+            // HIGHLIGHT FULLY PAID ROWS
             let rowBg = (tAmt > 0 && tBal <= 0) ? 'background-color:#e8f5e9;' : '';
             let tStyle = tBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
             
