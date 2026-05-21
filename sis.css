@@ -113,3 +113,27 @@ body, html { height: 100%; background-color: #f4f4f9; }
 .bulk-table th { background-color: #f1f1f1; color: #333; font-weight: bold; }
 .bulk-table input { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 3px; box-sizing: border-box; }
 .bulk-table input:focus { border-color: #3498db; outline: none; }
+
+/* ==============================================
+   NEW FILTER DROPDOWN PANEL & CUSTOM SEARCH 
+   ============================================== */
+.filter-dropdown-panel {
+    display: none;
+    position: absolute;
+    top: 45px;
+    left: 0;
+    background-color: #2c3e50;
+    color: white;
+    padding: 15px;
+    border-radius: 4px;
+    width: 320px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    max-height: 450px;
+    overflow-y: auto;
+}
+.filter-dropdown-panel::-webkit-scrollbar { width: 6px; }
+.filter-dropdown-panel::-webkit-scrollbar-thumb { background: #7f8c8d; border-radius: 3px; }
+.filter-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.filter-group label { font-size: 12px; font-weight: bold; width: 40%; color: #ecf0f1;}
+.filter-group select { width: 55%; padding: 6px; font-size: 12px; border-radius: 3px; border: 1px solid #455a64; color: #333; background: white; }
