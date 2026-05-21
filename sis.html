@@ -41,7 +41,6 @@
                 <h2>STUDENT PROFILES</h2>
             </div>
             <div class="table-container">
-                
                 <div class="table-toolbar" style="background:#e8f4f8; border-left:4px solid #3498db; position:relative;">
                     <div class="filters" style="display:flex; gap:10px; align-items:center; width:100%;">
                         
@@ -52,42 +51,48 @@
                         
                         <div style="position:relative; display:flex; align-items:center; background:white; border:1px solid #27ae60; border-radius:3px; padding:0 10px; flex:1; max-width:400px;">
                             <span style="color:#7f8c8d; font-size:16px;">⚲</span>
-                            <input type="text" id="searchName" placeholder="Search" style="border:none; outline:none; padding:10px; width:100%; font-size:14px;">
+                            <input type="text" id="searchName" placeholder="Search and press Enter" style="border:none; outline:none; padding:10px; width:100%; font-size:14px;">
                         </div>
                         
                         <button class="btn btn-dark" id="btn-refresh-data" style="margin-left:auto;">🔄 Sync with DB</button>
 
                         <div id="filterDropdownPanel" class="filter-dropdown-panel">
-                            <div class="filter-group"><label>Academic Year</label><select id="filterAcadYear"><option>2026-2027</option></select></div>
                             <div class="filter-group"><label>Class</label><select id="filterClass"><option value="">All</option></select></div>
                             <div class="filter-group"><label>Section</label><select id="filterSection"><option value="">All</option></select></div>
-                            <div class="filter-group"><label>Student Type</label><select id="filterStudentType"><option value="">All</option><option value="New">New</option><option value="Old">Old</option></select></div>
-                            <div class="filter-group"><label>Status</label><select id="filterStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div>
-                            <div class="filter-group"><label>Group</label><select id="filterGroup"><option value="">Select Group</option></select></div>
                             <div class="filter-group"><label>Gender</label><select id="filterGender"><option value="">All</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
-                            <div class="filter-group"><label>Wing</label><select id="filterWing"><option value="">All</option></select></div>
-                            <div class="filter-group"><label>Boarding Type</label><select id="filterBoarding"><option value="">All</option><option value="Day Scholar">Day Scholar</option><option value="Hosteler">Hosteler</option></select></div>
-                            <div class="filter-group"><label>Search-on</label><select id="filterSearchOn"><option value="">All</option></select></div>
+                            <div class="filter-group"><label>Category</label><select id="filterCategory"><option value="">All</option></select></div>
+                            <div class="filter-group"><label>Blood Grp</label><select id="filterBloodGroup"><option value="">All</option></select></div>
                             <div class="filter-group"><label>House</label><select id="filterHouse"><option value="">All</option></select></div>
-                            <div class="filter-group"><label>Fee Category</label><select id="filterFeeCategory"><option value="">All</option></select></div>
+                            <div class="filter-group"><label>Religion</label><select id="filterReligion"><option value="">All</option></select></div>
+                            
                             <button class="btn" style="background:#5b6e8a; color:white; margin-top:15px; width:100%; border-radius:3px; padding:10px; font-weight:bold;" id="btn-apply-filter">Apply Filter</button>
                         </div>
                     </div>
                 </div>
 
-                <div style="text-align: right; margin-bottom:10px;">
+                <div style="text-align: right; margin-bottom:10px; display:flex; justify-content:flex-end; gap:10px;">
+                    <div class="dropdown" style="position:relative;">
+                        <button id="btnExportStudentsToggle" class="btn btn-dark" style="padding:8px 15px; font-size:13px;">Export ▼</button>
+                        <div id="studentsExportMenu" style="display:none; position:absolute; top:100%; right:0; background:white; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 8px rgba(0,0,0,0.3); z-index:9999; flex-direction:column; min-width:160px; overflow:hidden;">
+                            <button id="exportStudentsPdfBtn" style="background:white; color:#333; border:none; padding:10px; text-align:left; cursor:pointer; width:100%; border-bottom:1px solid #eee; font-weight:bold;">📄 Export to PDF</button>
+                            <button id="exportStudentsExcelBtn" style="background:white; color:#333; border:none; padding:10px; text-align:left; cursor:pointer; width:100%; font-weight:bold;">📊 Export to EXCEL</button>
+                        </div>
+                    </div>
                     <button class="btn btn-green" id="btn-add-student">⊕ Add Student</button>
                 </div>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Reg No.</th><th>Class (Sec)</th><th>First Name</th><th>Gender</th><th>Category</th><th>Blood Grp</th><th>House</th><th>Actions (Edit/Del)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="studentTableBody">
-                        <tr><td colspan="8" style="text-align: center;">Syncing with Database...</td></tr>
-                    </tbody>
-                </table>
+                
+                <div id="studentsExportArea">
+                    <table class="data-table" id="studentsMainTable">
+                        <thead>
+                            <tr>
+                                <th>Reg No.</th><th>Class</th><th>Section</th><th>First Name</th><th>Gender</th><th>Category</th><th>Blood Grp</th><th>House</th><th>Actions (Edit/Del)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            <tr><td colspan="9" style="text-align: center;">Syncing with Database...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -146,10 +151,11 @@
                             <div class="input-group"><label>Aadhaar No.</label><input type="text" id="aadhaarNo" maxlength="12" placeholder="12-digit format"></div>
                             <div class="input-group"><label>Prev. School Name</label><input type="text" id="prevSchool"></div>
                         </div>
+                        
                         <h4 class="section-title">Father Details</h4>
                         <div class="form-row grid-row">
+                            <div class="input-group"><label>Salutation</label><select id="fatherSalutation"></select></div>
                             <div class="input-group"><label>Father Name</label><input type="text" id="fatherName"></div>
-                            <div class="input-group"><label>Salutation</label><select id="fatherSalutation"><option>MR</option><option>DR</option><option>LATE</option></select></div>
                             <div class="input-group"><label>Primary Contact</label><input type="tel" id="fatherContact"></div>
                             <div class="input-group"><label>WhatsApp No.</label><input type="tel" id="fatherWhatsapp"></div>
                             <div class="input-group"><label>Profession</label><input type="text" id="fatherProfession"></div>
@@ -161,10 +167,11 @@
                             <div class="input-group"><label>Office Address</label><input type="text" id="fatherOfficeAddress"></div>
                             <div class="input-group"><label>Father Aadhaar</label><input type="text" id="fatherAadhaar"></div>
                         </div>
+
                         <h4 class="section-title">Mother Details</h4>
                         <div class="form-row grid-row">
+                            <div class="input-group"><label>Salutation</label><select id="motherSalutation"></select></div>
                             <div class="input-group"><label>Mother Name</label><input type="text" id="motherName"></div>
-                            <div class="input-group"><label>Salutation</label><select id="motherSalutation"><option>MRS</option><option>DR</option><option>LATE</option></select></div>
                             <div class="input-group"><label>Primary Contact</label><input type="tel" id="motherContact"></div>
                             <div class="input-group"><label>WhatsApp No.</label><input type="tel" id="motherWhatsapp"></div>
                             <div class="input-group"><label>Profession</label><input type="text" id="motherProfession"></div>
@@ -176,6 +183,7 @@
                             <div class="input-group"><label>Office Address</label><input type="text" id="motherOfficeAddress"></div>
                             <div class="input-group"><label>Mother Aadhaar</label><input type="text" id="motherAadhaar"></div>
                         </div>
+
                         <h4 class="section-title">Correspondence Address</h4>
                         <div class="form-row grid-row">
                             <div class="input-group" style="width:100%;"><label>Address</label><input type="text" id="corrAddress"></div>
@@ -235,12 +243,14 @@
                                 <option value="bloodGroups">Blood Groups</option>
                                 <option value="houses">Houses</option>
                                 <option value="religions">Religions</option>
+                                <option value="salutations">Salutations</option>
                             </select>
                         </div>
                         <div style="margin-bottom:15px;">
                             <label style="font-weight:bold; display:block; margin-bottom:5px; color:#555;">Name / Value *</label>
                             <input type="text" id="msValue" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;" placeholder="e.g., Class X (or 10)">
                         </div>
+                        
                         <div id="msClassExtra" style="display:block;">
                             <div style="margin-bottom:15px;">
                                 <label style="font-weight:bold; display:block; margin-bottom:5px; color:#555;">Section *</label>
@@ -251,6 +261,15 @@
                                 <input type="number" id="msFee" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;" placeholder="e.g., 2000" required>
                             </div>
                         </div>
+
+                        <div id="msSalutationExtra" style="display:none; margin-bottom:15px; background:#f9f9f9; padding:10px; border-radius:4px; border:1px solid #ddd;">
+                            <label style="font-weight:bold; display:block; margin-bottom:10px; color:#555;">Select Gender for Salutation *</label>
+                            <div style="display:flex; gap:15px;">
+                                <label style="cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="radio" name="salGender" value="Male" checked> Male (Father)</label>
+                                <label style="cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="radio" name="salGender" value="Female"> Female (Mother)</label>
+                            </div>
+                        </div>
+
                         <div style="display:flex; gap:10px;">
                             <button type="submit" id="btnSaveMasterSetup" class="btn btn-green" style="flex:1; padding:10px; font-size:15px;">Save Entry</button>
                             <button type="button" id="btnCancelEdit" class="btn btn-dark" style="display:none; padding:10px;">Cancel</button>
@@ -267,76 +286,6 @@
             </div>
         </div>
 
-    </div>
-</div>
-
-<div id="ledgerModal" class="modal-overlay">
-    <div class="modal-card" style="width:900px; max-height:95vh;">
-        <div class="modal-header" style="display:flex; align-items:center; justify-content:space-between; padding:15px 20px; background:#2c3e50; border-radius:8px 8px 0 0;">
-            <div style="display:flex; align-items:center; gap:20px;">
-                <h3 style="margin:0; color:white;">Student Fee Ledger (2026-27)</h3>
-                <div class="dropdown" style="position:relative;">
-                    <button id="btnExportLedgerToggle" style="background:#f39c12; color:white; border:none; padding:6px 15px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:13px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">Export ▼</button>
-                    <div id="ledgerExportMenu" style="display:none; position:absolute; top:110%; left:0; background:white; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 8px rgba(0,0,0,0.3); z-index:9999; flex-direction:column; min-width:160px; overflow:hidden;">
-                        <button id="exportLedgerPdfBtn" style="background:white; color:#333; border:none; padding:12px; text-align:left; cursor:pointer; width:100%; border-bottom:1px solid #eee; font-weight:bold;">📄 Export to PDF</button>
-                        <button id="exportLedgerExcelBtn" style="background:white; color:#333; border:none; padding:12px; text-align:left; cursor:pointer; width:100%; font-weight:bold;">📊 Export to EXCEL</button>
-                    </div>
-                </div>
-            </div>
-            <span class="close-modal" id="closeLedgerBtn" style="font-size:24px; color:white; cursor:pointer;">&times;</span>
-        </div>
-
-        <div class="modal-body" style="padding:20px; overflow-y:auto; background:#f9f9f9;">
-            <div id="ledgerExportArea" style="background:#f9f9f9; padding:5px;">
-                <div style="display:flex; justify-content:space-between; background:white; padding:15px; border-radius:5px; border-left:4px solid #3498db; border:1px solid #ddd; margin-bottom:20px; font-family:Arial,sans-serif;">
-                    <div><strong style="color:#555;">Student Name:</strong> <span id="l-name" style="font-size:16px; font-weight:bold; color:#000;">-</span></div>
-                    <div><strong style="color:#555;">Reg No:</strong> <span id="l-reg" style="color:#000;">-</span></div>
-                    <div><strong style="color:#555;">Class:</strong> <span id="l-class" style="color:#000;">-</span></div>
-                    <div><strong style="color:#555;">Father Name:</strong> <span id="l-father" style="color:#000;">-</span></div>
-                </div>
-                
-                <div style="display:flex; gap:15px; margin-bottom:20px; font-family:Arial,sans-serif;">
-                    <div style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border:1px solid #ddd; border-bottom:4px solid #e67e22;">
-                        <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Yearly Total Dues</div>
-                        <div id="l-tot-due" style="font-size:24px; font-weight:bold; color:#e67e22;">₹0.00</div>
-                    </div>
-                    <div style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border:1px solid #ddd; border-bottom:4px solid #27ae60;">
-                        <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Total Amount Paid</div>
-                        <div id="l-tot-paid" style="font-size:24px; font-weight:bold; color:#27ae60;">₹0.00</div>
-                    </div>
-                    <div style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border:1px solid #ddd; border-bottom:4px solid #e74c3c;">
-                        <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Current Balance</div>
-                        <div id="l-tot-bal" style="font-size:24px; font-weight:bold; color:#e74c3c;">₹0.00</div>
-                    </div>
-                </div>
-
-                <table class="data-table" style="background:white; width:100%; border-collapse:collapse; font-family:Arial,sans-serif; border:1px solid #ddd; margin-bottom:25px;">
-                    <thead style="background:#2c3e50; color:white;">
-                        <tr>
-                            <th style="padding:10px; border:1px solid #ccc; text-align:left;">Month / Fee Head</th>
-                            <th style="padding:10px; border:1px solid #ccc; text-align:left;">Applicable Amount</th>
-                            <th style="padding:10px; border:1px solid #ccc; text-align:left;">Total Paid</th>
-                            <th style="padding:10px; border:1px solid #ccc; text-align:left;">Balance Pending</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ledgerTableBody"></tbody>
-                </table>
-
-                <h4 style="margin-top:25px; margin-bottom:10px; color:#2c3e50; border-bottom:2px solid #ddd; padding-bottom:5px; font-family:Arial,sans-serif;">Payment History Log</h4>
-                <table class="data-table" style="background:white; font-size:12px; width:100%; border-collapse:collapse; font-family:Arial,sans-serif; border:1px solid #ddd;">
-                    <thead style="background:#ecf0f1; color:#333;">
-                        <tr>
-                            <th style="padding:8px; border:1px solid #ccc; text-align:left;">Date</th>
-                            <th style="padding:8px; border:1px solid #ccc; text-align:left;">Receipt No</th>
-                            <th style="padding:8px; border:1px solid #ccc; text-align:left;">Mode</th>
-                            <th style="padding:8px; border:1px solid #ccc; text-align:left;">Paid Particulars</th>
-                            <th style="padding:8px; border:1px solid #ccc; text-align:left;">Amount Paid</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ledgerHistoryBody"></tbody>
-                </table>
-            </div> 
-        </div>
     </div>
 </div>
 
@@ -364,6 +313,13 @@
                         <input type="number" id="seFee" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
                     </div>
                 </div>
+                <div id="seSalutationExtra" style="display:none; margin-bottom:15px; background:#f9f9f9; padding:10px; border-radius:4px; border:1px solid #ddd;">
+                    <label style="font-weight:bold; display:block; margin-bottom:10px; color:#555;">Gender for Salutation *</label>
+                    <div style="display:flex; gap:15px;">
+                        <label style="cursor:pointer;"><input type="radio" name="seSalGender" value="Male"> Male</label>
+                        <label style="cursor:pointer;"><input type="radio" name="seSalGender" value="Female"> Female</label>
+                    </div>
+                </div>
                 <div style="text-align:right; margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
                     <button type="button" class="btn btn-dark" id="btnCancelSingleEdit">Cancel</button>
                     <button type="submit" class="btn btn-green" id="btnUpdateSingleEdit" style="background:#f39c12;">Update</button>
@@ -380,14 +336,11 @@
             <span class="close-modal" id="closeBulkModal" style="cursor:pointer; color:white;">&times;</span>
         </div>
         <div class="modal-body" style="padding:20px; overflow-y:auto; background:#fcfcfc;">
-            
             <table class="bulk-table">
                 <thead id="bulkTableHeader"></thead>
                 <tbody id="bulkTableBody"></tbody>
             </table>
-            
             <button type="button" class="btn btn-green-outline" id="btnAddBulkRow" style="margin-top:15px;">⊕ Add Row</button>
-
             <div style="text-align:right; margin-top:25px; border-top:1px solid #ddd; padding-top:15px; display:flex; justify-content:flex-end; gap:10px;">
                 <button type="button" class="btn btn-dark" id="btnCancelBulk">Cancel</button>
                 <button type="button" class="btn btn-green" id="btnSaveBulk">Update All</button>
@@ -395,6 +348,9 @@
         </div>
     </div>
 </div>
+
+<div id="ledgerModal" class="modal-overlay">
+    </div>
 
 <script src="sis.js"></script>
 </body>
