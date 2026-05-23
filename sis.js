@@ -14,21 +14,10 @@ window.customConfirm = function(message, onConfirm) {
     document.getElementById('cc-ok').addEventListener('click', () => { overlay.remove(); onConfirm(); });
 };
 
-// ==========================================
-// 0. ADVANCED NETWORK & URL DIAGNOSTICS
-// ==========================================
 function runNetworkDiagnostics(currentUrl) {
-    let diagnostics = {
-        isDummyUrl: false,
-        isBrowserOnline: navigator.onLine,
-        timestamp: new Date().toISOString()
-    };
-    if(currentUrl.includes("YOUR_NEW_DEPLOYMENT_ID_HERE")) {
-        diagnostics.isDummyUrl = true;
-        console.error("CRITICAL ERROR: Dummy URL detected.");
-    }
-    console.log("Network Diagnostics Run: ", diagnostics);
-    return diagnostics;
+    let diagnostics = { isDummyUrl: false, isBrowserOnline: navigator.onLine, timestamp: new Date().toISOString() };
+    if(currentUrl.includes("YOUR_NEW_DEPLOYMENT_ID_HERE")) { diagnostics.isDummyUrl = true; console.error("CRITICAL ERROR: Dummy URL detected."); }
+    console.log("Network Diagnostics Run: ", diagnostics); return diagnostics;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -47,29 +36,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let userRights = [];
     try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
 
-    // =========================================================================
-    // USER PROVIDED EXACT SCRIPT URL
-    // =========================================================================
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
-    
     const networkHealth = runNetworkDiagnostics(scriptURL);
 
     fetch(scriptURL, { 
-        method: 'POST', 
-        body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }),
-        redirect: "follow",
-        headers: { "Content-Type": "text/plain;charset=utf-8" }
+        method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" }
     })
     .then(res => res.json()).then(data => {
         if (data.status === "Invalid") {
             alert("Session Invalid: Your account was deleted or marked inactive.");
             localStorage.removeItem('erp_active_user'); window.location.href = 'login.html';
         } else if (data.status === "Valid" && data.user) { localStorage.setItem('erp_active_user', JSON.stringify(data.user)); }
-    }).catch(err => {
-        console.log("Background sync paused due to network/cors block.", err);
-        let sessionRetry = false;
-        if(sessionRetry) console.log("Retrying session sync...");
-    });
+    }).catch(err => { console.log("Background sync paused due to network/cors block.", err); });
 
     const topRightSpans = document.querySelectorAll('.top-right span');
     if(topRightSpans.length > 0) { topRightSpans[0].innerHTML = `👤 Welcome, <b>${activeUser.empName}</b>`; }
@@ -89,9 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let appData = []; let setupData = null; let feeHeads = []; let feeReceipts = [];  
     let charts = { class: null, blood: null, cat: null, rel: null, house: null, age: null };
     const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
+    const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/128/3135/3135715.png';
 
     // ==========================================
-    // IMAGE PREVIEW LOGIC FOR ALL 3 PHOTOS
+    // OLD IMAGE PREVIEW LOGIC (KEPT INTACT AS REQUESTED BUT BYPASSED IN UI)
     // ==========================================
     function handleImagePreview(inputId, imgId) {
         const input = document.getElementById(inputId);
@@ -107,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
+    // These IDs don't exist anymore to prevent conflicts, keeping logic intact.
     handleImagePreview('photoUpload', 'photoPreview');
     handleImagePreview('fatherPhotoUpload', 'fatherPhotoPreview');
     handleImagePreview('motherPhotoUpload', 'motherPhotoPreview');
@@ -141,46 +121,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if(document.getElementById('editMode').value === "false") document.getElementById('regNo').value = maxReg + 1;
     }
 
-    // ==========================================
-    // AUTO LOAD SYNC WITH ADVANCED ERROR LOGGER
-    // ==========================================
+    // AUTO LOAD SYNC
     window.syncWithDatabase = function() {
         const tbody = document.getElementById('studentTableBody'); 
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳<br><span style="font-size:11px; color:#777;">Please wait, fetching records.</span></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳<br><span style="font-size:11px; color:#777;">Please wait, fetching records.</span></td></tr>';
         
         fetch(scriptURL, { redirect: "follow" })
-        .then(res => {
-            if(!res.ok) throw new Error("HTTP Status: " + res.status);
-            return res.json();
-        })
+        .then(res => { if(!res.ok) throw new Error("HTTP Status: " + res.status); return res.json(); })
         .then(res => {
             if(res.status === "Success") { 
                 appData = res.data; setupData = res.setup; feeHeads = res.feeHeads || []; feeReceipts = res.receipts || []; 
                 loadSetupDropdowns(); renderTable(appData); renderDashboard(); updateNextRegNo(); renderMasterSetup(); 
             } else { 
-                tbody.innerHTML = `<tr><td colspan="9" style="color:red; text-align:center; padding:20px;"><b>Error:</b> ${res.message}</td></tr>`; 
+                tbody.innerHTML = `<tr><td colspan="10" style="color:red; text-align:center; padding:20px;"><b>Error:</b> ${res.message}</td></tr>`; 
             }
         }).catch(e => { 
             let detailedError = e.message || e.toString();
-            console.error("Fetch Error Details: ", e);
-            
-            let extraWarning = "";
-            if (networkHealth.isDummyUrl) {
-                extraWarning = `<div style="background:#f39c12; color:white; padding:10px; border-radius:4px; margin-bottom:15px; font-weight:bold;">🚨 YOU FORGOT TO UPDATE THE SCRIPT URL IN SIS.JS! PLEASE PASTE YOUR ACTUAL DEPLOYMENT ID.</div>`;
-            }
-
-            tbody.innerHTML = `<tr><td colspan="9" style="color:#c0392b; text-align:center; padding:30px; background:#fdf0ed;">
-                ${extraWarning}
-                <span style="font-size:20px; font-weight:bold;">⚠️ API Connection Failed</span><br><br>
-                <span style="font-size:14px; color:#333;"><b>Reason:</b> ${detailedError}</span><br><br>
-                <div style="background:white; border:1px solid #e74c3c; border-radius:5px; padding:15px; display:inline-block; text-align:left; color:#555; font-size:13px;">
-                    <b style="color:#e74c3c;">Troubleshooting Steps:</b><br><br>
-                    1. Ensure the Google Script deployment access is set to "Anyone".<br>
-                    2. Disable your <b>AdBlocker</b> or <b>Antivirus</b> temporarily (They block script.google.com).<br>
-                    3. Connect to a different network/Mobile Hotspot.
-                </div><br><br>
-                <button onclick="syncWithDatabase()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">🔄 Retry Connection</button>
-            </td></tr>`; 
+            let extraWarning = networkHealth.isDummyUrl ? `<div style="background:#f39c12; color:white; padding:10px; border-radius:4px; margin-bottom:15px; font-weight:bold;">🚨 DUMMY URL DETECTED.</div>` : "";
+            tbody.innerHTML = `<tr><td colspan="10" style="color:#c0392b; text-align:center; padding:30px; background:#fdf0ed;">${extraWarning}<span style="font-size:20px; font-weight:bold;">⚠️ API Connection Failed</span><br><br><span style="font-size:14px; color:#333;"><b>Reason:</b> ERR_CONNECTION_CLOSED / ${detailedError}</span><br><br><div style="background:white; border:1px solid #e74c3c; border-radius:5px; padding:15px; display:inline-block; text-align:left; color:#555; font-size:13px;"><b style="color:#e74c3c;">Troubleshooting Steps:</b><br><br>1. Ensure access is "Anyone".<br>2. Disable <b>AdBlocker/Antivirus</b>.<br>3. Change network.</div><br><br><button onclick="syncWithDatabase()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px;">🔄 Retry Connection</button></td></tr>`; 
         });
     }
 
@@ -206,9 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ==========================================
-    // CASCADING FILTERS WITH ALPHABETICAL SORT (CRASH FIXED)
-    // ==========================================
     function loadSetupDropdowns() {
         if(!setupData) return; 
         function fillSelect(id, array, isObj = false) { const el = document.getElementById(id); if(!el) return; el.innerHTML = '<option value="">Select</option>'; if(array) { array.forEach(item => { let val = isObj ? `${item.name} (${item.section})` : item; el.innerHTML += `<option value="${val}">${val}</option>`; }); } }
@@ -216,14 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
         fillSelect('studentClass', setupData.classes, true); fillSelect('gender', setupData.genders); fillSelect('category', setupData.categories); fillSelect('bloodGroup', setupData.bloodGroups); fillSelect('house', setupData.houses); fillSelect('religion', setupData.religions);
         
         let uniqueClasses = [...new Set((setupData.classes || []).map(c => c.name))];
-        
-        // BUG FIX: Wrapped a and b in String() to prevent "a.localeCompare is not a function" when names are numbers.
-        // This preserves the exact sorting functionality requested previously but safely.
         uniqueClasses.sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:'base'}));
-        
         fillSelectWithAll('filterClass', uniqueClasses);
         
-        // Ensure section sorting handles raw numbers securely too
         let uniqueSections = [...new Set((setupData.classes || []).map(c => String(c.section)))].sort();
         fillSelectWithAll('filterSection', uniqueSections);
 
@@ -253,9 +203,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ==========================================
+    // RENDER TABLE WITH IMAGES
+    // ==========================================
     function renderTable(dataToRender) {
         const tbody = document.getElementById('studentTableBody'); tbody.innerHTML = '';
-        if(dataToRender.length === 0) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">No records found.</td></tr>'; return; }
+        if(dataToRender.length === 0) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">No records found.</td></tr>'; return; }
         
         dataToRender.forEach(student => {
             const tr = document.createElement('tr'); const studentJson = JSON.stringify(student).replace(/'/g, "&#39;");
@@ -269,7 +222,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(match) { sClass = match[1].trim(); sSec = match[2].trim(); } else { sClass = student.studentClass; }
             }
 
-            tr.innerHTML = `<td>${student.regNo || '-'}</td><td>${sClass}</td><td>${sSec}</td><td><a href="#" class="student-ledger-link" onclick="openLedger('${student.regNo}')" title="View Fee Ledger">${student.studentFirstName || student.studentName || '-'}</a></td><td>${student.gender || '-'}</td><td>${student.category || '-'}</td><td>${student.bloodGroup || '-'}</td><td>${student.house || '-'}</td><td>${btnHTML}</td>`;
+            let photoUrl = student.studentPhotoBase64 || DEFAULT_AVATAR;
+
+            tr.innerHTML = `<td style="text-align:center;"><img src="${photoUrl}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ccc;"></td>
+            <td>${student.regNo || '-'}</td><td>${sClass}</td><td>${sSec}</td><td><a href="#" class="student-ledger-link" onclick="openLedger('${student.regNo}')" title="View Fee Ledger">${student.studentFirstName || student.studentName || '-'}</a></td><td>${student.gender || '-'}</td><td>${student.category || '-'}</td><td>${student.bloodGroup || '-'}</td><td>${student.house || '-'}</td><td>${btnHTML}</td>`;
             tbody.appendChild(tr);
         });
     }
@@ -293,7 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 let match = s.studentClass.match(/(.*?)\s*\((.*?)\)/);
                 if(match) { sClass = match[1].trim(); sSec = match[2].trim(); } else { sClass = s.studentClass; }
             }
-
             let matchClass = fClass === "" || fClass === "All" || String(sClass) === String(fClass); 
             let matchSec = fSec === "" || fSec === "All" || String(sSec) === String(fSec);
             let matchGender = fGender === "" || fGender === "All" || s.gender === fGender;
@@ -301,7 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let matchCat = fCat === "" || fCat === "All" || s.category === fCat;
             let matchBlood = fBlood === "" || fBlood === "All" || s.bloodGroup === fBlood;
             let matchRel = fRel === "" || fRel === "All" || s.religion === fRel;
-            
             let sNameStr = (s.studentFirstName || s.studentName || "").toLowerCase(); 
             let matchName = fName === "" || sNameStr.includes(fName);
             
@@ -313,23 +267,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if(btnApplyFilter) btnApplyFilter.addEventListener('click', applyAllFilters);
-    
-    if(searchNameInput) {
-        searchNameInput.addEventListener('keydown', function(e) {
-            if(e.key === 'Enter') { e.preventDefault(); applyAllFilters(); }
-        });
-    }
+    if(searchNameInput) { searchNameInput.addEventListener('keydown', function(e) { if(e.key === 'Enter') { e.preventDefault(); applyAllFilters(); } }); }
 
     const btnToggleFilters = document.getElementById('btn-toggle-filters');
     const filterPanel = document.getElementById('filterDropdownPanel');
     if(btnToggleFilters && filterPanel) {
-        btnToggleFilters.addEventListener('click', (e) => {
-            e.stopPropagation();
-            filterPanel.style.display = filterPanel.style.display === 'block' ? 'none' : 'block';
-        });
-        document.addEventListener('click', (e) => {
-            if (filterPanel.style.display === 'block' && !filterPanel.contains(e.target) && !btnToggleFilters.contains(e.target)) { filterPanel.style.display = 'none'; }
-        });
+        btnToggleFilters.addEventListener('click', (e) => { e.stopPropagation(); filterPanel.style.display = filterPanel.style.display === 'block' ? 'none' : 'block'; });
+        document.addEventListener('click', (e) => { if (filterPanel.style.display === 'block' && !filterPanel.contains(e.target) && !btnToggleFilters.contains(e.target)) { filterPanel.style.display = 'none'; } });
     }
 
     document.getElementById('btn-refresh-data').addEventListener('click', syncWithDatabase);
@@ -355,14 +299,28 @@ document.addEventListener('DOMContentLoaded', () => {
     function getVal(id) { return document.getElementById(id) ? document.getElementById(id).value : ''; }
     function setVal(id, val) { if(document.getElementById(id)) document.getElementById(id).value = val || ''; }
 
+    // ==========================================
+    // POPULATE BASE64 IMAGES IN EDIT
+    // ==========================================
     window.editStudent = function(s) {
         document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module')); document.getElementById('module-admission').classList.add('active-module');
         document.getElementById('formTitle').innerText = "Edit Student Profile"; document.getElementById('saveSubmitBtn').innerText = "Update Record in DB"; document.getElementById('saveSubmitBtn').style.background = "#f39c12"; document.getElementById('editMode').value = "true"; formTabs[0].click(); 
+        
         setVal('regNo', s.regNo); document.getElementById('regNo').readOnly = true; setVal('adminDate', s.adminDate ? new Date(s.adminDate).toISOString().split('T')[0] : ''); setVal('studentFirstName', s.studentFirstName || s.studentName); setVal('studentLastName', s.studentLastName); setVal('primaryEmail', s.primaryEmail); setVal('dob', s.dob ? new Date(s.dob).toISOString().split('T')[0] : ''); if(s.dob) document.getElementById('dob').dispatchEvent(new Event('change'));
         setVal('mobile', s.mobile); setVal('placeOfBirth', s.placeOfBirth); setVal('motherTongue', s.motherTongue); setVal('studentClass', s.studentClass); setVal('gender', s.gender); setVal('bloodGroup', s.bloodGroup); setVal('category', s.category); setVal('house', s.house); setVal('religion', s.religion); setVal('udiseNo', s.udiseNo); setVal('apaarId', s.apaarId); setVal('aadhaarNo', s.aadhaarNo); setVal('prevSchool', s.prevSchool);
         setVal('fatherName', s.fatherName); setVal('fatherSalutation', s.fatherSalutation); setVal('fatherContact', s.fatherContact); setVal('fatherWhatsapp', s.fatherWhatsapp); setVal('fatherProfession', s.fatherProfession); setVal('fatherQualification', s.fatherQualification); setVal('fatherDesignation', s.fatherDesignation); setVal('fatherIncome', s.fatherIncome); setVal('fatherOfficeName', s.fatherOfficeName); setVal('fatherOfficeContact', s.fatherOfficeContact); setVal('fatherOfficeAddress', s.fatherOfficeAddress); setVal('fatherAadhaar', s.fatherAadhaar);
         setVal('motherName', s.motherName); setVal('motherSalutation', s.motherSalutation); setVal('motherContact', s.motherContact); setVal('motherWhatsapp', s.motherWhatsapp); setVal('motherProfession', s.motherProfession); setVal('motherQualification', s.motherQualification); setVal('motherDesignation', s.motherDesignation); setVal('motherIncome', s.motherIncome); setVal('motherOfficeName', s.motherOfficeName); setVal('motherOfficeContact', s.motherOfficeContact); setVal('motherOfficeAddress', s.motherOfficeAddress); setVal('motherAadhaar', s.motherAadhaar);
         setVal('corrAddress', s.corrAddress); setVal('corrCity', s.corrCity); setVal('corrState', s.corrState); setVal('corrCountry', s.corrCountry); setVal('corrPincode', s.corrPincode); setVal('permAddress', s.permAddress); setVal('permCity', s.permCity); setVal('permState', s.permState); setVal('permCountry', s.permCountry); setVal('permPincode', s.permPincode);
+        
+        // Image populator
+        setVal('studentPhotoBase64', s.studentPhotoBase64); document.getElementById('photoPreview').src = s.studentPhotoBase64 || DEFAULT_AVATAR;
+        if(s.studentPhotoBase64) document.getElementById('btnRemove_studentPhoto').style.display = 'inline-block'; else document.getElementById('btnRemove_studentPhoto').style.display = 'none';
+
+        setVal('fatherPhotoBase64', s.fatherPhotoBase64); document.getElementById('fatherPhotoPreview').src = s.fatherPhotoBase64 || DEFAULT_AVATAR;
+        if(s.fatherPhotoBase64) document.getElementById('btnRemove_fatherPhoto').style.display = 'inline-block'; else document.getElementById('btnRemove_fatherPhoto').style.display = 'none';
+
+        setVal('motherPhotoBase64', s.motherPhotoBase64); document.getElementById('motherPhotoPreview').src = s.motherPhotoBase64 || DEFAULT_AVATAR;
+        if(s.motherPhotoBase64) document.getElementById('btnRemove_motherPhoto').style.display = 'inline-block'; else document.getElementById('btnRemove_motherPhoto').style.display = 'none';
     };
 
     window.deleteStudent = function(regNo) {
@@ -372,10 +330,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // ==========================================
+    // SAVE FORM (NOW INCLUDES BASE64 IMAGES)
+    // ==========================================
     document.getElementById('admissionForm').addEventListener('submit', function(e) {
         e.preventDefault(); const submitBtn = document.getElementById('saveSubmitBtn'); const isEdit = document.getElementById('editMode').value === "true"; submitBtn.textContent = 'Syncing...'; submitBtn.disabled = true;
         const studentData = {
-            regNo: getVal('regNo'), adminDate: getVal('adminDate'), studentFirstName: getVal('studentFirstName'), studentLastName: getVal('studentLastName'), primaryEmail: getVal('primaryEmail'), dob: getVal('dob'), mobile: getVal('mobile'), placeOfBirth: getVal('placeOfBirth'), motherTongue: getVal('motherTongue'), studentClass: getVal('studentClass'), gender: getVal('gender'), bloodGroup: getVal('bloodGroup'), category: getVal('category'), house: getVal('house'), religion: getVal('religion'), udiseNo: getVal('udiseNo'), apaarId: getVal('apaarId'), aadhaarNo: getVal('aadhaarNo'), prevSchool: getVal('prevSchool'), fatherName: getVal('fatherName'), fatherSalutation: getVal('fatherSalutation'), fatherContact: getVal('fatherContact'), fatherWhatsapp: getVal('fatherWhatsapp'), fatherProfession: getVal('fatherProfession'), fatherQualification: getVal('fatherQualification'), fatherDesignation: getVal('fatherDesignation'), fatherIncome: getVal('fatherIncome'), fatherOfficeName: getVal('fatherOfficeName'), fatherOfficeContact: getVal('fatherOfficeContact'), fatherOfficeAddress: getVal('fatherOfficeAddress'), fatherAadhaar: getVal('fatherAadhaar'), motherName: getVal('motherName'), motherSalutation: getVal('motherSalutation'), motherContact: getVal('motherContact'), motherWhatsapp: getVal('motherWhatsapp'), motherProfession: getVal('motherProfession'), motherQualification: getVal('motherQualification'), motherDesignation: getVal('motherDesignation'), motherIncome: getVal('motherIncome'), motherOfficeName: getVal('motherOfficeName'), motherOfficeContact: getVal('motherOfficeContact'), motherOfficeAddress: getVal('motherOfficeAddress'), motherAadhaar: getVal('motherAadhaar'), corrAddress: getVal('corrAddress'), corrCity: getVal('corrCity'), corrState: getVal('corrState'), corrCountry: getVal('corrCountry'), corrPincode: getVal('corrPincode'), permAddress: getVal('permAddress'), permCity: getVal('permCity'), permState: getVal('permState'), permCountry: getVal('permCountry'), permPincode: getVal('permPincode')
+            regNo: getVal('regNo'), adminDate: getVal('adminDate'), studentFirstName: getVal('studentFirstName'), studentLastName: getVal('studentLastName'), primaryEmail: getVal('primaryEmail'), dob: getVal('dob'), mobile: getVal('mobile'), placeOfBirth: getVal('placeOfBirth'), motherTongue: getVal('motherTongue'), studentClass: getVal('studentClass'), gender: getVal('gender'), bloodGroup: getVal('bloodGroup'), category: getVal('category'), house: getVal('house'), religion: getVal('religion'), udiseNo: getVal('udiseNo'), apaarId: getVal('apaarId'), aadhaarNo: getVal('aadhaarNo'), prevSchool: getVal('prevSchool'), fatherName: getVal('fatherName'), fatherSalutation: getVal('fatherSalutation'), fatherContact: getVal('fatherContact'), fatherWhatsapp: getVal('fatherWhatsapp'), fatherProfession: getVal('fatherProfession'), fatherQualification: getVal('fatherQualification'), fatherDesignation: getVal('fatherDesignation'), fatherIncome: getVal('fatherIncome'), fatherOfficeName: getVal('fatherOfficeName'), fatherOfficeContact: getVal('fatherOfficeContact'), fatherOfficeAddress: getVal('fatherOfficeAddress'), fatherAadhaar: getVal('fatherAadhaar'), motherName: getVal('motherName'), motherSalutation: getVal('motherSalutation'), motherContact: getVal('motherContact'), motherWhatsapp: getVal('motherWhatsapp'), motherProfession: getVal('motherProfession'), motherQualification: getVal('motherQualification'), motherDesignation: getVal('motherDesignation'), motherIncome: getVal('motherIncome'), motherOfficeName: getVal('motherOfficeName'), motherOfficeContact: getVal('motherOfficeContact'), motherOfficeAddress: getVal('motherOfficeAddress'), motherAadhaar: getVal('motherAadhaar'), corrAddress: getVal('corrAddress'), corrCity: getVal('corrCity'), corrState: getVal('corrState'), corrCountry: getVal('corrCountry'), corrPincode: getVal('corrPincode'), permAddress: getVal('permAddress'), permCity: getVal('permCity'), permState: getVal('permState'), permCountry: getVal('permCountry'), permPincode: getVal('permPincode'),
+            studentPhotoBase64: getVal('studentPhotoBase64'), fatherPhotoBase64: getVal('fatherPhotoBase64'), motherPhotoBase64: getVal('motherPhotoBase64')
         };
         fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: isEdit ? "update" : "add", data: studentData }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
         .then(res => res.json()).then(data => {
@@ -388,6 +350,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnAddStudent.addEventListener('click', () => {
             document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module')); document.getElementById('module-admission').classList.add('active-module');
             document.getElementById('admissionForm').reset(); document.getElementById('formTitle').innerText = "Student Admission Form"; document.getElementById('saveSubmitBtn').innerText = "Save Record to DB"; document.getElementById('saveSubmitBtn').style.background = "#5cb85c"; document.getElementById('editMode').value = "false"; document.getElementById('regNo').readOnly = false; formTabs[0].click(); updateNextRegNo(); 
+            // Reset photos
+            ['studentPhoto', 'fatherPhoto', 'motherPhoto'].forEach(p => { document.getElementById(p+'Base64').value = ''; document.getElementById(p.replace('studentPhoto','photo')+'Preview').src = DEFAULT_AVATAR; document.getElementById('btnRemove_'+p).style.display = 'none'; });
         });
     }
 
@@ -563,7 +527,72 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 8. THE "KUNDLI" - STUDENT FEE LEDGER (RESTORED)
+    // CROPPER JS LOGIC & REMOVE HANDLERS (NEW)
+    // ==========================================
+    let currentCropTarget = '';
+    let cropper = null;
+
+    function openCropModal(file, targetPrefix) {
+        currentCropTarget = targetPrefix;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('cropImageTarget').src = e.target.result;
+            document.getElementById('cropModalOverlay').classList.add('active');
+            if(cropper) { cropper.destroy(); }
+            cropper = new Cropper(document.getElementById('cropImageTarget'), {
+                aspectRatio: NaN, // Free crop as requested
+                viewMode: 1,
+                autoCropArea: 1,
+            });
+        }
+        reader.readAsDataURL(file);
+    }
+
+    ['photoUploadNew', 'fatherPhotoUploadNew', 'motherPhotoUploadNew'].forEach(id => {
+        let prefix = id.replace('UploadNew', '');
+        if(id === 'photoUploadNew') prefix = 'studentPhoto';
+        
+        const fileInput = document.getElementById(id);
+        if(fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                if(this.files && this.files[0]) { openCropModal(this.files[0], prefix); }
+                this.value = ''; 
+            });
+        }
+
+        const btnRemove = document.getElementById('btnRemove_' + prefix);
+        if(btnRemove) {
+            btnRemove.addEventListener('click', function() {
+                document.getElementById(prefix + 'Base64').value = '';
+                document.getElementById(id.replace('UploadNew', 'Preview').replace('student', '')).src = DEFAULT_AVATAR;
+                this.style.display = 'none';
+            });
+        }
+    });
+
+    document.getElementById('btnApplyCrop').addEventListener('click', () => {
+        if(cropper) {
+            const canvas = cropper.getCroppedCanvas({ maxWidth: 200, maxHeight: 200 }); // Compression for Google Sheet limits
+            if(canvas) {
+                const base64 = canvas.toDataURL('image/jpeg', 0.8);
+                let previewId = currentCropTarget.replace('studentPhoto', 'photo') + 'Preview';
+                
+                document.getElementById(currentCropTarget + 'Base64').value = base64;
+                document.getElementById(previewId).src = base64;
+                document.getElementById('btnRemove_' + currentCropTarget).style.display = 'inline-block';
+            }
+            document.getElementById('cropModalOverlay').classList.remove('active');
+            cropper.destroy(); cropper = null;
+        }
+    });
+
+    document.getElementById('btnCancelCrop').addEventListener('click', () => {
+        document.getElementById('cropModalOverlay').classList.remove('active');
+        if(cropper) { cropper.destroy(); cropper = null; }
+    });
+
+    // ==========================================
+    // 8. THE "KUNDLI" - STUDENT FEE LEDGER
     // ==========================================
     window.openLedger = function(regNo) {
         let student = appData ? appData.find(s => String(s.regNo) === String(regNo)) : null;
@@ -635,6 +664,5 @@ document.addEventListener('DOMContentLoaded', () => {
     
     document.getElementById('closeLedgerBtn').addEventListener('click', () => { document.getElementById('ledgerModal').classList.remove('active'); });
 
-    // Initial Trigger
     setTimeout(() => { syncWithDatabase(); }, 100);
 });
