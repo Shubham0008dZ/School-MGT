@@ -55,7 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     // ⚠️ IMPORTANT: REPLACE THIS URL WITH YOUR ACTUAL NEW DEPLOYMENT URL ⚠️
     // =========================================================================
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbx_f-3aQpG2q8mH_qQz6-lT5Y7nE3T9v_V6_sY3_Xf_/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
+    
     
     // Run Diagnostics
     const networkHealth = runNetworkDiagnostics(scriptURL);
