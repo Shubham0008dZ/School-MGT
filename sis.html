@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="sis.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 <body>
 
@@ -43,17 +45,14 @@
             <div class="table-container">
                 <div class="table-toolbar" style="background:#e8f4f8; border-left:4px solid #3498db; position:relative;">
                     <div class="filters" style="display:flex; gap:10px; align-items:center; width:100%;">
-                        
                         <button class="btn btn-dark" id="btn-toggle-filters" style="display:flex; align-items:center; gap:6px; font-size:14px; padding:8px 15px;">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M3 4c0-.552.448-1 1-1h16c.552 0 1 .448 1 1v3.059c0 .265-.105.52-.293.707l-6.414 6.414A.997.997 0 0 0 14 14.879V20a1 1 0 0 1-1.555.832l-3-2A1 1 0 0 1 9 18v-3.121a.997.997 0 0 0-.293-.707L2.293 7.766A.999.999 0 0 1 2 7.059V4zm2 1.5v1.059l6.707 6.707a1 1 0 0 1 .293.707v3.382l2 1.333v-4.715a1 1 0 0 1 .293-.707L20 6.559V5.5H5z"/></svg>
                             Filters
                         </button>
-                        
                         <div style="position:relative; display:flex; align-items:center; background:white; border:1px solid #27ae60; border-radius:3px; padding:0 10px; flex:1; max-width:400px;">
                             <span style="color:#7f8c8d; font-size:16px;">⚲</span>
                             <input type="text" id="searchName" placeholder="Search and press Enter" style="border:none; outline:none; padding:10px; width:100%; font-size:14px;">
                         </div>
-                        
                         <button class="btn btn-dark" id="btn-refresh-data" style="margin-left:auto;">🔄 Sync with DB</button>
 
                         <div id="filterDropdownPanel" class="filter-dropdown-panel">
@@ -64,7 +63,6 @@
                             <div class="filter-group"><label>Blood Grp</label><select id="filterBloodGroup"><option value="">All</option></select></div>
                             <div class="filter-group"><label>House</label><select id="filterHouse"><option value="">All</option></select></div>
                             <div class="filter-group"><label>Religion</label><select id="filterReligion"><option value="">All</option></select></div>
-                            
                             <button class="btn" style="background:#5b6e8a; color:white; margin-top:15px; width:100%; border-radius:3px; padding:10px; font-weight:bold;" id="btn-apply-filter">Apply Filter</button>
                         </div>
                     </div>
@@ -85,11 +83,12 @@
                     <table class="data-table" id="studentsMainTable">
                         <thead>
                             <tr>
+                                <th>Image</th>
                                 <th>Reg No.</th><th>Class</th><th>Section</th><th>First Name</th><th>Gender</th><th>Category</th><th>Blood Grp</th><th>House</th><th>Actions (Edit/Del)</th>
                             </tr>
                         </thead>
                         <tbody id="studentTableBody">
-                            <tr><td colspan="9" style="text-align: center;">Syncing with Database...</td></tr>
+                            <tr><td colspan="10" style="text-align: center;">Syncing with Database...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -108,6 +107,11 @@
                 </div>
                 <form id="admissionForm" class="form-body">
                     <input type="hidden" id="editMode" value="false">
+                    
+                    <input type="hidden" id="studentPhotoBase64">
+                    <input type="hidden" id="fatherPhotoBase64">
+                    <input type="hidden" id="motherPhotoBase64">
+
                     <div class="form-row top-row" style="background: rgba(255,255,255,0.1);">
                         <div class="input-group"><label>Last Reg No.</label><span id="lastRegNoDisplay" style="background:#f1c40f; color:#333; padding:5px 15px; border-radius:3px; font-weight:bold;">0</span></div>
                         <div class="input-group"><label>New Reg No. *</label><input type="number" id="regNo" required></div>
@@ -128,8 +132,11 @@
                             <div class="right-photo">
                                 <fieldset class="photo-fieldset">
                                     <legend>Upload Photo</legend>
-                                    <div class="photo-preview-box"><img id="photoPreview" src="https://via.placeholder.com/107x150?text=No+Image" alt="Photo" style="width:107px; height:150px; object-fit:cover; border:1px dashed #ccc;"></div>
-                                    <label for="photoUpload" class="upload-btn">Upload Photo</label><input type="file" id="photoUpload" accept="image/*" hidden>
+                                    <div class="photo-preview-box" style="position:relative; display:inline-block;">
+                                        <button type="button" id="btnRemove_studentPhoto" class="btn-remove-photo" style="display:none;">✖</button>
+                                        <img id="photoPreview" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" alt="Photo" style="width:107px; height:150px; object-fit:cover; border:1px dashed #ccc; background:#f9f9f9;">
+                                    </div>
+                                    <label for="photoUploadNew" class="upload-btn">Upload Photo</label><input type="file" id="photoUploadNew" accept="image/*" hidden>
                                 </fieldset>
                             </div>
                         </div>
@@ -171,8 +178,11 @@
                             <div class="right-photo" style="flex:1; display:flex; justify-content:center;">
                                 <fieldset class="photo-fieldset">
                                     <legend>Father Photo</legend>
-                                    <div class="photo-preview-box"><img id="fatherPhotoPreview" src="https://via.placeholder.com/107x150?text=No+Image" alt="Father Photo" style="width:107px; height:150px; object-fit:cover; border:1px dashed #ccc;"></div>
-                                    <label for="fatherPhotoUpload" class="upload-btn">Upload Photo</label><input type="file" id="fatherPhotoUpload" accept="image/*" hidden>
+                                    <div class="photo-preview-box" style="position:relative; display:inline-block;">
+                                        <button type="button" id="btnRemove_fatherPhoto" class="btn-remove-photo" style="display:none;">✖</button>
+                                        <img id="fatherPhotoPreview" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" alt="Father Photo" style="width:107px; height:150px; object-fit:cover; border:1px dashed #ccc; background:#f9f9f9;">
+                                    </div>
+                                    <label for="fatherPhotoUploadNew" class="upload-btn">Upload Photo</label><input type="file" id="fatherPhotoUploadNew" accept="image/*" hidden>
                                 </fieldset>
                             </div>
                         </div>
@@ -196,8 +206,11 @@
                             <div class="right-photo" style="flex:1; display:flex; justify-content:center;">
                                 <fieldset class="photo-fieldset">
                                     <legend>Mother Photo</legend>
-                                    <div class="photo-preview-box"><img id="motherPhotoPreview" src="https://via.placeholder.com/107x150?text=No+Image" alt="Mother Photo" style="width:107px; height:150px; object-fit:cover; border:1px dashed #ccc;"></div>
-                                    <label for="motherPhotoUpload" class="upload-btn">Upload Photo</label><input type="file" id="motherPhotoUpload" accept="image/*" hidden>
+                                    <div class="photo-preview-box" style="position:relative; display:inline-block;">
+                                        <button type="button" id="btnRemove_motherPhoto" class="btn-remove-photo" style="display:none;">✖</button>
+                                        <img id="motherPhotoPreview" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" alt="Mother Photo" style="width:107px; height:150px; object-fit:cover; border:1px dashed #ccc; background:#f9f9f9;">
+                                    </div>
+                                    <label for="motherPhotoUploadNew" class="upload-btn">Upload Photo</label><input type="file" id="motherPhotoUploadNew" accept="image/*" hidden>
                                 </fieldset>
                             </div>
                         </div>
@@ -430,6 +443,23 @@
             <div style="text-align:right; margin-top:25px; border-top:1px solid #ddd; padding-top:15px; display:flex; justify-content:flex-end; gap:10px;">
                 <button type="button" class="btn btn-dark" id="btnCancelBulk">Cancel</button>
                 <button type="button" class="btn btn-green" id="btnSaveBulk">Update All</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="cropModalOverlay" class="modal-overlay">
+    <div class="modal-card" style="width: 600px;">
+        <div class="modal-header" style="background:#2c3e50; padding:15px;">
+            <h3 style="margin:0; color:white;">Crop Image</h3>
+        </div>
+        <div class="modal-body" style="padding:20px; text-align:center;">
+            <div class="crop-container">
+                <img id="cropImageTarget" style="max-width: 100%;">
+            </div>
+            <div style="text-align:right; margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" class="btn btn-dark" id="btnCancelCrop">Cancel</button>
+                <button type="button" class="btn btn-green" id="btnApplyCrop">Apply Crop</button>
             </div>
         </div>
     </div>
