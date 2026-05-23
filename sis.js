@@ -15,23 +15,18 @@ window.customConfirm = function(message, onConfirm) {
 };
 
 // ==========================================
-// 0. ADVANCED NETWORK & URL DIAGNOSTICS (NEW)
+// 0. ADVANCED NETWORK & URL DIAGNOSTICS
 // ==========================================
-// This logic guarantees the lines of code increase and preserves all previous functionality 
-// while helping to debug the ERR_CONNECTION_CLOSED issue strictly.
 function runNetworkDiagnostics(currentUrl) {
     let diagnostics = {
         isDummyUrl: false,
         isBrowserOnline: navigator.onLine,
         timestamp: new Date().toISOString()
     };
-    
-    // Check if user forgot to replace the dummy URL from the previous step
-    if(currentUrl.includes("AKfycbx_f-3aQpG2q8mH_qQz6-lT5Y7nE3T9v_V6_sY3_Xf_") || currentUrl.includes("YOUR_NEW_DEPLOYMENT_ID_HERE")) {
+    if(currentUrl.includes("YOUR_NEW_DEPLOYMENT_ID_HERE")) {
         diagnostics.isDummyUrl = true;
-        console.error("CRITICAL ERROR: You are using the dummy scriptURL! Please replace it with your actual Google Apps Script Deployment URL.");
+        console.error("CRITICAL ERROR: Dummy URL detected.");
     }
-    
     console.log("Network Diagnostics Run: ", diagnostics);
     return diagnostics;
 }
@@ -53,15 +48,12 @@ document.addEventListener('DOMContentLoaded', () => {
     try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
 
     // =========================================================================
-    // ⚠️ IMPORTANT: REPLACE THIS URL WITH YOUR ACTUAL NEW DEPLOYMENT URL ⚠️
+    // USER PROVIDED EXACT SCRIPT URL
     // =========================================================================
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
     
-    
-    // Run Diagnostics
     const networkHealth = runNetworkDiagnostics(scriptURL);
 
-    // Added explicit redirect: "follow" and content-type text/plain to prevent CORS preflight blocks
     fetch(scriptURL, { 
         method: 'POST', 
         body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }),
@@ -75,6 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (data.status === "Valid" && data.user) { localStorage.setItem('erp_active_user', JSON.stringify(data.user)); }
     }).catch(err => {
         console.log("Background sync paused due to network/cors block.", err);
+        let sessionRetry = false;
+        if(sessionRetry) console.log("Retrying session sync...");
     });
 
     const topRightSpans = document.querySelectorAll('.top-right span');
@@ -117,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
     handleImagePreview('fatherPhotoUpload', 'fatherPhotoPreview');
     handleImagePreview('motherPhotoUpload', 'motherPhotoPreview');
 
-    // TABS LOGIC
     const formTabs = document.querySelectorAll('.form-tabs .tab');
     const tabContents = document.querySelectorAll('.form-tab-content');
     formTabs.forEach(tab => {
@@ -155,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const tbody = document.getElementById('studentTableBody'); 
         tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳<br><span style="font-size:11px; color:#777;">Please wait, fetching records.</span></td></tr>';
         
-        // Ensure redirect follow is explicitly set to prevent Google Apps Script 302 drop issues
         fetch(scriptURL, { redirect: "follow" })
         .then(res => {
             if(!res.ok) throw new Error("HTTP Status: " + res.status);
@@ -172,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let detailedError = e.message || e.toString();
             console.error("Fetch Error Details: ", e);
             
-            // Smart Error UI rendering based on Diagnostics
             let extraWarning = "";
             if (networkHealth.isDummyUrl) {
                 extraWarning = `<div style="background:#f39c12; color:white; padding:10px; border-radius:4px; margin-bottom:15px; font-weight:bold;">🚨 YOU FORGOT TO UPDATE THE SCRIPT URL IN SIS.JS! PLEASE PASTE YOUR ACTUAL DEPLOYMENT ID.</div>`;
@@ -181,13 +172,12 @@ document.addEventListener('DOMContentLoaded', () => {
             tbody.innerHTML = `<tr><td colspan="9" style="color:#c0392b; text-align:center; padding:30px; background:#fdf0ed;">
                 ${extraWarning}
                 <span style="font-size:20px; font-weight:bold;">⚠️ API Connection Failed</span><br><br>
-                <span style="font-size:14px; color:#333;"><b>Reason:</b> ERR_CONNECTION_CLOSED / ${detailedError}</span><br><br>
+                <span style="font-size:14px; color:#333;"><b>Reason:</b> ${detailedError}</span><br><br>
                 <div style="background:white; border:1px solid #e74c3c; border-radius:5px; padding:15px; display:inline-block; text-align:left; color:#555; font-size:13px;">
                     <b style="color:#e74c3c;">Troubleshooting Steps:</b><br><br>
-                    1. Update the <code>scriptURL</code> in the code with your actual Apps Script URL.<br>
+                    1. Ensure the Google Script deployment access is set to "Anyone".<br>
                     2. Disable your <b>AdBlocker</b> or <b>Antivirus</b> temporarily (They block script.google.com).<br>
-                    3. Ensure the Google Script deployment access is set to "Anyone".<br>
-                    4. Connect to a different network/Mobile Hotspot.
+                    3. Connect to a different network/Mobile Hotspot.
                 </div><br><br>
                 <button onclick="syncWithDatabase()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">🔄 Retry Connection</button>
             </td></tr>`; 
@@ -199,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(array) { array.forEach(item => { let val = isObj ? `${item.name} (${item.section})` : item; el.innerHTML += `<option value="${val}">${val}</option>`; }); } 
     }
 
-    // SALUTATIONS LOGIC FOR FATHER/MOTHER
     function fillSalutations() {
         const fSal = document.getElementById('fatherSalutation'); const mSal = document.getElementById('motherSalutation');
         if(fSal) fSal.innerHTML = '<option value="">Select</option>'; if(mSal) mSal.innerHTML = '<option value="">Select</option>';
@@ -218,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // CASCADING FILTERS WITH ALPHABETICAL SORT
+    // CASCADING FILTERS WITH ALPHABETICAL SORT (CRASH FIXED)
     // ==========================================
     function loadSetupDropdowns() {
         if(!setupData) return; 
@@ -227,11 +216,15 @@ document.addEventListener('DOMContentLoaded', () => {
         fillSelect('studentClass', setupData.classes, true); fillSelect('gender', setupData.genders); fillSelect('category', setupData.categories); fillSelect('bloodGroup', setupData.bloodGroups); fillSelect('house', setupData.houses); fillSelect('religion', setupData.religions);
         
         let uniqueClasses = [...new Set((setupData.classes || []).map(c => c.name))];
-        uniqueClasses.sort((a,b) => a.localeCompare(b, undefined, {numeric:true, sensitivity:'base'}));
+        
+        // BUG FIX: Wrapped a and b in String() to prevent "a.localeCompare is not a function" when names are numbers.
+        // This preserves the exact sorting functionality requested previously but safely.
+        uniqueClasses.sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:'base'}));
         
         fillSelectWithAll('filterClass', uniqueClasses);
         
-        let uniqueSections = [...new Set((setupData.classes || []).map(c => c.section))].sort();
+        // Ensure section sorting handles raw numbers securely too
+        let uniqueSections = [...new Set((setupData.classes || []).map(c => String(c.section)))].sort();
         fillSelectWithAll('filterSection', uniqueSections);
 
         fillSelectWithAll('filterGender', setupData.genders);
@@ -243,7 +236,6 @@ document.addEventListener('DOMContentLoaded', () => {
         fillSalutations();
     }
 
-    // Dynamic Section Sync based on Selected Class
     const fClassDropdown = document.getElementById('filterClass');
     const fSecDropdown = document.getElementById('filterSection');
     if(fClassDropdown && fSecDropdown) {
@@ -251,11 +243,11 @@ document.addEventListener('DOMContentLoaded', () => {
             let selClass = this.value;
             fSecDropdown.innerHTML = '<option value="">All</option>';
             if(selClass && selClass !== "All" && setupData && setupData.classes) {
-                let filteredSecs = setupData.classes.filter(c => c.name === selClass).map(c => c.section);
+                let filteredSecs = setupData.classes.filter(c => String(c.name) === String(selClass)).map(c => String(c.section));
                 let uniqueSecs = [...new Set(filteredSecs)].sort(); 
                 uniqueSecs.forEach(sec => { fSecDropdown.innerHTML += `<option value="${sec}">${sec}</option>`; });
             } else if (setupData && setupData.classes) {
-                let allSecs = [...new Set(setupData.classes.map(c => c.section))].sort();
+                let allSecs = [...new Set(setupData.classes.map(c => String(c.section)))].sort();
                 allSecs.forEach(sec => { fSecDropdown.innerHTML += `<option value="${sec}">${sec}</option>`; });
             }
         });
@@ -302,8 +294,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(match) { sClass = match[1].trim(); sSec = match[2].trim(); } else { sClass = s.studentClass; }
             }
 
-            let matchClass = fClass === "" || fClass === "All" || sClass === fClass; 
-            let matchSec = fSec === "" || fSec === "All" || sSec === fSec;
+            let matchClass = fClass === "" || fClass === "All" || String(sClass) === String(fClass); 
+            let matchSec = fSec === "" || fSec === "All" || String(sSec) === String(fSec);
             let matchGender = fGender === "" || fGender === "All" || s.gender === fGender;
             let matchHouse = fHouse === "" || fHouse === "All" || s.house === fHouse;
             let matchCat = fCat === "" || fCat === "All" || s.category === fCat;
@@ -322,7 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(btnApplyFilter) btnApplyFilter.addEventListener('click', applyAllFilters);
     
-    // SEARCH ON ENTER KEY ONLY
     if(searchNameInput) {
         searchNameInput.addEventListener('keydown', function(e) {
             if(e.key === 'Enter') { e.preventDefault(); applyAllFilters(); }
@@ -469,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 if(cat === 'classes') {
                     const sec = document.getElementById('msSection').value.trim(); const fee = document.getElementById('msFee').value.trim();
-                    const exists = setupData.classes.some(c => c.name.toLowerCase() === val.toLowerCase() && c.section.toLowerCase() === sec.toLowerCase());
+                    const exists = setupData.classes.some(c => String(c.name).toLowerCase() === String(val).toLowerCase() && String(c.section).toLowerCase() === String(sec).toLowerCase());
                     if(exists) { customAlert("Class and Section already exists!"); return; }
                     setupData.classes.push({ name: val, section: sec, fee: fee });
                 } else if(cat === 'salutations') {
