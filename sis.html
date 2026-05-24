@@ -466,5 +466,33 @@
 </div>
 
 <script src="sis.js"></script>
+
+
+<div id="studentEmailConfirmModal" class="modal-overlay">
+    <div class="modal-card" style="width: 450px;">
+        <div class="modal-header" style="background:#2980b9; padding:15px;">
+            <h3 style="margin:0; color:white;">Confirm Submission</h3>
+            <span class="close-modal" onclick="document.getElementById('studentEmailConfirmModal').classList.remove('active')" style="cursor:pointer; color:white;">&times;</span>
+        </div>
+        <div class="modal-body" style="padding:25px; text-align:center;">
+            <p style="color:#555; font-size:15px; margin-bottom:20px;">Do you want to send the Login Credentials (User ID & PIN) to the student's registered email address?</p>
+            
+            <div style="background:#f9f9f9; padding:15px; border-radius:5px; border:1px solid #eee; display:flex; justify-content:center; align-items:center; gap:15px; margin-bottom:20px;">
+                <b style="color:#333; font-size:14px;">Send Email Credentials?</b>
+                <label class="switch" style="margin:0;">
+                    <input type="checkbox" id="toggleSendCreds" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div style="display:flex; justify-content:center; gap:10px;">
+                <button type="button" class="btn btn-dark" onclick="document.getElementById('studentEmailConfirmModal').classList.remove('active')">Cancel</button>
+                <button type="button" class="btn btn-green" id="btnConfirmStudentSave">Confirm & Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
 </body>
 </html>
