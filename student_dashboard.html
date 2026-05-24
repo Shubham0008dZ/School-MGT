@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - Dashboard</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f4f7f6; color: #333; }
+        
+        .navbar { background-color: #2c3e50; color: white; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .logo { font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-logout:hover { background: #c0392b; }
+
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        
+        .welcome-card { background: white; border-radius: 8px; padding: 30px; display: flex; align-items: center; gap: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; border-left: 5px solid #3498db; }
+        .avatar { width: 100px; height: 100px; border-radius: 50%; background: #eee; object-fit: cover; border: 3px solid #3498db; }
+        .info h1 { margin-bottom: 5px; color: #2c3e50; }
+        .info p { color: #7f8c8d; font-size: 15px; margin-bottom: 5px; }
+        .badge { background: #e8f4f8; color: #2980b9; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 10px; border: 1px solid #3498db; }
+
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .card { background: white; border-radius: 8px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; cursor:pointer; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .card-icon { font-size: 40px; margin-bottom: 15px; display: block; }
+        .card h3 { color: #2c3e50; margin-bottom: 10px; }
+        .card p { color: #7f8c8d; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="logo">🏫 Vinayak International Associates</div>
+        <button class="btn-logout" id="btnStudentLogout">Log Out</button>
+    </div>
+
+    <div class="container">
+        
+        <div class="welcome-card">
+            <img id="dashAvatar" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" class="avatar">
+            <div class="info">
+                <h1 id="dashName">Welcome, Student</h1>
+                <p>Registration Number: <b id="dashRegNo" style="color:#333;">-</b></p>
+                <p>Class & Section: <b id="dashClass" style="color:#333;">-</b></p>
+                <span class="badge">Session: 2026-2027</span>
+            </div>
+        </div>
+
+        <h2 style="margin-bottom:20px; color:#2c3e50;">Student Services</h2>
+        
+        <div class="grid">
+            <div class="card" onclick="alert('Homework module will load here.')">
+                <span class="card-icon">📚</span>
+                <h3>My Assignments</h3>
+                <p>View daily homework and project attachments uploaded by teachers.</p>
+            </div>
+            <div class="card" onclick="alert('Attendance module will load here.')">
+                <span class="card-icon">📅</span>
+                <h3>Attendance Record</h3>
+                <p>Check your daily attendance percentage and late coming history.</p>
+            </div>
+            <div class="card" onclick="alert('Fee Ledger will load here.')">
+                <span class="card-icon">💳</span>
+                <h3>Fee Ledger</h3>
+                <p>View your paid fee receipts and pending dues history.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const studentStr = localStorage.getItem('erp_active_student');
+            if(!studentStr) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const student = JSON.parse(studentStr);
+            
+            // Populate Details
+            let fullName = (student.studentFirstName || "") + " " + (student.studentLastName || "");
+            document.getElementById('dashName').innerText = "Welcome, " + fullName;
+            document.getElementById('dashRegNo').innerText = student.regNo || "N/A";
+            
+            let sClass = "-";
+            if(student.studentClass) {
+                let match = student.studentClass.match(/(.*?)\s*\((.*?)\)/);
+                if(match) { sClass = match[1].trim() + " (" + match[2].trim() + ")"; } else { sClass = student.studentClass; }
+            }
+            document.getElementById('dashClass').innerText = sClass;
+
+            if(student.studentPhotoBase64 && student.studentPhotoBase64.startsWith('data:image')) {
+                document.getElementById('dashAvatar').src = student.studentPhotoBase64;
+            }
+
+            // Logout Logic
+            document.getElementById('btnStudentLogout').addEventListener('click', () => {
+                if(confirm("Are you sure you want to log out?")) {
+                    localStorage.removeItem('erp_active_student');
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
