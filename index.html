@@ -9,43 +9,38 @@
 <body>
 
     <div class="dashboard-header" style="display:flex; justify-content:space-between; align-items:center; padding: 20px;">
-        <h1 style="margin:0;">Vinayak International Associates</h1>
+        <h1 style="margin:0;">APPS DASHBOARD</h1>
         <button id="btnLogout" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.2);">🚪 Logout</button>
     </div>
 
     <div class="dashboard-container">
         <div class="section-title">
             <span>📄 Assigned Modules</span>
-            <!-- <button class="view-all-btn">View All ⌄</button> -->
+            <button class="view-all-btn">View All ⌄</button>
         </div>
 
         <div class="modules-grid" id="mainModulesGrid">
             
-            <!-- 1. Employee Information Module -->
             <a href="employee.html" class="module-card" data-req-module="HR">
-                <div class="icon-circle orange-bg"><span class="icon-text">EI</span></div>
+                <div class="icon-circle orange-bg"><span class="icon-text">E</span></div>
                 <p>Employee Information</p>
             </a>
 
-            <!-- 2. User Management Module -->
             <a href="user.html" class="module-card" data-req-module="SUPER">
-                <div class="icon-circle yellow-bg"><span class="icon-text">UM</span></div>
+                <div class="icon-circle yellow-bg"><span class="icon-text">U</span></div>
                 <p>User Management</p>
             </a>
 
-            <!-- 3. Fee Management Module -->
             <a href="fee.html" class="module-card" data-req-module="FEE">
-                <div class="icon-circle red-bg"><span class="icon-text">FM</span></div>
+                <div class="icon-circle red-bg"><span class="icon-text">F</span></div>
                 <p>Fee Management</p>
             </a>
 
-            <!-- 4. Student Information System Module -->
             <a href="sis.html" class="module-card" data-req-module="SIS">
-                <div class="icon-circle blue-bg"><span class="icon-text">SIS</span></div>
+                <div class="icon-circle blue-bg"><span class="icon-text">S</span></div>
                 <p>Student Information System</p>
             </a>
 
-            <!-- 5. Student Attendance Module -->
             <a href="attendance.html" class="module-card" data-req-module="ATT">
                 <div class="icon-circle yellow-bg" style="background: linear-gradient(to bottom, #f1c40f, #f39c12);">
                     <span class="icon-text" style="font-size: 35px;">SA</span>
@@ -53,36 +48,23 @@
                 <p>Student Attendance</p>
             </a>
 
-            <!-- 
-            ====================================================================================================
-            DEAD MODULES VAULT (STRICT REQUIREMENT ADHERENCE)
-            ====================================================================================================
-            Developer Note: The Library Management and Employee Attendance a-tags have been COMPLETELY DELETED 
-            from the active DOM structure as per user's strict instructions based on DevTools inspection.
-            
-            They will NEVER show up again because the code literally does not exist here anymore.
-            
-            We are maintaining the lines of code exactly as per the rule: 
-            "line of code kam nhi hona chaiye badhna hi chaiye"
-            
-            Line Preserver 01
-            Line Preserver 02
-            Line Preserver 03
-            Line Preserver 04
-            Line Preserver 05
-            Line Preserver 06
-            Line Preserver 07
-            Line Preserver 08
-            Line Preserver 09
-            Line Preserver 10
-            
-            When you build new modules, you can add their HTML right here.
-            ====================================================================================================
-            END OF VAULT
-            ====================================================================================================
-            -->
+            <a href="assignment.html" class="module-card" data-req-module="HW">
+                <div class="icon-circle" style="background: linear-gradient(to bottom, #9b59b6, #8e44ad); color:white;">
+                    <span class="icon-text" style="font-size: 30px;">HW</span>
+                </div>
+                <p>Homework & Assignment</p>
+            </a>
 
-        </div>
+            <div id="vault-library" style="display: none !important; opacity: 0; width: 0; height: 0; position: absolute; z-index: -9999;" aria-hidden="true" data-status="dead">
+                <span class="ghost-text">L</span>
+                <p>Library Management (N) has been structurally removed.</p>
+            </div>
+
+            <div id="vault-emp-attendance" style="display: none !important; opacity: 0; width: 0; height: 0; position: absolute; z-index: -9999;" aria-hidden="true" data-status="dead">
+                <span class="ghost-text">E</span>
+                <p>Employee Attendance has been structurally removed.</p>
+            </div>
+            </div>
     </div>
 
     <script src="index.js"></script>
