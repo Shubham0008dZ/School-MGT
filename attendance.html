@@ -155,5 +155,36 @@
 </div>
 
 <script src="attendance.js"></script>
+
+
+
+<script>
+// UNIVERSAL ATTENDANCE BUG FIX (Intercepts missing variables dynamically)
+document.addEventListener('DOMContentLoaded', () => {
+    const origSaveBtn = document.querySelector('.btn-green'); // Assuming Save btn is green
+    if(origSaveBtn && origSaveBtn.innerText.includes('Save')) {
+        origSaveBtn.addEventListener('mousedown', function() {
+            // Find inputs manually if variables reset
+            let classDropdown = document.getElementById('attClassSec');
+            let dateInput = document.getElementById('attDate');
+            
+            // If they are blank, try to extract from the header text (e.g. "Class: 5 (B) | Date: 24-05-2026")
+            if((!classDropdown || !classDropdown.value) || (!dateInput || !dateInput.value)) {
+                let headerText = document.body.innerText;
+                let classMatch = headerText.match(/Class:\s*(.*)\s*\|/);
+                let dateMatch = headerText.match(/Date:\s*(\d{2}-\d{2}-\d{4})/);
+                
+                if(classMatch && classDropdown) classDropdown.value = classMatch[1].trim();
+                if(dateMatch && dateInput) {
+                    let parts = dateMatch[1].trim().split('-');
+                    dateInput.value = `${parts[2]}-${parts[1]}-${parts[0]}`; // YYYY-MM-DD
+                }
+            }
+        });
+    }
+});
+</script>
+
+    
 </body>
 </html>
