@@ -3,80 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Vinayak International Associates</title>
+    <title>Vinayak International - ERP Login</title>
     <style>
-        * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        body, html { height: 100%; background-color: #2c3e50; display: flex; align-items: center; justify-content: center; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
+        .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; position: relative; overflow:hidden;}
+        .logo { font-size: 40px; margin-bottom: 10px; }
+        h2 { color: #2c3e50; margin-bottom: 5px; }
+        p.subtitle { color: #7f8c8d; font-size: 13px; margin-bottom: 25px; }
         
-        .login-container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 400px; text-align: center; }
-        .login-logo { font-size: 50px; margin-bottom: 10px; }
-        .login-title { color: #34495e; font-size: 24px; font-weight: bold; margin-bottom: 5px; }
-        .login-subtitle { color: #7f8c8d; font-size: 14px; margin-bottom: 30px; }
+        .role-tabs { display:flex; margin-bottom:20px; border-bottom:2px solid #ecf0f1;}
+        .role-tabs button { flex:1; background:none; border:none; padding:10px; font-weight:bold; color:#7f8c8d; cursor:pointer; font-size:15px; transition:0.3s; border-bottom:3px solid transparent;}
+        .role-tabs button.active { color:#2980b9; border-bottom-color:#2980b9; }
 
-        .input-group { text-align: left; margin-bottom: 20px; }
-        .input-group label { display: block; font-weight: bold; color: #555; margin-bottom: 5px; font-size: 13px; }
-        .input-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; outline: none; }
-        .input-group input:focus { border-color: #3498db; }
-
-        .btn-login { background-color: #2980b9; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-login:hover { background-color: #1abc9c; }
-        .btn-login:disabled { background-color: #95a5a6; cursor: not-allowed; }
-
-        .btn-green { background-color: #27ae60; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-green:hover { background-color: #2ecc71; }
-
-        .error-msg { color: #e74c3c; font-size: 13px; font-weight: bold; margin-bottom: 15px; display: none; }
-        .success-msg { color: #27ae60; font-size: 13px; font-weight: bold; margin-bottom: 15px; display: none; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 8px; }
+        .input-group input[type="text"], .input-group input[type="password"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; outline: none; transition: border-color 0.3s; }
+        .input-group input:focus { border-color: #2980b9; }
         
-        .footer-text { margin-top: 20px; font-size: 12px; color: #999; }
+        .btn-login { width: 100%; padding: 12px; background: #2980b9; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-login:hover { background: #1c5980; }
+
+        .form-view { display: none; animation: fadeIn 0.4s;}
+        .form-view.active { display: block; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+
+        /* STUDENT SPECIFIC UI */
+        .student-pin-box { background:#f9f9f9; border:1px solid #e1e1e1; padding:15px; border-radius:4px; margin-bottom:20px; text-align:left;}
+        .checkbox-container { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px;}
+        .checkbox-container input { margin-top:3px; cursor:pointer;}
+        .checkbox-container label { font-size:13px; color:#333; cursor:pointer; font-weight:bold; line-height:1.4;}
+        .forgot-link { color:#e74c3c; font-size:12px; font-weight:bold; text-decoration:none; cursor:pointer; display:block; text-align:right;}
+        .forgot-link:hover { text-decoration:underline; }
+
+        /* SLIDING PANELS */
+        .slide-panel { position:absolute; top:0; left:100%; width:100%; height:100%; background:white; padding:40px; transition:0.3s ease-in-out; text-align:left;}
+        .slide-panel.active { left:0; }
+        .back-btn { color:#7f8c8d; font-size:13px; cursor:pointer; font-weight:bold; margin-bottom:20px; display:inline-block; }
     </style>
 </head>
 <body>
 
-    <div class="login-container">
-        <div class="login-logo">🏫</div>
-        <div class="login-title">Vinayak International Associates</div>
+<div class="login-box">
+    
+    <div id="mainLoginPanel">
+        <div class="logo">🏫</div>
+        <h2>Welcome Back</h2>
+        <p class="subtitle">Vinayak International Associates</p>
         
-        <div id="errorBox" class="error-msg"></div>
-        <div id="successBox" class="success-msg"></div>
-
-        <div id="loginView">
-            <div class="login-subtitle">ERP Authentication System </div>
-            <form id="loginForm">
-                <div class="input-group">
-                    <label>User ID </label>
-                    <input type="text" id="userId" placeholder="Enter your ID" required>
-                </div>
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" id="password" placeholder="Enter your password" required>
-                </div>
-                <button type="submit" class="btn-login" id="btnLogin">Login Securely </button>
-            </form>
+        <div class="role-tabs">
+            <button class="tab-btn active" data-target="staffForm">Staff / Admin</button>
+            <button class="tab-btn" data-target="studentForm">Student</button>
         </div>
 
-        <div id="setupView" style="display:none;">
-            <div class="login-subtitle" style="color:#e67e22; font-weight:bold;">Account Setup Required</div>
-            <form id="setupForm">
-                <div class="input-group">
-                    <label>Your User ID</label>
-                    <input type="text" id="setupUserId" readonly style="background:#f9f9f9; font-weight:bold; color:#333;">
-                </div>
-                <div class="input-group">
-                    <label>Create New Password</label>
-                    <input type="password" id="newPassword" placeholder="Enter new password" required>
-                </div>
-                <div class="input-group">
-                    <label>Confirm Password</label>
-                    <input type="password" id="confirmPassword" placeholder="Confirm new password" required>
-                </div>
-                <button type="submit" class="btn-green" id="btnSetup">SET PASSWORD</button>
-            </form>
+        <div id="staffForm" class="form-view active">
+            <div class="input-group">
+                <label>Employee ID / Email</label>
+                <input type="text" id="staffId" placeholder="Enter ID">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="staffPass" placeholder="Enter Password">
+            </div>
+            <button class="btn-login" id="btnStaffLogin">Login Securely</button>
         </div>
 
-        <div class="footer-text">Protected by Secure Login System</div>
+        <div id="studentForm" class="form-view">
+            <div class="input-group">
+                <label>Portal User ID</label>
+                <input type="text" id="studentId" placeholder="e.g. shubham7">
+            </div>
+            <div class="input-group">
+                <label>Security PIN / Password</label>
+                <input type="password" id="studentPass" placeholder="8-Digit PIN or Password">
+                <a class="forgot-link" onclick="openPanel('forgotPanel')">Forgot PIN/Password?</a>
+            </div>
+
+            <div class="student-pin-box">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="chkNewPassword">
+                    <label for="chkNewPassword">I want to create a new custom password (Recommended).</label>
+                </div>
+                <p style="font-size:11px; color:#777; margin-left:23px;">If left unchecked, your current PIN will permanently become your password.</p>
+            </div>
+
+            <button class="btn-login" id="btnStudentLogin" style="background:#27ae60;">Student Login</button>
+        </div>
     </div>
 
-    <script src="login.js"></script>
+    <div id="setPassPanel" class="slide-panel">
+        <span class="back-btn" onclick="closePanels()">← Back to Login</span>
+        <h3 style="margin-bottom:10px; color:#2c3e50;">Set Custom Password</h3>
+        <p style="font-size:13px; color:#555; margin-bottom:20px;">Please create a secure password you can remember easily.</p>
+        
+        <div class="input-group"><label>New Password</label><input type="password" id="newPass1"></div>
+        <div class="input-group"><label>Confirm Password</label><input type="password" id="newPass2"></div>
+        <button class="btn-login" id="btnConfirmNewPass" style="background:#8e44ad;">Update & Login</button>
+    </div>
+
+    <div id="forgotPanel" class="slide-panel">
+        <span class="back-btn" onclick="closePanels()">← Back to Login</span>
+        <h3 style="margin-bottom:10px; color:#c0392b;">Reset via OTP</h3>
+        <p style="font-size:13px; color:#555; margin-bottom:20px;">Enter your Portal User ID to receive a 6-digit OTP on your registered email.</p>
+        
+        <div id="otpStep1">
+            <div class="input-group"><label>Portal User ID</label><input type="text" id="forgotStudentId" placeholder="e.g. shubham7"></div>
+            <button class="btn-login" id="btnSendOtp" style="background:#e67e22;">Send OTP to Email</button>
+        </div>
+
+        <div id="otpStep2" style="display:none; margin-top:20px;">
+            <p style="font-size:13px; color:#27ae60; font-weight:bold; margin-bottom:15px;">OTP sent successfully!</p>
+            <div class="input-group"><label>Enter 6-Digit OTP</label><input type="text" id="resetOtp" maxlength="6"></div>
+            <div class="input-group"><label>New Password</label><input type="password" id="resetNewPass"></div>
+            <button class="btn-login" id="btnVerifyOtp" style="background:#27ae60;">Reset Password</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // REPLACE WITH ACTUAL SCRIPT URL
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
+
+    // TAB LOGIC
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.form-view').forEach(f => f.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById(this.getAttribute('data-target')).classList.add('active');
+        });
+    });
+
+    // PANEL CONTROLS
+    function openPanel(id) { document.getElementById(id).classList.add('active'); }
+    function closePanels() { document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('active')); }
+
+    // ==========================================
+    // 1. STAFF LOGIN (Untouched Logic)
+    // ==========================================
+    document.getElementById('btnStaffLogin').addEventListener('click', function() {
+        const uid = document.getElementById('staffId').value; const pass = document.getElementById('staffPass').value;
+        if(!uid || !pass) { alert("Fill all fields"); return; }
+        this.innerText = "Authenticating..."; this.disabled = true;
+        
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "login", userId: uid, password: pass }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
+        .then(res => res.json()).then(data => {
+            if(data.status === "Success") { localStorage.setItem('erp_active_user', JSON.stringify(data.user)); window.location.href = 'index.html'; } 
+            else { alert(data.message); }
+        }).catch(err => alert("Connection Error.")).finally(() => { this.innerText = "Login Securely"; this.disabled = false; });
+    });
+
+    // ==========================================
+    // 2. STUDENT LOGIN (WITH PIN CHECKBOX LOGIC)
+    // ==========================================
+    let verifiedStudentId = "";
+    
+    document.getElementById('btnStudentLogin').addEventListener('click', function() {
+        const uid = document.getElementById('studentId').value; const pass = document.getElementById('studentPass').value;
+        const wantsNewPass = document.getElementById('chkNewPassword').checked;
+        if(!uid || !pass) { alert("Enter User ID and PIN"); return; }
+        
+        this.innerText = "Checking Credentials..."; this.disabled = true;
+
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "loginStudent", userId: uid, password: pass }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
+        .then(res => res.json()).then(data => {
+            if(data.status === "Success") {
+                if(wantsNewPass) {
+                    verifiedStudentId = uid;
+                    openPanel('setPassPanel');
+                } else {
+                    // Logic to jump to student dashboard (Mocked for now since student dash isn't built yet)
+                    alert("Logged in! Redirecting to Student Dashboard...");
+                    // window.location.href = 'student_dashboard.html'; 
+                }
+            } else { alert(data.message); }
+        }).finally(() => { this.innerText = "Student Login"; this.disabled = false; });
+    });
+
+    // UPDATE NEW PASSWORD DIRECTLY
+    document.getElementById('btnConfirmNewPass').addEventListener('click', function() {
+        const p1 = document.getElementById('newPass1').value; const p2 = document.getElementById('newPass2').value;
+        if(!p1 || p1 !== p2) { alert("Passwords do not match."); return; }
+        this.innerText = "Updating..."; this.disabled = true;
+
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "resetStudentPassword", userId: verifiedStudentId, newPassword: p1 }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
+        .then(res => res.json()).then(data => {
+            if(data.status === "Success") {
+                alert("Password updated! Please login with your new password.");
+                closePanels();
+                document.getElementById('studentPass').value = "";
+                document.getElementById('chkNewPassword').checked = false;
+            }
+        }).finally(() => { this.innerText = "Update & Login"; this.disabled = false; });
+    });
+
+    // ==========================================
+    // 3. OTP RESET FLOW
+    // ==========================================
+    document.getElementById('btnSendOtp').addEventListener('click', function() {
+        const uid = document.getElementById('forgotStudentId').value;
+        if(!uid) { alert("Enter User ID"); return; }
+        this.innerText = "Sending..."; this.disabled = true;
+
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "sendStudentOTP", userId: uid }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
+        .then(res => res.json()).then(data => {
+            if(data.status === "Success") {
+                document.getElementById('otpStep1').style.display = 'none';
+                document.getElementById('otpStep2').style.display = 'block';
+            } else { alert(data.message); }
+        }).finally(() => { this.innerText = "Send OTP to Email"; this.disabled = false; });
+    });
+
+    document.getElementById('btnVerifyOtp').addEventListener('click', function() {
+        const uid = document.getElementById('forgotStudentId').value;
+        const otp = document.getElementById('resetOtp').value;
+        const newPass = document.getElementById('resetNewPass').value;
+        if(!otp || !newPass) { alert("Fill all fields."); return; }
+        this.innerText = "Resetting..."; this.disabled = true;
+
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "resetStudentPassword", userId: uid, otp: otp, newPassword: newPass }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
+        .then(res => res.json()).then(data => {
+            if(data.status === "Success") {
+                alert("Password reset successfully. You can now login.");
+                closePanels();
+                document.getElementById('otpStep1').style.display = 'block';
+                document.getElementById('otpStep2').style.display = 'none';
+            } else { alert(data.message); }
+        }).finally(() => { this.innerText = "Reset Password"; this.disabled = false; });
+    });
+
+</script>
 </body>
 </html>
