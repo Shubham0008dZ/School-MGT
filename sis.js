@@ -333,17 +333,47 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // SAVE FORM (NOW INCLUDES BASE64 IMAGES)
     // ==========================================
+  // ==========================================
+    // INTERCEPT SAVE FOR EMAIL CONFIRMATION MODAL
+    // ==========================================
+    let pendingStudentData = null;
+    let pendingIsEdit = false;
+
     document.getElementById('admissionForm').addEventListener('submit', function(e) {
-        e.preventDefault(); const submitBtn = document.getElementById('saveSubmitBtn'); const isEdit = document.getElementById('editMode').value === "true"; submitBtn.textContent = 'Syncing...'; submitBtn.disabled = true;
-        const studentData = {
+        e.preventDefault(); 
+        pendingIsEdit = document.getElementById('editMode').value === "true"; 
+        
+        pendingStudentData = {
             regNo: getVal('regNo'), adminDate: getVal('adminDate'), studentFirstName: getVal('studentFirstName'), studentLastName: getVal('studentLastName'), primaryEmail: getVal('primaryEmail'), dob: getVal('dob'), mobile: getVal('mobile'), placeOfBirth: getVal('placeOfBirth'), motherTongue: getVal('motherTongue'), studentClass: getVal('studentClass'), gender: getVal('gender'), bloodGroup: getVal('bloodGroup'), category: getVal('category'), house: getVal('house'), religion: getVal('religion'), udiseNo: getVal('udiseNo'), apaarId: getVal('apaarId'), aadhaarNo: getVal('aadhaarNo'), prevSchool: getVal('prevSchool'), fatherName: getVal('fatherName'), fatherSalutation: getVal('fatherSalutation'), fatherContact: getVal('fatherContact'), fatherWhatsapp: getVal('fatherWhatsapp'), fatherProfession: getVal('fatherProfession'), fatherQualification: getVal('fatherQualification'), fatherDesignation: getVal('fatherDesignation'), fatherIncome: getVal('fatherIncome'), fatherOfficeName: getVal('fatherOfficeName'), fatherOfficeContact: getVal('fatherOfficeContact'), fatherOfficeAddress: getVal('fatherOfficeAddress'), fatherAadhaar: getVal('fatherAadhaar'), motherName: getVal('motherName'), motherSalutation: getVal('motherSalutation'), motherContact: getVal('motherContact'), motherWhatsapp: getVal('motherWhatsapp'), motherProfession: getVal('motherProfession'), motherQualification: getVal('motherQualification'), motherDesignation: getVal('motherDesignation'), motherIncome: getVal('motherIncome'), motherOfficeName: getVal('motherOfficeName'), motherOfficeContact: getVal('motherOfficeContact'), motherOfficeAddress: getVal('motherOfficeAddress'), motherAadhaar: getVal('motherAadhaar'), corrAddress: getVal('corrAddress'), corrCity: getVal('corrCity'), corrState: getVal('corrState'), corrCountry: getVal('corrCountry'), corrPincode: getVal('corrPincode'), permAddress: getVal('permAddress'), permCity: getVal('permCity'), permState: getVal('permState'), permCountry: getVal('permCountry'), permPincode: getVal('permPincode'),
             studentPhotoBase64: getVal('studentPhotoBase64'), fatherPhotoBase64: getVal('fatherPhotoBase64'), motherPhotoBase64: getVal('motherPhotoBase64')
         };
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: isEdit ? "update" : "add", data: studentData }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
-        .then(res => res.json()).then(data => {
-            if(data.status === "Success") { customAlert(data.message || (isEdit ? "Updated in DB!" : "Added to DB!")); document.getElementById('btn-back-to-profiles').click(); syncWithDatabase(); } else { customAlert("Error: " + data.message); }
-        }).finally(() => { submitBtn.textContent = 'Save Record to DB'; submitBtn.disabled = false; });
+
+        if(pendingIsEdit) {
+            // Edit me mail prompt nahi chahiye, direct save
+            executeStudentSave(false);
+        } else {
+            // Add new student pe modal show hoga
+            document.getElementById('studentEmailConfirmModal').classList.add('active');
+        }
     });
+
+    document.getElementById('btnConfirmStudentSave')?.addEventListener('click', function() {
+        let sendEmailChoice = document.getElementById('toggleSendCreds').checked;
+        document.getElementById('studentEmailConfirmModal').classList.remove('active');
+        executeStudentSave(sendEmailChoice);
+    });
+
+    function executeStudentSave(sendEmailChoice) {
+        const submitBtn = document.getElementById('saveSubmitBtn'); 
+        submitBtn.textContent = 'Syncing...'; submitBtn.disabled = true;
+        
+        pendingStudentData.sendEmailOpt = sendEmailChoice; // Attach the toggle choice
+
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: pendingIsEdit ? "update" : "add", data: pendingStudentData }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
+        .then(res => res.json()).then(data => {
+            if(data.status === "Success") { customAlert(data.message || (pendingIsEdit ? "Updated in DB!" : "Added to DB!")); document.getElementById('btn-back-to-profiles').click(); syncWithDatabase(); } else { customAlert("Error: " + data.message); }
+        }).finally(() => { submitBtn.textContent = 'Save Record to DB'; submitBtn.disabled = false; });
+    }
 
     const btnAddStudent = document.getElementById('btn-add-student');
     if(btnAddStudent) {
