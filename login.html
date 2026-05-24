@@ -29,7 +29,8 @@
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
 
         /* STUDENT SPECIFIC UI */
-        .student-pin-box { background:#f9f9f9; border:1px solid #e1e1e1; padding:15px; border-radius:4px; margin-bottom:20px; text-align:left;}
+        /* Hidden by default, made visible only if URL has ?setup=true */
+        .student-pin-box { display:none; background:#f9f9f9; border:1px solid #e1e1e1; padding:15px; border-radius:4px; margin-bottom:20px; text-align:left;}
         .checkbox-container { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px;}
         .checkbox-container input { margin-top:3px; cursor:pointer;}
         .checkbox-container label { font-size:13px; color:#333; cursor:pointer; font-weight:bold; line-height:1.4;}
@@ -79,7 +80,7 @@
                 <a class="forgot-link" onclick="openPanel('forgotPanel')">Forgot PIN/Password?</a>
             </div>
 
-            <div class="student-pin-box">
+            <div class="student-pin-box" id="setupCheckboxPanel">
                 <div class="checkbox-container">
                     <input type="checkbox" id="chkNewPassword">
                     <label for="chkNewPassword">I want to create a new custom password (Recommended).</label>
@@ -122,8 +123,23 @@
 </div>
 
 <script>
-    // REPLACE WITH ACTUAL SCRIPT URL
+    // ⚠️ REPLACE WITH YOUR SCRIPT URL
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
+
+    // UI SETUP LOGIC (Checks URL for ?setup=true)
+    document.addEventListener("DOMContentLoaded", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const isSetupMode = urlParams.get('setup') === 'true';
+        
+        if (isSetupMode) {
+            document.getElementById('setupCheckboxPanel').style.display = 'block';
+            // Auto switch to student tab
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.form-view').forEach(f => f.classList.remove('active'));
+            document.querySelector('.tab-btn[data-target="studentForm"]').classList.add('active');
+            document.getElementById('studentForm').classList.add('active');
+        }
+    });
 
     // TAB LOGIC
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -135,12 +151,11 @@
         });
     });
 
-    // PANEL CONTROLS
     function openPanel(id) { document.getElementById(id).classList.add('active'); }
     function closePanels() { document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('active')); }
 
     // ==========================================
-    // 1. STAFF LOGIN (Untouched Logic)
+    // 1. STAFF LOGIN 
     // ==========================================
     document.getElementById('btnStaffLogin').addEventListener('click', function() {
         const uid = document.getElementById('staffId').value; const pass = document.getElementById('staffPass').value;
@@ -155,13 +170,15 @@
     });
 
     // ==========================================
-    // 2. STUDENT LOGIN (WITH PIN CHECKBOX LOGIC)
+    // 2. STUDENT LOGIN (FIXED REDIRECT)
     // ==========================================
     let verifiedStudentId = "";
     
     document.getElementById('btnStudentLogin').addEventListener('click', function() {
         const uid = document.getElementById('studentId').value; const pass = document.getElementById('studentPass').value;
+        const setupBoxVisible = document.getElementById('setupCheckboxPanel').style.display !== 'none';
         const wantsNewPass = document.getElementById('chkNewPassword').checked;
+        
         if(!uid || !pass) { alert("Enter User ID and PIN"); return; }
         
         this.innerText = "Checking Credentials..."; this.disabled = true;
@@ -169,19 +186,20 @@
         fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "loginStudent", userId: uid, password: pass }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
         .then(res => res.json()).then(data => {
             if(data.status === "Success") {
-                if(wantsNewPass) {
+                if(setupBoxVisible && wantsNewPass) {
                     verifiedStudentId = uid;
                     openPanel('setPassPanel');
                 } else {
-                    // Logic to jump to student dashboard (Mocked for now since student dash isn't built yet)
-                    alert("Logged in! Redirecting to Student Dashboard...");
-                    // window.location.href = 'student_dashboard.html'; 
+                    // Success! Remove URL param and Redirect
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    localStorage.setItem('erp_active_student', JSON.stringify(data.user));
+                    window.location.href = 'student_dashboard.html'; 
                 }
             } else { alert(data.message); }
         }).finally(() => { this.innerText = "Student Login"; this.disabled = false; });
     });
 
-    // UPDATE NEW PASSWORD DIRECTLY
+    // UPDATE NEW PASSWORD
     document.getElementById('btnConfirmNewPass').addEventListener('click', function() {
         const p1 = document.getElementById('newPass1').value; const p2 = document.getElementById('newPass2').value;
         if(!p1 || p1 !== p2) { alert("Passwords do not match."); return; }
@@ -194,6 +212,10 @@
                 closePanels();
                 document.getElementById('studentPass').value = "";
                 document.getElementById('chkNewPassword').checked = false;
+                
+                // Hide setup box permanently and strip URL parameters
+                document.getElementById('setupCheckboxPanel').style.display = 'none';
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
         }).finally(() => { this.innerText = "Update & Login"; this.disabled = false; });
     });
@@ -232,7 +254,6 @@
             } else { alert(data.message); }
         }).finally(() => { this.innerText = "Reset Password"; this.disabled = false; });
     });
-
 </script>
 </body>
 </html>
