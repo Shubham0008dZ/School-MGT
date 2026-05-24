@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework & Assignment - ERP</title>
+    <title>Communication & Assignment - ERP</title>
     <link rel="stylesheet" href="assignment.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
     </div>
     <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
     <div class="top-right" style="display:flex; align-items:center; gap:15px;">
-        <span>⚏ Assignment Module 🔔</span>
+        <span>⚏ Communication Module 🔔</span>
         <button id="btnLogout" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:3px; cursor:pointer; font-weight:bold;">🚪 Logout</button>
     </div>
 </div>
@@ -27,14 +27,14 @@
         <div class="sidebar-header hw-header"><h2>📚 EDUNEXT</h2></div>
         <ul class="nav-links">
             <li><a href="index.html" class="nav-btn"><span class="nav-icon">🏠</span><span class="nav-text"> Dashboard</span></a></li>
-            <li><a href="#" class="nav-btn active" data-target="module-add-hw"><span class="nav-icon">➕</span><span class="nav-text"> Upload Assignment</span></a></li>
+            <li><a href="#" class="nav-btn active" data-target="module-add-hw"><span class="nav-icon">➕</span><span class="nav-text"> Upload Communication</span></a></li>
         </ul>
     </div>
 
     <div class="main-content">
         <div id="module-add-hw" class="app-module active-module">
             <div class="profile-header">
-                <h2>UPLOAD NEW HOMEWORK / ASSIGNMENT</h2>
+                <h2>UPLOAD COMMUNICATION / ASSIGNMENT</h2>
             </div>
             
             <div class="form-container">
@@ -47,80 +47,83 @@
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Assignment Date <span style="color:red;">*</span></label>
+                            <label>Date <span style="color:red;">*</span></label>
                             <input type="date" id="hwDate" required>
                         </div>
                         <div class="input-group">
                             <label>Class <span style="color:red;">*</span></label>
                             <select id="hwClass" required>
                                 <option value="">Select Class</option>
-                                </select>
+                                <option value="All">All Classes (Global)</option>
+                            </select>
                         </div>
                         <div class="input-group">
                             <label>Section <span style="color:red;">*</span></label>
                             <select id="hwSection" required>
                                 <option value="">Select Section</option>
-                                </select>
+                                <option value="All">All Sections</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="input-group">
-                            <label>Subject</label>
+                            <label>Subject / Category</label>
                             <select id="hwSubject">
-                                <option value="">Select Subject</option>
+                                <option value="">Select Subject/Category</option>
                                 <option value="English">English</option>
                                 <option value="Hindi">Hindi</option>
                                 <option value="Mathematics">Mathematics</option>
                                 <option value="Science">Science</option>
-                                <option value="Social Science">Social Science</option>
-                                <option value="Computer">Computer</option>
-                                <option value="General Knowledge">General Knowledge</option>
+                                <option value="General">General (For Circulars)</option>
                                 <option value="Other">Other</option>
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Assignment Type <span style="color:red;">*</span></label>
+                            <label>Communication Type <span style="color:red;">*</span></label>
                             <select id="hwType" required>
-                                <option value="">Select Assignment Type</option>
+                                <option value="">Select Type</option>
                                 <option value="Homework">Homework</option>
                                 <option value="Classwork">Classwork</option>
-                                <option value="Holiday Homework">Holiday Homework</option>
                                 <option value="Assignment">Assignment</option>
                                 <option value="Project">Project</option>
-                                <option value="Other">Other</option>
+                                <option value="Circular">Circular / News</option>
+                                <option value="Notice">Notice</option>
+                                <option value="Feedback">Feedback</option>
+                                <option value="Achievement">Achievement</option>
+                                <option value="Remarks">Remarks</option>
                             </select>
                         </div>
                         <div class="input-group" style="flex:2;">
-                            <label>Assignment Name <span style="color:red;">*</span></label>
-                            <input type="text" id="hwName" placeholder="Enter Assignment Name" required>
+                            <label>Title / Topic Name <span style="color:red;">*</span></label>
+                            <input type="text" id="hwName" placeholder="Enter Title (e.g. Summer Break Notice)" required>
                         </div>
                     </div>
 
                     <div class="form-row" style="align-items: flex-start;">
                         <div class="input-group" style="flex:1;">
-                            <label>Student-wise Assignment</label>
+                            <label>Student-wise Only?</label>
                             <label class="switch">
                                 <input type="checkbox" id="hwStudentWise">
                                 <span class="slider"></span>
                             </label>
                         </div>
                         <div class="input-group" style="flex:3;">
-                            <label>Description</label>
-                            <textarea id="hwDesc" placeholder="Enter Description" rows="4" style="resize:vertical;"></textarea>
+                            <label>Detailed Description</label>
+                            <textarea id="hwDesc" placeholder="Enter full details here..." rows="4" style="resize:vertical;"></textarea>
                         </div>
                     </div>
 
                     <div class="form-row" style="align-items: center; border-top:1px solid #eee; padding-top:15px; margin-top:10px;">
                         <div class="input-group" style="flex:1;">
-                            <label>Attachment</label>
+                            <label>Attachment (Optional)</label>
                             <label for="hwFile" class="btn-attach">📎 Add Attachment</label>
                             <input type="file" id="hwFile" hidden>
                             <span id="hwFileName" style="font-size:12px; color:#777; margin-top:5px;">No file selected</span>
                             <input type="hidden" id="hwBase64">
                         </div>
                         <div class="input-group" style="flex:3; padding-left:20px;">
-                            <label>Submission Required</label>
+                            <label>Submission Required (For HW)</label>
                             <label class="switch">
                                 <input type="checkbox" id="hwSubmissionReq">
                                 <span class="slider"></span>
@@ -129,12 +132,11 @@
                     </div>
 
                     <div class="submit-section">
-                        <button type="submit" class="submit-btn" id="btnSaveHw">Save Assignment</button>
+                        <button type="submit" class="submit-btn" id="btnSaveHw">Save Communication</button>
                     </div>
                 </form>
             </div>
         </div>
-
     </div>
 </div>
 
