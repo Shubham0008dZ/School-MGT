@@ -27,12 +27,42 @@
         <div class="sidebar-header hw-header"><h2>📚 EDUNEXT</h2></div>
         <ul class="nav-links">
             <li><a href="index.html" class="nav-btn"><span class="nav-icon">🏠</span><span class="nav-text"> Dashboard</span></a></li>
-            <li><a href="#" class="nav-btn active" data-target="module-add-hw"><span class="nav-icon">➕</span><span class="nav-text"> Upload Communication</span></a></li>
+            <li><a href="#" class="nav-btn active" data-target="module-comm-list"><span class="nav-icon">📋</span><span class="nav-text"> View Communication</span></a></li>
+            <li><a href="#" class="nav-btn" data-target="module-add-hw"><span class="nav-icon">➕</span><span class="nav-text"> Upload Comm/HW</span></a></li>
         </ul>
     </div>
 
     <div class="main-content">
-        <div id="module-add-hw" class="app-module active-module">
+        
+        <div id="module-comm-list" class="app-module active-module">
+            <div class="profile-header">
+                <h2>COMMUNICATION RECORDS</h2>
+                <button class="btn-dark" style="padding:8px 15px; border:none; border-radius:3px; color:white; cursor:pointer; font-weight:bold;" id="btnSyncComm">🔄 Sync Data</button>
+            </div>
+            
+            <div class="form-container" style="padding:20px;">
+                <div class="comm-tabs-container">
+                    <button class="comm-tab active" data-filter="Circular">Circular/News</button>
+                    <button class="comm-tab" data-filter="Feedback">Feedback</button>
+                    <button class="comm-tab" data-filter="Achievement">Achievement</button>
+                    <button class="comm-tab" data-filter="PTM">PTM</button>
+                    <button class="comm-tab" data-filter="Remarks">Remarks</button>
+                    <button class="comm-tab" data-filter="Homework">Homework/Assignment</button>
+                </div>
+
+                <div class="comm-split-view">
+                    <div class="comm-list-sidebar" id="commListArea">
+                        <p style="text-align:center; padding:20px; color:#777;">Fetching records... ⏳</p>
+                    </div>
+                    
+                    <div class="comm-detail-area" id="commDetailArea">
+                        <div class="empty-detail">Select an item from the left to view details.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="module-add-hw" class="app-module">
             <div class="profile-header">
                 <h2>UPLOAD COMMUNICATION / ASSIGNMENT</h2>
             </div>
@@ -91,6 +121,7 @@
                                 <option value="Notice">Notice</option>
                                 <option value="Feedback">Feedback</option>
                                 <option value="Achievement">Achievement</option>
+                                <option value="PTM">PTM</option>
                                 <option value="Remarks">Remarks</option>
                             </select>
                         </div>
