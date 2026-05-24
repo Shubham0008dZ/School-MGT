@@ -13,20 +13,73 @@
         .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-logout:hover { background: #c0392b; }
 
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .layout { display: flex; max-width: 1300px; margin: 30px auto; gap: 30px; padding: 0 20px; }
         
-        .welcome-card { background: white; border-radius: 8px; padding: 30px; display: flex; align-items: center; gap: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; border-left: 5px solid #3498db; }
+        /* SIDEBAR TABS */
+        .portal-sidebar { width: 250px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; height: fit-content; }
+        .portal-sidebar button { width: 100%; text-align: left; padding: 18px 20px; background: none; border: none; border-left: 4px solid transparent; font-size: 15px; font-weight: bold; color: #555; cursor: pointer; transition: 0.3s; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px; }
+        .portal-sidebar button:hover { background: #f9f9f9; }
+        .portal-sidebar button.active { border-left-color: #3498db; color: #3498db; background: #e8f4f8; }
+
+        /* MAIN CONTENT AREA */
+        .portal-content { flex: 1; }
+        .view-panel { display: none; animation: fadeIn 0.4s; }
+        .view-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+
+        /* DASHBOARD VIEW */
+        .welcome-card { background: white; border-radius: 8px; padding: 30px; display: flex; align-items: center; gap: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 5px solid #3498db; }
         .avatar { width: 100px; height: 100px; border-radius: 50%; background: #eee; object-fit: cover; border: 3px solid #3498db; }
         .info h1 { margin-bottom: 5px; color: #2c3e50; }
         .info p { color: #7f8c8d; font-size: 15px; margin-bottom: 5px; }
         .badge { background: #e8f4f8; color: #2980b9; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 10px; border: 1px solid #3498db; }
 
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .card { background: white; border-radius: 8px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; cursor:pointer; transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .card-icon { font-size: 40px; margin-bottom: 15px; display: block; }
-        .card h3 { color: #2c3e50; margin-bottom: 10px; }
-        .card p { color: #7f8c8d; font-size: 13px; }
+        /* COMMUNICATION VIEW */
+        .comm-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .comm-header h2 { color: #2c3e50; font-size: 18px; }
+        .comm-list { display: flex; flex-direction: column; gap: 15px; }
+        .comm-card { background: white; border-radius: 8px; border: 1px solid #eee; border-left: 4px solid #9b59b6; padding: 15px 20px; display: flex; align-items: center; gap: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.3s; }
+        .comm-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .comm-icon { width: 50px; height: 50px; background: #f3e5f5; color: #9b59b6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .comm-details { flex: 1; }
+        .comm-details h4 { color: #2c3e50; margin-bottom: 5px; font-size: 16px; }
+        .comm-details p { color: #7f8c8d; font-size: 13px; margin: 2px 0; }
+        .comm-status { font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 3px; background: #e8f4f8; color: #3498db; border: 1px solid #3498db; }
+        .btn-download { background: #ecf0f1; color: #2c3e50; border: 1px solid #bdc3c7; padding: 8px 15px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; text-decoration: none; }
+        .btn-download:hover { background: #bdc3c7; }
+
+        /* ATTENDANCE VIEW */
+        .att-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+        .att-card { background: white; padding: 20px; border-radius: 8px; border-top: 4px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; }
+        .att-card.present { border-top-color: #27ae60; }
+        .att-card.absent { border-top-color: #e74c3c; }
+        .att-card.leave { border-top-color: #f39c12; }
+        .att-card h3 { font-size: 30px; margin: 10px 0; color: #2c3e50; }
+        .att-card p { font-size: 13px; color: #7f8c8d; font-weight: bold; text-transform: uppercase; }
+        
+        .calendar-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .cal-header button { background: none; border: 1px solid #ddd; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; color: #555; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+        .cal-day-header { font-weight: bold; color: #7f8c8d; font-size: 13px; padding-bottom: 10px; }
+        .cal-cell { padding: 15px 10px; border: 1px solid #f1f1f1; border-radius: 4px; position: relative; font-size: 14px; color: #333; background: #fafafa;}
+        .cal-cell.empty { background: none; border: none; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); }
+        .dot.p { background: #27ae60; }
+        .dot.a { background: #e74c3c; }
+        .dot.l { background: #f39c12; }
+
+        /* FEES VIEW */
+        .fee-summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .fee-card { background: white; padding: 20px; border-radius: 8px; border: 1px solid #eee; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .fee-card h4 { font-size: 12px; color: #7f8c8d; text-transform: uppercase; margin-bottom: 8px; }
+        .fee-card h2 { font-size: 22px; color: #2c3e50; margin: 0; }
+        
+        .fee-table-container { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #f1f1f1; text-align: left; }
+        th { background: #f8f9fa; color: #555; font-weight: bold; text-transform: uppercase; font-size: 12px; }
+        tr:hover td { background: #fcfcfc; }
     </style>
 </head>
 <body>
@@ -36,74 +89,330 @@
         <button class="btn-logout" id="btnStudentLogout">Log Out</button>
     </div>
 
-    <div class="container">
-        
-        <div class="welcome-card">
-            <img id="dashAvatar" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" class="avatar">
-            <div class="info">
-                <h1 id="dashName">Welcome, Student</h1>
-                <p>Registration Number: <b id="dashRegNo" style="color:#333;">-</b></p>
-                <p>Class & Section: <b id="dashClass" style="color:#333;">-</b></p>
-                <span class="badge">Session: 2026-2027</span>
-            </div>
+    <div class="layout">
+        <div class="portal-sidebar">
+            <button class="portal-tab active" data-target="view-dashboard">🏠 Dashboard</button>
+            <button class="portal-tab" data-target="view-comm">💬 Communication</button>
+            <button class="portal-tab" data-target="view-att">📅 Attendance</button>
+            <button class="portal-tab" data-target="view-fees">💳 Fee Ledger</button>
         </div>
 
-        <h2 style="margin-bottom:20px; color:#2c3e50;">Student Services</h2>
-        
-        <div class="grid">
-            <div class="card" onclick="alert('Homework module will load here.')">
-                <span class="card-icon">📚</span>
-                <h3>My Assignments</h3>
-                <p>View daily homework and project attachments uploaded by teachers.</p>
+        <div class="portal-content">
+            
+            <div id="view-dashboard" class="view-panel active">
+                <div class="welcome-card">
+                    <img id="dashAvatar" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" class="avatar">
+                    <div class="info">
+                        <h1 id="dashName">Welcome, Student</h1>
+                        <p>Registration Number: <b id="dashRegNo" style="color:#333;">-</b></p>
+                        <p>Class & Section: <b id="dashClass" style="color:#333;">-</b></p>
+                        <span class="badge">Academic Session: 2026-2027</span>
+                    </div>
+                </div>
             </div>
-            <div class="card" onclick="alert('Attendance module will load here.')">
-                <span class="card-icon">📅</span>
-                <h3>Attendance Record</h3>
-                <p>Check your daily attendance percentage and late coming history.</p>
-            </div>
-            <div class="card" onclick="alert('Fee Ledger will load here.')">
-                <span class="card-icon">💳</span>
-                <h3>Fee Ledger</h3>
-                <p>View your paid fee receipts and pending dues history.</p>
-            </div>
-        </div>
 
+            <div id="view-comm" class="view-panel">
+                <div class="comm-header">
+                    <h2>Recent Communications & Assignments</h2>
+                    <span style="font-size:13px; color:#7f8c8d;">Data synced dynamically</span>
+                </div>
+                <div class="comm-list" id="commListContainer">
+                    <p style="text-align:center; padding:20px; color:#777;">Fetching records... ⏳</p>
+                </div>
+            </div>
+
+            <div id="view-att" class="view-panel">
+                <div class="att-summary-grid">
+                    <div class="att-card present">
+                        <p>Total Present</p><h3 id="attTotalP">0</h3>
+                    </div>
+                    <div class="att-card absent">
+                        <p>Total Absent</p><h3 id="attTotalA">0</h3>
+                    </div>
+                    <div class="att-card leave">
+                        <p>Late Coming / Leave</p><h3 id="attTotalL">0</h3>
+                    </div>
+                </div>
+                <div class="calendar-container">
+                    <div class="cal-header">
+                        <button id="calPrevMonth">← Prev</button>
+                        <h3 id="calMonthTitle" style="color:#2c3e50;">Month, Year</h3>
+                        <button id="calNextMonth">Next →</button>
+                    </div>
+                    <div class="cal-grid" id="calGrid">
+                        </div>
+                    <div style="margin-top:20px; display:flex; gap:15px; justify-content:center; font-size:12px; color:#555;">
+                        <span style="display:flex; align-items:center; gap:5px;"><div style="width:10px;height:10px;background:#27ae60;border-radius:50%;"></div> Present</span>
+                        <span style="display:flex; align-items:center; gap:5px;"><div style="width:10px;height:10px;background:#e74c3c;border-radius:50%;"></div> Absent</span>
+                        <span style="display:flex; align-items:center; gap:5px;"><div style="width:10px;height:10px;background:#f39c12;border-radius:50%;"></div> Late / Leave</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-fees" class="view-panel">
+                <div class="fee-summary-grid">
+                    <div class="fee-card" style="border-bottom: 4px solid #9b59b6;"><h4>Total Applicable Fee</h4><h2 id="feeTotApplicable">₹0</h2></div>
+                    <div class="fee-card" style="border-bottom: 4px solid #27ae60;"><h4>Total Paid</h4><h2 id="feeTotPaid" style="color:#27ae60;">₹0</h2></div>
+                    <div class="fee-card" style="border-bottom: 4px solid #e74c3c;"><h4>Total Dues</h4><h2 id="feeTotDue" style="color:#e74c3c;">₹0</h2></div>
+                    <div class="fee-card" style="border-bottom: 4px solid #f39c12;"><h4>Advance Fee</h4><h2 id="feeTotAdv">₹0</h2></div>
+                </div>
+                
+                <div class="fee-table-container">
+                    <h3 style="margin-bottom:15px; color:#2c3e50; font-size:16px;">Fee Installment Statement</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Installment Details</th><th>Applicable Amount</th><th>Paid Amount</th><th>Balance Status</th></tr>
+                        </thead>
+                        <tbody id="feeStatementBody">
+                            <tr><td colspan="4" style="text-align:center;">Fetching ledger... ⏳</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <script>
+        // SCRIPT URL 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
+        
+        let studentData = null;
+        let globalDbData = null;
+        
+        // Calendar Globals
+        let currDate = new Date();
+        let attMap = {}; // { 'YYYY-MM-DD': 'P' }
+
         document.addEventListener('DOMContentLoaded', () => {
             const studentStr = localStorage.getItem('erp_active_student');
-            if(!studentStr) {
-                window.location.href = 'login.html';
-                return;
-            }
-
-            const student = JSON.parse(studentStr);
+            if(!studentStr) { window.location.href = 'login.html'; return; }
+            studentData = JSON.parse(studentStr);
             
-            // Populate Details
-            let fullName = (student.studentFirstName || "") + " " + (student.studentLastName || "");
+            // Populate Basic Details
+            let fullName = (studentData.studentFirstName || "") + " " + (studentData.studentLastName || "");
             document.getElementById('dashName').innerText = "Welcome, " + fullName;
-            document.getElementById('dashRegNo').innerText = student.regNo || "N/A";
+            document.getElementById('dashRegNo').innerText = studentData.regNo || "N/A";
             
-            let sClass = "-";
-            if(student.studentClass) {
-                let match = student.studentClass.match(/(.*?)\s*\((.*?)\)/);
-                if(match) { sClass = match[1].trim() + " (" + match[2].trim() + ")"; } else { sClass = student.studentClass; }
+            let sClass = "-", sSecRaw = "";
+            if(studentData.studentClass) {
+                let match = studentData.studentClass.match(/(.*?)\s*\((.*?)\)/);
+                if(match) { 
+                    sClass = match[1].trim() + " (" + match[2].trim() + ")"; 
+                    sSecRaw = match[2].trim();
+                } else { 
+                    sClass = studentData.studentClass; 
+                }
             }
             document.getElementById('dashClass').innerText = sClass;
 
-            if(student.studentPhotoBase64 && student.studentPhotoBase64.startsWith('data:image')) {
-                document.getElementById('dashAvatar').src = student.studentPhotoBase64;
+            if(studentData.studentPhotoBase64 && studentData.studentPhotoBase64.startsWith('data:image')) {
+                document.getElementById('dashAvatar').src = studentData.studentPhotoBase64;
             }
 
-            // Logout Logic
+            // TABS LOGIC
+            document.querySelectorAll('.portal-tab').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.portal-tab').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById(this.getAttribute('data-target')).classList.add('active');
+                });
+            });
+
+            // LOGOUT
             document.getElementById('btnStudentLogout').addEventListener('click', () => {
                 if(confirm("Are you sure you want to log out?")) {
-                    localStorage.removeItem('erp_active_student');
-                    window.location.href = 'login.html';
+                    localStorage.removeItem('erp_active_student'); window.location.href = 'login.html';
                 }
             });
+
+            // FETCH DATA FOR ALL MODULES
+            fetch(scriptURL, { redirect: "follow" })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "Success") {
+                    globalDbData = data;
+                    renderCommunication(data.assignments);
+                    processAttendance(data.attendance);
+                    processFeeLedger(data.receipts, data.setup, data.feeHeads);
+                }
+            });
+
+            // INIT CALENDAR HANDLERS
+            document.getElementById('calPrevMonth').addEventListener('click', () => { currDate.setMonth(currDate.getMonth() - 1); renderCalendar(); });
+            document.getElementById('calNextMonth').addEventListener('click', () => { currDate.setMonth(currDate.getMonth() + 1); renderCalendar(); });
         });
+
+        // ==============================
+        // COMMUNICATION MODULE
+        // ==============================
+        function renderCommunication(assignments) {
+            const listCont = document.getElementById('commListContainer'); listCont.innerHTML = '';
+            if(!assignments || assignments.length === 0) { listCont.innerHTML = '<p style="text-align:center; color:#777;">No communications found.</p>'; return; }
+
+            // Filter for student's exact class & section OR 'All'
+            let sClassRaw = ""; let sSecRaw = "";
+            if(studentData.studentClass) {
+                let match = studentData.studentClass.match(/(.*?)\s*\((.*?)\)/);
+                if(match) { sClassRaw = match[1].trim(); sSecRaw = match[2].trim(); } else { sClassRaw = studentData.studentClass; }
+            }
+
+            let myAssignments = assignments.filter(a => {
+                let matchClass = a.Class === sClassRaw || a.Class === "All" || !a.Class;
+                let matchSec = a.Section === sSecRaw || a.Section === "All" || !a.Section;
+                return matchClass && matchSec;
+            });
+
+            myAssignments.reverse(); // Newest first
+
+            if(myAssignments.length === 0) { listCont.innerHTML = '<p style="text-align:center; color:#777;">No items for your class.</p>'; return; }
+
+            myAssignments.forEach(a => {
+                let icon = "📄"; let color = "#95a5a6"; let bg = "#f1f1f1";
+                if(a.Type === "Homework" || a.Type === "Classwork") { icon = "📝"; color = "#3498db"; bg = "#e8f4f8"; }
+                else if(a.Type === "Circular" || a.Type === "Notice") { icon = "📢"; color = "#e67e22"; bg = "#fcf3e8"; }
+                else if(a.Type === "Feedback") { icon = "⭐"; color = "#27ae60"; bg = "#e8f5e9"; }
+                else if(a.Type === "Project") { icon = "🔬"; color = "#9b59b6"; bg = "#f3e5f5"; }
+
+                let dateFormatted = new Date(a.Timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                let deadlineStr = a.Date ? `Deadline: ${a.Date}` : 'No Deadline';
+                
+                let attachBtn = a.Attachment_Base64 ? `<a href="${a.Attachment_Base64}" download="Attachment_${a.Assignment_ID}" class="btn-download">⬇️ Download Attachment</a>` : '';
+
+                listCont.innerHTML += `
+                <div class="comm-card" style="border-left-color: ${color};">
+                    <div class="comm-icon" style="background: ${bg}; color: ${color};">${icon}</div>
+                    <div class="comm-details">
+                        <h4>${a.Subject || 'General'} - ${a.Name}</h4>
+                        <p><b>Type:</b> ${a.Type} | <b>Posted On:</b> ${dateFormatted} | <b style="color:#e74c3c;">${deadlineStr}</b></p>
+                        <p style="margin-top:8px; color:#555; background:#f9f9f9; padding:8px; border-radius:4px; font-size:12px;">${a.Description || 'No description provided.'}</p>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end;">
+                        <span class="comm-status">${a.Type}</span>
+                        ${attachBtn}
+                    </div>
+                </div>`;
+            });
+        }
+
+        // ==============================
+        // ATTENDANCE CALENDAR MODULE
+        // ==============================
+        function processAttendance(records) {
+            if(!records) return;
+            let totP = 0; let totA = 0; let totL = 0;
+            
+            records.forEach(r => {
+                if(String(r.Reg_No) === String(studentData.regNo)) {
+                    // Convert DD-MM-YYYY to standard format for mapping
+                    let parts = r.Date.split('-');
+                    if(parts.length === 3) {
+                        let isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`; // YYYY-MM-DD
+                        attMap[isoDate] = r.Status;
+                        if(r.Status === 'P') totP++;
+                        else if(r.Status === 'AB') totA++;
+                        else if(r.Status === 'LC') totL++;
+                    }
+                }
+            });
+
+            document.getElementById('attTotalP').innerText = totP;
+            document.getElementById('attTotalA').innerText = totA;
+            document.getElementById('attTotalL').innerText = totL;
+
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const year = currDate.getFullYear();
+            const month = currDate.getMonth();
+            document.getElementById('calMonthTitle').innerText = currDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const calGrid = document.getElementById('calGrid');
+            
+            let html = `
+                <div class="cal-day-header">Su</div><div class="cal-day-header">Mo</div><div class="cal-day-header">Tu</div>
+                <div class="cal-day-header">We</div><div class="cal-day-header">Th</div><div class="cal-day-header">Fr</div><div class="cal-day-header">Sa</div>
+            `;
+
+            // Blanks
+            for(let i = 0; i < firstDay; i++) { html += `<div class="cal-cell empty"></div>`; }
+            
+            // Days
+            for(let i = 1; i <= daysInMonth; i++) {
+                let isoDate = `${year}-${String(month+1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                let status = attMap[isoDate];
+                let dotHtml = '';
+                
+                if(status === 'P') dotHtml = `<div class="dot p"></div>`;
+                else if(status === 'AB') dotHtml = `<div class="dot a"></div>`;
+                else if(status === 'LC') dotHtml = `<div class="dot l"></div>`;
+
+                html += `<div class="cal-cell">${i}${dotHtml}</div>`;
+            }
+            calGrid.innerHTML = html;
+        }
+
+        // ==============================
+        // FEES MODULE
+        // ==============================
+        function processFeeLedger(receipts, setupData, feeHeads) {
+            let classFeeAmount = 0;
+            if(studentData.studentClass && setupData && setupData.classes) { 
+                let cSetup = setupData.classes.find(c => `${c.name} (${c.section})` === studentData.studentClass || c.name === studentData.studentClass); 
+                if(cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); } 
+            }
+
+            let paidMap = {}; 
+            let myReceipts = (receipts||[]).filter(r => String(r.Reg_No) === String(studentData.regNo));
+            
+            myReceipts.forEach(r => {
+                try { 
+                    let rawHeads = String(r.Paid_Heads || "").trim();
+                    if(rawHeads !== "" && rawHeads !== "[]" && rawHeads.startsWith("[")) {
+                        let details = JSON.parse(rawHeads); 
+                        details.forEach(d => { 
+                            let uid = d.head + "_" + d.period; 
+                            paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
+                        }); 
+                    }
+                } catch(e) {}
+            });
+
+            let tbody = document.getElementById('feeStatementBody'); tbody.innerHTML = ''; 
+            let totalDue = 0, totalPaid = 0;
+            const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
+
+            academicMonths.forEach(month => {
+                let tAmt = classFeeAmount; let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0; let tBal = tAmt - tPaid; totalDue += tAmt; totalPaid += tPaid;
+                let tStatus = tBal <= 0 ? `<span style="color:#27ae60; font-weight:bold;">CLEARED</span>` : `<span style="color:#e74c3c; font-weight:bold;">PENDING: ₹${tBal}</span>`;
+                tbody.innerHTML += `<tr><td><b>Monthly Tuition Fee (${month})</b></td><td>₹${tAmt.toFixed(2)}</td><td>₹${tPaid.toFixed(2)}</td><td>${tStatus}</td></tr>`;
+                
+                (feeHeads||[]).forEach(fh => {
+                    if(fh.Frequency === "Monthly") {
+                        let fhAmt = parseFloat(fh.Amount) || 0; let fhPaid = paidMap[fh.Head_Name + "_" + month] || 0; let fhBal = fhAmt - fhPaid; totalDue += fhAmt; totalPaid += fhPaid;
+                        let fhStatus = fhBal <= 0 ? `<span style="color:#27ae60; font-weight:bold;">CLEARED</span>` : `<span style="color:#e74c3c; font-weight:bold;">PENDING: ₹${fhBal}</span>`;
+                        tbody.innerHTML += `<tr><td><b>${fh.Head_Name} (${month})</b></td><td>₹${fhAmt.toFixed(2)}</td><td>₹${fhPaid.toFixed(2)}</td><td>${fhStatus}</td></tr>`;
+                    }
+                });
+            });
+            
+            (feeHeads||[]).forEach(fh => {
+                if(fh.Frequency === "Annually" || fh.Frequency === "One Time (Annually)") {
+                    let amt = parseFloat(fh.Amount) || 0; let pd = paidMap[fh.Head_Name + "_" + fh.Frequency] || paidMap[fh.Head_Name + "_Annually"] || 0; let bal = amt - pd; totalDue += amt; totalPaid += pd;
+                    let anStatus = bal <= 0 ? `<span style="color:#27ae60; font-weight:bold;">CLEARED</span>` : `<span style="color:#e74c3c; font-weight:bold;">PENDING: ₹${bal}</span>`;
+                    tbody.innerHTML += `<tr><td><b>${fh.Head_Name} (Annual)</b></td><td>₹${amt.toFixed(2)}</td><td>₹${pd.toFixed(2)}</td><td>${anStatus}</td></tr>`;
+                }
+            });
+
+            document.getElementById('feeTotApplicable').innerText = "₹" + totalDue.toFixed(2);
+            document.getElementById('feeTotPaid').innerText = "₹" + totalPaid.toFixed(2);
+            document.getElementById('feeTotDue').innerText = "₹" + (totalDue - totalPaid).toFixed(2);
+        }
+
     </script>
 </body>
 </html>
