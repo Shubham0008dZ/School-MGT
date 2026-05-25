@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Communication & Assignment - ERP</title>
     <link rel="stylesheet" href="assignment.css">
+    <style>
+        .list-header-box { display:flex; justify-content:space-between; align-items:center; background:white; padding:15px 20px; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,0.05); margin-bottom:20px; border-left:4px solid #8e44ad; }
+        .list-header-box h2 { color:#2c3e50; font-size:18px; margin:0; }
+        .btn-add-new { background:#27ae60; color:white; border:none; padding:8px 20px; border-radius:3px; cursor:pointer; font-weight:bold; font-size:13px; }
+        
+        .record-card { background:white; border:1px solid #eee; padding:15px; border-radius:5px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; transition:0.3s; }
+        .record-card:hover { box-shadow:0 4px 10px rgba(0,0,0,0.05); transform:translateY(-2px); border-color:#3498db;}
+    </style>
 </head>
 <body>
 
@@ -27,44 +35,32 @@
         <div class="sidebar-header hw-header"><h2>📚 EDUNEXT</h2></div>
         <ul class="nav-links">
             <li><a href="index.html" class="nav-btn"><span class="nav-icon">🏠</span><span class="nav-text"> Dashboard</span></a></li>
-            <li><a href="#" class="nav-btn active" data-target="module-comm-list"><span class="nav-icon">📋</span><span class="nav-text"> View Communication</span></a></li>
-            <li><a href="#" class="nav-btn" data-target="module-add-hw"><span class="nav-icon">➕</span><span class="nav-text"> Upload Comm/HW</span></a></li>
+            <li><a href="#" class="nav-btn active" data-target="module-comm-list" data-cat="Circular"><span class="nav-icon">📢</span><span class="nav-text"> Circular / News</span></a></li>
+            <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="Homework"><span class="nav-icon">📚</span><span class="nav-text"> Homework</span></a></li>
+            <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="Feedback"><span class="nav-icon">⭐</span><span class="nav-text"> Feedback</span></a></li>
+            <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="Achievement"><span class="nav-icon">🏆</span><span class="nav-text"> Achievement</span></a></li>
+            <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="PTM"><span class="nav-icon">🤝</span><span class="nav-text"> PTM Notices</span></a></li>
+            <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="Remarks"><span class="nav-icon">📝</span><span class="nav-text"> Remarks</span></a></li>
         </ul>
     </div>
 
     <div class="main-content">
         
         <div id="module-comm-list" class="app-module active-module">
-            <div class="profile-header">
-                <h2>COMMUNICATION RECORDS</h2>
-                <button class="btn-dark" style="padding:8px 15px; border:none; border-radius:3px; color:white; cursor:pointer; font-weight:bold;" id="btnSyncComm">🔄 Sync Data</button>
+            <div class="list-header-box">
+                <h2 id="listHeaderTitle">Circular / News Records</h2>
+                <button id="btnOpenAddForm" class="btn-add-new">⊕ Add New</button>
             </div>
             
-            <div class="form-container" style="padding:20px;">
-                <div class="comm-tabs-container">
-                    <button class="comm-tab active" data-filter="Circular">Circular/News</button>
-                    <button class="comm-tab" data-filter="Feedback">Feedback</button>
-                    <button class="comm-tab" data-filter="Achievement">Achievement</button>
-                    <button class="comm-tab" data-filter="PTM">PTM</button>
-                    <button class="comm-tab" data-filter="Remarks">Remarks</button>
-                    <button class="comm-tab" data-filter="Homework">Homework/Assignment</button>
-                </div>
-
-                <div class="comm-split-view">
-                    <div class="comm-list-sidebar" id="commListArea">
-                        <p style="text-align:center; padding:20px; color:#777;">Fetching records... ⏳</p>
-                    </div>
-                    
-                    <div class="comm-detail-area" id="commDetailArea">
-                        <div class="empty-detail">Select an item from the left to view details.</div>
-                    </div>
-                </div>
+            <div id="commListArea" style="display:flex; flex-direction:column; gap:10px;">
+                <p style="text-align:center; padding:20px; color:#777;">Fetching records... ⏳</p>
             </div>
         </div>
 
         <div id="module-add-hw" class="app-module">
             <div class="profile-header">
-                <h2>UPLOAD COMMUNICATION / ASSIGNMENT</h2>
+                <h2>UPLOAD <span id="formDynamicTitle">COMMUNICATION</span></h2>
+                <button class="btn-dark" style="padding:6px 15px;" onclick="document.querySelector('.nav-btn.active').click()">← Back to List</button>
             </div>
             
             <div class="form-container">
@@ -110,15 +106,10 @@
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Communication Type <span style="color:red;">*</span></label>
-                            <select id="hwType" required>
-                                <option value="">Select Type</option>
+                            <label>Type <span style="color:red;">*</span></label>
+                            <select id="hwType" required style="background:#eee; pointer-events:none;">
+                                <option value="Circular">Circular</option>
                                 <option value="Homework">Homework</option>
-                                <option value="Classwork">Classwork</option>
-                                <option value="Assignment">Assignment</option>
-                                <option value="Project">Project</option>
-                                <option value="Circular">Circular / News</option>
-                                <option value="Notice">Notice</option>
                                 <option value="Feedback">Feedback</option>
                                 <option value="Achievement">Achievement</option>
                                 <option value="PTM">PTM</option>
@@ -127,7 +118,7 @@
                         </div>
                         <div class="input-group" style="flex:2;">
                             <label>Title / Topic Name <span style="color:red;">*</span></label>
-                            <input type="text" id="hwName" placeholder="Enter Title (e.g. Summer Break Notice)" required>
+                            <input type="text" id="hwName" placeholder="Enter Title" required>
                         </div>
                     </div>
 
@@ -163,7 +154,7 @@
                     </div>
 
                     <div class="submit-section">
-                        <button type="submit" class="submit-btn" id="btnSaveHw">Save Communication</button>
+                        <button type="submit" class="submit-btn" id="btnSaveHw">Save Entry</button>
                     </div>
                 </form>
             </div>
