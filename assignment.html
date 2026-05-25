@@ -10,8 +10,20 @@
         .list-header-box h2 { color:#2c3e50; font-size:18px; margin:0; }
         .btn-add-new { background:#27ae60; color:white; border:none; padding:8px 20px; border-radius:3px; cursor:pointer; font-weight:bold; font-size:13px; }
         
+        /* NEW: RESPONSES BUTTON & BLINKING BADGE */
+        .btn-responses { background:#2c3e50; color:white; border:none; padding:8px 20px; border-radius:3px; cursor:pointer; font-weight:bold; font-size:13px; margin-right:10px; position:relative; }
+        .blink-badge { background:#e74c3c; color:white; padding:2px 6px; border-radius:10px; font-size:11px; position:absolute; top:-8px; right:-8px; font-weight:bold; animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
         .record-card { background:white; border:1px solid #eee; padding:15px; border-radius:5px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; transition:0.3s; }
         .record-card:hover { box-shadow:0 4px 10px rgba(0,0,0,0.05); transform:translateY(-2px); border-color:#3498db;}
+        
+        /* Responses Modal Table */
+        .resp-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:15px;}
+        .resp-table th { background:#f1f1f1; padding:10px; text-align:left; border-bottom:2px solid #ddd;}
+        .resp-table td { padding:10px; border-bottom:1px solid #eee;}
+        .marks-input { width:60px; padding:5px; border:1px solid #ccc; border-radius:3px; outline:none;}
+        .remarks-input { width:100%; padding:5px; border:1px solid #ccc; border-radius:3px; outline:none;}
     </style>
 </head>
 <body>
@@ -49,7 +61,10 @@
         <div id="module-comm-list" class="app-module active-module">
             <div class="list-header-box">
                 <h2 id="listHeaderTitle">Circular / News Records</h2>
-                <button id="btnOpenAddForm" class="btn-add-new">⊕ Add New</button>
+                <div>
+                    <button id="btnViewResponses" class="btn-responses" style="display:none;">Responses <span id="respBlinkBadge" class="blink-badge">0</span></button>
+                    <button id="btnOpenAddForm" class="btn-add-new">⊕ Add New</button>
+                </div>
             </div>
             
             <div id="commListArea" style="display:flex; flex-direction:column; gap:10px;">
@@ -72,8 +87,8 @@
                                 <option value="2026-2027">2026-2027</option>
                             </select>
                         </div>
-                        <div class="input-group">
-                            <label>Date <span style="color:red;">*</span></label>
+                        <div class="input-group" id="grpDate">
+                            <label id="lblDate">Due Date <span style="color:red;">*</span></label>
                             <input type="date" id="hwDate" required>
                         </div>
                         <div class="input-group">
@@ -93,23 +108,28 @@
                     </div>
 
                     <div class="form-row">
-                        <div class="input-group">
-                            <label>Subject / Category</label>
+                        <div class="input-group" id="grpSubject">
+                            <label>Subject</label>
                             <select id="hwSubject">
-                                <option value="">Select Subject/Category</option>
+                                <option value="">Select Subject</option>
                                 <option value="English">English</option>
                                 <option value="Hindi">Hindi</option>
                                 <option value="Mathematics">Mathematics</option>
                                 <option value="Science">Science</option>
-                                <option value="General">General (For Circulars)</option>
-                                <option value="Other">Other</option>
+                                <option value="Social Science">Social Science</option>
+                                <option value="Computer">Computer</option>
+                                <option value="General Knowledge">General Knowledge</option>
                             </select>
                         </div>
                         <div class="input-group">
                             <label>Type <span style="color:red;">*</span></label>
-                            <select id="hwType" required style="background:#eee; pointer-events:none;">
+                            <select id="hwType" required>
                                 <option value="Circular">Circular</option>
+                                <option value="Notice">Notice</option>
                                 <option value="Homework">Homework</option>
+                                <option value="Classwork">Classwork</option>
+                                <option value="Assignment">Assignment</option>
+                                <option value="Project">Project</option>
                                 <option value="Feedback">Feedback</option>
                                 <option value="Achievement">Achievement</option>
                                 <option value="PTM">PTM</option>
@@ -144,8 +164,8 @@
                             <span id="hwFileName" style="font-size:12px; color:#777; margin-top:5px;">No file selected</span>
                             <input type="hidden" id="hwBase64">
                         </div>
-                        <div class="input-group" style="flex:3; padding-left:20px;">
-                            <label>Submission Required (For HW)</label>
+                        <div class="input-group" style="flex:3; padding-left:20px;" id="grpSubmissionReq">
+                            <label>Submission Required (For Homework)</label>
                             <label class="switch">
                                 <input type="checkbox" id="hwSubmissionReq">
                                 <span class="slider"></span>
@@ -158,6 +178,32 @@
                     </div>
                 </form>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="responsesModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:white; border-radius:8px; width:800px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+        <div style="background:#2c3e50; color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; border-radius:8px 8px 0 0;">
+            <h3 style="margin:0;">Evaluate Student Submissions</h3>
+            <span onclick="document.getElementById('responsesModal').style.display='none'" style="cursor:pointer; font-size:24px;">&times;</span>
+        </div>
+        <div style="padding:20px; overflow-y:auto; flex:1;">
+            <table class="resp-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Assignment Name</th>
+                        <th>Submitted Answer</th>
+                        <th>Marks</th>
+                        <th>Remarks</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="respTableBody">
+                    <tr><td colspan="6" style="text-align:center;">No pending submissions.</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
