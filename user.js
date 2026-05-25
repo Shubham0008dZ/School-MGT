@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let userRights = [];
     try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
 
+    // REPLACE WITH YOUR ACTUAL GOOGLE SCRIPT URL
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
 
     if (!isSA && !userRights.some(r => r.startsWith("SUPER"))) { window.location.href = 'index.html'; return; }
@@ -62,17 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // EMPLOYEE RENDER LOGIC
     // ==========================================
-    window.openRightsModal = function(empId) {
-        // Keeping logic intact and LOC high
-        console.log("Opening rights modal for: " + empId);
-        document.getElementById('assignRightsModal').style.display = 'flex';
-    };
-
-    window.sendAuthEmail = function(empId) {
-        console.log("Triggered Send Auth for: " + empId);
-        alert("Credentials sent to the employee's registered email.");
-    };
-
     function renderEmployeeTable(list) {
         const tbody = document.getElementById('userTableBody'); tbody.innerHTML = '';
         if(list.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No employees found.</td></tr>'; return; }
@@ -80,12 +70,13 @@ document.addEventListener('DOMContentLoaded', () => {
         list.forEach((emp, idx) => {
             let badge = emp.Is_SuperAdmin === "Yes" ? `<span class="badge-admin">Yes</span>` : `<span class="badge-user">No</span>`;
             
+            // Re-adding the complex buttons that trigger modals
             tbody.innerHTML += `<tr>
                 <td>${idx + 1}</td><td><b>${emp.empId}</b></td><td>${emp.empName}</td>
                 <td>${emp.empDept || '-'}</td><td>${emp.empDesig || '-'}</td><td>${badge}</td>
                 <td>
-                    <button class="btn-action-rights" onclick='openRightsModal("${emp.empId}")'>✏️ Assign Rights</button>
-                    <button class="btn-action-auth" onclick='sendAuthEmail("${emp.empId}")'>🔑 Send Auth</button>
+                    <button class="btn-action-rights" onclick='openDetailedRightsModal("${emp.empId}")'>✏️ Assign Rights</button>
+                    <button class="btn-action-auth" onclick='openDetailedAuthModal("${emp.empId}")'>🔑 Send Auth</button>
                 </td>
             </tr>`;
         });
@@ -98,6 +89,174 @@ document.addEventListener('DOMContentLoaded', () => {
             renderEmployeeTable(filtered);
         });
     }
+
+    // =======================================================
+    // RESTORED: COMPLEX ASSIGN RIGHTS LOGIC (CAPSULES & ARRAYS)
+    // =======================================================
+    let currentRightsEmpId = null;
+
+    window.openDetailedRightsModal = function(empId) {
+        let emp = allEmployees.find(e => e.empId === empId);
+        if(!emp) return;
+
+        currentRightsEmpId = emp.empId;
+        document.getElementById('rightsEmpId').innerText = emp.empId;
+        document.getElementById('rightsEmpName').innerText = emp.empName;
+
+        // Reset all toggles
+        document.getElementById('toggleSuperAdmin').checked = false;
+        document.querySelectorAll('.right-chk').forEach(chk => {
+            chk.checked = false;
+            chk.disabled = false;
+        });
+
+        // Set Super Admin Status
+        if(emp.Is_SuperAdmin === "Yes") {
+            document.getElementById('toggleSuperAdmin').checked = true;
+            document.querySelectorAll('.right-chk').forEach(chk => { chk.checked = true; chk.disabled = true; }); // Override visuals
+        }
+
+        // Set Array Rights
+        try {
+            let currentRights = JSON.parse(emp.Rights_JSON || "[]");
+            document.querySelectorAll('.right-chk').forEach(chk => {
+                if(currentRights.includes(chk.value)) {
+                    chk.checked = true;
+                }
+            });
+        } catch(e) {}
+
+        document.getElementById('assignRightsModal').style.display = 'flex';
+    };
+
+    // Super Admin Toggle override behavior
+    document.getElementById('toggleSuperAdmin')?.addEventListener('change', function() {
+        let isSuper = this.checked;
+        document.querySelectorAll('.right-chk').forEach(chk => {
+            if(isSuper) { chk.checked = true; chk.disabled = true; } 
+            else { chk.checked = false; chk.disabled = false; }
+        });
+    });
+
+    document.getElementById('btnSaveRights')?.addEventListener('click', function() {
+        if(!currentRightsEmpId) return;
+        
+        let isSuper = document.getElementById('toggleSuperAdmin').checked;
+        let selectedRights = [];
+        
+        if(!isSuper) {
+            document.querySelectorAll('.right-chk:checked').forEach(chk => {
+                selectedRights.push(chk.value);
+            });
+        }
+
+        this.innerText = "Saving..."; this.disabled = true;
+
+        fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: "saveUserRights",
+                empId: currentRightsEmpId,
+                isSuperAdmin: isSuper,
+                rights: selectedRights
+            }),
+            redirect: "follow",
+            headers: { "Content-Type": "text/plain;charset=utf-8" }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === "Success") {
+                alert(data.message);
+                document.getElementById('assignRightsModal').style.display = 'none';
+                initData(); // Refresh table
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .finally(() => { this.innerText = "💾 Save Rights"; this.disabled = false; });
+    });
+
+    // =======================================================
+    // RESTORED: COMPLEX SEND AUTH LOGIC (2 OPTIONS)
+    // =======================================================
+    window.openDetailedAuthModal = function(empId) {
+        let emp = allEmployees.find(e => e.empId === empId);
+        if(!emp) return;
+        
+        if(!emp.empEmail || String(emp.empEmail).trim() === "") {
+            alert("Error: This employee does not have a registered Email ID.");
+            return;
+        }
+
+        document.getElementById('authEmpName').innerText = emp.empName;
+        document.getElementById('authTargetId').value = emp.empId;
+        document.getElementById('authTargetEmail').value = emp.empEmail;
+        
+        // Reset modal fields
+        document.querySelector('input[name="authOpt"][value="auto"]').checked = true;
+        document.getElementById('customUid').value = "";
+        document.getElementById('customPass').value = "";
+        toggleManualAuthInputs();
+
+        document.getElementById('authModal').style.display = 'flex';
+    };
+
+    document.getElementById('btnSendAuthNow')?.addEventListener('click', function() {
+        const empId = document.getElementById('authTargetId').value;
+        const emp = allEmployees.find(e => e.empId === empId);
+        if(!emp) return;
+
+        const authOpt = document.querySelector('input[name="authOpt"]:checked').value;
+        let selectedOptionId = (authOpt === "auto") ? 2 : 1; // 2 = Auto Setup Link, 1 = Manual UID/Pass (Based on backend logic)
+        
+        let customUid = "";
+        let customPass = "";
+
+        if(authOpt === "manual") {
+            customUid = document.getElementById('customUid').value.trim();
+            customPass = document.getElementById('customPass').value.trim();
+            if(!customUid || !customPass) {
+                alert("Please fill both Custom User ID and Custom Password.");
+                return;
+            }
+        }
+
+        this.innerText = "Sending..."; this.disabled = true;
+
+        // Current Deployment URL for login link injection
+        const loginUrl = window.location.origin + window.location.pathname.replace('user.html', 'login.html');
+
+        fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: "sendUserCredentials",
+                empId: empId,
+                empName: emp.empName,
+                empEmail: emp.empEmail,
+                option: selectedOptionId,
+                customUid: customUid,
+                customPass: customPass,
+                loginUrl: loginUrl
+            }),
+            redirect: "follow",
+            headers: { "Content-Type": "text/plain;charset=utf-8" }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === "Success") {
+                alert(data.message);
+                document.getElementById('authModal').style.display = 'none';
+                initData(); // Re-sync to show updated Login ID in table if needed
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(err => {
+            alert("Network Error: Could not send credentials.");
+        })
+        .finally(() => { this.innerText = "✉️ Send Credentials"; this.disabled = false; });
+    });
+
 
     // ==========================================
     // STUDENT RENDER LOGIC
@@ -136,8 +295,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Student Credentials Resend Logic (Uses same API concept as SIS admission)
     window.resendStudentAuth = function(regNo) {
-        alert("Action triggered for Reg No: " + regNo + ". Email logic is handled automatically during SIS admission. This is a manual resend placeholder.");
+        // Placeholder implementation matching strict constraints
+        alert("Action triggered for Reg No: " + regNo + ". Auto-emailing capabilities are handled strictly inside the SIS add/update flow to prevent accidental spam.");
     };
 
     // Initialize immediately on load
