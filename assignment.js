@@ -1,12 +1,9 @@
-// ============================================================================
-// CUSTOM CONFIRM MODAL LOGIC
-// ============================================================================
 window.customConfirm = function(message, onConfirm) {
     let overlay = document.createElement('div');
-    overlay.style.position = "fixed"; overlay.style.top = "0"; overlay.style.left = "0"; overlay.style.width = "100%"; overlay.style.height = "100%"; overlay.style.background = "rgba(0,0,0,0.6)"; overlay.style.zIndex = "9999"; overlay.style.display = "flex"; overlay.style.alignItems = "center"; overlay.style.justifyContent = "center";
+    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
     overlay.innerHTML = `<div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;"><p style="color:#555;margin-bottom:20px;">${message}</p><div style="display:flex;justify-content:center;gap:10px;"><button id="cc-cancel" style="padding:8px 20px;background:#95a5a6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Cancel</button><button id="cc-ok" style="padding:8px 20px;background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Confirm</button></div></div>`;
     document.body.appendChild(overlay);
-    document.getElementById('cc-cancel').addEventListener('click', () => { overlay.remove(); });
+    document.getElementById('cc-cancel').addEventListener('click', () => overlay.remove());
     document.getElementById('cc-ok').addEventListener('click', () => { overlay.remove(); onConfirm(); });
 };
 
@@ -42,88 +39,90 @@ document.addEventListener('DOMContentLoaded', () => {
         let grpSubReq = document.getElementById('grpSubmissionReq');
 
         if(isHW) {
-            // Show all options for Homework
             if(grpSubject) grpSubject.style.display = 'flex';
             if(grpDate) grpDate.style.display = 'flex';
             if(lblDate) lblDate.innerHTML = 'Due Date <span style="color:red;">*</span>';
             if(grpSubReq) grpSubReq.style.display = 'flex';
-            // Also ensure hwSubject is mandatory
             document.getElementById('hwSubject').required = true;
         } else {
-            // Hide specific fields for Circular/Feedback/Etc
             if(grpSubject) grpSubject.style.display = 'none';
-            // Circulars don't need a due date, but maybe a Publish Date. Let's keep date but change label.
             if(lblDate) lblDate.innerHTML = 'Publish Date <span style="color:red;">*</span>';
-            if(grpSubReq) { 
-                grpSubReq.style.display = 'none'; 
-                document.getElementById('hwSubmissionReq').checked = false; // Reset toggle
-            }
+            if(grpSubReq) { grpSubReq.style.display = 'none'; document.getElementById('hwSubmissionReq').checked = false; }
             document.getElementById('hwSubject').required = false;
-            document.getElementById('hwSubject').value = ""; // Clear value
+            document.getElementById('hwSubject').value = ""; 
         }
     }
 
-    // Bind change event to Type dropdown
     const hwTypeDropdown = document.getElementById('hwType');
     if(hwTypeDropdown) {
-        hwTypeDropdown.addEventListener('change', function() {
-            toggleFormFields(this.value);
-        });
+        hwTypeDropdown.addEventListener('change', function() { toggleFormFields(this.value); });
     }
 
     let allAssignments = [];
-    let allSubmissions = []; // To store student submissions
-    let currentCategory = "Circular"; // Default
+    let allSubmissions = []; 
+    let currentCategory = "Circular"; 
 
     // =======================================================
-    // 2. SIDEBAR CATEGORY CLICK LOGIC
+    // 2. SIDEBAR CATEGORY CLICK LOGIC (FIXED BLANK SCREEN BUG)
     // =======================================================
     document.querySelectorAll('.nav-btn').forEach(link => {
         link.addEventListener('click', function(e) {
             if(this.getAttribute('href') !== '#') return; e.preventDefault();
             
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
+            document.querySelectorAll('.app-module').forEach(m => {
+                m.classList.remove('active-module');
+                m.style.display = 'none'; // Force hide
+            });
             
             this.classList.add('active');
-            document.getElementById(this.getAttribute('data-target')).classList.add('active');
+            let targetId = this.getAttribute('data-target');
+            let targetElement = document.getElementById(targetId);
+            if(targetElement) {
+                targetElement.classList.add('active-module');
+                targetElement.style.display = 'block'; // Force show to prevent blank screen
+            }
 
             if(this.getAttribute('data-cat')) {
                 currentCategory = this.getAttribute('data-cat');
-                document.getElementById('listHeaderTitle').innerText = currentCategory.toUpperCase() + " RECORDS";
+                let headerTitle = document.getElementById('listHeaderTitle');
+                if(headerTitle) headerTitle.innerText = currentCategory.toUpperCase() + " RECORDS";
                 
-                // Show Responses Button ONLY if Homework tab is selected
-                if(currentCategory === "Homework") {
-                    document.getElementById('btnViewResponses').style.display = 'inline-block';
-                } else {
-                    document.getElementById('btnViewResponses').style.display = 'none';
+                let btnResp = document.getElementById('btnViewResponses');
+                if(btnResp) {
+                    if(currentCategory === "Homework") btnResp.style.display = 'inline-block'; 
+                    else btnResp.style.display = 'none';
                 }
-
                 renderCommList();
             }
         });
     });
 
-    // OPEN ADD FORM PRE-FILLED & DYNAMIC
+    // OPEN ADD FORM PRE-FILLED
     document.getElementById('btnOpenAddForm').addEventListener('click', () => {
-        document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
-        document.getElementById('module-add-hw').classList.add('active-module');
+        document.querySelectorAll('.app-module').forEach(m => {
+            m.classList.remove('active-module');
+            m.style.display = 'none';
+        });
+        let addMod = document.getElementById('module-add-hw');
+        addMod.classList.add('active-module');
+        addMod.style.display = 'block'; // Force show
         
         document.getElementById('formDynamicTitle').innerText = currentCategory.toUpperCase();
+        document.getElementById('editAssignmentId').value = ""; // Clear edit id
+        document.getElementById('btnSaveHw').innerText = "Save Entry";
         
-        // Auto-select type based on category
         let defaultType = currentCategory;
-        if(currentCategory === "Homework") defaultType = "Homework"; // Default inside Homework tab
+        if(currentCategory === "Homework") defaultType = "Homework"; 
         
         document.getElementById('hwType').value = defaultType; 
         document.getElementById('hwDate').value = new Date().toISOString().split('T')[0];
 
-        // Trigger dynamic fields logic
         toggleFormFields(defaultType);
     });
 
     // =======================================================
-    // 3. FETCH AND RENDER DATA (Includes Submissions)
+    // 3. FETCH AND RENDER DATA
     // =======================================================
     function loadData() {
         document.getElementById('commListArea').innerHTML = '<p style="text-align:center; padding:20px; color:#777;">Fetching records... ⏳</p>';
@@ -145,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
                 allAssignments = res.assignments || [];
-                allSubmissions = res.submissions || []; // Store submissions
+                allSubmissions = res.submissions || []; 
                 
                 updateBlinkingBadge();
                 renderCommList();
@@ -157,33 +156,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. RESPONSES BADGE & MODAL LOGIC
     // =======================================================
     function updateBlinkingBadge() {
-        // Count submissions that have NO marks yet (Pending evaluation)
         let pendingSubs = allSubmissions.filter(s => !s.Marks || String(s.Marks).trim() === "");
         let badge = document.getElementById('respBlinkBadge');
         if(badge) {
             badge.innerText = pendingSubs.length;
-            if(pendingSubs.length > 0) {
-                badge.style.display = 'inline-block';
-            } else {
-                badge.style.display = 'none'; // Hide if 0
-            }
+            if(pendingSubs.length > 0) { badge.style.display = 'inline-block'; } 
+            else { badge.style.display = 'none'; }
         }
     }
 
     document.getElementById('btnViewResponses')?.addEventListener('click', () => {
-        const tbody = document.getElementById('respTableBody');
-        tbody.innerHTML = '';
-
+        const tbody = document.getElementById('respTableBody'); tbody.innerHTML = '';
         let pendingSubs = allSubmissions.filter(s => !s.Marks || String(s.Marks).trim() === "");
         
         if(pendingSubs.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#777;">All caught up! No pending submissions.</td></tr>';
         } else {
             pendingSubs.forEach(sub => {
-                // Find associated assignment to get Name
                 let assign = allAssignments.find(a => String(a.Assignment_ID) === String(sub.Assignment_ID));
                 let assignName = assign ? assign.Name : "Unknown Assignment";
-                
                 let attachLink = sub.Attachment_Base64 ? `<a href="${sub.Attachment_Base64}" download class="btn-attach" style="background:#3498db; color:white; border:none; padding:4px 8px; font-size:11px;">📎 File</a>` : 'No file';
                 
                 tbody.innerHTML += `
@@ -204,41 +195,24 @@ document.addEventListener('DOMContentLoaded', () => {
     window.saveMarks = function(assignId, regNo, btnElement) {
         let marksVal = document.getElementById(`marks_${assignId}_${regNo}`).value;
         let remVal = document.getElementById(`rem_${assignId}_${regNo}`).value;
-        
-        if(!marksVal) {
-            alert("Please enter marks to evaluate."); return;
-        }
-
+        if(!marksVal) { alert("Please enter marks to evaluate."); return; }
         btnElement.innerText = "Saving..."; btnElement.disabled = true;
 
-        const payload = {
-            action: "gradeHomework",
-            data: {
-                assignmentId: assignId,
-                regNo: regNo,
-                marks: marksVal,
-                remarks: remVal
-            }
-        };
-
+        const payload = { action: "gradeHomework", data: { assignmentId: assignId, regNo: regNo, marks: marksVal, remarks: remVal } };
         fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
-        .then(res => res.json())
-        .then(data => {
+        .then(res => res.json()).then(data => {
             if(data.status === "Success") {
-                // Remove row from UI
-                let tr = btnElement.closest('tr');
-                if(tr) tr.remove();
-                
-                // Update local array to stop badge from counting it
+                let tr = btnElement.closest('tr'); if(tr) tr.remove();
                 let subObj = allSubmissions.find(s => String(s.Assignment_ID) === String(assignId) && String(s.Reg_No) === String(regNo));
                 if(subObj) { subObj.Marks = marksVal; }
-                
-                updateBlinkingBadge();
-                alert(data.message);
+                updateBlinkingBadge(); alert(data.message);
             } else { alert("Error: " + data.message); btnElement.innerText = "✅ Save"; btnElement.disabled = false; }
         });
     };
 
+    // =======================================================
+    // 5. RENDER ADMIN LIST WITH EDIT / DELETE BUTTONS
+    // =======================================================
     function renderCommList() {
         const listArea = document.getElementById('commListArea'); listArea.innerHTML = '';
         
@@ -257,11 +231,11 @@ document.addEventListener('DOMContentLoaded', () => {
             let classInfo = (a.Class === "All" ? "Global" : `Class ${a.Class} (${a.Section})`);
             let attachBtn = a.Attachment_Base64 ? `<a href="${a.Attachment_Base64}" download class="btn-attach" style="border:none; background:#3498db; color:white; padding:5px 10px;">📎 File</a>` : '';
 
-            // FIXED: Only show Subject string if it's a Homework type
             let subjectString = "";
-            if(["Homework", "Classwork", "Assignment", "Project"].includes(a.Type)) {
-                subjectString = `| Subject: ${a.Subject || '-'}`;
-            }
+            if(["Homework", "Classwork", "Assignment", "Project"].includes(a.Type)) { subjectString = `| Subject: ${a.Subject || '-'}`; }
+
+            // Safe Stringification for onclick calls
+            let safeAssignId = String(a.Assignment_ID);
 
             listArea.innerHTML += `
                 <div class="record-card">
@@ -270,16 +244,83 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h3 style="margin:0 0 5px 0; font-size:16px; color:#2980b9;">${a.Name}</h3>
                         <p style="margin:0; font-size:13px; color:#555;">${classInfo} ${subjectString}</p>
                     </div>
-                    <div>${attachBtn}</div>
+                    <div style="display:flex; flex-direction:column; gap:5px; align-items:flex-end;">
+                        ${attachBtn}
+                        <div style="display:flex; gap:5px; margin-top:5px;">
+                            <button class="btn-action-edit" onclick="editComm('${safeAssignId}')">✏️ Edit</button>
+                            <button class="btn-action-del" onclick="deleteComm('${safeAssignId}')">🗑️ Del</button>
+                        </div>
+                    </div>
                 </div>
             `;
         });
     }
 
+    // EDIT ACTION
+    window.editComm = function(assignId) {
+        let a = allAssignments.find(item => String(item.Assignment_ID) === String(assignId));
+        if(!a) return;
+
+        document.getElementById('editAssignmentId').value = a.Assignment_ID;
+        
+        // Switch to Form Module
+        document.querySelectorAll('.app-module').forEach(m => { m.classList.remove('active-module'); m.style.display = 'none'; });
+        let formMod = document.getElementById('module-add-hw');
+        formMod.classList.add('active-module');
+        formMod.style.display = 'block';
+        
+        document.getElementById('formDynamicTitle').innerText = "EDIT " + a.Type.toUpperCase();
+        
+        // Populate Fields
+        if(a.Date) {
+            let parts = a.Date.split('-');
+            if(parts.length === 3) document.getElementById('hwDate').value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+        document.getElementById('hwClass').value = a.Class;
+        
+        // Trigger section render manually then set value
+        let fSecDropdown = document.getElementById('hwSection');
+        fSecDropdown.innerHTML = '<option value="">Select Section</option><option value="All">All Sections</option>';
+        if(a.Class && a.Class !== "All") {
+            fetch(scriptURL, { redirect: "follow" }).then(res=>res.json()).then(res=>{
+                if(res.setup) {
+                    let filteredSecs = res.setup.classes.filter(c => String(c.name) === String(a.Class)).map(c => String(c.section));
+                    let uniqueSecs = [...new Set(filteredSecs)].sort(); 
+                    uniqueSecs.forEach(sec => { fSecDropdown.innerHTML += `<option value="${sec}">${sec}</option>`; });
+                    fSecDropdown.value = a.Section;
+                }
+            });
+        }
+
+        document.getElementById('hwSubject').value = a.Subject || "";
+        document.getElementById('hwType').value = a.Type;
+        document.getElementById('hwName').value = a.Name;
+        document.getElementById('hwStudentWise').checked = (a.Student_Wise === "Yes");
+        document.getElementById('hwDesc').value = a.Description;
+        document.getElementById('hwSubmissionReq').checked = (a.Submission_Required === "Yes");
+        document.getElementById('hwBase64').value = a.Attachment_Base64 || "";
+        document.getElementById('hwFileName').innerText = a.Attachment_Base64 ? "Existing Attachment Loaded" : "No file selected";
+        
+        document.getElementById('btnSaveHw').innerText = "Update Entry";
+        toggleFormFields(a.Type);
+    };
+
+    // DELETE ACTION
+    window.deleteComm = function(assignId) {
+        customConfirm("Are you sure you want to delete this record permanently?", () => {
+            const payload = { action: "deleteAssignment", assignmentId: assignId };
+            fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
+            .then(res => res.json()).then(data => {
+                if(data.status === "Success") { alert("Record Deleted!"); loadData(); } 
+                else { alert("Error: " + data.message); }
+            });
+        });
+    };
+
     loadData();
 
     // =======================================================
-    // 5. FILE UPLOAD & FORM SUBMISSION
+    // 6. FILE UPLOAD & FORM SUBMISSION (Add & Update Route)
     // =======================================================
     const hwFileInput = document.getElementById('hwFile');
     if(hwFileInput) {
@@ -300,10 +341,14 @@ document.addEventListener('DOMContentLoaded', () => {
             let extraValidationPassed = true;
             if(!document.getElementById('hwType').value) { extraValidationPassed = false; }
 
+            let editId = document.getElementById('editAssignmentId').value;
+            let finalAction = editId ? "updateAssignment" : "saveAssignment";
+
             if(extraValidationPassed) {
                 const payload = {
-                    action: "saveAssignment",
+                    action: finalAction,
                     data: { 
+                        assignmentId: editId,
                         acadYear: document.getElementById('acadYear').value, 
                         date: formatToDDMMYYYY(document.getElementById('hwDate').value), 
                         class: document.getElementById('hwClass').value, 
@@ -324,10 +369,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(data.status === "Success") {
                         alert(data.message); 
                         hwForm.reset(); 
+                        document.getElementById('editAssignmentId').value = "";
                         document.getElementById('hwDate').value = new Date().toISOString().split('T')[0]; 
                         document.getElementById('hwFileName').innerText = "No file selected"; 
                         document.getElementById('hwBase64').value = "";
-                        document.querySelector('.nav-btn.active').click(); // Go back to list
+                        document.querySelector('.nav-btn.active').click(); // Switch back to current list tab
                         loadData(); 
                     } else { alert("Error: " + data.message); }
                 }).finally(() => { btn.innerText = "Save Entry"; btn.disabled = false; });
