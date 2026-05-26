@@ -4,133 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Portal - Dashboard</title>
-    <style>
-        /* ============================================================================
-           GLOBAL RESET & LAYOUT 
-           ============================================================================ */
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f0f4f8; color: #333; }
-        
-        .navbar { background-color: #0d284a; color: white; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .logo { font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
-        .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-logout:hover { background: #c0392b; }
-
-        .layout { display: flex; max-width: 1400px; margin: 30px auto; gap: 30px; padding: 0 20px; }
-        
-        .portal-sidebar { width: 250px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; height: fit-content; }
-        .portal-sidebar button { width: 100%; text-align: left; padding: 18px 20px; background: none; border: none; border-left: 4px solid transparent; font-size: 15px; font-weight: bold; color: #555; cursor: pointer; transition: 0.3s; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px; }
-        .portal-sidebar button:hover { background: #f9f9f9; }
-        .portal-sidebar button.active { border-left-color: #3498db; color: #3498db; background: #e8f4f8; }
-
-        .portal-content { flex: 1; }
-        .view-panel { display: none; animation: fadeIn 0.4s; }
-        .view-panel.active { display: block; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
-
-        .header-strip { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid #ddd; padding-bottom:10px; }
-        .header-strip h2 { color:#2c3e50; font-size:22px; cursor:pointer;}
-        
-        /* MEGA GRID LAYOUT FOR DASHBOARD */
-        .mega-grid { display: grid; grid-template-columns: 2.2fr 2fr 1.5fr; gap: 20px; }
-        .grid-col { display: flex; flex-direction: column; gap: 20px; }
-        
-        .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border:1px solid #eaeaea; }
-        .card-title { font-size: 16px; font-weight: bold; color: #2c3e50; border-bottom: 2px solid #f1f1f1; padding-bottom: 10px; margin-bottom: 15px; display:flex; justify-content:space-between;}
-        .view-all-link { font-size:12px; color:#3498db; text-decoration:none; cursor:pointer;}
-        
-        /* Profile Info */
-        .profile-flex { display: flex; gap: 20px; align-items: center; margin-bottom: 15px; }
-        .avatar { width: 80px; height: 80px; border-radius: 50%; background: #eee; object-fit: cover; border: 3px solid #3498db; }
-        .prof-info h3 { margin-bottom: 5px; color: #2c3e50; text-transform: uppercase;}
-        .prof-badge { background: #27ae60; color: white; padding: 3px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; }
-        .prof-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; color: #555; }
-        .prof-stats span { font-weight: bold; color: #222; display: block;}
-
-        /* Circulars */
-        .circular-list { display: flex; flex-direction: column; gap: 12px; max-height: 250px; overflow-y: auto; padding-right:5px;}
-        .circular-item { border: 1px solid #e1e8ed; border-left: 4px solid #f39c12; border-radius: 4px; padding: 10px; background: #fffbfa; transition:0.3s;}
-        .circular-item:hover { transform:scale(1.01); box-shadow:0 2px 5px rgba(0,0,0,0.05);}
-        .circ-tag { font-size:10px; background:#fdebd0; color:#e67e22; padding:2px 6px; border-radius:3px; font-weight:bold; display:inline-block; margin-bottom:5px;}
-        .circ-title { font-size:14px; font-weight:bold; color:#2980b9; margin-bottom:4px; display:block;}
-        .circ-desc { font-size:12px; color:#7f8c8d; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-        .circ-date { font-size:11px; color:#95a5a6; float:right;}
-
-        /* Quick Links */
-        .ql-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .ql-btn { padding: 15px 10px; border-radius: 6px; text-align: center; cursor: pointer; border: 1px solid transparent; transition: 0.3s; font-weight: bold; font-size: 13px; display:flex; flex-direction:column; align-items:center; gap:8px;}
-        .ql-btn:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .ql-fee { background: #e8f4f8; color: #2980b9; border-color:#bde0ef;}
-        .ql-comm { background: #e8f5e9; color: #27ae60; border-color:#c8e6c9;}
-        .ql-att { background: #fff3e0; color: #e67e22; border-color:#ffe0b2;}
-        .ql-res { background: #ffebee; color: #c0392b; border-color:#ffcdd2;}
-
-        /* Homework Min-Table */
-        .hw-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .hw-table th { color:#7f8c8d; font-weight:normal; border-bottom:1px solid #eee; padding-bottom:8px; text-align:left;}
-        .hw-table td { padding: 12px 0; border-bottom: 1px solid #f9f9f9; color:#333; }
-        .hw-icon { background:#e8f5e9; padding:5px; border-radius:4px; margin-right:8px;}
-        .status-pending { color:#e67e22; font-weight:bold; }
-        .status-submitted { color:#3498db; font-weight:bold; }
-        .status-checked { color:#27ae60; font-weight:bold; }
-
-        /* Small Calendar */
-        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight:bold; color:#2980b9; font-size:14px;}
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-size:12px;}
-        .cal-day-header { color: #7f8c8d; padding-bottom: 5px; }
-        .cal-cell { padding: 8px 5px; border-radius: 4px; color: #333; font-weight:bold; position:relative;}
-        .cal-cell.today { background: #2980b9; color: white; }
-        .cal-cell.event { background: #e8f5e9; color: #27ae60; }
-        .cal-dot { width:4px; height:4px; border-radius:50%; background:#e74c3c; position:absolute; bottom:2px; left:50%; transform:translateX(-50%);}
-        .empty-state { text-align:center; padding:30px; color:#95a5a6; font-size:13px; font-weight:bold; background:#fafafa; border-radius:4px;}
-
-        /* ============================================================================
-           FULL HOMEWORK VIEW CARDS & EYE BUTTON MODAL
-           ============================================================================ */
-        .hw-list-header { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr 1fr 0.5fr; font-weight:bold; color:#7f8c8d; background:#f4f7f6; padding:12px 20px; border-radius:5px 5px 0 0; font-size:13px; border:1px solid #ddd;}
-        .hw-list-row { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr 1fr 0.5fr; align-items:center; background:white; padding:15px 20px; border:1px solid #ddd; border-top:none; font-size:14px; transition:0.3s;}
-        .hw-list-row:hover { background:#fcfcfc; box-shadow:inset 4px 0 0 #3498db; }
-        .hw-icon-title { display:flex; align-items:center; gap:15px; }
-        .h-icon { width:40px; height:40px; border-radius:50%; background:#f3e5f5; display:flex; justify-content:center; align-items:center; font-size:20px; color:#9b59b6; }
-        .status-pill { font-size:11px; font-weight:bold; padding:4px 10px; border-radius:15px; display:inline-block; text-align:center;}
-        .pill-pending { background:#fdf0ed; color:#e74c3c; border:1px solid #fadbd8; }
-        .pill-submitted { background:#e8f4f8; color:#3498db; border:1px solid #bde0ef; }
-        .pill-checked { background:#e8f5e9; color:#27ae60; border:1px solid #c8e6c9; }
-
-        .desc-text { color:#777; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-right:15px;}
-        .btn-download { background: #ecf0f1; color: #2c3e50; border: 1px solid #bdc3c7; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display:inline-block;}
-        .btn-eye { background:none; border:none; color:#3498db; font-size:20px; cursor:pointer; transition:0.2s;}
-        .btn-eye:hover { color:#2980b9; transform:scale(1.1);}
-
-        /* MODAL STYLES */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
-        .modal-card { background: #fff; border-radius: 8px; display: flex; flex-direction: column; box-shadow: 0 5px 20px rgba(0,0,0,0.4); max-height:90vh; overflow-y:auto; width:550px;}
-        .modal-header { padding: 15px 20px; background: #2c3e50; color: white; display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0; }
-        .sub-textarea { width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; font-size:14px; margin-top:10px; resize:vertical; min-height:80px; font-family:inherit;}
-        .btn-submit-hw { background:#27ae60; color:white; font-weight:bold; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; width:100%; margin-top:15px; font-size:15px;}
-
-        /* ATTENDANCE & FEES VIEWS */
-        .att-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
-        .att-card { background: white; padding: 20px; border-radius: 8px; border-top: 4px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; }
-        .att-card.present { border-top-color: #27ae60; background:#e8f5e9;}
-        .att-card.absent { border-top-color: #e74c3c; background:#fdf0ed;}
-        .att-card.leave { border-top-color: #f39c12; background:#fff3e0;}
-        .big-cal-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .big-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
-        .big-cal-cell { padding: 20px 10px; border: 1px solid #f1f1f1; border-radius: 4px; position: relative; font-size: 16px; color: #333; background: #fafafa;}
-        .dot { width: 8px; height: 8px; border-radius: 50%; position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); }
-        .dot.p { background: #27ae60; }
-        .dot.a { background: #e74c3c; }
-        .dot.l { background: #f39c12; }
-
-        .fee-summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
-        .fee-card { background: white; padding: 20px; border-radius: 8px; border: 1px solid #eee; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .fee-table-container { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .full-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        .full-table th, .full-table td { padding: 12px 15px; border-bottom: 1px solid #f1f1f1; text-align: left; }
-        .full-table th { background: #f8f9fa; color: #555; font-weight: bold; text-transform: uppercase; font-size: 12px; }
-    </style>
+    <link rel="stylesheet" href="student_dashboard.css">
 </head>
 <body>
 
@@ -140,6 +14,7 @@
     </div>
 
     <div class="layout">
+        
         <div class="portal-sidebar">
             <button class="portal-tab active" data-target="view-dashboard">🏠 Dashboard</button>
             <button class="portal-tab" data-target="view-homework">📚 My Homework</button>
@@ -157,6 +32,7 @@
                 </div>
 
                 <div class="mega-grid">
+                    
                     <div class="grid-col">
                         <div class="card">
                             <div class="card-title">Student Profile</div>
@@ -174,27 +50,59 @@
                                 <div>Mobile<span id="dashMobile">-</span></div>
                             </div>
                         </div>
+
+                        <div class="card">
+                            <div class="card-title">Time Table <span class="view-all-link">View All</span></div>
+                            <div class="empty-state">📅 No time table assigned yet.</div>
+                        </div>
                     </div>
 
                     <div class="grid-col">
                         <div class="card">
                             <div class="card-title">Recent Circulars <span class="view-all-link" onclick="switchView('view-comm')">View All</span></div>
-                            <div class="circular-list" id="circularListContainer"><p style="text-align:center; font-size:12px; color:#999;">Fetching circulars...</p></div>
+                            <div class="circular-list" id="circularListContainer">
+                                <p style="text-align:center; font-size:12px; color:#999;">Fetching circulars...</p>
+                            </div>
                         </div>
 
                         <div class="card">
                             <div class="card-title">Pending Homework <span class="view-all-link" onclick="switchView('view-homework')">View All</span></div>
                             <table class="hw-table">
-                                <thead><tr><th>Subject</th><th>Assigned</th><th>Due On</th><th>Status</th></tr></thead>
-                                <tbody id="hwTableBody"><tr><td colspan="4" style="text-align:center; padding:20px;">Fetching homework...</td></tr></tbody>
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Assigned</th>
+                                        <th>Due On</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hwTableBody">
+                                    <tr>
+                                        <td colspan="4" style="text-align:center; padding:20px;">Fetching homework...</td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>
 
                     <div class="grid-col">
                         <div class="card">
+                            <div class="card-title">Quick Links</div>
+                            <div class="ql-grid">
+                                <button class="ql-btn ql-fee" onclick="switchView('view-fees')"><span style="font-size:24px;">💳</span> Fee</button>
+                                <button class="ql-btn ql-comm" onclick="switchView('view-comm')"><span style="font-size:24px;">💬</span> Comm</button>
+                                <button class="ql-btn ql-att" onclick="switchView('view-att')"><span style="font-size:24px;">📅</span> Attendance</button>
+                                <button class="ql-btn ql-res" onclick="alert('Results will be published here.')"><span style="font-size:24px;">📊</span> Results</button>
+                            </div>
+                        </div>
+
+                        <div class="card">
                             <div class="card-title">Calendar</div>
-                            <div class="cal-header"><span id="calPrevMonth" style="cursor:pointer;">&lt;</span> <span id="calMonthTitle">May 2026</span> <span id="calNextMonth" style="cursor:pointer;">&gt;</span></div>
+                            <div class="cal-header">
+                                <span id="calPrevMonth" style="cursor:pointer;">&lt;</span> 
+                                <span id="calMonthTitle">May 2026</span> 
+                                <span id="calNextMonth" style="cursor:pointer;">&gt;</span>
+                            </div>
                             <div class="cal-grid" id="smallCalGrid"></div>
                         </div>
                     </div>
@@ -209,9 +117,16 @@
                 
                 <div style="background:white; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); padding-bottom:10px;">
                     <div class="hw-list-header">
-                        <div>Homework Details</div><div>Status</div><div>Deadline</div><div>Description</div><div>Attachments</div><div style="text-align:center;">Action</div>
+                        <div>Homework Details</div>
+                        <div>Status</div>
+                        <div>Deadline</div>
+                        <div>Description</div>
+                        <div>Attachments</div>
+                        <div style="text-align:center;">Action</div>
                     </div>
-                    <div id="hwFullListContainer"><p style="text-align:center; padding:30px; color:#777;">Fetching homework... ⏳</p></div>
+                    <div id="hwFullListContainer">
+                        <p style="text-align:center; padding:30px; color:#777;">Fetching homework... ⏳</p>
+                    </div>
                 </div>
             </div>
 
@@ -222,7 +137,9 @@
                 </div>
                 <div class="card" style="margin-bottom:20px; padding:0; overflow:hidden;">
                     <div class="hw-list-header" style="grid-template-columns: 1fr 3fr 1.5fr;">
-                        <div>Type & Date</div><div>Details & Subject</div><div>Attachments</div>
+                        <div>Type & Date</div>
+                        <div>Details & Subject</div>
+                        <div>Attachments</div>
                     </div>
                     <div id="commFullListContainer" style="display:flex; flex-direction:column;">
                         <p style="text-align:center; padding:30px; color:#777;">Fetching communications... ⏳</p>
@@ -231,11 +148,19 @@
             </div>
 
             <div id="view-att" class="view-panel">
-                <div class="header-strip"><h2 onclick="switchView('view-dashboard')">← Back to Dashboard</h2></div>
+                <div class="header-strip">
+                    <h2 onclick="switchView('view-dashboard')">← Back to Dashboard</h2>
+                </div>
                 <div class="att-summary-grid">
-                    <div class="att-card present"><p>Present</p><h3 id="attTotalP">0</h3></div>
-                    <div class="att-card absent"><p>Absent</p><h3 id="attTotalA">0</h3></div>
-                    <div class="att-card leave"><p>Leave / Late</p><h3 id="attTotalL">0</h3></div>
+                    <div class="att-card present">
+                        <p>Present</p><h3 id="attTotalP">0</h3>
+                    </div>
+                    <div class="att-card absent">
+                        <p>Absent</p><h3 id="attTotalA">0</h3>
+                    </div>
+                    <div class="att-card leave">
+                        <p>Leave / Late</p><h3 id="attTotalL">0</h3>
+                    </div>
                 </div>
                 <div class="big-cal-container">
                     <div class="cal-header" style="justify-content:center; gap:20px; font-size:20px;">
@@ -248,17 +173,36 @@
             </div>
 
             <div id="view-fees" class="view-panel">
-                <div class="header-strip"><h2 onclick="switchView('view-dashboard')">← Back to Dashboard</h2></div>
+                <div class="header-strip">
+                    <h2 onclick="switchView('view-dashboard')">← Back to Dashboard</h2>
+                </div>
                 <div class="fee-summary-grid">
-                    <div class="fee-card" style="border-bottom: 4px solid #9b59b6;"><h4>Total Fee</h4><h2 id="feeTotApplicable">₹0</h2></div>
-                    <div class="fee-card" style="border-bottom: 4px solid #27ae60;"><h4>Paid Fees</h4><h2 id="feeTotPaid" style="color:#27ae60;">₹0</h2></div>
-                    <div class="fee-card" style="border-bottom: 4px solid #e74c3c;"><h4>Due Fee</h4><h2 id="feeTotDue" style="color:#e74c3c;">₹0</h2></div>
-                    <div class="fee-card" style="border-bottom: 4px solid #f39c12;"><h4>Advance Fee</h4><h2 id="feeTotAdv">₹0</h2></div>
+                    <div class="fee-card" style="border-bottom: 4px solid #9b59b6;">
+                        <h4>Total Fee</h4><h2 id="feeTotApplicable">₹0</h2>
+                    </div>
+                    <div class="fee-card" style="border-bottom: 4px solid #27ae60;">
+                        <h4>Paid Fees</h4><h2 id="feeTotPaid" style="color:#27ae60;">₹0</h2>
+                    </div>
+                    <div class="fee-card" style="border-bottom: 4px solid #e74c3c;">
+                        <h4>Due Fee</h4><h2 id="feeTotDue" style="color:#e74c3c;">₹0</h2>
+                    </div>
+                    <div class="fee-card" style="border-bottom: 4px solid #f39c12;">
+                        <h4>Advance Fee</h4><h2 id="feeTotAdv">₹0</h2>
+                    </div>
                 </div>
                 <div class="fee-table-container">
                     <table class="full-table">
-                        <thead><tr><th>Installment</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
-                        <tbody id="feeStatementBody"><tr><td colspan="4" style="text-align:center;">Fetching ledger... ⏳</td></tr></tbody>
+                        <thead>
+                            <tr>
+                                <th>Installment</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feeStatementBody">
+                            <tr><td colspan="4" style="text-align:center;">Fetching ledger... ⏳</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -276,291 +220,14 @@
                     <div><b>Subject:</b> <span id="modHwSub">Subject</span></div>
                     <div><b>Due Date:</b> <span id="modHwDue" style="color:#c0392b; font-weight:bold;">Date</span></div>
                 </div>
+                
                 <div style="background:#f9f9f9; padding:15px; border-radius:4px; font-size:14px; color:#333; margin-bottom:20px; border:1px solid #eee;" id="modHwDesc"></div>
+                
                 <div id="submissionArea" style="border-top:2px dashed #ddd; padding-top:20px;"></div>
             </div>
         </div>
     </div>
 
-    <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
-        let studentData = null; let currDate = new Date(); let attMap = {}; 
-
-        window.switchView = function(viewId) {
-            document.querySelectorAll('.portal-tab').forEach(b => b.classList.remove('active'));
-            let tabToActive = document.querySelector(`.portal-tab[data-target="${viewId}"]`);
-            if(tabToActive) tabToActive.classList.add('active');
-            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const studentStr = localStorage.getItem('erp_active_student');
-            if(!studentStr) { window.location.href = 'login.html'; return; }
-            studentData = JSON.parse(studentStr);
-            
-            document.getElementById('dashName').innerText = (studentData.studentFirstName || "") + " " + (studentData.studentLastName || "");
-            document.getElementById('dashRegNo').innerText = studentData.regNo || "N/A";
-            document.getElementById('dashMobile').innerText = studentData.mobile || "N/A";
-            document.getElementById('dashDob').innerText = studentData.dob ? new Date(studentData.dob).toLocaleDateString('en-GB') : "-";
-            
-            let sClass = "-", sSecRaw = "";
-            if(studentData.studentClass) {
-                let match = studentData.studentClass.match(/(.*?)\s*\((.*?)\)/);
-                if(match) { sClass = match[1].trim() + " (" + match[2].trim() + ")"; sSecRaw = match[2].trim(); } 
-                else { sClass = studentData.studentClass; }
-            }
-            document.getElementById('dashClass').innerText = sClass;
-
-            if(studentData.studentPhotoBase64) document.getElementById('dashAvatar').src = studentData.studentPhotoBase64;
-
-            document.querySelectorAll('.portal-tab').forEach(btn => {
-                btn.addEventListener('click', function() { switchView(this.getAttribute('data-target')); });
-            });
-
-            document.getElementById('btnStudentLogout').addEventListener('click', () => {
-                if(confirm("Are you sure you want to log out?")) { localStorage.removeItem('erp_active_student'); window.location.href = 'login.html'; }
-            });
-
-            fetch(scriptURL, { redirect: "follow" }).then(res => res.json()).then(data => {
-                if(data.status === "Success") {
-                    processAssignments(data.assignments, data.submissions);
-                    processAttendance(data.attendance);
-                    processFeeLedger(data.receipts, data.setup, data.feeHeads);
-                }
-            });
-
-            const calShift = (offset) => { currDate.setMonth(currDate.getMonth() + offset); renderCalendar(); };
-            document.getElementById('calPrevMonth').addEventListener('click', () => calShift(-1));
-            document.getElementById('calNextMonth').addEventListener('click', () => calShift(1));
-            document.getElementById('bigCalPrevMonth').addEventListener('click', () => calShift(-1));
-            document.getElementById('bigCalNextMonth').addEventListener('click', () => calShift(1));
-        });
-
-        function processAssignments(assignments, submissions) {
-            const circCont = document.getElementById('circularListContainer');
-            const hwBody = document.getElementById('hwTableBody');
-            const hwFullList = document.getElementById('hwFullListContainer');
-            const commFullList = document.getElementById('commFullListContainer');
-
-            circCont.innerHTML = ''; hwBody.innerHTML = ''; hwFullList.innerHTML = ''; commFullList.innerHTML = '';
-
-            let sClassRaw = ""; let sSecRaw = "";
-            if(studentData.studentClass) {
-                let match = studentData.studentClass.match(/(.*?)\s*\((.*?)\)/);
-                if(match) { sClassRaw = match[1].trim(); sSecRaw = match[2].trim(); } else { sClassRaw = studentData.studentClass; }
-            }
-
-            let myItems = (assignments || []).filter(a => {
-                let matchClass = String(a.Class) === String(sClassRaw) || String(a.Class) === "All" || !a.Class;
-                let matchSec = String(a.Section) === String(sSecRaw) || String(a.Section) === "All" || !a.Section;
-                return matchClass && matchSec;
-            }).reverse();
-
-            let hwCount = 0; let commCount = 0;
-
-            myItems.forEach(a => {
-                let type = a.Type || "";
-                let dateFormatted = new Date(a.Timestamp).toLocaleDateString('en-GB');
-                
-                // NON-HOMEWORK: Circular, Notice, News, PTM, Feedback, Achievement, Remarks
-                if(["Circular", "Notice", "News", "PTM", "Feedback", "Achievement", "Remarks"].includes(type)) {
-                    commCount++;
-                    // Dashboard small card (Only for Circulars/News/Notices to keep it clean)
-                    if(["Circular", "Notice", "News"].includes(type)) {
-                        circCont.innerHTML += `
-                            <div class="circular-item">
-                                <span class="circ-date">📅 ${dateFormatted}</span><span class="circ-tag">${type}</span>
-                                <a href="#" class="circ-title" onclick="switchView('view-comm')">${a.Name}</a>
-                            </div>`;
-                    }
-                    // ALL go to Communication Tab List
-                    let colorCode = type === "Achievement" ? "#f39c12" : (type === "Feedback" || type === "Remarks" ? "#27ae60" : "#3498db");
-                    let attachHtml = a.Attachment_Base64 ? `<a href="${a.Attachment_Base64}" download class="btn-download">📎 Attachment</a>` : '<span style="color:#ccc;">--</span>';
-                    
-                    commFullList.innerHTML += `
-                        <div style="display:grid; grid-template-columns:1fr 3fr 1.5fr; padding:15px 20px; border-bottom:1px solid #eee; background:white; align-items:center;">
-                            <div><span style="font-size:10px; background:${colorCode}; color:white; padding:3px 6px; border-radius:3px; font-weight:bold;">${type}</span><br><span style="font-size:11px; color:#777; margin-top:5px; display:inline-block;">${dateFormatted}</span></div>
-                            <div><b style="color:#2c3e50;">${a.Name}</b><br><span style="font-size:12px; color:#555;">${a.Description || ''}</span></div>
-                            <div>${attachHtml}</div>
-                        </div>`;
-                }
-                // HOMEWORK
-                else if(["Homework", "Classwork", "Assignment", "Project"].includes(type)) {
-                    hwCount++;
-                    let deadlineStr = a.Date ? a.Date : '-';
-                    let mySub = (submissions || []).find(s => String(s.Assignment_ID) === String(a.Assignment_ID) && String(s.Reg_No) === String(studentData.regNo));
-                    
-                    let statusLabel = "Pending"; let statusClass = "pill-pending"; let dashStatusClass = "status-pending";
-                    if(mySub) {
-                        if(mySub.Marks && String(mySub.Marks).trim() !== "") { statusLabel = "Checked"; statusClass = "pill-checked"; dashStatusClass = "status-done"; } 
-                        else { statusLabel = "Submitted"; statusClass = "pill-submitted"; dashStatusClass = "status-done"; }
-                    }
-                    
-                    hwBody.innerHTML += `
-                        <tr style="cursor:pointer;" onclick="switchView('view-homework')">
-                            <td><b>${a.Subject || 'General'}</b><br><span style="font-size:10px;color:#777;">${a.Name}</span></td>
-                            <td>${dateFormatted}</td>
-                            <td><b style="color:#c0392b;">${deadlineStr}</b></td>
-                            <td><span class="${dashStatusClass}">${statusLabel}</span></td>
-                        </tr>`;
-
-                    let attachHtml = a.Attachment_Base64 ? `<a href="${a.Attachment_Base64}" download class="btn-download">📎 File</a>` : '<span style="color:#ccc; font-size:12px;">--</span>';
-                    let aDataStr = JSON.stringify(a).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
-                    let subDataStr = mySub ? JSON.stringify(mySub).replace(/'/g, "&#39;").replace(/"/g, "&quot;") : "null";
-                    
-                    hwFullList.innerHTML += `
-                        <div class="hw-list-row">
-                            <div class="hw-icon-title"><div class="h-icon">🎙️</div><div><div style="font-weight:bold; color:#2c3e50;">${a.Subject || 'General'}</div><div style="font-size:11px; color:#7f8c8d;">${a.Type} • ${a.Name}</div></div></div>
-                            <div><span class="status-pill ${statusClass}">${statusLabel}</span></div>
-                            <div style="font-weight:bold; color:#555;">${deadlineStr}</div>
-                            <div class="desc-text">${a.Description || '--'}</div>
-                            <div>${attachHtml}</div>
-                            <div style="text-align:center;"><button class="btn-eye" onclick='openHwModal(${aDataStr}, ${subDataStr})'>👁️</button></div>
-                        </div>`;
-                }
-            });
-
-            if(commCount === 0) { circCont.innerHTML = '<p style="text-align:center; color:#777; font-size:12px;">No items.</p>'; commFullList.innerHTML = '<p style="text-align:center; padding:20px; color:#777;">No communications found.</p>'; }
-            if(hwCount === 0) { hwBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No assignments.</td></tr>'; hwFullList.innerHTML = '<p style="text-align:center; padding:20px; color:#777;">No homework assigned yet.</p>'; }
-        }
-
-        window.openHwModal = function(hwData, subData) {
-            currentHwSelection = hwData;
-            document.getElementById('modHwTitle').innerText = hwData.Name; document.getElementById('modHwSub').innerText = hwData.Subject || 'General'; document.getElementById('modHwDue').innerText = hwData.Date || 'No Deadline'; document.getElementById('modHwDesc').innerText = hwData.Description || 'No description.';
-
-            const subArea = document.getElementById('submissionArea'); subArea.innerHTML = '';
-            if(hwData.Submission_Required === "Yes") {
-                if(!subData) {
-                    subArea.innerHTML = `
-                        <h4 style="color:#2c3e50; margin-bottom:10px;">Submit Your Work</h4>
-                        <textarea id="stuAnsText" class="sub-textarea" placeholder="Type your answer here..."></textarea>
-                        <div style="margin-top:10px;"><label style="font-size:12px; font-weight:bold; color:#555;">Attach File (Optional)</label><br><input type="file" id="stuAnsFile" style="margin-top:5px; font-size:12px;"><input type="hidden" id="stuAnsBase64"></div>
-                        <button id="btnActualSubmit" class="btn-submit-hw" onclick="submitHwToDb()">Submit Homework</button>`;
-                    setTimeout(() => {
-                        let fileInp = document.getElementById('stuAnsFile');
-                        if(fileInp) fileInp.addEventListener('change', function() { if(this.files[0]) { const r = new FileReader(); r.onload = function(e) { document.getElementById('stuAnsBase64').value = e.target.result; }; r.readAsDataURL(this.files[0]); } });
-                    }, 200);
-                } else if (subData && (!subData.Marks || String(subData.Marks).trim() === "")) {
-                    subArea.innerHTML = `<div style="background:#e8f4f8; border:1px solid #bde0ef; padding:15px; border-radius:5px; text-align:center;"><h3 style="color:#2980b9; margin:0 0 5px 0;">Status: Submitted</h3><p style="font-size:13px; color:#555; margin:0;">Waiting for teacher's review.</p></div>`;
-                } else if (subData && subData.Marks) {
-                    subArea.innerHTML = `<div style="background:#e8f5e9; border:1px solid #c8e6c9; padding:15px; border-radius:5px;"><h3 style="color:#27ae60; margin:0 0 10px 0;">Status: Evaluated ✅</h3><div style="display:flex; justify-content:space-between; font-size:14px;"><div><b>Marks Awarded:</b> <span style="font-size:18px; color:#e74c3c; font-weight:bold; margin-left:5px;">${subData.Marks}</span></div></div><div style="margin-top:10px; font-size:13px; color:#555;"><b>Remarks:</b> ${subData.Teacher_Remarks || 'Good.'}</div></div>`;
-                }
-            } else { subArea.innerHTML = `<p style="text-align:center; color:#95a5a6; font-size:13px; font-weight:bold;">No online submission required.</p>`; }
-
-            document.getElementById('hwModal').classList.add('active');
-        };
-
-        window.submitHwToDb = function() {
-            if(!currentHwSelection) return;
-            const btn = document.getElementById('btnActualSubmit'); btn.innerText = "Submitting..."; btn.disabled = true;
-
-            const payload = { action: "submitHomework", data: { assignmentId: currentHwSelection.Assignment_ID, regNo: studentData.regNo, studentName: studentData.studentFirstName || studentData.studentName, answerText: document.getElementById('stuAnsText') ? document.getElementById('stuAnsText').value : "", attachmentBase64: document.getElementById('stuAnsBase64') ? document.getElementById('stuAnsBase64').value : "" } };
-            fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
-            .then(res => res.json()).then(data => {
-                if(data.status === "Success") { alert(data.message); window.location.reload(); } else { alert("Error: " + data.message); }
-            }).finally(() => { btn.innerText = "Submit Homework"; btn.disabled = false; });
-        };
-
-        // ==============================
-        // ATTENDANCE & CALENDAR MODULE
-        // ==============================
-        function processAttendance(records) {
-            if(!records) return; let totP = 0; let totA = 0; let totL = 0;
-            records.forEach(r => {
-                if(String(r.Reg_No) === String(studentData.regNo)) {
-                    let parts = String(r.Date).split('-');
-                    if(parts.length === 3) {
-                        let isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`; attMap[isoDate] = r.Status;
-                        if(r.Status === 'P') totP++; else if(r.Status === 'AB') totA++; else if(r.Status === 'LC') totL++;
-                    }
-                }
-            });
-            document.getElementById('attTotalP').innerText = totP; document.getElementById('attTotalA').innerText = totA; document.getElementById('attTotalL').innerText = totL;
-            renderCalendar();
-        }
-
-        function renderCalendar() {
-            const year = currDate.getFullYear(); const month = currDate.getMonth();
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            
-            let smallCalTitle = document.getElementById('calMonthTitle'); if(smallCalTitle) smallCalTitle.innerText = monthNames[month] + " " + year;
-            let bigCalTitle = document.getElementById('bigCalMonthTitle'); if(bigCalTitle) bigCalTitle.innerText = monthNames[month] + " " + year;
-            
-            const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate();
-            
-            // Build Grid HTML
-            let htmlSmall = `<div class="cal-day-header">Su</div><div class="cal-day-header">Mo</div><div class="cal-day-header">Tu</div><div class="cal-day-header">We</div><div class="cal-day-header">Th</div><div class="cal-day-header">Fr</div><div class="cal-day-header">Sa</div>`;
-            let htmlBig = htmlSmall; 
-            for(let i = 0; i < firstDay; i++) { htmlSmall += `<div></div>`; htmlBig += `<div class="big-cal-cell" style="background:none; border:none;"></div>`; }
-            
-            for(let i = 1; i <= daysInMonth; i++) {
-                let isoDate = `${year}-${String(month+1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                let status = attMap[isoDate]; let dotHtmlSmall = ''; let dotHtmlBig = '';
-                
-                if(status === 'P') { dotHtmlSmall = `<div class="cal-dot" style="background:#27ae60;"></div>`; dotHtmlBig = `<div class="dot p"></div>`; } 
-                else if(status === 'AB') { dotHtmlSmall = `<div class="cal-dot" style="background:#e74c3c;"></div>`; dotHtmlBig = `<div class="dot a"></div>`; } 
-                else if(status === 'LC') { dotHtmlSmall = `<div class="cal-dot" style="background:#f39c12;"></div>`; dotHtmlBig = `<div class="dot l" style="background:#f39c12;"></div>`; }
-
-                let isToday = (isoDate === new Date().toISOString().split('T')[0]);
-                htmlSmall += `<div class="cal-cell ${isToday ? 'today' : ''}">${i}${dotHtmlSmall}</div>`;
-                htmlBig += `<div class="big-cal-cell ${isToday ? 'today' : ''}">${i}${dotHtmlBig}</div>`;
-            }
-            
-            let smallGrid = document.getElementById('smallCalGrid'); if(smallGrid) smallGrid.innerHTML = htmlSmall;
-            let bigGrid = document.getElementById('bigCalGrid'); if(bigGrid) bigGrid.innerHTML = htmlBig;
-        }
-
-        // ==============================
-        // FEES MODULE
-        // ==============================
-        function processFeeLedger(receipts, setupData, feeHeads) {
-            let classFeeAmount = 0;
-            if(studentData.studentClass && setupData && setupData.classes) { 
-                let cSetup = setupData.classes.find(c => `${c.name} (${c.section})` === studentData.studentClass || c.name === studentData.studentClass); 
-                if(cSetup && cSetup.fee) classFeeAmount = parseFloat(cSetup.fee); 
-            }
-
-            let paidMap = {}; 
-            (receipts||[]).filter(r => String(r.Reg_No) === String(studentData.regNo)).forEach(r => {
-                try { 
-                    let rawHeads = String(r.Paid_Heads || "").trim();
-                    if(rawHeads !== "" && rawHeads.startsWith("[")) {
-                        JSON.parse(rawHeads).forEach(d => { paidMap[d.head + "_" + d.period] = (paidMap[d.head + "_" + d.period] || 0) + parseFloat(d.paid || 0); }); 
-                    }
-                } catch(e) {}
-            });
-
-            let tbody = document.getElementById('feeStatementBody'); tbody.innerHTML = ''; 
-            let totalDue = 0; let totalPaid = 0;
-            const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
-
-            academicMonths.forEach(month => {
-                let tAmt = classFeeAmount; let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0; let tBal = tAmt - tPaid; totalDue += tAmt; totalPaid += tPaid;
-                let tStatus = tBal <= 0 ? `<span style="color:#27ae60; font-weight:bold;">Paid</span>` : `<span style="color:#e74c3c; font-weight:bold;">Due</span>`;
-                tbody.innerHTML += `<tr><td><b>Monthly Tuition Fee (${month})</b></td><td>₹${tAmt.toFixed(2)}</td><td>₹${tPaid.toFixed(2)}</td><td>${tStatus}</td></tr>`;
-                
-                (feeHeads||[]).forEach(fh => {
-                    if(fh.Frequency === "Monthly") {
-                        let fhAmt = parseFloat(fh.Amount) || 0; let fhPaid = paidMap[fh.Head_Name + "_" + month] || 0; let fhBal = fhAmt - fhPaid; totalDue += fhAmt; totalPaid += fhPaid;
-                        let fhStatus = fhBal <= 0 ? `<span style="color:#27ae60; font-weight:bold;">Paid</span>` : `<span style="color:#e74c3c; font-weight:bold;">Due</span>`;
-                        tbody.innerHTML += `<tr><td><b>${fh.Head_Name} (${month})</b></td><td>₹${fhAmt.toFixed(2)}</td><td>₹${fhPaid.toFixed(2)}</td><td>${fhStatus}</td></tr>`;
-                    }
-                });
-            });
-            
-            (feeHeads||[]).forEach(fh => {
-                if(fh.Frequency === "Annually" || fh.Frequency === "One Time (Annually)") {
-                    let amt = parseFloat(fh.Amount) || 0; let pd = paidMap[fh.Head_Name + "_" + fh.Frequency] || paidMap[fh.Head_Name + "_Annually"] || 0; let bal = amt - pd; totalDue += amt; totalPaid += pd;
-                    let anStatus = bal <= 0 ? `<span style="color:#27ae60; font-weight:bold;">Paid</span>` : `<span style="color:#e74c3c; font-weight:bold;">Due</span>`;
-                    tbody.innerHTML += `<tr><td><b>${fh.Head_Name} (Annual)</b></td><td>₹${amt.toFixed(2)}</td><td>₹${pd.toFixed(2)}</td><td>${anStatus}</td></tr>`;
-                }
-            });
-
-            document.getElementById('feeTotApplicable').innerText = "₹" + totalDue.toFixed(2);
-            document.getElementById('feeTotPaid').innerText = "₹" + totalPaid.toFixed(2);
-            document.getElementById('feeTotDue').innerText = "₹" + (totalDue - totalPaid).toFixed(2);
-        }
-    </script>
+    <script src="student_dashboard.js"></script>
 </body>
 </html>
