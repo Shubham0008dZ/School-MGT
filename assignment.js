@@ -1,6 +1,9 @@
+// ============================================================================
+// CUSTOM CONFIRM MODAL LOGIC
+// ============================================================================
 window.customConfirm = function(message, onConfirm) {
     let overlay = document.createElement('div');
-    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+    overlay.style.position = "fixed"; overlay.style.top = "0"; overlay.style.left = "0"; overlay.style.width = "100%"; overlay.style.height = "100%"; overlay.style.background = "rgba(0,0,0,0.6)"; overlay.style.zIndex = "9999"; overlay.style.display = "flex"; overlay.style.alignItems = "center"; overlay.style.justifyContent = "center";
     overlay.innerHTML = `<div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;"><p style="color:#555;margin-bottom:20px;">${message}</p><div style="display:flex;justify-content:center;gap:10px;"><button id="cc-cancel" style="padding:8px 20px;background:#95a5a6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Cancel</button><button id="cc-ok" style="padding:8px 20px;background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Confirm</button></div></div>`;
     document.body.appendChild(overlay);
     document.getElementById('cc-cancel').addEventListener('click', () => overlay.remove());
@@ -28,19 +31,23 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnLogout')?.addEventListener('click', () => { customConfirm("Logout?", () => { localStorage.removeItem('erp_active_user'); window.location.href = 'login.html'; }); });
 
     // =======================================================
-    // 1. DYNAMIC FORM FIELDS LOGIC (HIDE/SHOW CATEGORY WISE)
+    // 1. DYNAMIC FORM FIELDS LOGIC (ACHIEVEMENT, REMARKS, HW)
     // =======================================================
     function toggleFormFields(selectedType) {
         let isHW = ["Homework", "Classwork", "Assignment", "Project"].includes(selectedType);
         
         let grpSubject = document.getElementById('grpSubject');
-        let grpDate = document.getElementById('grpDate');
         let lblDate = document.getElementById('lblDate');
         let grpSubReq = document.getElementById('grpSubmissionReq');
+        let dynAch = document.getElementById('dynAchievement');
+        let dynRem = document.getElementById('dynRemarks');
+
+        // Reset Dynamic Blocks
+        dynAch.style.display = 'none';
+        dynRem.style.display = 'none';
 
         if(isHW) {
             if(grpSubject) grpSubject.style.display = 'flex';
-            if(grpDate) grpDate.style.display = 'flex';
             if(lblDate) lblDate.innerHTML = 'Due Date <span style="color:red;">*</span>';
             if(grpSubReq) grpSubReq.style.display = 'flex';
             document.getElementById('hwSubject').required = true;
@@ -50,6 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if(grpSubReq) { grpSubReq.style.display = 'none'; document.getElementById('hwSubmissionReq').checked = false; }
             document.getElementById('hwSubject').required = false;
             document.getElementById('hwSubject').value = ""; 
+            
+            // Show Specific Blocks
+            if(selectedType === "Achievement") dynAch.style.display = 'block';
+            if(selectedType === "Remarks") dynRem.style.display = 'block';
         }
     }
 
@@ -60,10 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allAssignments = [];
     let allSubmissions = []; 
+    let allStudentsGlobal = []; // Stores fetched students for targeting
     let currentCategory = "Circular"; 
 
     // =======================================================
-    // 2. SIDEBAR CATEGORY CLICK LOGIC (FIXED BLANK SCREEN BUG)
+    // 2. SIDEBAR CATEGORY CLICK LOGIC
     // =======================================================
     document.querySelectorAll('.nav-btn').forEach(link => {
         link.addEventListener('click', function(e) {
@@ -72,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.app-module').forEach(m => {
                 m.classList.remove('active-module');
-                m.style.display = 'none'; // Force hide
+                m.style.display = 'none'; 
             });
             
             this.classList.add('active');
@@ -80,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let targetElement = document.getElementById(targetId);
             if(targetElement) {
                 targetElement.classList.add('active-module');
-                targetElement.style.display = 'block'; // Force show to prevent blank screen
+                targetElement.style.display = 'block'; 
             }
 
             if(this.getAttribute('data-cat')) {
@@ -106,10 +118,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         let addMod = document.getElementById('module-add-hw');
         addMod.classList.add('active-module');
-        addMod.style.display = 'block'; // Force show
+        addMod.style.display = 'block'; 
         
         document.getElementById('formDynamicTitle').innerText = currentCategory.toUpperCase();
-        document.getElementById('editAssignmentId').value = ""; // Clear edit id
+        document.getElementById('editAssignmentId').value = ""; 
         document.getElementById('btnSaveHw').innerText = "Save Entry";
         
         let defaultType = currentCategory;
@@ -118,11 +130,63 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('hwType').value = defaultType; 
         document.getElementById('hwDate').value = new Date().toISOString().split('T')[0];
 
+        // Reset Student Targeting
+        document.querySelector('input[name="targetType"][value="All"]').checked = true;
+        document.getElementById('specificStudentsContainer').style.display = 'none';
+        document.getElementById('stuGrid').innerHTML = '';
+
         toggleFormFields(defaultType);
     });
 
     // =======================================================
-    // 3. FETCH AND RENDER DATA
+    // 3. TARGET STUDENT SELECTOR LOGIC
+    // =======================================================
+    document.querySelectorAll('input[name="targetType"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            if(this.value === "Specific") {
+                document.getElementById('specificStudentsContainer').style.display = 'block';
+                populateStudentCheckboxes();
+            } else {
+                document.getElementById('specificStudentsContainer').style.display = 'none';
+            }
+        });
+    });
+
+    document.getElementById('hwClass')?.addEventListener('change', populateStudentCheckboxes);
+    document.getElementById('hwSection')?.addEventListener('change', populateStudentCheckboxes);
+
+    function populateStudentCheckboxes() {
+        if(document.querySelector('input[name="targetType"]:checked').value !== "Specific") return;
+
+        let cls = document.getElementById('hwClass').value;
+        let sec = document.getElementById('hwSection').value;
+        let grid = document.getElementById('stuGrid');
+
+        if(!cls || cls === "All") {
+            grid.innerHTML = '<p style="color:#e74c3c; font-size:12px;">Please select a specific class to view students.</p>';
+            return;
+        }
+
+        let matchStr = sec && sec !== "All" ? `${cls} (${sec})` : cls;
+        let filteredStudents = allStudentsGlobal.filter(s => {
+            if(sec && sec !== "All") return String(s.studentClass) === matchStr;
+            return String(s.studentClass).startsWith(cls);
+        });
+
+        grid.innerHTML = '';
+        if(filteredStudents.length === 0) {
+            grid.innerHTML = '<p style="color:#777; font-size:12px;">No students found in this class/section.</p>';
+            return;
+        }
+
+        filteredStudents.forEach(s => {
+            let safeName = s.studentFirstName || s.studentName;
+            grid.innerHTML += `<label class="stu-item"><input type="checkbox" class="stu-chk" value="${s.regNo}"> ${safeName} (${s.regNo})</label>`;
+        });
+    }
+
+    // =======================================================
+    // 4. FETCH AND RENDER DATA
     // =======================================================
     function loadData() {
         document.getElementById('commListArea').innerHTML = '<p style="text-align:center; padding:20px; color:#777;">Fetching records... ⏳</p>';
@@ -145,16 +209,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 allAssignments = res.assignments || [];
                 allSubmissions = res.submissions || []; 
-                
+                allStudentsGlobal = res.data || []; // Store students for targeting
+
                 updateBlinkingBadge();
                 renderCommList();
             }
         });
     }
 
-    // =======================================================
-    // 4. RESPONSES BADGE & MODAL LOGIC
-    // =======================================================
     function updateBlinkingBadge() {
         let pendingSubs = allSubmissions.filter(s => !s.Marks || String(s.Marks).trim() === "");
         let badge = document.getElementById('respBlinkBadge');
@@ -165,6 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Responses Logic (Kept fully intact)
     document.getElementById('btnViewResponses')?.addEventListener('click', () => {
         const tbody = document.getElementById('respTableBody'); tbody.innerHTML = '';
         let pendingSubs = allSubmissions.filter(s => !s.Marks || String(s.Marks).trim() === "");
@@ -210,9 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // =======================================================
-    // 5. RENDER ADMIN LIST WITH EDIT / DELETE BUTTONS
-    // =======================================================
     function renderCommList() {
         const listArea = document.getElementById('commListArea'); listArea.innerHTML = '';
         
@@ -234,7 +294,13 @@ document.addEventListener('DOMContentLoaded', () => {
             let subjectString = "";
             if(["Homework", "Classwork", "Assignment", "Project"].includes(a.Type)) { subjectString = `| Subject: ${a.Subject || '-'}`; }
 
-            // Safe Stringification for onclick calls
+            // Target Info
+            let targetLabel = "";
+            try { 
+                let tg = JSON.parse(a.Target_Students || '["All"]'); 
+                if(tg[0] !== "All") targetLabel = ` | <span style="color:#e67e22; font-weight:bold;">${tg.length} Specific Student(s)</span>`; 
+            } catch(e){}
+
             let safeAssignId = String(a.Assignment_ID);
 
             listArea.innerHTML += `
@@ -242,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div>
                         <div style="font-size:11px; background:#fdebd0; color:#e67e22; padding:2px 6px; border-radius:3px; display:inline-block; margin-bottom:5px;"><b>${a.Type}</b> • ${dateStr}</div>
                         <h3 style="margin:0 0 5px 0; font-size:16px; color:#2980b9;">${a.Name}</h3>
-                        <p style="margin:0; font-size:13px; color:#555;">${classInfo} ${subjectString}</p>
+                        <p style="margin:0; font-size:13px; color:#555;">${classInfo} ${subjectString} ${targetLabel}</p>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:5px; align-items:flex-end;">
                         ${attachBtn}
@@ -263,7 +329,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('editAssignmentId').value = a.Assignment_ID;
         
-        // Switch to Form Module
         document.querySelectorAll('.app-module').forEach(m => { m.classList.remove('active-module'); m.style.display = 'none'; });
         let formMod = document.getElementById('module-add-hw');
         formMod.classList.add('active-module');
@@ -271,14 +336,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.getElementById('formDynamicTitle').innerText = "EDIT " + a.Type.toUpperCase();
         
-        // Populate Fields
         if(a.Date) {
             let parts = a.Date.split('-');
             if(parts.length === 3) document.getElementById('hwDate').value = `${parts[2]}-${parts[1]}-${parts[0]}`;
         }
         document.getElementById('hwClass').value = a.Class;
         
-        // Trigger section render manually then set value
         let fSecDropdown = document.getElementById('hwSection');
         fSecDropdown.innerHTML = '<option value="">Select Section</option><option value="All">All Sections</option>';
         if(a.Class && a.Class !== "All") {
@@ -295,12 +358,46 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('hwSubject').value = a.Subject || "";
         document.getElementById('hwType').value = a.Type;
         document.getElementById('hwName').value = a.Name;
-        document.getElementById('hwStudentWise').checked = (a.Student_Wise === "Yes");
         document.getElementById('hwDesc').value = a.Description;
         document.getElementById('hwSubmissionReq').checked = (a.Submission_Required === "Yes");
         document.getElementById('hwBase64').value = a.Attachment_Base64 || "";
         document.getElementById('hwFileName').innerText = a.Attachment_Base64 ? "Existing Attachment Loaded" : "No file selected";
         
+        // Handle Targets parsing
+        try {
+            let tg = JSON.parse(a.Target_Students || '["All"]');
+            if(tg[0] === "All") {
+                document.querySelector('input[name="targetType"][value="All"]').checked = true;
+                document.getElementById('specificStudentsContainer').style.display = 'none';
+            } else {
+                document.querySelector('input[name="targetType"][value="Specific"]').checked = true;
+                document.getElementById('specificStudentsContainer').style.display = 'block';
+                // Wait briefly for section render, then check specific boxes
+                setTimeout(() => {
+                    populateStudentCheckboxes();
+                    setTimeout(() => {
+                        document.querySelectorAll('.stu-chk').forEach(chk => {
+                            if(tg.includes(chk.value)) chk.checked = true;
+                        });
+                    }, 500);
+                }, 500);
+            }
+        } catch(e){}
+
+        // Handle Metadata
+        try {
+            let meta = JSON.parse(a.Metadata_JSON || "{}");
+            if(a.Type === "Achievement") {
+                document.getElementById('achGroup').value = meta.group || "";
+                document.getElementById('achLevel').value = meta.level || "";
+                document.getElementById('achRank').value = meta.rank || "";
+                document.getElementById('achVenue').value = meta.venue || "";
+            } else if (a.Type === "Remarks") {
+                document.getElementById('remCat').value = meta.category || "";
+                document.getElementById('remType').value = meta.type || "";
+            }
+        } catch(e){}
+
         document.getElementById('btnSaveHw').innerText = "Update Entry";
         toggleFormFields(a.Type);
     };
@@ -320,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadData();
 
     // =======================================================
-    // 6. FILE UPLOAD & FORM SUBMISSION (Add & Update Route)
+    // 5. FILE UPLOAD & FORM SUBMISSION (With Metadata & Targeting)
     // =======================================================
     const hwFileInput = document.getElementById('hwFile');
     if(hwFileInput) {
@@ -339,7 +436,37 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault(); const btn = document.getElementById('btnSaveHw'); btn.innerText = "Saving..."; btn.disabled = true;
 
             let extraValidationPassed = true;
-            if(!document.getElementById('hwType').value) { extraValidationPassed = false; }
+            let type = document.getElementById('hwType').value;
+            if(!type) { extraValidationPassed = false; }
+
+            // Extract Targeting
+            let targetType = document.querySelector('input[name="targetType"]:checked').value;
+            let targetArray = ["All"];
+            if(targetType === "Specific") {
+                targetArray = [];
+                document.querySelectorAll('.stu-chk:checked').forEach(c => targetArray.push(c.value));
+                if(targetArray.length === 0) {
+                    alert("Please select at least one specific student.");
+                    btn.innerText = "Save Entry"; btn.disabled = false;
+                    return;
+                }
+            }
+
+            // Extract Metadata
+            let metaData = {};
+            if(type === "Achievement") {
+                metaData = {
+                    group: document.getElementById('achGroup').value,
+                    level: document.getElementById('achLevel').value,
+                    rank: document.getElementById('achRank').value,
+                    venue: document.getElementById('achVenue').value
+                };
+            } else if (type === "Remarks") {
+                metaData = {
+                    category: document.getElementById('remCat').value,
+                    type: document.getElementById('remType').value
+                };
+            }
 
             let editId = document.getElementById('editAssignmentId').value;
             let finalAction = editId ? "updateAssignment" : "saveAssignment";
@@ -354,13 +481,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         class: document.getElementById('hwClass').value, 
                         section: document.getElementById('hwSection').value, 
                         subject: document.getElementById('hwSubject') ? document.getElementById('hwSubject').value : "", 
-                        type: document.getElementById('hwType').value, 
+                        type: type, 
                         name: document.getElementById('hwName').value, 
-                        studentWise: document.getElementById('hwStudentWise').checked, 
+                        studentWise: false, // Deprecated, using targetStudents
                         description: document.getElementById('hwDesc').value, 
                         attachmentBase64: document.getElementById('hwBase64').value, 
                         submissionReq: document.getElementById('hwSubmissionReq').checked, 
-                        createdBy: activeUser.empId 
+                        createdBy: activeUser.empId,
+                        targetStudents: JSON.stringify(targetArray),
+                        metadataJson: JSON.stringify(metaData)
                     }
                 };
 
@@ -373,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         document.getElementById('hwDate').value = new Date().toISOString().split('T')[0]; 
                         document.getElementById('hwFileName').innerText = "No file selected"; 
                         document.getElementById('hwBase64').value = "";
-                        document.querySelector('.nav-btn.active').click(); // Switch back to current list tab
+                        document.querySelector('.nav-btn.active').click(); 
                         loadData(); 
                     } else { alert("Error: " + data.message); }
                 }).finally(() => { btn.innerText = "Save Entry"; btn.disabled = false; });
