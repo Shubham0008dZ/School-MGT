@@ -18,6 +18,9 @@
         .record-card { background:white; border:1px solid #eee; padding:15px; border-radius:5px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; transition:0.3s; }
         .record-card:hover { box-shadow:0 4px 10px rgba(0,0,0,0.05); transform:translateY(-2px); border-color:#3498db;}
         
+        .btn-action-edit { background:#f39c12; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; font-size:12px; font-weight:bold;}
+        .btn-action-del { background:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; font-size:12px; font-weight:bold; margin-left:5px;}
+
         /* Responses Modal Table */
         .resp-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:15px;}
         .resp-table th { background:#f1f1f1; padding:10px; text-align:left; border-bottom:2px solid #ddd;}
@@ -58,7 +61,7 @@
 
     <div class="main-content">
         
-        <div id="module-comm-list" class="app-module active-module">
+        <div id="module-comm-list" class="app-module active-module" style="display:block;">
             <div class="list-header-box">
                 <h2 id="listHeaderTitle">Circular / News Records</h2>
                 <div>
@@ -72,7 +75,7 @@
             </div>
         </div>
 
-        <div id="module-add-hw" class="app-module">
+        <div id="module-add-hw" class="app-module" style="display:none;">
             <div class="profile-header">
                 <h2>UPLOAD <span id="formDynamicTitle">COMMUNICATION</span></h2>
                 <button class="btn-dark" style="padding:6px 15px;" onclick="document.querySelector('.nav-btn.active').click()">← Back to List</button>
@@ -80,6 +83,8 @@
             
             <div class="form-container">
                 <form id="assignmentForm">
+                    <input type="hidden" id="editAssignmentId" value="">
+
                     <div class="form-row">
                         <div class="input-group">
                             <label>Academic Year <span style="color:red;">*</span></label>
