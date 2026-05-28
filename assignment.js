@@ -380,4 +380,104 @@ if(res.setup) {
             }
         });
     }
+
+// ============================================================================
+    // NEW MULTI-SELECT DROPDOWN & FILTER LOGIC
+    // ============================================================================
+    
+    // Global functions for inline HTML calls
+    window.toggleMultiSelect = function(id) {
+        let el = document.getElementById(id);
+        if(el.style.display === 'flex') el.style.display = 'none'; else el.style.display = 'flex';
+    };
+
+    window.filterMultiSelect = function(input, optionsId) {
+        let filter = input.value.toLowerCase();
+        let labels = document.getElementById(optionsId).getElementsByTagName('label');
+        for(let i=0; i<labels.length; i++) {
+            if(labels[i].innerText.toLowerCase().includes(filter)) labels[i].style.display = 'flex';
+            else labels[i].style.display = 'none';
+        }
+    };
+
+    // Close dropdowns if clicked outside
+    document.addEventListener('click', function(e) {
+        if(!e.target.closest('.multi-select-container')) {
+            document.querySelectorAll('.multi-select-dropdown').forEach(d => d.style.display = 'none');
+        }
+    });
+
+    // Auto-populate Students when Class/Sec changes
+    function popCalStudents() {
+        let cls = document.getElementById('evClass').value; let sec = document.getElementById('evSection').value;
+        let optContainer = document.getElementById('evStudentOptions');
+        if(!optContainer) return;
+        
+        optContainer.innerHTML = '<label class="multi-option"><input type="checkbox" value="All" class="ev-stu-chk" checked> All Students</label>';
+        document.getElementById('evStudentCount').innerText = "All";
+
+        if(!cls || cls === "All") return; 
+        
+        let matchStr = sec && sec !== "All" ? `${cls} (${sec})` : cls;
+        let filteredStudents = allStudentsGlobal.filter(s => {
+            if(sec && sec !== "All") return String(s.studentClass) === matchStr;
+            return String(s.studentClass).startsWith(cls);
+        });
+
+        filteredStudents.forEach(s => {
+            let safeName = s.studentFirstName || s.studentName;
+            optContainer.innerHTML += `<label class="multi-option"><input type="checkbox" value="${s.regNo}" class="ev-stu-chk"> ${safeName} (${s.regNo})</label>`;
+        });
+    }
+    document.getElementById('evClass')?.addEventListener('change', popCalStudents);
+    document.getElementById('evSection')?.addEventListener('change', popCalStudents);
+
+    // Auto-populate Employees when Dept changes
+    function popCalEmps() {
+        let dept = document.getElementById('evDept').value;
+        let optContainer = document.getElementById('evEmpOptions');
+        if(!optContainer) return;
+
+        optContainer.innerHTML = '<label class="multi-option"><input type="checkbox" value="All" class="ev-emp-chk" checked> All Employees</label>';
+        document.getElementById('evEmpCount').innerText = "All";
+
+        if(!dept || dept === "All") return;
+
+        let filteredEmps = allEmployees.filter(e => String(e.empDept) === dept);
+        filteredEmps.forEach(e => {
+            optContainer.innerHTML += `<label class="multi-option"><input type="checkbox" value="${e.empId}" class="ev-emp-chk"> ${e.empName} (${e.empId})</label>`;
+        });
+    }
+    document.getElementById('evDept')?.addEventListener('change', popCalEmps);
+
+    // Handle "All" vs "Specific" checking logic and update Count Badge
+    function bindMultiSelectCount(optionsId, countId, chkClass) {
+        let container = document.getElementById(optionsId);
+        if(container) {
+            container.addEventListener('change', function(e) {
+                if(e.target.classList.contains(chkClass)) {
+                    let allBox = document.querySelector(`#${optionsId} .${chkClass}[value="All"]`);
+                    
+                    if(e.target.value === "All" && e.target.checked) {
+                        document.querySelectorAll(`#${optionsId} .${chkClass}`).forEach(c => { if(c.value !== "All") c.checked = false; });
+                        document.getElementById(countId).innerText = "All";
+                    } else {
+                        if(allBox) allBox.checked = false;
+                        let count = document.querySelectorAll(`#${optionsId} .${chkClass}:checked`).length;
+                        if(count === 0) {
+                            if(allBox) allBox.checked = true;
+                            document.getElementById(countId).innerText = "All";
+                        } else {
+                            document.getElementById(countId).innerText = count;
+                        }
+                    }
+                }
+            });
+        }
+    }
+    
+    // Bind logic to both boxes
+    bindMultiSelectCount('evStudentOptions', 'evStudentCount', 'ev-stu-chk');
+    bindMultiSelectCount('evEmpOptions', 'evEmpCount', 'ev-emp-chk');
+    
 });
