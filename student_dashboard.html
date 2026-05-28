@@ -15,215 +15,162 @@
 
     <div class="layout">
         
-        <div class="portal-sidebar">
-            <button class="portal-tab active" data-target="view-dashboard">🏠 Dashboard</button>
-            <button class="portal-tab" data-target="view-homework">📚 My Homework</button>
-            <button class="portal-tab" data-target="view-comm">💬 Communication</button>
-            <button class="portal-tab" data-target="view-att">📅 Attendance</button>
-            <button class="portal-tab" data-target="view-fees">💳 Fee Ledger</button>
-        </div>
+        <aside class="sidebar">
+            <div class="sidebar-group">
+                <div class="sidebar-grid">
+                    <button class="nav-btn active" onclick="switchView('view-dashboard')">
+                        <span class="nav-icon">🏠</span><span>Home</span>
+                    </button>
+                    <button class="nav-btn" onclick="alert('Feature coming soon')">
+                        <span class="nav-icon">🔍</span><span>Search</span>
+                    </button>
+                </div>
+            </div>
 
-        <div class="portal-content">
+            <div class="sidebar-group">
+                <div class="sidebar-title">Communication</div>
+                <div class="sidebar-grid">
+                    <button class="nav-btn" onclick="filterFeed('Circular')"><span class="nav-icon">📢</span><span>Circular</span></button>
+                    <button class="nav-btn" onclick="filterFeed('PTM')"><span class="nav-icon">🤝</span><span>PTM</span></button>
+                    <button class="nav-btn" onclick="alert('Coming soon')"><span class="nav-icon">✉️</span><span>Mail Box</span></button>
+                    <button class="nav-btn" onclick="alert('Coming soon')"><span class="nav-icon">📰</span><span>School News</span></button>
+                </div>
+            </div>
+
+            <div class="sidebar-group">
+                <div class="sidebar-title">Academics</div>
+                <div class="sidebar-grid">
+                    <button class="nav-btn" onclick="filterFeed('Achievement')"><span class="nav-icon">🏆</span><span>Achievement</span></button>
+                    <button class="nav-btn" onclick="switchView('view-att')"><span class="nav-icon">📅</span><span>Attendance</span></button>
+                    <button class="nav-btn" onclick="filterFeed('Homework')"><span class="nav-icon">📚</span><span>Homework</span></button>
+                    <button class="nav-btn" onclick="filterFeed('Remarks')"><span class="nav-icon">📝</span><span>Remark</span></button>
+                    <button class="nav-btn" onclick="alert('Coming soon')"><span class="nav-icon">📊</span><span>Result</span></button>
+                    <button class="nav-btn" onclick="alert('Coming soon')"><span class="nav-icon">📋</span><span>Syllabus</span></button>
+                </div>
+            </div>
+
+            <div class="sidebar-group">
+                <div class="sidebar-title">Finance & Utilities</div>
+                <div class="sidebar-grid">
+                    <button class="nav-btn" onclick="switchView('view-fees')"><span class="nav-icon">💳</span><span>Fee Ledger</span></button>
+                    <button class="nav-btn" onclick="alert('Coming soon')"><span class="nav-icon">💻</span><span>E-Learning</span></button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="center-content">
             
-            <div id="view-dashboard" class="view-panel active">
-                <div class="header-strip">
-                    <h2 onclick="switchView('view-dashboard')">Dashboard</h2>
-                    <span style="font-size:13px; color:#777;">Academic Session: 2026-2027</span>
-                </div>
-
-                <div class="mega-grid">
-                    
-                    <div class="grid-col">
-                        <div class="card">
-                            <div class="card-title">Student Profile</div>
-                            <div class="profile-flex">
-                                <img id="dashAvatar" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" class="avatar">
-                                <div class="prof-info">
-                                    <h3 id="dashName">Loading...</h3>
-                                    <span class="prof-badge">Active</span>
-                                </div>
-                            </div>
-                            <div class="prof-stats">
-                                <div>Class & Sec<span id="dashClass">-</span></div>
-                                <div>Reg No.<span id="dashRegNo">-</span></div>
-                                <div>Date of Birth<span id="dashDob">-</span></div>
-                                <div>Mobile<span id="dashMobile">-</span></div>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-title">Time Table <span class="view-all-link">View All</span></div>
-                            <div class="empty-state">📅 No time table assigned yet.</div>
-                        </div>
-                    </div>
-
-                    <div class="grid-col">
-                        <div class="card">
-                            <div class="card-title">Recent Circulars <span class="view-all-link" onclick="switchView('view-comm')">View All</span></div>
-                            <div class="circular-list" id="circularListContainer">
-                                <p style="text-align:center; font-size:12px; color:#999;">Fetching circulars...</p>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-title">Pending Homework <span class="view-all-link" onclick="switchView('view-homework')">View All</span></div>
-                            <table class="hw-table">
-                                <thead>
-                                    <tr>
-                                        <th>Subject</th>
-                                        <th>Assigned</th>
-                                        <th>Due On</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="hwTableBody">
-                                    <tr>
-                                        <td colspan="4" style="text-align:center; padding:20px;">Fetching homework...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="grid-col">
-                        <div class="card">
-                            <div class="card-title">Quick Links</div>
-                            <div class="ql-grid">
-                                <button class="ql-btn ql-fee" onclick="switchView('view-fees')"><span style="font-size:24px;">💳</span> Fee</button>
-                                <button class="ql-btn ql-comm" onclick="switchView('view-comm')"><span style="font-size:24px;">💬</span> Comm</button>
-                                <button class="ql-btn ql-att" onclick="switchView('view-att')"><span style="font-size:24px;">📅</span> Attendance</button>
-                                <button class="ql-btn ql-res" onclick="alert('Results will be published here.')"><span style="font-size:24px;">📊</span> Results</button>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-title">Calendar</div>
-                            <div class="cal-header">
-                                <span id="calPrevMonth" style="cursor:pointer;">&lt;</span> 
-                                <span id="calMonthTitle">May 2026</span> 
-                                <span id="calNextMonth" style="cursor:pointer;">&gt;</span>
-                            </div>
-                            <div class="cal-grid" id="smallCalGrid"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="view-homework" class="view-panel">
-                <div class="header-strip">
-                    <h2 onclick="switchView('view-dashboard')">← Back to Dashboard</h2>
-                    <span style="font-size:13px; color:#777;">My Homework & Assignments</span>
-                </div>
+            <div id="view-dashboard" class="app-view active">
                 
-                <div style="background:white; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); padding-bottom:10px;">
-                    <div class="hw-list-header">
-                        <div>Homework Details</div>
-                        <div>Status</div>
-                        <div>Deadline</div>
-                        <div>Description</div>
-                        <div>Attachments</div>
-                        <div style="text-align:center;">Action</div>
+                <div class="greeting-card">
+                    <div class="greeting-text">
+                        <h1 id="greetMsg">Good Morning!</h1>
+                        <p>You're doing great—keep up the hard work.<br>Check your timetable, homework, and upcoming events.</p>
                     </div>
-                    <div id="hwFullListContainer">
-                        <p style="text-align:center; padding:30px; color:#777;">Fetching homework... ⏳</p>
+                    <div class="student-badge-info">
+                        <div class="stu-avatar-circle" id="dashAvatarBox">D</div>
+                        <div class="stu-details-mini">
+                            <h4 id="dashName">Loading Name...</h4>
+                            <span><span id="dashRegNo">ID</span> • <span id="dashClass">Class</span></span>
+                        </div>
                     </div>
+                </div>
+
+                <div class="fee-alert" id="feeAlertWidget">
+                    <div class="fee-alert-left">
+                        <div class="fee-alert-icon">Fee</div>
+                        <div class="fee-alert-text">
+                            <h4 id="feeAlertAmount">Fee: ₹0.00</h4>
+                            <p>Pay your pending fee for current session.</p>
+                        </div>
+                    </div>
+                    <button class="btn-pay" onclick="switchView('view-fees')">View Ledger</button>
+                </div>
+
+                <div class="feed-filters">
+                    <button class="feed-tab active" onclick="filterFeed('All')">All Updates</button>
+                    <button class="feed-tab" onclick="filterFeed('Homework')">Homework</button>
+                    <button class="feed-tab" onclick="filterFeed('Circular')">Circular</button>
+                    <button class="feed-tab" onclick="filterFeed('Remarks')">Communication</button>
+                </div>
+
+                <div id="mainFeedContainer" style="margin-top: 15px;">
+                    <p style="text-align:center; padding:30px; color:#94a3b8;">Fetching updates... ⏳</p>
                 </div>
             </div>
 
-            <div id="view-comm" class="view-panel">
-                <div class="header-strip">
-                    <h2 onclick="switchView('view-dashboard')">← Back to Dashboard</h2>
-                    <span style="font-size:13px; color:#777;">Communications Center</span>
-                </div>
-                <div class="card" style="margin-bottom:20px; padding:0; overflow:hidden;">
-                    <div class="hw-list-header" style="grid-template-columns: 1fr 3fr 1.5fr;">
-                        <div>Type & Date</div>
-                        <div>Details & Subject</div>
-                        <div>Attachments</div>
-                    </div>
-                    <div id="commFullListContainer" style="display:flex; flex-direction:column;">
-                        <p style="text-align:center; padding:30px; color:#777;">Fetching communications... ⏳</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="view-att" class="view-panel">
-                <div class="header-strip">
-                    <h2 onclick="switchView('view-dashboard')">← Back to Dashboard</h2>
-                </div>
+            <div id="view-att" class="app-view">
+                <div class="view-header"><h2>Detailed Attendance Record</h2></div>
                 <div class="att-summary-grid">
-                    <div class="att-card present">
-                        <p>Present</p><h3 id="attTotalP">0</h3>
-                    </div>
-                    <div class="att-card absent">
-                        <p>Absent</p><h3 id="attTotalA">0</h3>
-                    </div>
-                    <div class="att-card leave">
-                        <p>Leave / Late</p><h3 id="attTotalL">0</h3>
-                    </div>
+                    <div class="att-card"><p>Present</p><h3 id="attTotalP" style="color:#27ae60;">0</h3></div>
+                    <div class="att-card"><p>Absent</p><h3 id="attTotalA" style="color:#e74c3c;">0</h3></div>
+                    <div class="att-card"><p>Leave / Late</p><h3 id="attTotalL" style="color:#f39c12;">0</h3></div>
                 </div>
-                <div class="big-cal-container">
-                    <div class="cal-header" style="justify-content:center; gap:20px; font-size:20px;">
+                <div class="widget-card">
+                    <div class="widget-header">
                         <button id="bigCalPrevMonth" style="padding:5px 15px; cursor:pointer;">←</button>
-                        <span id="bigCalMonthTitle">Month, Year</span>
+                        <h3 id="bigCalMonthTitle">Month, Year</h3>
                         <button id="bigCalNextMonth" style="padding:5px 15px; cursor:pointer;">→</button>
                     </div>
-                    <div class="big-cal-grid" id="bigCalGrid"></div>
+                    <div class="cal-grid" id="bigCalGrid" style="font-size:14px; gap:8px;"></div>
                 </div>
             </div>
 
-            <div id="view-fees" class="view-panel">
-                <div class="header-strip">
-                    <h2 onclick="switchView('view-dashboard')">← Back to Dashboard</h2>
-                </div>
+            <div id="view-fees" class="app-view">
+                <div class="view-header"><h2>Fee Details & Ledger</h2></div>
                 <div class="fee-summary-grid">
-                    <div class="fee-card" style="border-bottom: 4px solid #9b59b6;">
-                        <h4>Total Fee</h4><h2 id="feeTotApplicable">₹0</h2>
-                    </div>
-                    <div class="fee-card" style="border-bottom: 4px solid #27ae60;">
-                        <h4>Paid Fees</h4><h2 id="feeTotPaid" style="color:#27ae60;">₹0</h2>
-                    </div>
-                    <div class="fee-card" style="border-bottom: 4px solid #e74c3c;">
-                        <h4>Due Fee</h4><h2 id="feeTotDue" style="color:#e74c3c;">₹0</h2>
-                    </div>
-                    <div class="fee-card" style="border-bottom: 4px solid #f39c12;">
-                        <h4>Advance Fee</h4><h2 id="feeTotAdv">₹0</h2>
-                    </div>
+                    <div class="fee-card"><h4 style="color:#8e44ad;">Total Fee</h4><h2 id="feeTotApplicable">₹0</h2></div>
+                    <div class="fee-card"><h4 style="color:#27ae60;">Paid Fees</h4><h2 id="feeTotPaid">₹0</h2></div>
+                    <div class="fee-card"><h4 style="color:#e74c3c;">Due Fee</h4><h2 id="feeTotDue">₹0</h2></div>
+                    <div class="fee-card"><h4 style="color:#f39c12;">Advance</h4><h2 id="feeTotAdv">₹0</h2></div>
                 </div>
                 <div class="fee-table-container">
                     <table class="full-table">
-                        <thead>
-                            <tr>
-                                <th>Installment</th>
-                                <th>Date</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="feeStatementBody">
-                            <tr><td colspan="4" style="text-align:center;">Fetching ledger... ⏳</td></tr>
-                        </tbody>
+                        <thead><tr><th>Installment Details</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+                        <tbody id="feeStatementBody"><tr><td colspan="4" style="text-align:center;">Fetching ledger... ⏳</td></tr></tbody>
                     </table>
                 </div>
             </div>
-        </div>
+
+        </main>
+
+        <aside class="right-sidebar">
+            
+            <div class="widget-card">
+                <div class="widget-header">
+                    <h3>Timetable</h3>
+                    <span class="widget-date" id="ttDateStr">Today</span>
+                </div>
+                <div class="empty-illustration">
+                    <span>⏱️</span>
+                    <p>No timetable assigned yet.</p>
+                </div>
+            </div>
+
+            <div class="widget-card">
+                <div class="widget-header">
+                    <h3>Calendar</h3>
+                    <div><span id="calPrevMonth" style="cursor:pointer; color:#94a3b8;">&lt;</span> &nbsp; <span id="calMonthTitle" style="font-size:12px; font-weight:bold;">May</span> &nbsp; <span id="calNextMonth" style="cursor:pointer; color:#94a3b8;">&gt;</span></div>
+                </div>
+                <div class="cal-grid" id="smallCalGrid"></div>
+            </div>
+
+        </aside>
     </div>
 
     <div id="hwModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
-                <h3 id="modHwTitle" style="margin:0;">Homework Title</h3>
-                <span onclick="document.getElementById('hwModal').classList.remove('active')" style="cursor:pointer; font-size:24px;">&times;</span>
+                <h3 id="modHwTitle">Homework Title</h3>
+                <span onclick="document.getElementById('hwModal').classList.remove('active')" style="cursor:pointer; font-size:24px; color:#64748b;">&times;</span>
             </div>
-            <div class="modal-body" style="padding:20px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:13px; color:#555;">
+            <div style="padding:20px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:13px; color:#475569;">
                     <div><b>Subject:</b> <span id="modHwSub">Subject</span></div>
-                    <div><b>Due Date:</b> <span id="modHwDue" style="color:#c0392b; font-weight:bold;">Date</span></div>
+                    <div><b>Due Date:</b> <span id="modHwDue" style="color:#dc2626; font-weight:bold;">Date</span></div>
                 </div>
-                
-                <div style="background:#f9f9f9; padding:15px; border-radius:4px; font-size:14px; color:#333; margin-bottom:20px; border:1px solid #eee;" id="modHwDesc"></div>
-                
-                <div id="submissionArea" style="border-top:2px dashed #ddd; padding-top:20px;"></div>
+                <div style="background:#f8fafc; padding:15px; border-radius:6px; font-size:14px; color:#334155; margin-bottom:20px; border:1px solid #e2e8f0; line-height:1.5;" id="modHwDesc"></div>
+                <div id="submissionArea" style="border-top:1px dashed #cbd5e1; padding-top:20px;"></div>
             </div>
         </div>
     </div>
