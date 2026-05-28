@@ -209,16 +209,51 @@ document.addEventListener('DOMContentLoaded', () => {
         let cla = document.getElementById('commListArea'); if(cla) cla.innerHTML = '<p style="text-align:center; padding:20px; color:#777;">Fetching records... ⏳</p>';
         fetch(scriptURL, { redirect: "follow" }).then(res => res.json()).then(res => {
             if(res.status === "Success") { 
-                if(res.setup) {
+
+
+
+if(res.setup) {
+                    const setupData = res.setup;
                     const fClassDropdown = document.getElementById('hwClass'); const fSecDropdown = document.getElementById('hwSection');
-                    let uniqueClasses = [...new Set((res.setup.classes || []).map(c => c.name))].sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:'base'}));
+                    const evClassDropdown = document.getElementById('evClass'); const evSecDropdown = document.getElementById('evSection');
                     
+                    let uniqueClasses = [...new Set((setupData.classes || []).map(c => c.name))].sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:'base'}));
+                    
+                    // 1. Homework Dropdowns
                     if(fClassDropdown && fClassDropdown.options.length <= 2) { uniqueClasses.forEach(item => { fClassDropdown.innerHTML += `<option value="${item}">${item}</option>`; }); }
-                    
-                    // Also populate Calendar Setup
-                    const evClass = document.getElementById('evClass');
-                    if(evClass && evClass.options.length <= 1) { uniqueClasses.forEach(item => { evClass.innerHTML += `<option value="${item}">${item}</option>`; }); }
+                    if(fClassDropdown) {
+                        fClassDropdown.addEventListener('change', function() {
+                            let selClass = this.value; fSecDropdown.innerHTML = '<option value="">Select Section</option><option value="All">All Sections</option>';
+                            if(selClass && selClass !== "All") {
+                                let filteredSecs = setupData.classes.filter(c => String(c.name) === String(selClass)).map(c => String(c.section));
+                                let uniqueSecs = [...new Set(filteredSecs)].sort(); uniqueSecs.forEach(sec => { fSecDropdown.innerHTML += `<option value="${sec}">${sec}</option>`; });
+                            }
+                        });
+                    }
+
+                    // 2. Calendar Event Dropdowns (Class -> Section Logic Added)
+                    if(evClassDropdown && evClassDropdown.options.length <= 2) { uniqueClasses.forEach(item => { evClassDropdown.innerHTML += `<option value="${item}">${item}</option>`; }); }
+                    if(evClassDropdown) {
+                        evClassDropdown.addEventListener('change', function() {
+                            let selClass = this.value; evSecDropdown.innerHTML = '<option value="All">All Sections</option>';
+                            if(selClass && selClass !== "All") {
+                                let filteredSecs = setupData.classes.filter(c => String(c.name) === String(selClass)).map(c => String(c.section));
+                                let uniqueSecs = [...new Set(filteredSecs)].sort(); uniqueSecs.forEach(sec => { evSecDropdown.innerHTML += `<option value="${sec}">${sec}</option>`; });
+                            }
+                        });
+                    }
                 }
+                
+                // 3. Calendar Employee Department Dropdown Population Added
+                if(res.empSetup && res.empSetup.departments) {
+                    const evDeptDropdown = document.getElementById('evDept');
+                    if(evDeptDropdown && evDeptDropdown.options.length <= 1) {
+                        let uniqueDepts = [...new Set(res.empSetup.departments)].filter(d => d !== "").sort();
+                        uniqueDepts.forEach(dept => { evDeptDropdown.innerHTML += `<option value="${dept}">${dept}</option>`; });
+                    }
+                }
+
+                
                 allAssignments = res.assignments || []; allSubmissions = res.submissions || []; allStudentsGlobal = res.data || []; allEvents = res.events || [];
                 updateBlinkingBadge(); renderCommList(); if(currentCategory === "Calendar") renderCalendarList();
             }
