@@ -76,12 +76,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+
+
+    // REPLACED: NEW CALENDAR SAVE LOGIC WITH MULTI-SELECT ARRAYS
     const btnSaveEvent = document.getElementById('btnSaveEvent');
     if(btnSaveEvent) {
         btnSaveEvent.addEventListener('click', function() {
             let evDate = document.getElementById('evDate').value;
             let evTitle = document.getElementById('evTitle').value;
             if(!evDate || !evTitle) { alert("Please fill Date and Title."); return; }
+
+            // Fetch selected students
+            let selectedStudents = [];
+            document.querySelectorAll('.ev-stu-chk:checked').forEach(c => selectedStudents.push(c.value));
+            if(selectedStudents.length === 0) selectedStudents = ["All"];
+
+            // Fetch selected employees
+            let selectedEmps = [];
+            document.querySelectorAll('.ev-emp-chk:checked').forEach(c => selectedEmps.push(c.value));
+            if(selectedEmps.length === 0) selectedEmps = ["All"];
 
             this.innerText = "Saving..."; this.disabled = true;
             
@@ -92,11 +105,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     title: evTitle,
                     description: document.getElementById('evDesc').value,
                     isHoliday: document.getElementById('evHoliday').checked,
+                    isEmpHoliday: document.getElementById('evEmpHoliday') ? document.getElementById('evEmpHoliday').checked : false,
                     audience: document.getElementById('evAudience').value,
                     targetClass: document.getElementById('evClass').value,
                     targetSection: document.getElementById('evSection').value,
+                    targetStudent: JSON.stringify(selectedStudents),
                     targetDept: document.getElementById('evDept').value,
-                    targetEmp: document.getElementById('evEmp').value,
+                    targetEmp: JSON.stringify(selectedEmps),
                     createdBy: activeUser.empId
                 }
             };
@@ -106,11 +121,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(data.status === "Success") {
                     alert(data.message);
                     document.getElementById('addEventFormBox').style.display = 'none';
-                    loadData(); // Re-fetch to update lists
+                    loadData(); 
                 } else { alert("Error: " + data.message); }
             }).finally(() => { this.innerText = "Save Event"; this.disabled = false; });
         });
     }
+
+
+    
 
     function renderCalendarList() {
         const calList = document.getElementById('calendarListArea');
