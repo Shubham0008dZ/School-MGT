@@ -9,7 +9,7 @@ body { background-color: #f4f7fa; color: #333; overflow-x: hidden; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
 /* ============================================================================
-   TOP NAVBAR (Minimalist as per modern UI)
+   TOP NAVBAR 
    ============================================================================ */
 .navbar { background-color: #0d284a; color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; height: 55px;}
 .logo { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
@@ -60,12 +60,6 @@ body { background-color: #f4f7fa; color: #333; overflow-x: hidden; }
 .fee-alert-text p { color: #ef4444; font-size: 12px; margin: 0; }
 .btn-pay { background: #ef4444; color: white; border: none; padding: 8px 25px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
 
-/* Feed Filters */
-.feed-filters { display: flex; gap: 10px; margin-top: 5px; }
-.feed-tab { background: white; border: 1px solid #e2e8f0; color: #475569; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;}
-.feed-tab:hover { background: #f8fafc; }
-.feed-tab.active { background: #3498db; color: white; border-color: #3498db; }
-
 /* Unified Timeline Feed Card */
 .feed-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; padding: 20px; margin-bottom: 15px; transition: 0.2s; }
 .feed-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.08); transform: translateY(-1px);}
@@ -82,7 +76,6 @@ body { background-color: #f4f7fa; color: #333; overflow-x: hidden; }
 .f-body { padding-left: 47px; }
 .f-title { font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 5px; }
 .f-desc { font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 15px; }
-.f-actions { display: flex; gap: 10px; align-items: center; }
 .btn-attach { background: #f1f5f9; border: 1px solid #e2e8f0; color: #334155; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 5px;}
 .btn-eye { background: #e0f2fe; color: #0284c7; border: none; padding: 6px 15px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s;}
 .btn-eye:hover { background: #bae6fd; }
@@ -90,6 +83,11 @@ body { background-color: #f4f7fa; color: #333; overflow-x: hidden; }
 .status-badge.pending { background: #fee2e2; color: #b91c1c; }
 .status-badge.submitted { background: #e0f2fe; color: #0369a1; }
 .status-badge.checked { background: #dcfce7; color: #15803d; }
+
+/* Communication Pills */
+.comm-pill { padding:8px 15px; border-radius:20px; background:#fff; border:1px solid #e2e8f0; font-size:12px; font-weight:600; color:#475569; cursor:pointer; transition:0.2s;}
+.comm-pill:hover { background:#f8fafc; border-color:#cbd5e1;}
+.comm-pill.active-pill { background:#3498db; color:white; border-color:#3498db;}
 
 /* ============================================================================
    RIGHT SIDEBAR WIDGETS
@@ -100,17 +98,61 @@ body { background-color: #f4f7fa; color: #333; overflow-x: hidden; }
 .widget-header h3 { font-size: 14px; color: #3b82f6; font-weight: 600; margin: 0; }
 .widget-date { font-size: 11px; color: #64748b; border: 1px solid #e2e8f0; padding: 3px 8px; border-radius: 4px; }
 
+/* Event List Styling */
+.event-list-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+.evt-date-box { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px; width: 45px; }
+.evt-date-box strong { font-size: 16px; color: #0f172a; line-height: 1; }
+.evt-date-box span { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: bold; }
+.evt-details h4 { font-size: 14px; color: #0f172a; margin: 0 0 3px 0; }
+.evt-details p { font-size: 12px; color: #475569; margin: 0; line-height: 1.4; }
+
 /* Empty States */
 .empty-illustration { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 0; opacity: 0.6; }
 .empty-illustration span { font-size: 40px; margin-bottom: 10px; }
 .empty-illustration p { font-size: 12px; color: #64748b; font-weight: 500; }
 
-/* Mini Calendar */
+/* ============================================================================
+   CALENDAR DOTS & ANIMATED HOVER TOOLTIPS (STUDENT ATTENDANCE)
+   ============================================================================ */
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 11px; }
 .cal-day-header { color: #64748b; font-weight: 600; padding-bottom: 5px; }
-.cal-cell { padding: 6px 0; border-radius: 4px; color: #334155; font-weight: 600; position: relative; }
-.cal-cell.today { background: #3b82f6; color: white; }
+
+.cal-cell { 
+    padding: 20px 10px; 
+    border: 1px solid #f1f1f1; 
+    border-radius: 4px; 
+    position: relative; 
+    font-size: 16px; 
+    color: #333; 
+    background: #fafafa;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.cal-cell.small { padding: 6px 0; font-size: 11px; border:none; background:none; }
+.cal-cell:hover { background: #f1f5f9; }
+.cal-cell.today { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+.dot { width: 8px; height: 8px; border-radius: 50%; position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); }
+.dot.p { background: #27ae60; box-shadow: 0 0 5px rgba(39, 174, 96, 0.5); }
+.dot.a { background: #ef4444; box-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
+.dot.l { background: #f59e0b; box-shadow: 0 0 5px rgba(245, 158, 11, 0.5); }
+
+/* Small Calendar Dots */
 .cal-dot { width: 4px; height: 4px; border-radius: 50%; position: absolute; bottom: 1px; left: 50%; transform: translateX(-50%); }
+
+/* The Smooth Hover Card */
+.hover-card {
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
+    background: #1e293b; color: white; padding: 10px 15px; border-radius: 6px;
+    font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    z-index: 10; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center;
+}
+.hover-card::after {
+    content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px;
+    border-width: 5px; border-style: solid; border-color: #1e293b transparent transparent transparent;
+}
+.cal-cell:hover .hover-card { opacity: 1; transform: translateX(-50%) translateY(-5px); }
 
 /* ============================================================================
    SUB-VIEWS (ATTENDANCE & FEES) 
@@ -146,73 +188,3 @@ body { background-color: #f4f7fa; color: #333; overflow-x: hidden; }
 .sub-textarea:focus { border-color: #3498db; }
 .btn-submit-hw { background: #27ae60; color: white; font-weight: 600; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 15px; font-size: 14px; transition: 0.2s;}
 .btn-submit-hw:hover { background: #229954; }
-
-
-/* ============================================================================
-   CALENDAR DOTS & ANIMATED HOVER TOOLTIPS (STUDENT ATTENDANCE)
-   ============================================================================ */
-.cal-cell { 
-    padding: 20px 10px; 
-    border: 1px solid #f1f1f1; 
-    border-radius: 4px; 
-    position: relative; 
-    font-size: 16px; 
-    color: #333; 
-    background: #fafafa;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-.cal-cell:hover { background: #f1f5f9; }
-.cal-cell.today { background: #e0f2fe; border-color: #7dd3fc; }
-
-.dot { 
-    width: 8px; 
-    height: 8px; 
-    border-radius: 50%; 
-    position: absolute; 
-    bottom: 5px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-}
-.dot.p { background: #27ae60; box-shadow: 0 0 5px rgba(39, 174, 96, 0.5); }
-.dot.a { background: #ef4444; box-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
-.dot.l { background: #f59e0b; box-shadow: 0 0 5px rgba(245, 158, 11, 0.5); }
-
-/* The Smooth Hover Card */
-.hover-card {
-    position: absolute; 
-    bottom: 100%; 
-    left: 50%; 
-    transform: translateX(-50%) translateY(10px);
-    background: #1e293b; 
-    color: white; 
-    padding: 10px 15px; 
-    border-radius: 6px;
-    font-size: 12px; 
-    white-space: nowrap; 
-    opacity: 0; 
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-    z-index: 10; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    text-align: center;
-}
-.hover-card::after {
-    content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px;
-    border-width: 5px; border-style: solid; border-color: #1e293b transparent transparent transparent;
-}
-.cal-cell:hover .hover-card {
-    opacity: 1; transform: translateX(-50%) translateY(-5px);
-}
-
-/* Event List Styling */
-.event-list-item {
-    display: flex; align-items: flex-start; gap: 10px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;
-}
-.evt-date-box {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px; width: 45px;
-}
-.evt-date-box strong { font-size: 16px; color: #0f172a; line-height: 1; }
-.evt-date-box span { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: bold; }
-.evt-details h4 { font-size: 14px; color: #0f172a; margin: 0 0 3px 0; }
-.evt-details p { font-size: 12px; color: #475569; margin: 0; line-height: 1.4; }
