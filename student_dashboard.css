@@ -141,13 +141,23 @@ body { background-color: #f4f7fa; color: #333; overflow-x: hidden; }
 .cal-dot { width: 4px; height: 4px; border-radius: 50%; position: absolute; bottom: 1px; left: 50%; transform: translateX(-50%); }
 
 /* The Smooth Hover Card */
+
+
+/* The Smooth Hover Card */
 .hover-card {
     position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
     background: #1e293b; color: white; padding: 10px 15px; border-radius: 6px;
-    font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none;
+    font-size: 12px; opacity: 0; pointer-events: none;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
     z-index: 10; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center;
+    /* NEW TEXT WRAP LOGIC ADDED HERE */
+    white-space: normal; 
+    width: max-content; 
+    max-width: 250px; 
+    word-wrap: break-word;
 }
+
+
 .hover-card::after {
     content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px;
     border-width: 5px; border-style: solid; border-color: #1e293b transparent transparent transparent;
