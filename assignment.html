@@ -81,14 +81,22 @@
             
             <div id="addEventFormBox" style="display:none; background:white; border:1px solid #ddd; padding:20px; border-radius:5px; margin-bottom:20px;">
                 <h3 style="margin-bottom:15px; color:#2c3e50;">Add New Event / Holiday</h3>
-                <div class="form-row">
+
+
+<div class="form-row">
                     <div class="input-group"><label>Event Date <span style="color:red;">*</span></label><input type="date" id="evDate" required></div>
                     <div class="input-group" style="flex:2;"><label>Event Title <span style="color:red;">*</span></label><input type="text" id="evTitle" placeholder="e.g. Happy Deepawali" required></div>
                     <div class="input-group">
-                        <label>Is Holiday for Student?</label>
+                        <label>Is Holiday (Student)?</label>
                         <label class="switch"><input type="checkbox" id="evHoliday"><span class="slider"></span></label>
                     </div>
+                    <div class="input-group">
+                        <label>Is Holiday (Employee)?</label>
+                        <label class="switch"><input type="checkbox" id="evEmpHoliday"><span class="slider"></span></label>
+                    </div>
                 </div>
+
+                
                 <div class="form-row">
                     <div class="input-group" style="flex:2;">
                         <label>Short Description (Max 50 words)</label>
