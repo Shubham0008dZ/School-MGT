@@ -15,7 +15,8 @@ window.switchView = function(viewId) {
     if(tabToActive) tabToActive.classList.add('active');
 
     document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById(viewId).classList.add('active');
+    let target = document.getElementById(viewId);
+    if(target) target.classList.add('active');
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -25,13 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     studentData = JSON.parse(studentStr);
     
-    let fullName = (studentData.studentFirstName || "") + " " + (studentData.studentLastName || "");
-    document.getElementById('dashName').innerText = fullName;
-    document.getElementById('dashRegNo').innerText = studentData.regNo || "N/A";
-    document.getElementById('dashMobile').innerText = studentData.mobile || "N/A";
+    if(document.getElementById('dashName')) document.getElementById('dashName').innerText = (studentData.studentFirstName || "") + " " + (studentData.studentLastName || "");
+    if(document.getElementById('dashRegNo')) document.getElementById('dashRegNo').innerText = studentData.regNo || "N/A";
+    if(document.getElementById('dashMobile')) document.getElementById('dashMobile').innerText = studentData.mobile || "N/A";
     
-    let formatDob = studentData.dob ? new Date(studentData.dob).toLocaleDateString('en-GB') : "-";
-    document.getElementById('dashDob').innerText = formatDob;
+    if(document.getElementById('dashDob')) {
+        document.getElementById('dashDob').innerText = studentData.dob ? new Date(studentData.dob).toLocaleDateString('en-GB') : "-";
+    }
     
     let sClass = "-"; let sSecRaw = "";
     if(studentData.studentClass) {
@@ -39,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if(match) { sClass = match[1].trim() + " (" + match[2].trim() + ")"; sSecRaw = match[2].trim(); } 
         else { sClass = studentData.studentClass; }
     }
-    document.getElementById('dashClass').innerText = sClass;
-    if(studentData.studentPhotoBase64 && studentData.studentPhotoBase64.startsWith('data:image')) {
+    if(document.getElementById('dashClass')) document.getElementById('dashClass').innerText = sClass;
+    if(document.getElementById('dashAvatar') && studentData.studentPhotoBase64 && studentData.studentPhotoBase64.startsWith('data:image')) {
         document.getElementById('dashAvatar').src = studentData.studentPhotoBase64;
     }
 
@@ -54,7 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.comm-pill').forEach(p => p.classList.remove('active-pill'));
             this.classList.add('active-pill');
             let filter = this.getAttribute('data-filter');
-            processCommunications(globalDbData.assignments, filter);
+            if(globalDbData) {
+                renderFullComm(globalDbData.assignments, filter);
+            }
         });
     });
 
@@ -62,38 +65,50 @@ document.addEventListener('DOMContentLoaded', () => {
         if(confirm("Are you sure you want to log out?")) { localStorage.removeItem('erp_active_student'); window.location.href = 'login.html'; }
     });
 
+    // FETCHING DATA WITH EXPLICIT ERROR HANDLING
     fetch(scriptURL, { redirect: "follow" }).then(res => res.json()).then(data => {
         if(data.status === "Success") {
             globalDbData = data;
-            processAssignmentsAndDash(data.assignments, data.submissions);
-            processCommunications(data.assignments, "All"); // Init Comm Module
-            processAttendance(data.attendance);
-            processFeeLedger(data.receipts, data.setup, data.feeHeads);
+            
+            try { processAssignments(data.assignments, data.submissions); } catch(e) { console.error("Error in processAssignments:", e); }
+            try { renderFullComm(data.assignments, "All"); } catch(e) { console.error("Error in renderFullComm:", e); }
+            try { processAttendance(data.attendance); } catch(e) { console.error("Error in processAttendance:", e); }
+            try { processFeeLedger(data.receipts, data.setup, data.feeHeads); } catch(e) { console.error("Error in processFeeLedger:", e); }
+            
+        } else {
+            console.error("Backend returned error status:", data.message);
         }
+    }).catch(err => {
+        console.error("Critical Fetch Error:", err);
     });
 
-    document.getElementById('calPrevMonth').addEventListener('click', () => { currDate.setMonth(currDate.getMonth() - 1); renderCalendar(); });
-    document.getElementById('calNextMonth').addEventListener('click', () => { currDate.setMonth(currDate.getMonth() + 1); renderCalendar(); });
-    document.getElementById('bigCalPrevMonth').addEventListener('click', () => { currDate.setMonth(currDate.getMonth() - 1); renderCalendar(); });
-    document.getElementById('bigCalNextMonth').addEventListener('click', () => { currDate.setMonth(currDate.getMonth() + 1); renderCalendar(); });
+    document.getElementById('calPrevMonth')?.addEventListener('click', () => { currDate.setMonth(currDate.getMonth() - 1); renderCalendar(); });
+    document.getElementById('calNextMonth')?.addEventListener('click', () => { currDate.setMonth(currDate.getMonth() + 1); renderCalendar(); });
+    document.getElementById('bigCalPrevMonth')?.addEventListener('click', () => { currDate.setMonth(currDate.getMonth() - 1); renderCalendar(); });
+    document.getElementById('bigCalNextMonth')?.addEventListener('click', () => { currDate.setMonth(currDate.getMonth() + 1); renderCalendar(); });
 });
 
 
 // ============================================================================
 // 1. SPLIT LOGIC (DASHBOARD + HOMEWORK)
 // ============================================================================
-function processAssignmentsAndDash(assignments, submissions) {
+function processAssignments(assignments, submissions) {
     const circCont = document.getElementById('circularListContainer');
     const hwBody = document.getElementById('hwTableBody');
     const achCont = document.getElementById('achievementContainer');
     const hwFullList = document.getElementById('hwFullListContainer');
 
-    circCont.innerHTML = ''; hwBody.innerHTML = ''; achCont.innerHTML = ''; hwFullList.innerHTML = '';
+    if(circCont) circCont.innerHTML = ''; 
+    if(hwBody) hwBody.innerHTML = ''; 
+    if(achCont) achCont.innerHTML = ''; 
+    if(hwFullList) hwFullList.innerHTML = '';
 
     if(!assignments || assignments.length === 0) { 
         let msg = '<p style="text-align:center; color:#777; font-size:12px;">No items found.</p>';
-        circCont.innerHTML = msg; hwBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No assignments.</td></tr>';
-        achCont.innerHTML = '🏆 No achievements recorded yet.'; hwFullList.innerHTML = msg; 
+        if(circCont) circCont.innerHTML = msg; 
+        if(hwBody) hwBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No assignments.</td></tr>';
+        if(achCont) achCont.innerHTML = '🏆 No achievements recorded yet.'; 
+        if(hwFullList) hwFullList.innerHTML = msg; 
         return; 
     }
 
@@ -107,9 +122,14 @@ function processAssignmentsAndDash(assignments, submissions) {
         let matchClass = String(a.Class) === String(sClassRaw) || String(a.Class) === "All" || !a.Class;
         let matchSec = String(a.Section) === String(sSecRaw) || String(a.Section) === "All" || !a.Section;
         
-        // TARGETING LOGIC
         let targets = ["All"];
-        try { targets = JSON.parse(a.Target_Students || '["All"]'); } catch(e){}
+        try { 
+            if(a.Target_Students && a.Target_Students.trim() !== "") {
+                targets = JSON.parse(a.Target_Students); 
+            }
+        } catch(e){
+            console.warn("Invalid Target JSON for assignment:", a.Assignment_ID);
+        }
         let matchTarget = targets.includes("All") || targets.includes(String(studentData.regNo));
 
         return matchClass && matchSec && matchTarget;
@@ -124,24 +144,30 @@ function processAssignmentsAndDash(assignments, submissions) {
         // Dashboard Small Cards logic
         if(["Circular", "Notice", "News", "PTM"].includes(type)) {
             circCount++;
-            circCont.innerHTML += `
-                <div class="circular-item">
-                    <span class="circ-date">📅 ${dateFormatted}</span><span class="circ-tag">${type}</span>
-                    <a href="#" class="circ-title" onclick="switchView('view-comm')">${a.Name}</a>
-                    <p class="circ-desc">${a.Description || 'Click to view details.'}</p>
-                </div>`;
+            if(circCont) {
+                circCont.innerHTML += `
+                    <div class="circular-item">
+                        <span class="circ-date">📅 ${dateFormatted}</span><span class="circ-tag">${type}</span>
+                        <a href="#" class="circ-title" onclick="switchView('view-comm')">${a.Name}</a>
+                        <p class="circ-desc">${a.Description || 'Click to view details.'}</p>
+                    </div>`;
+            }
         }
         else if(type === "Achievement") {
             achCount++;
-            if(achCount === 1) achCont.innerHTML = '';
+            if(achCount === 1 && achCont) achCont.innerHTML = '';
             
             let metaHtml = "";
             try {
-                let meta = JSON.parse(a.Metadata_JSON || "{}");
-                if(meta.rank) metaHtml += `<span style="background:#e74c3c; color:white; padding:2px 5px; border-radius:3px; font-size:10px; margin-left:5px;">${meta.rank}</span>`;
+                if(a.Metadata_JSON && a.Metadata_JSON.trim() !== "") {
+                    let meta = JSON.parse(a.Metadata_JSON);
+                    if(meta.rank) metaHtml += `<span style="background:#e74c3c; color:white; padding:2px 5px; border-radius:3px; font-size:10px; margin-left:5px;">${meta.rank}</span>`;
+                }
             } catch(e){}
 
-            achCont.innerHTML += `<div style="background:#fff3e0; padding:10px; border-left:4px solid #f39c12; margin-bottom:10px; text-align:left; border-radius:4px; font-size:14px;"><b>⭐ ${a.Name}</b> ${metaHtml}<br><span style="font-size:12px; color:#555;">${a.Description}</span></div>`;
+            if(achCont) {
+                achCont.innerHTML += `<div style="background:#fff3e0; padding:10px; border-left:4px solid #f39c12; margin-bottom:10px; text-align:left; border-radius:4px; font-size:14px;"><b>⭐ ${a.Name}</b> ${metaHtml}<br><span style="font-size:12px; color:#555;">${a.Description}</span></div>`;
+            }
         }
         else if(["Homework", "Classwork", "Assignment", "Project"].includes(type)) {
             hwCount++;
@@ -154,34 +180,43 @@ function processAssignmentsAndDash(assignments, submissions) {
                 else { statusLabel = "Submitted"; statusClass = "pill-submitted"; dashStatusClass = "status-done"; }
             }
             
-            hwBody.innerHTML += `<tr style="cursor:pointer;" onclick="switchView('view-homework')"><td><span class="hw-icon">📗</span> <b>${a.Subject || 'General'}</b><br><span style="font-size:10px;color:#777;">${a.Name}</span></td><td>${dateFormatted}</td><td><b style="color:#c0392b;">${deadlineStr}</b></td><td><span class="${dashStatusClass}">${statusLabel}</span></td></tr>`;
+            if(hwBody) {
+                hwBody.innerHTML += `<tr style="cursor:pointer;" onclick="switchView('view-homework')"><td><span class="hw-icon">📗</span> <b>${a.Subject || 'General'}</b><br><span style="font-size:10px;color:#777;">${a.Name}</span></td><td>${dateFormatted}</td><td><b style="color:#c0392b;">${deadlineStr}</b></td><td><span class="${dashStatusClass}">${statusLabel}</span></td></tr>`;
+            }
 
             let attachHtml = a.Attachment_Base64 ? `<a href="${a.Attachment_Base64}" download class="btn-download">📎 File</a>` : `<span style="color:#ccc; font-size:12px;">--</span>`;
             let aDataStr = JSON.stringify(a).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
             let subDataStr = mySub ? JSON.stringify(mySub).replace(/'/g, "&#39;").replace(/"/g, "&quot;") : "null";
             
-            hwFullList.innerHTML += `
-                <div class="hw-list-row">
-                    <div class="hw-icon-title"><div class="h-icon">🎙️</div><div><div style="font-weight:bold; color:#2c3e50;">${a.Subject || 'General'}</div><div style="font-size:11px; color:#7f8c8d;">${a.Type} • ${a.Name}</div></div></div>
-                    <div><span class="status-pill ${statusClass}">${statusLabel}</span></div>
-                    <div style="font-weight:bold; color:#555;">${deadlineStr}</div>
-                    <div class="desc-text">${a.Description || '--'}</div>
-                    <div>${attachHtml}</div>
-                    <div style="text-align:center;"><button class="btn-eye" onclick='openHwModal(${aDataStr}, ${subDataStr})'>👁️</button></div>
-                </div>`;
+            if(hwFullList) {
+                hwFullList.innerHTML += `
+                    <div class="hw-list-row">
+                        <div class="hw-icon-title"><div class="h-icon">🎙️</div><div><div style="font-weight:bold; color:#2c3e50;">${a.Subject || 'General'}</div><div style="font-size:11px; color:#7f8c8d;">${a.Type} • ${a.Name}</div></div></div>
+                        <div><span class="status-pill ${statusClass}">${statusLabel}</span></div>
+                        <div style="font-weight:bold; color:#555;">${deadlineStr}</div>
+                        <div class="desc-text">${a.Description || '--'}</div>
+                        <div>${attachHtml}</div>
+                        <div style="text-align:center;"><button class="btn-eye" onclick='openHwModal(${aDataStr}, ${subDataStr})'>👁️</button></div>
+                    </div>`;
+            }
         }
     });
 
-    if(circCount === 0) circCont.innerHTML = '<p style="text-align:center; color:#777; font-size:12px;">No circulars found.</p>';
-    if(hwCount === 0) { hwBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No assignments.</td></tr>'; hwFullList.innerHTML = '<p style="text-align:center; color:#777;">No homework assigned yet.</p>'; }
+    if(circCount === 0 && circCont) circCont.innerHTML = '<p style="text-align:center; color:#777; font-size:12px;">No circulars found.</p>';
+    if(hwCount === 0) { 
+        if(hwBody) hwBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No assignments.</td></tr>'; 
+        if(hwFullList) hwFullList.innerHTML = '<p style="text-align:center; color:#777;">No homework assigned yet.</p>'; 
+    }
 }
 
 
 // ============================================================================
 // 1.5 COMMUNICATION SPECIFIC PROCESSING (Sub-tabs)
 // ============================================================================
-function processCommunications(assignments, filterCat) {
+function renderFullComm(assignments, filterCat) {
     const commFullList = document.getElementById('commFullListContainer');
+    if(!commFullList) return;
+    
     commFullList.innerHTML = '';
 
     if(!assignments || assignments.length === 0) { 
@@ -199,10 +234,15 @@ function processCommunications(assignments, filterCat) {
         let matchSec = String(a.Section) === String(sSecRaw) || String(a.Section) === "All" || !a.Section;
         
         let targets = ["All"];
-        try { targets = JSON.parse(a.Target_Students || '["All"]'); } catch(e){}
+        try { 
+            if(a.Target_Students && a.Target_Students.trim() !== "") {
+                targets = JSON.parse(a.Target_Students); 
+            }
+        } catch(e){}
+        
         let matchTarget = targets.includes("All") || targets.includes(String(studentData.regNo));
 
-        // Sub Tab Filter
+        // Sub Tab Filter Logic
         let isNonHw = ["Circular", "Notice", "News", "PTM", "Feedback", "Achievement", "Remarks"].includes(a.Type);
         let matchCat = true;
         if(filterCat === "Circulars") matchCat = ["Circular", "Notice", "News"].includes(a.Type);
@@ -213,7 +253,10 @@ function processCommunications(assignments, filterCat) {
         return matchClass && matchSec && matchTarget && isNonHw && matchCat;
     }).reverse();
 
-    if(myItems.length === 0) { commFullList.innerHTML = '<p style="text-align:center; padding:20px; color:#777;">No communications found in this category.</p>'; return; }
+    if(myItems.length === 0) { 
+        commFullList.innerHTML = '<p style="text-align:center; padding:20px; color:#777;">No communications found in this category.</p>'; 
+        return; 
+    }
 
     myItems.forEach(a => {
         let dateFormatted = new Date(a.Timestamp).toLocaleDateString('en-GB');
@@ -223,13 +266,15 @@ function processCommunications(assignments, filterCat) {
         // Metadata Parsing for Rich UI
         let metaHtml = "";
         try {
-            let meta = JSON.parse(a.Metadata_JSON || "{}");
-            if(a.Type === "Achievement") {
-                if(meta.level) metaHtml += `<span style="font-size:11px; background:#fef5e7; color:#d35400; padding:2px 5px; border:1px solid #fad7a1; margin-right:5px; border-radius:3px;">Level: ${meta.level}</span>`;
-                if(meta.rank) metaHtml += `<span style="font-size:11px; background:#fdf2e9; color:#e67e22; padding:2px 5px; border:1px solid #f8c471; margin-right:5px; border-radius:3px;">Rank: ${meta.rank}</span>`;
-                if(meta.venue) metaHtml += `<br><span style="font-size:11px; color:#7f8c8d; margin-top:5px; display:inline-block;">Venue: ${meta.venue}</span>`;
-            } else if (a.Type === "Remarks") {
-                if(meta.type) metaHtml += `<span style="font-size:11px; background:#e8f8f5; color:#27ae60; padding:2px 5px; border:1px solid #a3e4d7; margin-right:5px; border-radius:3px;">${meta.type}</span>`;
+            if(a.Metadata_JSON && a.Metadata_JSON.trim() !== "") {
+                let meta = JSON.parse(a.Metadata_JSON);
+                if(a.Type === "Achievement") {
+                    if(meta.level) metaHtml += `<span style="font-size:11px; background:#fef5e7; color:#d35400; padding:2px 5px; border:1px solid #fad7a1; margin-right:5px; border-radius:3px;">Level: ${meta.level}</span>`;
+                    if(meta.rank) metaHtml += `<span style="font-size:11px; background:#fdf2e9; color:#e67e22; padding:2px 5px; border:1px solid #f8c471; margin-right:5px; border-radius:3px;">Rank: ${meta.rank}</span>`;
+                    if(meta.venue) metaHtml += `<br><span style="font-size:11px; color:#7f8c8d; margin-top:5px; display:inline-block;">Venue: ${meta.venue}</span>`;
+                } else if (a.Type === "Remarks") {
+                    if(meta.type) metaHtml += `<span style="font-size:11px; background:#e8f8f5; color:#27ae60; padding:2px 5px; border:1px solid #a3e4d7; margin-right:5px; border-radius:3px;">${meta.type}</span>`;
+                }
             }
         } catch(e){}
 
@@ -264,7 +309,8 @@ window.openHwModal = function(hwData, subData) {
     } else {
         subArea.innerHTML = `<p style="text-align:center; color:#95a5a6; font-size:13px; font-weight:bold;">No online submission required for this assignment.</p>`;
     }
-    document.getElementById('hwModal').classList.add('active');
+    let modal = document.getElementById('hwModal');
+    if(modal) modal.classList.add('active');
 };
 
 window.submitHwToDb = function() {
@@ -274,7 +320,12 @@ window.submitHwToDb = function() {
     const payload = { action: "submitHomework", data: { assignmentId: currentHwSelection.Assignment_ID, regNo: studentData.regNo, studentName: studentData.studentFirstName || studentData.studentName, answerText: document.getElementById('stuAnsText') ? document.getElementById('stuAnsText').value : "", attachmentBase64: document.getElementById('stuAnsBase64') ? document.getElementById('stuAnsBase64').value : "" } };
     fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
     .then(res => res.json()).then(data => {
-        if(data.status === "Success") { alert(data.message); document.getElementById('hwModal').classList.remove('active'); window.location.reload(); } else { alert("Error: " + data.message); }
+        if(data.status === "Success") { 
+            alert(data.message); 
+            let modal = document.getElementById('hwModal');
+            if(modal) modal.classList.remove('active'); 
+            window.location.reload(); 
+        } else { alert("Error: " + data.message); }
     }).finally(() => { btn.innerText = "Submit Homework"; btn.disabled = false; });
 };
 
@@ -289,13 +340,19 @@ function processAttendance(records) {
             if(parts.length === 3) { let isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`; attMap[isoDate] = r.Status; if(r.Status === 'P') totP++; else if(r.Status === 'AB') totA++; else if(r.Status === 'LC') totL++; }
         }
     });
-    document.getElementById('attTotalP').innerText = totP; document.getElementById('attTotalA').innerText = totA; document.getElementById('attTotalL').innerText = totL;
+    if(document.getElementById('attTotalP')) document.getElementById('attTotalP').innerText = totP; 
+    if(document.getElementById('attTotalA')) document.getElementById('attTotalA').innerText = totA; 
+    if(document.getElementById('attTotalL')) document.getElementById('attTotalL').innerText = totL;
     renderCalendar();
 }
 function renderCalendar() {
     const year = currDate.getFullYear(); const month = currDate.getMonth();
-    document.getElementById('calMonthTitle').innerText = currDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-    document.getElementById('bigCalMonthTitle').innerText = currDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+    
+    let calT1 = document.getElementById('calMonthTitle');
+    let calT2 = document.getElementById('bigCalMonthTitle');
+    if(calT1) calT1.innerText = currDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+    if(calT2) calT2.innerText = currDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+    
     const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate();
     const calGrid = document.getElementById('bigCalGrid'); const smallCalGrid = document.getElementById('smallCalGrid');
     
@@ -308,7 +365,7 @@ function renderCalendar() {
         let isoDate = `${year}-${String(month+1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         let status = attMap[isoDate]; let dotHtml = ''; let smallDot = '';
         if(status === 'P') { dotHtml = `<div class="dot p"></div>`; smallDot = `<div class="cal-dot" style="background:#27ae60;"></div>`;} 
-        else if(status === 'AB') { dotHtml = `<div class="dot a"></div>`; smallDot = `<div class="cal-dot"></div>`;} 
+        else if(status === 'AB') { dotHtml = `<div class="dot a"></div>`; smallDot = `<div class="cal-dot" style="background:#e74c3c;"></div>`;} 
         else if(status === 'LC') { dotHtml = `<div class="dot l" style="background:#f39c12;"></div>`; smallDot = `<div class="cal-dot" style="background:#f39c12;"></div>`; }
 
         let isToday = isoDate === new Date().toISOString().split('T')[0] ? "today" : "";
@@ -329,7 +386,10 @@ function processFeeLedger(receipts, setupData, feeHeads) {
     let paidMap = {}; let myReceipts = (receipts||[]).filter(r => String(r.Reg_No) === String(studentData.regNo));
     myReceipts.forEach(r => { try { let rawHeads = String(r.Paid_Heads || "").trim(); if(rawHeads !== "" && rawHeads.startsWith("[")) { JSON.parse(rawHeads).forEach(d => { paidMap[d.head + "_" + d.period] = (paidMap[d.head + "_" + d.period] || 0) + parseFloat(d.paid || 0); }); } } catch(e) { } });
 
-    let tbody = document.getElementById('feeStatementBody'); tbody.innerHTML = ''; 
+    let tbody = document.getElementById('feeStatementBody'); 
+    if(!tbody) return;
+    
+    tbody.innerHTML = ''; 
     let totalDue = 0; let totalPaid = 0;
     const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
 
@@ -354,5 +414,7 @@ function processFeeLedger(receipts, setupData, feeHeads) {
         }
     });
 
-    document.getElementById('feeTotApplicable').innerText = "₹" + totalDue.toFixed(2); document.getElementById('feeTotPaid').innerText = "₹" + totalPaid.toFixed(2); document.getElementById('feeTotDue').innerText = "₹" + (totalDue - totalPaid).toFixed(2);
+    if(document.getElementById('feeTotApplicable')) document.getElementById('feeTotApplicable').innerText = "₹" + totalDue.toFixed(2); 
+    if(document.getElementById('feeTotPaid')) document.getElementById('feeTotPaid').innerText = "₹" + totalPaid.toFixed(2); 
+    if(document.getElementById('feeTotDue')) document.getElementById('feeTotDue').innerText = "₹" + (totalDue - totalPaid).toFixed(2);
 }
