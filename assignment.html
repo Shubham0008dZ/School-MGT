@@ -112,14 +112,40 @@
                     </div>
                 </div>
                 
-                <div class="form-row" id="evStudentTgt" style="background:#f8f9fa; padding:10px; border-radius:4px; border:1px solid #eee;">
+
+<div class="form-row" id="evStudentTgt" style="background:#f8f9fa; padding:10px; border-radius:4px; border:1px solid #eee; align-items:flex-start;">
                     <div class="input-group"><label>Target Class</label><select id="evClass"><option value="All">All Classes</option></select></div>
                     <div class="input-group"><label>Target Section</label><select id="evSection"><option value="All">All Sections</option></select></div>
+                    <div class="input-group" style="flex:1.5;">
+                        <label>Target Student <span id="evStudentCount" class="count-badge">All</span></label>
+                        <div class="multi-select-container">
+                            <div class="multi-select-header" onclick="toggleMultiSelect('evStudentDropdown')"><span>Select Students</span> <span>▼</span></div>
+                            <div class="multi-select-dropdown" id="evStudentDropdown">
+                                <div class="multi-select-search"><input type="text" placeholder="Search student name or ID..." onkeyup="filterMultiSelect(this, 'evStudentOptions')"></div>
+                                <div class="multi-select-options" id="evStudentOptions">
+                                    <label class="multi-option"><input type="checkbox" value="All" class="ev-stu-chk" checked> All Students</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-row" id="evEmpTgt" style="background:#f8f9fa; padding:10px; border-radius:4px; border:1px solid #eee;">
+
+                <div class="form-row" id="evEmpTgt" style="background:#f8f9fa; padding:10px; border-radius:4px; border:1px solid #eee; align-items:flex-start;">
                     <div class="input-group"><label>Target Department</label><select id="evDept"><option value="All">All Departments</option></select></div>
-                    <div class="input-group"><label>Target Employee</label><input type="text" id="evEmp" placeholder="Emp Name or ID (Optional)"></div>
+                    <div class="input-group" style="flex:1.5;">
+                        <label>Target Employee <span id="evEmpCount" class="count-badge">All</span></label>
+                        <div class="multi-select-container">
+                            <div class="multi-select-header" onclick="toggleMultiSelect('evEmpDropdown')"><span>Select Employees</span> <span>▼</span></div>
+                            <div class="multi-select-dropdown" id="evEmpDropdown">
+                                <div class="multi-select-search"><input type="text" placeholder="Search employee name or ID..." onkeyup="filterMultiSelect(this, 'evEmpOptions')"></div>
+                                <div class="multi-select-options" id="evEmpOptions">
+                                    <label class="multi-option"><input type="checkbox" value="All" class="ev-emp-chk" checked> All Employees</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                
 
                 <div style="text-align:right; margin-top:10px;">
                     <button class="btn-dark" style="padding:8px 15px; border:none; border-radius:3px; color:white; cursor:pointer;" onclick="document.getElementById('addEventFormBox').style.display='none'">Cancel</button>
