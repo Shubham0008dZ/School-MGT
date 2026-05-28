@@ -75,3 +75,19 @@ input:checked + .slider:before { transform: translateX(34px); content:"YES"; col
 .btn-download-detail { display: inline-flex; align-items: center; gap: 8px; background: #ecf0f1; color: #2c3e50; border: 1px solid #bdc3c7; padding: 10px 20px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; text-decoration: none; margin-top: 20px; transition: 0.3s; }
 .btn-download-detail:hover { background: #bdc3c7; }
 .empty-detail { display: flex; height: 100%; align-items: center; justify-content: center; color: #95a5a6; font-size: 16px; font-weight: bold; }
+
+
+/* ============================================================================
+   CUSTOM MULTI-SELECT DROPDOWN STYLES (CALENDAR TARGETING)
+   ============================================================================ */
+.multi-select-container { position: relative; width: 100%; font-size: 13px;}
+.multi-select-header { border: 1px solid #ccc; padding: 10px; border-radius: 4px; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.multi-select-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); z-index: 100; display: none; flex-direction: column; max-height: 250px;}
+.multi-select-search { padding: 10px; border-bottom: 1px solid #eee; background:#f9f9f9; border-radius:4px 4px 0 0;}
+.multi-select-search input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; outline: none; font-size:12px;}
+.multi-select-options { overflow-y: auto; flex: 1; padding: 5px; }
+.multi-option { display: flex; align-items: center; gap: 8px; padding: 8px 10px; cursor: pointer; transition: 0.2s; border-radius:3px; font-weight:bold; color:#555;}
+.multi-option:hover { background: #f1f5f9; color:#2980b9;}
+.count-badge { background: #3498db; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-left: 10px; box-shadow:0 1px 3px rgba(0,0,0,0.2); }
+
+
