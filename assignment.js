@@ -546,56 +546,40 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleFormFields(defaultType);
   });
 
-  function toggleFormFields(selectedType) {
-    let isHW = [
-      "Homework",
-      "Classwork",
-      "Assignment",
-      "Project",
-      "Holiday Homework",
-      "Other",
-    ].includes(selectedType);
-    let grpType = document.getElementById("grpType");
-    let grpSubject = document.getElementById("grpSubject");
-    let lblDate = document.getElementById("lblDate");
-    let grpSubReq = document.getElementById("grpSubmissionReq");
-    let dynAch = document.getElementById("dynAchievement");
-    let dynRem = document.getElementById("dynRemarks");
 
-    if (dynAch) dynAch.style.display = "none";
-    if (dynRem) dynRem.style.display = "none";
 
-    if (currentCategory === "Homework") {
-      if (grpType) grpType.style.display = "flex";
-      if (grpSubject) grpSubject.style.display = "flex";
-      if (lblDate)
-        lblDate.innerHTML = 'Publish Date <span style="color:red;">*</span>';
-      if (grpSubReq) grpSubReq.style.display = "flex";
-      let hwSubEl = document.getElementById("hwSubject");
-      if (hwSubEl) hwSubEl.required = true;
-    } else {
-      if (grpType) grpType.style.display = "none";
-      if (grpSubject) grpSubject.style.display = "none";
-      if (lblDate)
-        lblDate.innerHTML = 'Publish Date <span style="color:red;">*</span>';
-      if (grpSubReq) {
-        grpSubReq.style.display = "none";
-        let hwSubReqEl = document.getElementById("hwSubmissionReq");
-        if (hwSubReqEl) hwSubReqEl.checked = false;
-      }
-      let dueBox = document.getElementById("grpSubDueDate");
-      if (dueBox) dueBox.style.display = "none";
-      let hwSubEl = document.getElementById("hwSubject");
-      if (hwSubEl) {
-        hwSubEl.required = false;
-        hwSubEl.value = "";
-      }
+function toggleFormFields(selectedType) {
+        let isHW = ["Homework", "Classwork", "Assignment", "Project", "Holiday Homework", "Other"].includes(selectedType);
+        let grpType = document.getElementById('grpType');
+        let grpSubject = document.getElementById('grpSubject'); let lblDate = document.getElementById('lblDate'); let grpSubReq = document.getElementById('grpSubmissionReq');
+        let dynAch = document.getElementById('dynAchievement'); let dynRem = document.getElementById('dynRemarks');
+        let hwTypeEl = document.getElementById('hwType'); // Get Type Element
 
-      if (selectedType === "Achievement" && dynAch)
-        dynAch.style.display = "block";
-      if (selectedType === "Remarks" && dynRem) dynRem.style.display = "block";
+        if(dynAch) dynAch.style.display = 'none'; if(dynRem) dynRem.style.display = 'none';
+
+        if(currentCategory === "Homework") {
+            if(grpType) grpType.style.display = 'flex';
+            if(hwTypeEl) hwTypeEl.required = true; // Make Required when visible
+            if(grpSubject) grpSubject.style.display = 'flex'; 
+            if(lblDate) lblDate.innerHTML = 'Publish Date <span style="color:red;">*</span>'; 
+            if(grpSubReq) grpSubReq.style.display = 'flex';
+            let hwSubEl = document.getElementById('hwSubject'); if(hwSubEl) hwSubEl.required = true;
+        } else {
+            if(grpType) grpType.style.display = 'none';
+            if(hwTypeEl) hwTypeEl.required = false; // FIX: Remove required when hidden
+            if(grpSubject) grpSubject.style.display = 'none'; 
+            if(lblDate) lblDate.innerHTML = 'Publish Date <span style="color:red;">*</span>';
+            if(grpSubReq) { grpSubReq.style.display = 'none'; let hwSubReqEl = document.getElementById('hwSubmissionReq'); if(hwSubReqEl) hwSubReqEl.checked = false; }
+            let dueBox = document.getElementById('grpSubDueDate'); if(dueBox) dueBox.style.display = 'none';
+            let hwSubEl = document.getElementById('hwSubject'); if(hwSubEl) { hwSubEl.required = false; hwSubEl.value = ""; }
+            
+            if(selectedType === "Achievement" && dynAch) dynAch.style.display = 'block';
+            if(selectedType === "Remarks" && dynRem) dynRem.style.display = 'block';
+        }
     }
-  }
+
+
+  
 
   const hwTypeDropdown = document.getElementById("hwType");
   if (hwTypeDropdown)
