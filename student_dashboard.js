@@ -468,9 +468,25 @@ window.openHwModal = function (hwData, subData) {
         (!subData.Marks || String(subData.Marks).trim() === "")
       ) {
         subArea.innerHTML = `<div style="background:#f0f9ff; border:1px solid #bae6fd; padding:15px; border-radius:8px; text-align:center;"><h3 style="color:#0284c7; margin:0 0 5px 0; font-size:15px;">Status: Submitted</h3><p style="font-size:13px; color:#475569; margin:0;">Waiting for teacher's review.</p></div>`;
-      } else if (subData && subData.Marks) {
-        subArea.innerHTML = `<div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; border-radius:8px;"><h3 style="color:#15803d; margin:0 0 10px 0; font-size:15px;">Status: Evaluated ✅</h3><div style="display:flex; justify-content:space-between; font-size:14px;"><div><b style="color:#334155;">Marks Awarded:</b> <span style="font-size:18px; color:#b91c1c; font-weight:bold; margin-left:5px;">${subData.Marks}</span></div></div><div style="margin-top:10px; font-size:13px; color:#475569;"><b>Teacher Remarks:</b> ${subData.Teacher_Remarks || "Good work."}</div></div>`;
-      }
+
+
+
+
+
+
+} else if (subData && subData.Marks) {
+            let displayMarks = String(subData.Marks);
+            if(displayMarks.startsWith("'")) displayMarks = displayMarks.substring(1);
+            if(displayMarks.includes('T00:00:00') || displayMarks.includes('T18:30:00')) {
+                let d = new Date(displayMarks); displayMarks = d.getDate() + "/" + (d.getMonth() + 1);
+            }
+            subArea.innerHTML = `<div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; border-radius:8px;"><h3 style="color:#15803d; margin:0 0 10px 0; font-size:15px;">Status: Evaluated ✅</h3><div style="display:flex; justify-content:space-between; font-size:14px;"><div><b style="color:#334155;">Marks Awarded:</b> <span style="font-size:18px; color:#b91c1c; font-weight:bold; margin-left:5px;">${displayMarks}</span></div></div><div style="margin-top:10px; font-size:13px; color:#475569;"><b>Teacher Remarks:</b> ${subData.Teacher_Remarks || 'Good work.'}</div></div>`;
+        }
+        
+
+        
+
+        
     } else {
       subArea.innerHTML = `<p style="text-align:center; color:#94a3b8; font-size:13px; font-weight:600;">No online submission required for this task.</p>`;
     }
