@@ -881,52 +881,40 @@ function toggleFormFields(selectedType) {
     let mod = document.getElementById("responsesModal");
     if (mod) mod.style.display = "flex";
   });
-  window.saveMarks = function (assignId, regNo, btnElement) {
-    let marksVal = document.getElementById(`marks_${assignId}_${regNo}`).value;
-    let remVal = document.getElementById(`rem_${assignId}_${regNo}`).value;
-    if (!marksVal) {
-      alert("Please enter marks to evaluate.");
-      return;
-    }
-    btnElement.innerText = "Saving...";
-    btnElement.disabled = true;
-    const payload = {
-      action: "gradeHomework",
-      data: {
-        assignmentId: assignId,
-        regNo: regNo,
-        marks: marksVal,
-        remarks: remVal,
-      },
+
+
+
+
+
+  window.saveMarks = function(assignId, regNo, btnElement) {
+        let marksVal = document.getElementById(`marks_${assignId}_${regNo}`).value;
+        let remVal = document.getElementById(`rem_${assignId}_${regNo}`).value;
+        if(!marksVal) { alert("Please enter marks to evaluate."); return; }
+        btnElement.innerText = "Saving..."; btnElement.disabled = true;
+
+        // FIX: Added single quote to force String format in Google Sheets
+        let safeMarksVal = "'" + marksVal; 
+        
+        const payload = { action: "gradeHomework", data: { assignmentId: assignId, regNo: regNo, marks: safeMarksVal, remarks: remVal } };
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => {
+            if(data.status === "Success") {
+                let tr = btnElement.closest('tr'); if(tr) tr.remove();
+                let subObj = allSubmissions.find(s => String(s.Assignment_ID) === String(assignId) && String(s.Reg_No) === String(regNo));
+                if(subObj) { subObj.Marks = marksVal; }
+                updateBlinkingBadge(); alert(data.message);
+            } else { alert("Error: " + data.message); btnElement.innerText = "✅ Save"; btnElement.disabled = false; }
+        });
     };
-    fetch(scriptURL, {
-      method: "POST",
-      body: JSON.stringify(payload),
-      redirect: "follow",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === "Success") {
-          let tr = btnElement.closest("tr");
-          if (tr) tr.remove();
-          let subObj = allSubmissions.find(
-            (s) =>
-              String(s.Assignment_ID) === String(assignId) &&
-              String(s.Reg_No) === String(regNo),
-          );
-          if (subObj) {
-            subObj.Marks = marksVal;
-          }
-          updateBlinkingBadge();
-          alert(data.message);
-        } else {
-          alert("Error: " + data.message);
-          btnElement.innerText = "✅ Save";
-          btnElement.disabled = false;
-        }
-      });
-  };
+
+
+
+
+
+
+
+
+
+  
 
   // UTILS & FORM SUBMISSION
   const hwFileInput = document.getElementById("hwFile");
