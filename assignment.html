@@ -1,216 +1,553 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Communication & Assignment - ERP</title>
     <link rel="stylesheet" href="assignment.css">
     <style>
-        .list-header-box { display:flex; justify-content:space-between; align-items:center; background:white; padding:15px 20px; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,0.05); margin-bottom:20px; border-left:4px solid #8e44ad; }
-        .list-header-box h2 { color:#2c3e50; font-size:18px; margin:0; }
-        .btn-add-new { background:#27ae60; color:white; border:none; padding:8px 20px; border-radius:3px; cursor:pointer; font-weight:bold; font-size:13px; }
-        .btn-responses { background:#2c3e50; color:white; border:none; padding:8px 20px; border-radius:3px; cursor:pointer; font-weight:bold; font-size:13px; margin-right:10px; position:relative; }
-        .blink-badge { background:#e74c3c; color:white; padding:2px 6px; border-radius:10px; font-size:11px; position:absolute; top:-8px; right:-8px; font-weight:bold; animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
-        .record-card { background:white; border:1px solid #eee; padding:15px; border-radius:5px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; transition:0.3s; }
-        .record-card:hover { box-shadow:0 4px 10px rgba(0,0,0,0.05); transform:translateY(-2px); border-color:#3498db;}
-        .btn-action-edit { background:#f39c12; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; font-size:12px; font-weight:bold;}
-        .btn-action-del { background:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; font-size:12px; font-weight:bold; margin-left:5px;}
-        .resp-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:15px;}
-        .resp-table th { background:#f1f1f1; padding:10px; text-align:left; border-bottom:2px solid #ddd;}
-        .resp-table td { padding:10px; border-bottom:1px solid #eee;}
-        .marks-input { width:60px; padding:5px; border:1px solid #ccc; border-radius:3px; outline:none;}
-        .remarks-input { width:100%; padding:5px; border:1px solid #ccc; border-radius:3px; outline:none;}
-        .dynamic-fields-box { background:#f8f9fa; border:1px dashed #bdc3c7; padding:15px; border-radius:5px; margin-bottom:20px; display:none; }
-        .student-selector-box { background:#fff; border:1px solid #ddd; padding:15px; border-radius:5px; margin-bottom:20px; }
-        .stu-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; max-height:150px; overflow-y:auto; margin-top:10px; padding:10px; background:#fafafa; border:1px solid #eee; border-radius:4px;}
-        .stu-item { display:flex; align-items:center; gap:5px; font-size:12px;}
+        .list-header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            border-left: 4px solid #8e44ad;
+        }
+
+        .list-header-box h2 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .btn-add-new {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .btn-responses {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            margin-right: 10px;
+            position: relative;
+        }
+
+        .blink-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-weight: bold;
+            animation: blinker 1s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .record-card {
+            background: white;
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .record-card:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+            border-color: #3498db;
+        }
+
+        .btn-action-edit {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .btn-action-del {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .resp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+
+        .resp-table th {
+            background: #f1f1f1;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .resp-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .marks-input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .remarks-input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .dynamic-fields-box {
+            background: #f8f9fa;
+            border: 1px dashed #bdc3c7;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .student-selector-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .stu-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding: 10px;
+            background: #fafafa;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
+        .stu-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="top-navbar">
-    <div class="top-left">
-        <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
-            <span class="school-logo" style="font-size: 24px; cursor: pointer;">🏫</span> 
-            <span class="school-name" style="font-weight: bold; cursor: pointer;">Vinayak International Associates</span>
-        </a>
-    </div>
-    <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
-    <div class="top-right" style="display:flex; align-items:center; gap:15px;">
-        <span>⚏ Communication Module 🔔</span>
-        <button id="btnLogout" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:3px; cursor:pointer; font-weight:bold;">🚪 Logout</button>
-    </div>
-</div>
-
-<div class="erp-wrapper">
-    <div class="sidebar hw-sidebar">
-        <div class="sidebar-header hw-header"><h2>📚 EDUNEXT</h2></div>
-        <ul class="nav-links">
-            <li><a href="index.html" class="nav-btn"><span class="nav-icon">🏠</span><span class="nav-text"> Dashboard</span></a></li>
-            <li><a href="#" class="nav-btn active" data-target="module-comm-list" data-cat="Circular"><span class="nav-icon">📢</span><span class="nav-text"> Circular / News</span></a></li>
-            <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="Homework"><span class="nav-icon">📚</span><span class="nav-text"> Homework</span></a></li>
-            <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="Feedback"><span class="nav-icon">⭐</span><span class="nav-text"> Feedback</span></a></li>
-            <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="Achievement"><span class="nav-icon">🏆</span><span class="nav-text"> Achievement</span></a></li>
-            <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="PTM"><span class="nav-icon">🤝</span><span class="nav-text"> PTM Notices</span></a></li>
-            <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="Remarks"><span class="nav-icon">📝</span><span class="nav-text"> Remarks</span></a></li>
-            <li><a href="#" class="nav-btn" data-target="module-calendar" data-cat="Calendar"><span class="nav-icon">📅</span><span class="nav-text"> Event Calendar</span></a></li>
-        </ul>
+    <div class="top-navbar">
+        <div class="top-left">
+            <a href="index.html"
+                style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
+                <span class="school-logo" style="font-size: 24px; cursor: pointer;">🏫</span>
+                <span class="school-name" style="font-weight: bold; cursor: pointer;">Vinayak International
+                    Associates</span>
+            </a>
+        </div>
+        <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
+        <div class="top-right" style="display:flex; align-items:center; gap:15px;">
+            <span>⚏ Communication Module 🔔</span>
+            <button id="btnLogout"
+                style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:3px; cursor:pointer; font-weight:bold;">🚪
+                Logout</button>
+        </div>
     </div>
 
-    <div class="main-content">
-        
-        <div id="module-comm-list" class="app-module active-module" style="display:block;">
-            <div class="list-header-box">
-                <h2 id="listHeaderTitle">Circular / News Records</h2>
-                <div>
-                    <button id="btnViewResponses" class="btn-responses" style="display:none;">Responses <span id="respBlinkBadge" class="blink-badge">0</span></button>
-                    <button id="btnOpenAddForm" class="btn-add-new">⊕ Add New</button>
-                </div>
+    <div class="erp-wrapper">
+        <div class="sidebar hw-sidebar">
+            <div class="sidebar-header hw-header">
+                <h2>📚 EDUNEXT</h2>
             </div>
-            <div id="commListArea" style="display:flex; flex-direction:column; gap:10px;">
-                <p style="text-align:center; padding:20px; color:#777;">Fetching records... ⏳</p>
-            </div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-btn"><span class="nav-icon">🏠</span><span class="nav-text">
+                            Dashboard</span></a></li>
+                <li><a href="#" class="nav-btn active" data-target="module-comm-list" data-cat="Circular"><span
+                            class="nav-icon">📢</span><span class="nav-text"> Circular / News</span></a></li>
+                <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="Homework"><span
+                            class="nav-icon">📚</span><span class="nav-text"> Homework</span></a></li>
+                <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="Feedback"><span
+                            class="nav-icon">⭐</span><span class="nav-text"> Feedback</span></a></li>
+                <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="Achievement"><span
+                            class="nav-icon">🏆</span><span class="nav-text"> Achievement</span></a></li>
+                <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="PTM"><span
+                            class="nav-icon">🤝</span><span class="nav-text"> PTM Notices</span></a></li>
+                <li><a href="#" class="nav-btn" data-target="module-comm-list" data-cat="Remarks"><span
+                            class="nav-icon">📝</span><span class="nav-text"> Remarks</span></a></li>
+                <li><a href="#" class="nav-btn" data-target="module-calendar" data-cat="Calendar"><span
+                            class="nav-icon">📅</span><span class="nav-text"> Event Calendar</span></a></li>
+            </ul>
         </div>
 
-        <div id="module-calendar" class="app-module" style="display:none;">
-            <div class="list-header-box">
-                <h2>School Calendar Events</h2>
-                <button onclick="document.getElementById('addEventFormBox').style.display='block';" class="btn-add-new">⊕ Add Event</button>
-            </div>
-            
-            <div id="addEventFormBox" style="display:none; background:white; border:1px solid #ddd; padding:20px; border-radius:5px; margin-bottom:20px;">
-                <h3 style="margin-bottom:15px; color:#2c3e50;">Add New Event / Holiday</h3>
+        <div class="main-content">
 
-                <input type="hidden" id="editEventId" value="">
-
-
-<div class="form-row">
-                    <div class="input-group"><label>Event Date <span style="color:red;">*</span></label><input type="date" id="evDate" required></div>
-                    <div class="input-group" style="flex:2;"><label>Event Title <span style="color:red;">*</span></label><input type="text" id="evTitle" placeholder="e.g. Happy Deepawali" required></div>
-                    <div class="input-group">
-                        <label>Is Holiday (Student)?</label>
-                        <label class="switch"><input type="checkbox" id="evHoliday"><span class="slider"></span></label>
-                    </div>
-                    <div class="input-group">
-                        <label>Is Holiday (Employee)?</label>
-                        <label class="switch"><input type="checkbox" id="evEmpHoliday"><span class="slider"></span></label>
+            <div id="module-comm-list" class="app-module active-module" style="display:block;">
+                <div class="list-header-box">
+                    <h2 id="listHeaderTitle">Circular / News Records</h2>
+                    <div>
+                        <button id="btnViewResponses" class="btn-responses" style="display:none;">Responses <span
+                                id="respBlinkBadge" class="blink-badge">0</span></button>
+                        <button id="btnOpenAddForm" class="btn-add-new">⊕ Add New</button>
                     </div>
                 </div>
-
-                
-                <div class="form-row">
-                    <div class="input-group" style="flex:2;">
-                        <label>Short Description (Max 50 words)</label>
-                        <textarea id="evDesc" rows="2" placeholder="Write event details..."></textarea>
-                    </div>
-                    <div class="input-group" style="flex:1;">
-                        <label>Target Audience <span style="color:red;">*</span></label>
-                        <select id="evAudience" required>
-                            <option value="Both">Both (Students & Staff)</option>
-                            <option value="Students">Students Only</option>
-                            <option value="Employees">Employees Only</option>
-                        </select>
-                    </div>
-                </div>
-                
-
-<div class="form-row" id="evStudentTgt" style="background:#f8f9fa; padding:10px; border-radius:4px; border:1px solid #eee; align-items:flex-start;">
-                    <div class="input-group"><label>Target Class</label><select id="evClass"><option value="All">All Classes</option></select></div>
-                    <div class="input-group"><label>Target Section</label><select id="evSection"><option value="All">All Sections</option></select></div>
-                    <div class="input-group" style="flex:1.5;">
-                        <label>Target Student <span id="evStudentCount" class="count-badge">All</span></label>
-                        <div class="multi-select-container">
-                            <div class="multi-select-header" onclick="toggleMultiSelect('evStudentDropdown')"><span>Select Students</span> <span>▼</span></div>
-                            <div class="multi-select-dropdown" id="evStudentDropdown">
-                                <div class="multi-select-search"><input type="text" placeholder="Search student name or ID..." onkeyup="filterMultiSelect(this, 'evStudentOptions')"></div>
-                                <div class="multi-select-options" id="evStudentOptions">
-                                    <label class="multi-option"><input type="checkbox" value="All" class="ev-stu-chk" checked> All Students</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-row" id="evEmpTgt" style="background:#f8f9fa; padding:10px; border-radius:4px; border:1px solid #eee; align-items:flex-start;">
-                    <div class="input-group"><label>Target Department</label><select id="evDept"><option value="All">All Departments</option></select></div>
-                    <div class="input-group" style="flex:1.5;">
-                        <label>Target Employee <span id="evEmpCount" class="count-badge">All</span></label>
-                        <div class="multi-select-container">
-                            <div class="multi-select-header" onclick="toggleMultiSelect('evEmpDropdown')"><span>Select Employees</span> <span>▼</span></div>
-                            <div class="multi-select-dropdown" id="evEmpDropdown">
-                                <div class="multi-select-search"><input type="text" placeholder="Search employee name or ID..." onkeyup="filterMultiSelect(this, 'evEmpOptions')"></div>
-                                <div class="multi-select-options" id="evEmpOptions">
-                                    <label class="multi-option"><input type="checkbox" value="All" class="ev-emp-chk" checked> All Employees</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-
-                <div style="text-align:right; margin-top:10px;">
-                    <button class="btn-dark" style="padding:8px 15px; border:none; border-radius:3px; color:white; cursor:pointer;" onclick="document.getElementById('addEventFormBox').style.display='none'">Cancel</button>
-                    <button class="btn-add-new" id="btnSaveEvent" style="margin-left:10px;">Save Event</button>
+                <div id="commListArea" style="display:flex; flex-direction:column; gap:10px;">
+                    <p style="text-align:center; padding:20px; color:#777;">Fetching records... ⏳</p>
                 </div>
             </div>
 
-            <div id="calendarListArea" style="display:flex; flex-direction:column; gap:10px;">
-                <p style="text-align:center; padding:20px; color:#777;">Fetching calendar events... ⏳</p>
-            </div>
-        </div>
+            <div id="module-calendar" class="app-module" style="display:none;">
+                <div class="list-header-box">
+                    <h2>School Calendar Events</h2>
+                    <button onclick="document.getElementById('addEventFormBox').style.display='block';"
+                        class="btn-add-new">⊕ Add Event</button>
+                </div>
 
-        <div id="module-add-hw" class="app-module" style="display:none;">
-            <div class="profile-header">
-                <h2>UPLOAD <span id="formDynamicTitle">COMMUNICATION</span></h2>
-                <button class="btn-dark" style="padding:6px 15px;" onclick="document.querySelector('.nav-btn.active').click()">← Back to List</button>
-            </div>
-            
-            <div class="form-container">
-                <form id="assignmentForm">
-                    <input type="hidden" id="editAssignmentId" value="">
+                <div id="addEventFormBox"
+                    style="display:none; background:white; border:1px solid #ddd; padding:20px; border-radius:5px; margin-bottom:20px;">
+                    <h3 style="margin-bottom:15px; color:#2c3e50;">Add New Event / Holiday</h3>
+
+                    <input type="hidden" id="editEventId" value="">
+
 
                     <div class="form-row">
-                        <div class="input-group"><label>Academic Year <span style="color:red;">*</span></label><select id="acadYear" required><option value="2026-2027">2026-2027</option></select></div>
-                        <div class="input-group" id="grpDate"><label id="lblDate">Due Date / Publish Date <span style="color:red;">*</span></label><input type="date" id="hwDate" required></div>
-                        <div class="input-group"><label>Class <span style="color:red;">*</span></label><select id="hwClass" required><option value="">Select Class</option><option value="All">All Classes (Global)</option></select></div>
-                        <div class="input-group"><label>Section <span style="color:red;">*</span></label><select id="hwSection" required><option value="">Select Section</option><option value="All">All Sections</option></select></div>
-                    </div>
-
-                    <div class="form-row">
+                        <div class="input-group"><label>Event Date <span style="color:red;">*</span></label><input
+                                type="date" id="evDate" required></div>
+                        <div class="input-group" style="flex:2;"><label>Event Title <span
+                                    style="color:red;">*</span></label><input type="text" id="evTitle"
+                                placeholder="e.g. Happy Deepawali" required></div>
                         <div class="input-group">
-                            <label>Type <span style="color:red;">*</span></label>
-                            <select id="hwType" required>
-                                <option value="Circular">Circular</option><option value="Notice">Notice</option><option value="Homework">Homework</option><option value="Classwork">Classwork</option><option value="Assignment">Assignment</option><option value="Project">Project</option><option value="Feedback">Feedback</option><option value="Achievement">Achievement</option><option value="PTM">PTM</option><option value="Remarks">Remarks</option>
+                            <label>Is Holiday (Student)?</label>
+                            <label class="switch"><input type="checkbox" id="evHoliday"><span
+                                    class="slider"></span></label>
+                        </div>
+                        <div class="input-group">
+                            <label>Is Holiday (Employee)?</label>
+                            <label class="switch"><input type="checkbox" id="evEmpHoliday"><span
+                                    class="slider"></span></label>
+                        </div>
+                    </div>
+
+
+                    <div class="form-row">
+                        <div class="input-group" style="flex:2;">
+                            <label>Short Description (Max 50 words)</label>
+                            <textarea id="evDesc" rows="2" placeholder="Write event details..."></textarea>
+                        </div>
+                        <div class="input-group" style="flex:1;">
+                            <label>Target Audience <span style="color:red;">*</span></label>
+                            <select id="evAudience" required>
+                                <option value="Both">Both (Students & Staff)</option>
+                                <option value="Students">Students Only</option>
+                                <option value="Employees">Employees Only</option>
                             </select>
                         </div>
-                        <div class="input-group" id="grpSubject"><label>Subject</label><select id="hwSubject"><option value="">Select Subject</option><option value="English">English</option><option value="Hindi">Hindi</option><option value="Mathematics">Mathematics</option><option value="Science">Science</option><option value="Social Science">Social Science</option><option value="Computer">Computer</option><option value="General Knowledge">General Knowledge</option></select></div>
-                        <div class="input-group" style="flex:2;"><label>Title / Topic Name <span style="color:red;">*</span></label><input type="text" id="hwName" placeholder="Enter Title" required></div>
                     </div>
 
-                    <div id="dynAchievement" class="dynamic-fields-box"><h4 style="margin:0 0 10px 0; color:#e67e22;">Achievement Details</h4><div class="form-row" style="margin-bottom:0;"><div class="input-group"><label>Activity Group</label><input type="text" id="achGroup" placeholder="e.g. Sports"></div><div class="input-group"><label>Level</label><select id="achLevel"><option value="">Select</option><option value="Inter-School">Inter-School</option><option value="Zonal">Zonal</option><option value="State">State</option><option value="National">National</option></select></div><div class="input-group"><label>Rank / Position</label><input type="text" id="achRank" placeholder="e.g. 1st Place"></div><div class="input-group"><label>Venue</label><input type="text" id="achVenue" placeholder="e.g. DPS Stadium"></div></div></div>
-                    <div id="dynRemarks" class="dynamic-fields-box"><h4 style="margin:0 0 10px 0; color:#27ae60;">Remark Specifics</h4><div class="form-row" style="margin-bottom:0;"><div class="input-group"><label>Remark Category</label><select id="remCat"><option value="">Select Category</option><option value="Academic">Academic</option><option value="Discipline">Discipline</option><option value="Extracurricular">Extracurricular</option></select></div><div class="input-group"><label>Remark Type</label><select id="remType"><option value="">Select Type</option><option value="Positive">Positive</option><option value="Needs Improvement">Needs Improvement</option><option value="Warning">Warning</option></select></div></div></div>
 
-                    <div class="student-selector-box"><label style="font-weight:bold; color:#2c3e50; display:block; margin-bottom:10px;">Select Target Students</label><div style="display:flex; gap:20px;"><label><input type="radio" name="targetType" value="All" checked> Whole Class / Section</label><label><input type="radio" name="targetType" value="Specific"> Specific Student(s)</label></div><div id="specificStudentsContainer" style="display:none;"><div class="stu-grid" id="stuGrid"></div></div></div>
+                    <div class="form-row" id="evStudentTgt"
+                        style="background:#f8f9fa; padding:10px; border-radius:4px; border:1px solid #eee; align-items:flex-start;">
+                        <div class="input-group"><label>Target Class</label><select id="evClass">
+                                <option value="All">All Classes</option>
+                            </select></div>
+                        <div class="input-group"><label>Target Section</label><select id="evSection">
+                                <option value="All">All Sections</option>
+                            </select></div>
+                        <div class="input-group" style="flex:1.5;">
+                            <label>Target Student <span id="evStudentCount" class="count-badge">All</span></label>
+                            <div class="multi-select-container">
+                                <div class="multi-select-header" onclick="toggleMultiSelect('evStudentDropdown')">
+                                    <span>Select Students</span> <span>▼</span>
+                                </div>
+                                <div class="multi-select-dropdown" id="evStudentDropdown">
+                                    <div class="multi-select-search"><input type="text"
+                                            placeholder="Search student name or ID..."
+                                            onkeyup="filterMultiSelect(this, 'evStudentOptions')"></div>
+                                    <div class="multi-select-options" id="evStudentOptions">
+                                        <label class="multi-option"><input type="checkbox" value="All"
+                                                class="ev-stu-chk" checked> All Students</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <div class="form-row" style="align-items: flex-start;"><div class="input-group" style="flex:1;"><label>Detailed Description</label><textarea id="hwDesc" placeholder="Enter full details here..." rows="4" style="resize:vertical;"></textarea></div></div>
+                    <div class="form-row" id="evEmpTgt"
+                        style="background:#f8f9fa; padding:10px; border-radius:4px; border:1px solid #eee; align-items:flex-start;">
+                        <div class="input-group"><label>Target Department</label><select id="evDept">
+                                <option value="All">All Departments</option>
+                            </select></div>
+                        <div class="input-group" style="flex:1.5;">
+                            <label>Target Employee <span id="evEmpCount" class="count-badge">All</span></label>
+                            <div class="multi-select-container">
+                                <div class="multi-select-header" onclick="toggleMultiSelect('evEmpDropdown')">
+                                    <span>Select Employees</span> <span>▼</span>
+                                </div>
+                                <div class="multi-select-dropdown" id="evEmpDropdown">
+                                    <div class="multi-select-search"><input type="text"
+                                            placeholder="Search employee name or ID..."
+                                            onkeyup="filterMultiSelect(this, 'evEmpOptions')"></div>
+                                    <div class="multi-select-options" id="evEmpOptions">
+                                        <label class="multi-option"><input type="checkbox" value="All"
+                                                class="ev-emp-chk" checked> All Employees</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <div class="form-row" style="align-items: center; border-top:1px solid #eee; padding-top:15px;"><div class="input-group" style="flex:1;"><label>Attachment (Optional)</label><label for="hwFile" class="btn-attach">📎 Add Attachment</label><input type="file" id="hwFile" hidden><span id="hwFileName" style="font-size:12px; color:#777; margin-top:5px;">No file selected</span><input type="hidden" id="hwBase64"></div><div class="input-group" style="flex:1; padding-left:20px;" id="grpSubmissionReq"><label>Submission Required (HW Only)</label><label class="switch"><input type="checkbox" id="hwSubmissionReq"><span class="slider"></span></label></div></div>
 
-                    <div class="submit-section"><button type="submit" class="submit-btn" id="btnSaveHw">Save Entry</button></div>
-                </form>
+                    <div style="text-align:right; margin-top:10px;">
+                        <button class="btn-dark"
+                            style="padding:8px 15px; border:none; border-radius:3px; color:white; cursor:pointer;"
+                            onclick="document.getElementById('addEventFormBox').style.display='none'">Cancel</button>
+                        <button class="btn-add-new" id="btnSaveEvent" style="margin-left:10px;">Save Event</button>
+                    </div>
+                </div>
+
+                <div id="calendarListArea" style="display:flex; flex-direction:column; gap:10px;">
+                    <p style="text-align:center; padding:20px; color:#777;">Fetching calendar events... ⏳</p>
+                </div>
+            </div>
+
+            <div id="module-add-hw" class="app-module" style="display:none;">
+                <div class="profile-header">
+                    <h2>UPLOAD <span id="formDynamicTitle">COMMUNICATION</span></h2>
+                    <button class="btn-dark" style="padding:6px 15px;"
+                        onclick="document.querySelector('.nav-btn.active').click()">← Back to List</button>
+                </div>
+
+                <div class="form-container">
+                    <form id="assignmentForm">
+                        <input type="hidden" id="editAssignmentId" value="">
+
+                        <div class="form-row">
+                            <div class="input-group"><label>Academic Year <span
+                                        style="color:red;">*</span></label><select id="acadYear" required>
+                                    <option value="2026-2027">2026-2027</option>
+                                </select></div>
+                            <div class="input-group" id="grpDate"><label id="lblDate">Due Date / Publish Date <span
+                                        style="color:red;">*</span></label><input type="date" id="hwDate" required>
+                            </div>
+                            <div class="input-group"><label>Class <span style="color:red;">*</span></label><select
+                                    id="hwClass" required>
+                                    <option value="">Select Class</option>
+                                    <option value="All">All Classes (Global)</option>
+                                </select></div>
+                            <div class="input-group"><label>Section <span style="color:red;">*</span></label><select
+                                    id="hwSection" required>
+                                    <option value="">Select Section</option>
+                                    <option value="All">All Sections</option>
+                                </select></div>
+                        </div>
+
+                        <div class="form-row">
+
+
+                            <div class="form-row">
+                                <div class="input-group" id="grpType">
+                                    <label>Type <span style="color:red;">*</span></label>
+                                    <select id="hwType" required>
+                                        <option value="Homework">Homework</option>
+                                        <option value="Classwork">Classwork</option>
+                                        <option value="Holiday Homework">Holiday Homework</option>
+                                        <option value="Assignment">Assignment</option>
+                                        <option value="Project">Project</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="input-group" id="grpSubject"><label>Subject</label><select id="hwSubject">
+                                        <option value="">Select Subject</option>
+                                        <option value="English">English</option>
+                                        <option value="Hindi">Hindi</option>
+                                        <option value="Mathematics">Mathematics</option>
+                                        <option value="Science">Science</option>
+                                        <option value="Social Science">Social Science</option>
+                                        <option value="Computer">Computer</option>
+                                        <option value="General Knowledge">General Knowledge</option>
+                                    </select></div>
+                                <div class="input-group" style="flex:2;"><label>Title / Topic Name <span
+                                            style="color:red;">*</span></label><input type="text" id="hwName"
+                                        placeholder="Enter Title" required></div>
+                            </div>
+
+
+
+
+                            <div class="input-group" id="grpSubject"><label>Subject</label><select id="hwSubject">
+                                    <option value="">Select Subject</option>
+                                    <option value="English">English</option>
+                                    <option value="Hindi">Hindi</option>
+                                    <option value="Mathematics">Mathematics</option>
+                                    <option value="Science">Science</option>
+                                    <option value="Social Science">Social Science</option>
+                                    <option value="Computer">Computer</option>
+                                    <option value="General Knowledge">General Knowledge</option>
+                                </select></div>
+                            <div class="input-group" style="flex:2;"><label>Title / Topic Name <span
+                                        style="color:red;">*</span></label><input type="text" id="hwName"
+                                    placeholder="Enter Title" required></div>
+                        </div>
+
+                        <div id="dynAchievement" class="dynamic-fields-box">
+                            <h4 style="margin:0 0 10px 0; color:#e67e22;">Achievement Details</h4>
+                            <div class="form-row" style="margin-bottom:0;">
+                                <div class="input-group"><label>Activity Group</label><input type="text" id="achGroup"
+                                        placeholder="e.g. Sports"></div>
+                                <div class="input-group"><label>Level</label><select id="achLevel">
+                                        <option value="">Select</option>
+                                        <option value="Inter-School">Inter-School</option>
+                                        <option value="Zonal">Zonal</option>
+                                        <option value="State">State</option>
+                                        <option value="National">National</option>
+                                    </select></div>
+                                <div class="input-group"><label>Rank / Position</label><input type="text" id="achRank"
+                                        placeholder="e.g. 1st Place"></div>
+                                <div class="input-group"><label>Venue</label><input type="text" id="achVenue"
+                                        placeholder="e.g. DPS Stadium"></div>
+                            </div>
+                        </div>
+                        <div id="dynRemarks" class="dynamic-fields-box">
+                            <h4 style="margin:0 0 10px 0; color:#27ae60;">Remark Specifics</h4>
+                            <div class="form-row" style="margin-bottom:0;">
+                                <div class="input-group"><label>Remark Category</label><select id="remCat">
+                                        <option value="">Select Category</option>
+                                        <option value="Academic">Academic</option>
+                                        <option value="Discipline">Discipline</option>
+                                        <option value="Extracurricular">Extracurricular</option>
+                                    </select></div>
+                                <div class="input-group"><label>Remark Type</label><select id="remType">
+                                        <option value="">Select Type</option>
+                                        <option value="Positive">Positive</option>
+                                        <option value="Needs Improvement">Needs Improvement</option>
+                                        <option value="Warning">Warning</option>
+                                    </select></div>
+                            </div>
+                        </div>
+
+                        <div class="student-selector-box"><label
+                                style="font-weight:bold; color:#2c3e50; display:block; margin-bottom:10px;">Select
+                                Target Students</label>
+                            <div style="display:flex; gap:20px;"><label><input type="radio" name="targetType"
+                                        value="All" checked> Whole Class / Section</label><label><input type="radio"
+                                        name="targetType" value="Specific"> Specific Student(s)</label></div>
+                            <div id="specificStudentsContainer" style="display:none;">
+                                <div class="stu-grid" id="stuGrid"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="align-items: flex-start;">
+                            <div class="input-group" style="flex:1;"><label>Detailed Description</label><textarea
+                                    id="hwDesc" placeholder="Enter full details here..." rows="4"
+                                    style="resize:vertical;"></textarea></div>
+                        </div>
+
+                        <div class="form-row" style="align-items: center; border-top:1px solid #eee; padding-top:15px;">
+                            <div class="input-group" style="flex:1;"><label>Attachment (Optional)</label><label
+                                    for="hwFile" class="btn-attach">📎 Add Attachment</label><input type="file"
+                                    id="hwFile" hidden><span id="hwFileName"
+                                    style="font-size:12px; color:#777; margin-top:5px;">No file selected</span><input
+                                    type="hidden" id="hwBase64"></div>
+                            <div class="input-group" style="flex:1; padding-left:20px;" id="grpSubmissionReq">
+                                <label>Submission Required (HW Only)</label>
+                                <label class="switch"><input type="checkbox" id="hwSubmissionReq"><span
+                                        class="slider"></span></label>
+                            </div>
+                            <div class="input-group" style="flex:1; display:none;" id="grpSubDueDate">
+                                <label>Submission Due Date <span style="color:red;">*</span></label>
+                                <input type="date" id="hwSubDueDate">
+                            </div>
+                        </div>
+
+                        <div class="submit-section"><button type="submit" class="submit-btn" id="btnSaveHw">Save
+                                Entry</button></div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div id="responsesModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
-    <div style="background:white; border-radius:8px; width:800px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
-        <div style="background:#2c3e50; color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; border-radius:8px 8px 0 0;"><h3 style="margin:0;">Evaluate Student Submissions</h3><span onclick="document.getElementById('responsesModal').style.display='none'" style="cursor:pointer; font-size:24px;">&times;</span></div>
-        <div style="padding:20px; overflow-y:auto; flex:1;"><table class="resp-table"><thead><tr><th>Student</th><th>Assignment Name</th><th>Submitted Answer</th><th>Marks</th><th>Remarks</th><th>Action</th></tr></thead><tbody id="respTableBody"><tr><td colspan="6" style="text-align:center;">No pending submissions.</td></tr></tbody></table></div>
+    <div id="responsesModal" class="modal-overlay"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+        <div
+            style="background:white; border-radius:8px; width:800px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+            <div
+                style="background:#2c3e50; color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; border-radius:8px 8px 0 0;">
+                <h3 style="margin:0;">Evaluate Student Submissions</h3><span
+                    onclick="document.getElementById('responsesModal').style.display='none'"
+                    style="cursor:pointer; font-size:24px;">&times;</span>
+            </div>
+            <div style="padding:20px; overflow-y:auto; flex:1;">
+                <table class="resp-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Assignment Name</th>
+                            <th>Submitted Answer</th>
+                            <th>Marks</th>
+                            <th>Remarks</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="respTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align:center;">No pending submissions.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</div>
 
-<script src="assignment.js"></script>
+    <script src="assignment.js"></script>
 </body>
+
 </html>
