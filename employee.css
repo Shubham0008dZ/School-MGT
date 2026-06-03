@@ -126,3 +126,15 @@ body, html { height: 100%; background-color: #f4f4f9; }
 
 /* Grid Row for Experience/Education (Fix for cramped table) */
 .grid-row-entry { display: grid; grid-template-columns: 0.5fr 2fr 2fr 1.5fr 1fr 1fr auto; gap: 10px; align-items: end; background: #f8f9fa; padding: 10px; border: 1px solid #e9ecef; border-radius: 4px; margin-bottom: 10px;}
+
+
+
+
+
+
+/* FIX FOR EDUCATION & EXPERIENCE TABLE INPUTS */
+#qualTableBody input, #qualTableBody select,
+#expTableBody input, #expTableBody select {
+    width: 100%; padding: 6px 8px; border: 1px solid #ced4da; border-radius: 3px; font-size: 12px; box-sizing: border-box;
+}
+#qualTableBody input[type="checkbox"], #expTableBody input[type="checkbox"] { width: auto; transform: scale(1.2); cursor: pointer; }
