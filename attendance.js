@@ -14,9 +14,8 @@ if(!scriptURL) { window.location.href = 'login.html'; }
 
 
 
-
-// DYNAMIC NAVBAR UPDATE LOGIC (Multi-Tenant UI)
-document.addEventListener('DOMContentLoaded', () => {
+// DYNAMIC NAVBAR UPDATE LOGIC (Immediate Execution Fix)
+try {
     let savedName = localStorage.getItem('erp_school_name');
     let savedLogo = localStorage.getItem('erp_school_logo');
     
@@ -26,16 +25,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // School Name Update
     if(savedName && navNameEl) {
-        navNameEl.innerText = savedName;
+        navNameEl.innerText = savedName; 
     }
     
     // School Logo Update
     if(savedLogo && savedLogo.startsWith('http') && navLogoImg) {
         navLogoImg.src = savedLogo;
-        navLogoImg.style.display = 'inline-block'; // Show dynamic image
-        if(navLogoDefault) navLogoDefault.style.display = 'none'; // Hide default emoji
+        navLogoImg.style.display = 'inline-block';
+        if(navLogoDefault) navLogoDefault.style.display = 'none';
     }
-});
+} catch(error) {
+    console.error("Navbar logic failed:", error);
+}
 
 
 
