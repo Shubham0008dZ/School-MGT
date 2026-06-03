@@ -54,11 +54,6 @@ body, html { height: 100%; background-color: #f4f4f9; }
 
 /* Form Styles */
 .form-container { background: white; border: 1px solid #ddd; border-radius: 5px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-.form-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
-.form-tabs .tab { padding: 10px 20px; background: none; border: none; font-size: 14px; font-weight: bold; color: #7f8c8d; cursor: pointer; border-bottom: 3px solid transparent; }
-.form-tabs .tab.active { color: #e74c3c; border-bottom-color: #e74c3c; }
-.form-tab-content { display: none; animation: fadeIn 0.3s; }
-.form-tab-content.active { display: block; }
 .form-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap:wrap;}
 .input-group { display: flex; flex-direction: column; flex: 1; min-width:200px;}
 .input-group label { font-size: 12px; font-weight: bold; color: #555; margin-bottom: 5px; }
@@ -94,45 +89,6 @@ body, html { height: 100%; background-color: #f4f4f9; }
 .btn-remove-photo:hover { background: #c0392b; }
 .upload-btn { background: #34495e; color: white; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; display: inline-block; }
 .crop-container { width: 100%; max-height: 400px; background: #333; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-
-
-
-
-
-
-
-
-
-/* ==========================================
-   PREMIUM TABBED MODAL FOR EMPLOYEE FORM
-   ========================================== */
-.large-modal { width: 95%; max-width: 1200px; height: 90vh; background: #fff; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-.modal-header { background: #2c3e50; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-.modal-header h3 { margin: 0; font-size: 18px; }
-.close-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
-
-/* Tabs Navigation */
-.emp-tabs { display: flex; background: #f8f9fa; border-bottom: 2px solid #e1e1e1; padding: 0 10px; overflow-x: auto;}
-.emp-tab-btn { background: none; border: none; padding: 12px 20px; font-weight: bold; color: #7f8c8d; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; white-space: nowrap; }
-.emp-tab-btn:hover { color: #2c3e50; }
-.emp-tab-btn.active { color: #e67e22; border-bottom-color: #e67e22; }
-
-/* Tab Content & Form Grid */
-.emp-tab-content { display: none; padding: 20px; flex: 1; overflow-y: auto; background: #fdfdfd; }
-.emp-tab-content.active { display: block; animation: fadeIn 0.3s; }
-.form-section-title { font-size: 15px; color: #34495e; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px; margin-bottom: 15px; margin-top: 10px; font-weight: bold;}
-
-.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;}
-.input-group { display: flex; flex-direction: column; text-align: left; }
-.input-group label { font-size: 12px; font-weight: bold; color: #555; margin-bottom: 5px; }
-.input-group input, .input-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; outline: none; transition: 0.3s; width: 100%;}
-.input-group input:focus, .input-group select:focus { border-color: #e67e22; box-shadow: 0 0 5px rgba(230,126,34,0.3); }
-
-.modal-footer { padding: 15px 20px; background: #ecf0f1; border-top: 1px solid #bdc3c7; display: flex; justify-content: flex-end; gap: 10px; }
-.btn-save { background: #27ae60; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-.btn-next { background: #2980b9; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-.btn-cancel { background: #95a5a6; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-
 
 /* ==========================================
    EXACT REPLICA LAYOUT CSS (Add Employee)
@@ -170,19 +126,3 @@ body, html { height: 100%; background-color: #f4f4f9; }
 
 /* Grid Row for Experience/Education (Fix for cramped table) */
 .grid-row-entry { display: grid; grid-template-columns: 0.5fr 2fr 2fr 1.5fr 1fr 1fr auto; gap: 10px; align-items: end; background: #f8f9fa; padding: 10px; border: 1px solid #e9ecef; border-radius: 4px; margin-bottom: 10px;}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
