@@ -37,49 +37,33 @@ document.addEventListener('DOMContentLoaded', () => {
     let userRights = [];
     try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
 
+    // DYNAMIC SCRIPT URL FROM MULTI-TENANT LOGIN
+    const scriptURL = localStorage.getItem('erp_school_url');
+    if(!scriptURL) { window.location.href = 'login.html'; }
 
-
-
-    
-   // DYNAMIC SCRIPT URL FROM MULTI-TENANT LOGIN
-const scriptURL = localStorage.getItem('erp_school_url');
-if(!scriptURL) { window.location.href = 'login.html'; }
-
-
-
-
-
-
-
-// DYNAMIC NAVBAR UPDATE LOGIC (Immediate Execution Fix)
-try {
-    let savedName = localStorage.getItem('erp_school_name');
-    let savedLogo = localStorage.getItem('erp_school_logo');
-    
-    let navNameEl = document.getElementById('dynamicNavName');
-    let navLogoImg = document.getElementById('dynamicNavLogo');
-    let navLogoDefault = document.getElementById('defaultNavLogo');
-    
-    // School Name Update
-    if(savedName && navNameEl) {
-        navNameEl.innerText = savedName; 
+    // DYNAMIC NAVBAR UPDATE LOGIC (Immediate Execution Fix)
+    try {
+        let savedName = localStorage.getItem('erp_school_name');
+        let savedLogo = localStorage.getItem('erp_school_logo');
+        
+        let navNameEl = document.getElementById('dynamicNavName');
+        let navLogoImg = document.getElementById('dynamicNavLogo');
+        let navLogoDefault = document.getElementById('defaultNavLogo');
+        
+        // School Name Update
+        if(savedName && navNameEl) {
+            navNameEl.innerText = savedName; 
+        }
+        
+        // School Logo Update
+        if(savedLogo && savedLogo.startsWith('http') && navLogoImg) {
+            navLogoImg.src = savedLogo;
+            navLogoImg.style.display = 'inline-block';
+            if(navLogoDefault) navLogoDefault.style.display = 'none';
+        }
+    } catch(error) {
+        console.error("Navbar logic failed:", error);
     }
-    
-    // School Logo Update
-    if(savedLogo && savedLogo.startsWith('http') && navLogoImg) {
-        navLogoImg.src = savedLogo;
-        navLogoImg.style.display = 'inline-block';
-        if(navLogoDefault) navLogoDefault.style.display = 'none';
-    }
-} catch(error) {
-    console.error("Navbar logic failed:", error);
-}
-    
-
-    
-
-
-
     
     const networkHealth = runNetworkDiagnostics(scriptURL);
 
@@ -123,8 +107,9 @@ try {
         });
     });
 
-    const formTabs = document.querySelectorAll('.form-tabs .tab');
-    const tabContents = document.querySelectorAll('.form-tab-content');
+    // FIXED: Updated selectors to match new UI classes
+    const formTabs = document.querySelectorAll('.erp-tab-btn');
+    const tabContents = document.querySelectorAll('.erp-tab-content');
     formTabs.forEach(tab => {
         tab.addEventListener('click', (e) => {
             e.preventDefault(); formTabs.forEach(t => t.classList.remove('active')); tabContents.forEach(c => c.classList.remove('active'));
@@ -192,7 +177,8 @@ try {
                 const base64 = canvas.toDataURL('image/jpeg', 0.8);
                 document.getElementById('empPhotoBase64').value = base64;
                 document.getElementById('empPhotoPreview').src = base64;
-                document.getElementById('btnRemove_empPhoto').style.display = 'inline-block';
+                let removeBtn = document.getElementById('btnRemove_empPhoto');
+                if(removeBtn) removeBtn.style.display = 'inline-block';
             }
             document.getElementById('cropModalOverlay').classList.remove('active');
             cropper.destroy(); cropper = null;
@@ -234,18 +220,18 @@ try {
     function applyAllFilters() {
         const fName = document.getElementById('searchEmpName').value.toLowerCase();
         const fId = document.getElementById('fEmpId').value.toLowerCase();
-        const fPOB = document.getElementById('fPOB').value.toLowerCase();
-        const fNat = document.getElementById('fNat').value.toLowerCase();
-        const fStaff = document.getElementById('fStaffType').value;
-        const fGen = document.getElementById('fGender').value;
-        const fBlood = document.getElementById('fBlood').value;
-        const fDept = document.getElementById('fDept').value;
-        const fDesig = document.getElementById('fDesig').value;
-        const fMarital = document.getElementById('fMarital').value;
-        const fRel = document.getElementById('fRel').value;
-        const fUser = document.getElementById('fUserType').value;
-        const fFrom = document.getElementById('fJoinFrom').value;
-        const fTo = document.getElementById('fJoinTo').value;
+        const fPOB = document.getElementById('fPOB') ? document.getElementById('fPOB').value.toLowerCase() : "";
+        const fNat = document.getElementById('fNat') ? document.getElementById('fNat').value.toLowerCase() : "";
+        const fStaff = document.getElementById('fStaffType') ? document.getElementById('fStaffType').value : "";
+        const fGen = document.getElementById('fGender') ? document.getElementById('fGender').value : "";
+        const fBlood = document.getElementById('fBlood') ? document.getElementById('fBlood').value : "";
+        const fDept = document.getElementById('fDept') ? document.getElementById('fDept').value : "";
+        const fDesig = document.getElementById('fDesig') ? document.getElementById('fDesig').value : "";
+        const fMarital = document.getElementById('fMarital') ? document.getElementById('fMarital').value : "";
+        const fRel = document.getElementById('fRel') ? document.getElementById('fRel').value : "";
+        const fUser = document.getElementById('fUserType') ? document.getElementById('fUserType').value : "";
+        const fFrom = document.getElementById('fJoinFrom') ? document.getElementById('fJoinFrom').value : "";
+        const fTo = document.getElementById('fJoinTo') ? document.getElementById('fJoinTo').value : "";
 
         let filtered = allEmployees.filter(e => {
             let mName = fName === "" || (e.empName || "").toLowerCase().includes(fName);
@@ -314,12 +300,19 @@ try {
         addEmpBtn.addEventListener('click', () => {
             document.getElementById('employeeForm').reset(); document.getElementById('editEmpMode').value = "false"; document.getElementById('empId').readOnly = false;
             document.getElementById('qualTableBody').innerHTML = ''; document.getElementById('expTableBody').innerHTML = '';
-            document.getElementById('empPhotoBase64').value = ''; document.getElementById('empPhotoPreview').src = DEFAULT_AVATAR; document.getElementById('btnRemove_empPhoto').style.display = 'none';
-            addQualRow(); addExpRow(); formTabs[0].click(); showView('module-add-employee');
+            document.getElementById('empPhotoBase64').value = ''; document.getElementById('empPhotoPreview').src = DEFAULT_AVATAR; 
+            
+            // FIXED: Safe check added
+            let removeBtn = document.getElementById('btnRemove_empPhoto');
+            if(removeBtn) removeBtn.style.display = 'none';
+            
+            addQualRow(); addExpRow(); 
+            if(formTabs.length > 0) formTabs[0].click(); // FIXED: Safe tab click
+            showView('module-add-employee');
         });
     }
 
-    document.getElementById('btn-back-to-emps').addEventListener('click', () => showView('module-employees-list'));
+    document.getElementById('btn-back-to-emps')?.addEventListener('click', () => showView('module-employees-list'));
 
     function getOptionsHTML(arr, selectedVal) {
         let html = '<option value="">-Select-</option>';
@@ -328,36 +321,45 @@ try {
     }
 
     function addQualRow(data = {}) {
-        const tbody = document.getElementById('qualTableBody'); const srNo = tbody.children.length + 1; const tr = document.createElement('tr');
+        const tbody = document.getElementById('qualTableBody'); if(!tbody) return;
+        const srNo = tbody.children.length + 1; const tr = document.createElement('tr');
         let cTypeOpts = getOptionsHTML(empSetup.courseTypes, data.type); let qNameOpts = getOptionsHTML(empSetup.qualNames, data.name);
         tr.innerHTML = `<td>${srNo}</td><td><select class="q-type">${cTypeOpts}</select></td><td><select class="q-name">${qNameOpts}</select></td><td><input type="text" class="q-inst" value="${data.inst || ''}"></td><td><input type="text" class="q-uni" value="${data.uni || ''}"></td><td><input type="number" class="q-dur" value="${data.dur || ''}"></td><td><input type="text" class="q-year" value="${data.year || ''}"></td><td><input type="text" class="q-perc" value="${data.perc || ''}"></td><td><input type="text" class="q-sub" value="${data.sub || ''}"></td><td><input type="text" class="q-ref" value="${data.ref || ''}"></td><td><input type="checkbox" class="q-unv" ${data.unv ? 'checked' : ''}></td>`;
         tbody.appendChild(tr);
     }
 
     function addExpRow(data = {}) {
-        const tbody = document.getElementById('expTableBody'); const srNo = tbody.children.length + 1; const tr = document.createElement('tr');
+        const tbody = document.getElementById('expTableBody'); if(!tbody) return;
+        const srNo = tbody.children.length + 1; const tr = document.createElement('tr');
         tr.innerHTML = `<td class="e-sr">${srNo}</td><td><input type="text" class="e-org" value="${data.org || ''}"></td><td><input type="text" class="e-add" value="${data.add || ''}"></td><td><input type="date" class="e-from" value="${data.from || ''}"></td><td><input type="date" class="e-to" value="${data.to || ''}"></td><td><input type="text" class="e-dept" value="${data.dept || ''}"></td><td><input type="text" class="e-desig" value="${data.desig || ''}"></td><td><input type="text" class="e-resp" value="${data.resp || ''}"></td><td><input type="checkbox" class="e-del" title="Check to exclude on save"></td>`;
         tbody.appendChild(tr);
     }
 
     document.getElementById('btnAddQualRow')?.addEventListener('click', () => addQualRow());
-    document.getElementById('btnDelQualRow')?.addEventListener('click', () => { const tbody = document.getElementById('qualTableBody'); if(tbody.children.length > 1) tbody.removeChild(tbody.lastChild); });
+    document.getElementById('btnDelQualRow')?.addEventListener('click', () => { const tbody = document.getElementById('qualTableBody'); if(tbody && tbody.children.length > 1) tbody.removeChild(tbody.lastChild); });
     document.getElementById('btnAddExpRow')?.addEventListener('click', () => addExpRow());
 
     function getVal(id) { return document.getElementById(id) ? document.getElementById(id).value : ''; }
     function setVal(id, val) { if(document.getElementById(id)) document.getElementById(id).value = val || ''; }
 
     window.editEmp = function(e) {
-        showView('module-add-employee'); document.getElementById('editEmpMode').value = "true"; formTabs[0].click(); 
-        setVal('empId', e.empId); document.getElementById('empId').readOnly = true;
+        showView('module-add-employee'); document.getElementById('editEmpMode').value = "true"; 
+        if(formTabs.length > 0) formTabs[0].click(); // FIXED: Safe check
+        
+        setVal('empId', e.empId); if(document.getElementById('empId')) document.getElementById('empId').readOnly = true;
         setVal('empSalutation', e.empSalutation); setVal('empName', e.empName); setVal('empMobile', e.empMobile); setVal('empPOB', e.empPOB); setVal('empNat', e.empNat); setVal('empStaffType', e.empStaffType); setVal('empJoinDate', e.empJoinDate ? new Date(e.empJoinDate).toISOString().split('T')[0] : ''); setVal('empEmail', e.empEmail); setVal('empOffEmail', e.empOffEmail); setVal('empGender', e.empGender); setVal('empBlood', e.empBlood); setVal('empDept', e.empDept); setVal('empDob', e.empDob ? new Date(e.empDob).toISOString().split('T')[0] : ''); setVal('empBio', e.empBio); setVal('empDesig', e.empDesig); setVal('empMarital', e.empMarital); setVal('empRel', e.empRel); setVal('empUserType', e.empUserType); setVal('empWing', e.empWing); setVal('empRepAuth', e.empRepAuth); setVal('empPan', e.empPan); setVal('empAadhaar', e.empAadhaar); setVal('empMarDate', e.empMarDate ? new Date(e.empMarDate).toISOString().split('T')[0] : ''); setVal('empBank', e.empBank); setVal('empBranch', e.empBranch); setVal('empAccNo', e.empAccNo); setVal('empIfsc', e.empIfsc); setVal('empPf', e.empPf); setVal('empEsi', e.empEsi); setVal('empAccType', e.empAccType);
 
         // Load image base64
         setVal('empPhotoBase64', e.empPhotoBase64); 
-        document.getElementById('empPhotoPreview').src = e.empPhotoBase64 || DEFAULT_AVATAR;
-        if(e.empPhotoBase64) document.getElementById('btnRemove_empPhoto').style.display = 'inline-block'; else document.getElementById('btnRemove_empPhoto').style.display = 'none';
+        if(document.getElementById('empPhotoPreview')) document.getElementById('empPhotoPreview').src = e.empPhotoBase64 || DEFAULT_AVATAR;
+        
+        // FIXED: Safe check added
+        let btnRemPhoto = document.getElementById('btnRemove_empPhoto');
+        if(btnRemPhoto) { if(e.empPhotoBase64) btnRemPhoto.style.display = 'inline-block'; else btnRemPhoto.style.display = 'none'; }
 
-        document.getElementById('qualTableBody').innerHTML = ''; document.getElementById('expTableBody').innerHTML = '';
+        if(document.getElementById('qualTableBody')) document.getElementById('qualTableBody').innerHTML = ''; 
+        if(document.getElementById('expTableBody')) document.getElementById('expTableBody').innerHTML = '';
+        
         try { let qData = JSON.parse(e.empQual); if(Array.isArray(qData) && qData.length > 0) qData.forEach(d => addQualRow(d)); else addQualRow(); } catch(err) { addQualRow(); }
         try { let eData = JSON.parse(e.empExp); if(Array.isArray(eData) && eData.length > 0) eData.forEach(d => addExpRow(d)); else addExpRow(); } catch(err) { addExpRow(); }
     }
@@ -385,7 +387,8 @@ try {
     // INACTIVE EMPLOYEES LOGIC
     // ==========================================
     function populateInactiveDropdown() {
-        const sel = document.getElementById('inactiveEmpSelect'); sel.innerHTML = '<option value="">--Select Active Employee--</option>';
+        const sel = document.getElementById('inactiveEmpSelect'); if(!sel) return;
+        sel.innerHTML = '<option value="">--Select Active Employee--</option>';
         allEmployees.forEach(e => { if(e.Status !== "Inactive") { sel.innerHTML += `<option value="${e.empId}">${e.empId} - ${e.empName}</option>`; } });
     }
 
@@ -400,7 +403,8 @@ try {
     });
 
     function renderInactiveEmployeesTable() {
-        const tbody = document.getElementById('inactiveEmpTableBody'); tbody.innerHTML = '';
+        const tbody = document.getElementById('inactiveEmpTableBody'); if(!tbody) return;
+        tbody.innerHTML = '';
         let inactiveEmps = allEmployees.filter(e => e.Status === "Inactive");
         if(inactiveEmps.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No Inactive Employees found.</td></tr>'; return; }
         inactiveEmps.forEach((emp, idx) => {
@@ -414,7 +418,8 @@ try {
     // MASTER SETUP INTEGRATION
     // ==========================================
     function renderSetupDisplay() {
-        const disp = document.getElementById('esDisplay'); disp.innerHTML = '';
+        const disp = document.getElementById('esDisplay'); if(!disp) return;
+        disp.innerHTML = '';
         let displayNames = { 'departments': 'Departments', 'designations': 'Designations', 'staffTypes': 'Staff Types', 'bloodGroups': 'Blood Groups', 'maritalStatus': 'Marital Status', 'religions': 'Religions', 'genders': 'Genders', 'userTypes': 'User Types', 'wings': 'Wings', 'reportingAuths': 'Reporting Auths', 'accountTypes': 'Account Types', 'courseTypes': 'Course Types', 'qualNames': 'Qualification Names' };
         let html = '';
         Object.keys(empSetup).forEach(key => {
@@ -488,34 +493,4 @@ try {
     });
 
     setTimeout(() => { syncWithDatabase(); }, 100);
-});
-
-
-
-
-
-
-
-
-// ==========================================
-// EMPLOYEE MODAL TAB SWITCHING LOGIC
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    const tabBtns = document.querySelectorAll('.emp-tab-btn');
-    const tabContents = document.querySelectorAll('.emp-tab-content');
-
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // Remove active class from all buttons and content
-            tabBtns.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-
-            // Add active class to clicked button
-            btn.classList.add('active');
-            
-            // Show corresponding tab content
-            const targetId = btn.getAttribute('data-target');
-            document.getElementById(targetId).classList.add('active');
-        });
-    });
 });
