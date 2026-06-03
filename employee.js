@@ -489,3 +489,33 @@ try {
 
     setTimeout(() => { syncWithDatabase(); }, 100);
 });
+
+
+
+
+
+
+
+
+// ==========================================
+// EMPLOYEE MODAL TAB SWITCHING LOGIC
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const tabBtns = document.querySelectorAll('.emp-tab-btn');
+    const tabContents = document.querySelectorAll('.emp-tab-content');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Remove active class from all buttons and content
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+
+            // Add active class to clicked button
+            btn.classList.add('active');
+            
+            // Show corresponding tab content
+            const targetId = btn.getAttribute('data-target');
+            document.getElementById(targetId).classList.add('active');
+        });
+    });
+});
