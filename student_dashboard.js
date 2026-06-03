@@ -1,4 +1,7 @@
-const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
+// DYNAMIC SCRIPT URL FROM MULTI-TENANT LOGIN
+const scriptURL = localStorage.getItem('erp_school_url');
+if(!scriptURL) { window.location.href = 'login.html'; }
+
 
 let studentData = null;
 let globalDbData = null;
