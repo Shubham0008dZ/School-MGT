@@ -14,11 +14,11 @@
     <div class="top-left">
         <button id="sidebarToggle" class="hamburger-btn" title="Toggle Sidebar">☰</button>
         <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
-           <span class="school-logo" style="font-size: 24px; cursor: pointer;">
-    <img id="dynamicNavLogo" src="" alt="logo" style="max-height:24px; margin-right:5px; border-radius:4px; display:none; vertical-align:middle;">
-    <span id="defaultNavLogo">🏫</span>
-</span>
-<span class="school-name" id="dynamicNavName" style="font-weight: bold; cursor: pointer;">SHUBH ERP</span>
+            <span class="school-logo" style="font-size: 24px; cursor: pointer;">
+                <img id="dynamicNavLogo" src="" alt="logo" style="max-height:24px; margin-right:5px; border-radius:4px; display:none; vertical-align:middle;">
+                <span id="defaultNavLogo">🏫</span>
+            </span>
+            <span class="school-name" id="dynamicNavName" style="font-weight: bold; cursor: pointer;">SHUBH ERP</span>
         </a>
     </div>
     <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
@@ -103,10 +103,11 @@
                 </div>
                 
                 <div class="form-tabs">
-                    <button class="tab active" data-target="tab-emp-personal">Personal Details</button>
-                    <button class="tab" data-target="tab-emp-work">Work & Bank Details</button>
-                    <button class="tab" data-target="tab-emp-qual">Qualifications</button>
-                    <button class="tab" data-target="tab-emp-exp">Experience</button>
+                    <button class="tab active" data-target="tab-emp-personal" type="button">Basic & Family</button>
+                    <button class="tab" data-target="tab-emp-work" type="button">Work & Identity</button>
+                    <button class="tab" data-target="tab-emp-finance" type="button">Bank & Payroll</button>
+                    <button class="tab" data-target="tab-emp-qual" type="button">Qualifications</button>
+                    <button class="tab" data-target="tab-emp-exp" type="button">Experience</button>
                 </div>
 
                 <form id="employeeForm">
@@ -122,23 +123,43 @@
                                     <div class="input-group"><label>Full Name *</label><input type="text" id="empName" required></div>
                                 </div>
                                 <div class="form-row">
-                                    <div class="input-group"><label>Mobile No.</label><input type="tel" id="empMobile"></div>
-                                    <div class="input-group"><label>Place of Birth</label><input type="text" id="empPOB"></div>
-                                    <div class="input-group"><label>Nationality</label><input type="text" id="empNat"></div>
-                                </div>
-                                <div class="form-row">
                                     <div class="input-group"><label>Date of Birth</label><input type="date" id="empDob"></div>
                                     <div class="input-group"><label>Gender</label><select id="empGender"></select></div>
                                     <div class="input-group"><label>Blood Group</label><select id="empBlood"></select></div>
                                 </div>
                                 <div class="form-row">
-                                    <div class="input-group"><label>Marital Status</label><select id="empMarital"></select></div>
+                                    <div class="input-group"><label>Place of Birth</label><input type="text" id="empPOB"></div>
+                                    <div class="input-group"><label>Nationality</label><input type="text" id="empNat"></div>
                                     <div class="input-group"><label>Religion</label><select id="empRel"></select></div>
-                                    <div class="input-group"><label>Marriage Date</label><input type="date" id="empMarDate"></div>
                                 </div>
                                 <div class="form-row">
+                                    <div class="input-group"><label>Marital Status</label><select id="empMarital"></select></div>
+                                    <div class="input-group"><label>Marriage Date</label><input type="date" id="empMarDate"></div>
+                                </div>
+                                
+                                <h4 style="margin: 15px 0 5px 0; border-bottom: 1px solid #eee; padding-bottom: 5px;">Contact Details</h4>
+                                <div class="form-row">
+                                    <div class="input-group"><label>Mobile No.</label><input type="tel" id="empMobile"></div>
                                     <div class="input-group"><label>Personal Email</label><input type="email" id="empEmail"></div>
-                                    <div class="input-group"><label>Biometric ID</label><input type="text" id="empBio"></div>
+                                    <div class="input-group"><label>City</label><input type="text" id="empCity"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="input-group"><label>State</label><input type="text" id="empState"></div>
+                                    <div class="input-group"><label>PIN Code</label><input type="text" id="empPin"></div>
+                                </div>
+
+                                <h4 style="margin: 15px 0 5px 0; border-bottom: 1px solid #eee; padding-bottom: 5px;">Family Details</h4>
+                                <div class="form-row">
+                                    <div class="input-group"><label>Father's Name</label><input type="text" id="empFatherName"></div>
+                                    <div class="input-group"><label>Father's Mobile</label><input type="text" id="empFatherMobile"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="input-group"><label>Mother's Name</label><input type="text" id="empMotherName"></div>
+                                    <div class="input-group"><label>Mother's Mobile</label><input type="text" id="empMotherMobile"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="input-group"><label>Spouse's Name</label><input type="text" id="empSpouseName"></div>
+                                    <div class="input-group"><label>Spouse's Mobile</label><input type="text" id="empSpouseMobile"></div>
                                 </div>
                             </div>
                             
@@ -157,36 +178,51 @@
                     </div>
 
                     <div id="tab-emp-work" class="form-tab-content">
-                        <h4 class="section-title">Work Details</h4>
                         <div class="form-row">
                             <div class="input-group"><label>Staff Type</label><select id="empStaffType"></select></div>
+                            <div class="input-group"><label>User Type *</label><select id="empUserType"></select></div>
                             <div class="input-group"><label>Joining Date</label><input type="date" id="empJoinDate"></div>
-                            <div class="input-group"><label>Official Email</label><input type="email" id="empOffEmail"></div>
                         </div>
                         <div class="form-row">
                             <div class="input-group"><label>Department</label><select id="empDept"></select></div>
                             <div class="input-group"><label>Designation</label><select id="empDesig"></select></div>
-                            <div class="input-group"><label>User Type</label><select id="empUserType"></select></div>
+                            <div class="input-group"><label>Assigned Subjects</label><input type="text" id="empSubjects" placeholder="Comma separated"></div>
                         </div>
                         <div class="form-row">
                             <div class="input-group"><label>Wing</label><select id="empWing"></select></div>
-                            <div class="input-group"><label>Reporting Auth</label><select id="empRepAuth"></select></div>
+                            <div class="input-group"><label>Class In-charge</label><input type="text" id="empClassIncharge"></div>
+                            <div class="input-group"><label>Reporting Authority</label><select id="empRepAuth"></select></div>
                         </div>
-                        <h4 class="section-title">Identity & Bank Details</h4>
+                        <div class="form-row">
+                            <div class="input-group"><label>Employment Type</label><select id="empType"><option>Confirmation</option><option>Probation</option></select></div>
+                            <div class="input-group"><label>Official Email</label><input type="email" id="empOffEmail"></div>
+                            <div class="input-group"><label>Biometric ID / Code</label><input type="text" id="empBio"></div>
+                        </div>
+
+                        <h4 style="margin: 15px 0 5px 0; border-bottom: 1px solid #eee; padding-bottom: 5px;">Identity Documents</h4>
                         <div class="form-row">
                             <div class="input-group"><label>PAN No.</label><input type="text" id="empPan"></div>
-                            <div class="input-group"><label>Aadhaar No.</label><input type="text" id="empAadhaar"></div>
-                            <div class="input-group"><label>PF No.</label><input type="text" id="empPf"></div>
-                            <div class="input-group"><label>ESI No.</label><input type="text" id="empEsi"></div>
+                            <div class="input-group"><label>Aadhaar No. (Substitute)</label><input type="text" id="empAadhaarSub" placeholder="Identity Number"></div>
+                            <div class="input-group"><label>RFID Card No.</label><input type="text" id="empRFID"></div>
                         </div>
+                    </div>
+
+                    <div id="tab-emp-finance" class="form-tab-content">
                         <div class="form-row">
-                            <div class="input-group"><label>Bank Name</label><input type="text" id="empBank"></div>
+                            <div class="input-group"><label>Salary Payment Mode</label><select id="empSalMode"><option>Bank Transfer</option><option>Cheque</option><option>Cash</option></select></div>
+                            <div class="input-group"><label>Employee Salary Bank</label><input type="text" id="empBank"></div>
                             <div class="input-group"><label>Branch</label><input type="text" id="empBranch"></div>
-                            <div class="input-group"><label>Account No.</label><input type="text" id="empAccNo"></div>
                         </div>
                         <div class="form-row">
+                            <div class="input-group"><label>Account No.</label><input type="text" id="empAccNo"></div>
                             <div class="input-group"><label>IFSC Code</label><input type="text" id="empIfsc"></div>
                             <div class="input-group"><label>Account Type</label><select id="empAccType"></select></div>
+                        </div>
+                        <h4 style="margin: 15px 0 5px 0; border-bottom: 1px solid #eee; padding-bottom: 5px;">Statutory Details</h4>
+                        <div class="form-row">
+                            <div class="input-group"><label>PF No.</label><input type="text" id="empPf"></div>
+                            <div class="input-group"><label>ESI No.</label><input type="text" id="empEsi"></div>
+                            <div class="input-group"><label>UAN No.</label><input type="text" id="empUan"></div>
                         </div>
                     </div>
 
