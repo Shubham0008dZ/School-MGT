@@ -223,39 +223,55 @@
                             </div>
 
                             <div id="tab-edu" class="erp-tab-content">
-                                <div style="background:#f1f3f4; padding:10px; font-weight:bold; font-size:12px; display:grid; grid-template-columns: 0.5fr 2fr 2fr 1.5fr 1fr 1fr auto; gap:10px; margin-bottom:5px; border-radius:4px;">
-                                    <div>Course</div><div>Institution</div><div>University/Board</div><div>Duration</div><div>Pass Year</div><div>% / CGPA</div><div>Act</div>
+                                <div style="overflow-x:auto;">
+                                    <table class="data-table" style="width:100%; min-width:800px; margin-bottom:10px;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:40px;">Sr.</th>
+                                                <th>Course Type</th>
+                                                <th>Course Name</th>
+                                                <th>Institution</th>
+                                                <th>University/Board</th>
+                                                <th style="width:80px;">Duration(Mo)</th>
+                                                <th style="width:80px;">Pass Year</th>
+                                                <th style="width:80px;">% / CGPA</th>
+                                                <th>Subjects</th>
+                                                <th>Reference</th>
+                                                <th style="width:50px;">Univ?</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="qualTableBody">
+                                            </tbody>
+                                    </table>
                                 </div>
-                                
-                                <div id="qualTableBody">
-                                    <div class="grid-row-entry">
-                                        <div class="erp-input-group"><select><option>Select</option></select></div>
-                                        <div class="erp-input-group"><input type="text" placeholder="Institution"></div>
-                                        <div class="erp-input-group"><input type="text" placeholder="University"></div>
-                                        <div class="erp-input-group"><input type="text" placeholder="Months"></div>
-                                        <div class="erp-input-group"><input type="text" placeholder="Year"></div>
-                                        <div class="erp-input-group"><input type="text" placeholder="%"></div>
-                                        <button type="button" style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:16px;">🗑</button>
-                                    </div>
+                                <div style="display:flex; gap:10px; margin-top:10px;">
+                                    <button type="button" id="btnAddQualRow" class="btn btn-green-outline">⊕ Add Education Row</button>
+                                    <button type="button" id="btnDelQualRow" class="btn btn-red">🗑️ Remove Last Row</button>
                                 </div>
-                                
-                                <button type="button" id="btnAddQualRow" style="background:none; border:none; color:#1a73e8; font-weight:bold; cursor:pointer; margin-top:10px;">+ Add Education Row</button>
                             </div>
 
                             <div id="tab-exp" class="erp-tab-content">
-                                <div style="background:#f1f3f4; padding:10px; font-weight:bold; font-size:12px; display:grid; grid-template-columns: 2fr 2fr 1.5fr 1.5fr 1.5fr auto; gap:10px; margin-bottom:5px; border-radius:4px;">
-                                    <div>Organization Name</div><div>Organization Address</div><div>Designation</div><div>From Date</div><div>To Date</div><div>Act</div>
+                                <div style="overflow-x:auto;">
+                                    <table class="data-table" style="width:100%; min-width:800px; margin-bottom:10px;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:40px;">Sr.</th>
+                                                <th>Organization Name</th>
+                                                <th>Organization Address</th>
+                                                <th style="width:130px;">From Date</th>
+                                                <th style="width:130px;">To Date</th>
+                                                <th>Department</th>
+                                                <th>Designation</th>
+                                                <th>Responsibility</th>
+                                                <th style="width:50px;">Del</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="expTableBody">
+                                            </tbody>
+                                    </table>
                                 </div>
-                                
-                                <div id="expTableBody">
-                                    <div class="grid-row-entry" style="grid-template-columns: 2fr 2fr 1.5fr 1.5fr 1.5fr auto;">
-                                        <div class="erp-input-group"><input type="text" placeholder="Enter Organization"></div>
-                                        <div class="erp-input-group"><input type="text" placeholder="Enter Address"></div>
-                                        <div class="erp-input-group"><input type="text" placeholder="Designation"></div>
-                                        <div class="erp-input-group"><input type="date"></div>
-                                        <div class="erp-input-group"><input type="date"></div>
-                                        <button type="button" style="background:none; border:none; color:#1a73e8; cursor:pointer; font-size:20px; font-weight:bold;">+</button>
-                                    </div>
+                                <div style="display:flex; gap:10px; margin-top:10px;">
+                                    <button type="button" id="btnAddExpRow" class="btn btn-green-outline">⊕ Add Experience Row</button>
                                 </div>
                             </div>
 
