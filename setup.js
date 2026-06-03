@@ -7,6 +7,39 @@ document.addEventListener('DOMContentLoaded', () => {
 const scriptURL = localStorage.getItem('erp_school_url');
 if(!scriptURL) { window.location.href = 'login.html'; }
 
+
+
+
+
+
+// DYNAMIC NAVBAR UPDATE LOGIC (Multi-Tenant UI)
+document.addEventListener('DOMContentLoaded', () => {
+    let savedName = localStorage.getItem('erp_school_name');
+    let savedLogo = localStorage.getItem('erp_school_logo');
+    
+    let navNameEl = document.getElementById('dynamicNavName');
+    let navLogoImg = document.getElementById('dynamicNavLogo');
+    let navLogoDefault = document.getElementById('defaultNavLogo');
+    
+    // School Name Update
+    if(savedName && navNameEl) {
+        navNameEl.innerText = savedName;
+    }
+    
+    // School Logo Update
+    if(savedLogo && savedLogo.startsWith('http') && navLogoImg) {
+        navLogoImg.src = savedLogo;
+        navLogoImg.style.display = 'inline-block'; // Show dynamic image
+        if(navLogoDefault) navLogoDefault.style.display = 'none'; // Hide default emoji
+    }
+});
+
+
+
+    
+
+    
+
     
     
     let masterData = {
