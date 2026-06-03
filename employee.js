@@ -37,7 +37,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let userRights = [];
     try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
 
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyDv3nOs6E9OQOSXBywbYHJPpl_V8frIegpSmTCZFRlsh1xis6iS-SMZxEWxIqJ6s-aEw/exec';
+
+
+
+    
+   // DYNAMIC SCRIPT URL FROM MULTI-TENANT LOGIN
+const scriptURL = localStorage.getItem('erp_school_url');
+if(!scriptURL) { window.location.href = 'login.html'; }
+
+
+
+    
     const networkHealth = runNetworkDiagnostics(scriptURL);
 
     fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
