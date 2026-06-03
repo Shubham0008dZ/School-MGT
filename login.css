@@ -1,0 +1,68 @@
+/* ============================================================================
+   PREMIUM GLASSMORPHISM CSS FOR ERP LOGIN
+   ============================================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* { box-sizing: border-box; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
+body { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); overflow: hidden; position: relative; }
+
+/* Animated Background Shapes */
+.bg-shape { position: absolute; filter: blur(60px); z-index: -1; animation: float 10s infinite alternate; }
+.shape-1 { width: 300px; height: 300px; background: #2980b9; top: -10%; left: -10%; border-radius: 50%; }
+.shape-2 { width: 400px; height: 400px; background: #8e44ad; bottom: -20%; right: -10%; border-radius: 50%; animation-delay: -5s; }
+.shape-3 { width: 200px; height: 200px; background: #27ae60; top: 40%; left: 50%; border-radius: 50%; animation-delay: -2s; }
+
+@keyframes float { 0% { transform: translateY(0px) scale(1); } 100% { transform: translateY(30px) scale(1.1); } }
+
+/* Glass Panel Login Box */
+.login-box { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 40px; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 420px; text-align: center; position: relative; overflow: hidden; color: #fff; }
+
+/* Typography & Logos */
+.logo, .dynamic-logo { font-size: 50px; margin-bottom: 15px; }
+.dynamic-logo { max-height: 70px; margin-left: auto; margin-right: auto; display: none; border-radius: 8px;}
+h2 { font-weight: 600; margin-bottom: 5px; font-size: 22px; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+p.subtitle { color: #dcdde1; font-size: 13px; margin-bottom: 25px; }
+
+/* Tabs */
+.role-tabs { display: flex; margin-bottom: 25px; border-bottom: 2px solid rgba(255,255,255,0.1); }
+.role-tabs button { flex: 1; background: none; border: none; padding: 10px; font-weight: 500; color: #bdc3c7; cursor: pointer; font-size: 14px; transition: 0.3s; border-bottom: 3px solid transparent; outline: none; }
+.role-tabs button:hover { color: #fff; }
+.role-tabs button.active { color: #3498db; border-bottom-color: #3498db; text-shadow: 0 0 10px rgba(52, 152, 219, 0.5); }
+
+/* Inputs */
+.input-group { margin-bottom: 20px; text-align: left; }
+.input-group label { display: block; font-size: 12px; font-weight: 500; color: #ecf0f1; margin-bottom: 8px; letter-spacing: 0.5px;}
+.input-group input[type="text"], .input-group input[type="password"] { width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-size: 14px; color: #fff; outline: none; transition: 0.3s; }
+.input-group input::placeholder { color: rgba(255,255,255,0.5); }
+.input-group input:focus { border-color: #3498db; background: rgba(255,255,255,0.1); box-shadow: 0 0 10px rgba(52, 152, 219, 0.3); }
+
+/* Buttons */
+.btn-login, .btn-verify { width: 100%; padding: 14px; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2); letter-spacing: 0.5px; }
+.btn-login { background: linear-gradient(to right, #2980b9, #2c3e50); }
+.btn-login:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(41, 128, 185, 0.4); }
+.btn-verify { background: linear-gradient(to right, #e67e22, #d35400); }
+.btn-verify:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230, 126, 34, 0.4); }
+
+.btn-back-link { font-size: 12px; color: #bdc3c7; text-decoration: none; cursor: pointer; margin-top: 20px; display: inline-block; background: none; border: none; transition: 0.2s;}
+.btn-back-link:hover { color: #fff; text-decoration: underline; }
+
+/* Views & Transitions */
+.form-view, .step-view { display: none; animation: slideUp 0.4s ease forwards; }
+.form-view.active, .step-view.active { display: block; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Student Specific & Setup */
+.student-pin-box { display: none; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; }
+.checkbox-container { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 5px; }
+.checkbox-container input { margin-top: 4px; cursor: pointer; }
+.checkbox-container label { font-size: 12px; color: #ecf0f1; cursor: pointer; font-weight: 500; line-height: 1.4; }
+.forgot-link { color: #e74c3c; font-size: 12px; font-weight: 600; text-decoration: none; cursor: pointer; display: block; text-align: right; margin-top: 5px;}
+.forgot-link:hover { text-decoration: underline; color: #ff7675; }
+
+/* Slide Panels (OTP & Reset) */
+.slide-panel { position: absolute; top: 0; left: 100%; width: 100%; height: 100%; background: #1e272e; padding: 40px; transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); text-align: left; z-index: 10; display: flex; flex-direction: column; justify-content: center;}
+.slide-panel.active { left: 0; }
+.back-btn { color: #bdc3c7; font-size: 13px; cursor: pointer; font-weight: 600; margin-bottom: 20px; display: inline-block; border: none; background: none; transition: 0.2s;}
+.back-btn:hover { color: #fff; }
+.slide-panel h3 { color: #fff; font-size: 20px; margin-bottom: 5px; }
+.slide-panel p { color: #95a5a6; font-size: 12px; margin-bottom: 20px; }
