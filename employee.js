@@ -41,29 +41,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const scriptURL = localStorage.getItem('erp_school_url');
     if(!scriptURL) { window.location.href = 'login.html'; }
 
-    // DYNAMIC NAVBAR UPDATE LOGIC (Immediate Execution Fix)
+    // DYNAMIC NAVBAR UPDATE LOGIC
     try {
         let savedName = localStorage.getItem('erp_school_name');
         let savedLogo = localStorage.getItem('erp_school_logo');
-        
         let navNameEl = document.getElementById('dynamicNavName');
         let navLogoImg = document.getElementById('dynamicNavLogo');
         let navLogoDefault = document.getElementById('defaultNavLogo');
         
-        // School Name Update
-        if(savedName && navNameEl) {
-            navNameEl.innerText = savedName; 
-        }
-        
-        // School Logo Update
+        if(savedName && navNameEl) navNameEl.innerText = savedName; 
         if(savedLogo && savedLogo.startsWith('http') && navLogoImg) {
-            navLogoImg.src = savedLogo;
-            navLogoImg.style.display = 'inline-block';
+            navLogoImg.src = savedLogo; navLogoImg.style.display = 'inline-block';
             if(navLogoDefault) navLogoDefault.style.display = 'none';
         }
-    } catch(error) {
-        console.error("Navbar logic failed:", error);
-    }
+    } catch(error) { console.error("Navbar logic failed:", error); }
     
     const networkHealth = runNetworkDiagnostics(scriptURL);
 
@@ -107,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // FIXED: Updated selectors to match new UI classes
     const formTabs = document.querySelectorAll('.erp-tab-btn');
     const tabContents = document.querySelectorAll('.erp-tab-content');
     formTabs.forEach(tab => {
@@ -118,11 +108,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // AUTO LOAD SYNC WITH ADVANCED ERROR LOGGER
+    // AUTO LOAD SYNC
     // ==========================================
     window.syncWithDatabase = function() {
         const tbody = document.getElementById('empTableBody'); 
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳<br><span style="font-size:11px; color:#777;">Please wait, fetching records.</span></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳</td></tr>';
         
         fetch(scriptURL, { redirect: "follow" })
         .then(res => { if(!res.ok) throw new Error("HTTP Status: " + res.status); return res.json(); })
@@ -132,17 +122,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(res.empSetup) { Object.keys(empSetup).forEach(k => { empSetup[k] = res.empSetup[k] || []; }); }
                 populateSetupDropdowns(); renderSetupDisplay(); renderEmployeesTable(allEmployees); populateInactiveDropdown(); renderInactiveEmployeesTable(); 
             } else {
-                tbody.innerHTML = `<tr><td colspan="10" style="color:red; text-align:center; padding:20px;"><b>Error:</b> ${res.message}</td></tr>`; 
+                tbody.innerHTML = `<tr><td colspan="10" style="color:red; text-align:center;"><b>Error:</b> ${res.message}</td></tr>`; 
             }
         }).catch(e => {
-            let detailedError = e.message || e.toString();
-            let extraWarning = networkHealth.isDummyUrl ? `<div style="background:#f39c12; color:white; padding:10px; border-radius:4px; margin-bottom:15px; font-weight:bold;">🚨 DUMMY URL DETECTED.</div>` : "";
-            tbody.innerHTML = `<tr><td colspan="10" style="color:#c0392b; text-align:center; padding:30px; background:#fdf0ed;">${extraWarning}<span style="font-size:20px; font-weight:bold;">⚠️ API Connection Failed</span><br><br><span style="font-size:14px; color:#333;"><b>Reason:</b> ERR_CONNECTION_CLOSED / ${detailedError}</span><br><br><div style="background:white; border:1px solid #e74c3c; border-radius:5px; padding:15px; display:inline-block; text-align:left; color:#555; font-size:13px;"><b style="color:#e74c3c;">Troubleshooting Steps:</b><br><br>1. Ensure access is "Anyone".<br>2. Disable <b>AdBlocker/Antivirus</b>.<br>3. Change network.</div><br><br><button onclick="syncWithDatabase()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px;">🔄 Retry Connection</button></td></tr>`; 
+            tbody.innerHTML = `<tr><td colspan="10" style="color:#c0392b; text-align:center;">⚠️ API Connection Failed. <button onclick="syncWithDatabase()">Retry</button></td></tr>`; 
         });
     }
 
     // ==========================================
-    // CROPPER JS LOGIC (FOR EMPLOYEE PHOTO)
+    // CROPPER JS LOGIC
     // ==========================================
     let cropper = null;
     const fileInput = document.getElementById('empPhotoUploadNew');
@@ -154,9 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('cropImageTarget').src = evt.target.result;
                     document.getElementById('cropModalOverlay').classList.add('active');
                     if(cropper) { cropper.destroy(); }
-                    cropper = new Cropper(document.getElementById('cropImageTarget'), {
-                        aspectRatio: NaN, viewMode: 1, autoCropArea: 1,
-                    });
+                    cropper = new Cropper(document.getElementById('cropImageTarget'), { aspectRatio: NaN, viewMode: 1, autoCropArea: 1 });
                 }
                 reader.readAsDataURL(this.files[0]);
             }
@@ -192,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // FILTER AND SEARCH LOGIC
     // ==========================================
-    const categoryMapping = { 'departments': 'empDept', 'designations': 'empDesig', 'staffTypes': 'empStaffType', 'bloodGroups': 'empBlood', 'maritalStatus': 'empMarital', 'religions': 'empRel', 'genders': 'empGender', 'userTypes': 'empUserType', 'wings': 'empWing', 'reportingAuths': 'empRepAuth', 'accountTypes': 'empAccType' };
+    const categoryMapping = { 'departments': 'empDept', 'designations': 'empDesig', 'staffTypes': 'empType', 'bloodGroups': 'empBlood', 'maritalStatus': 'empMarital', 'religions': 'empRel', 'genders': 'empGender', 'userTypes': 'empUserType', 'wings': 'empWing', 'reportingAuths': 'empRepAuth', 'accountTypes': 'empAccType' };
 
     function fillFilterSelect(id, array) {
         const el = document.getElementById(id); if(!el) return;
@@ -206,58 +192,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if(el) { el.innerHTML = '<option value="">-Select-</option>'; if(empSetup[setupKey]) { empSetup[setupKey].forEach(d => { el.innerHTML += `<option value="${d}">${d}</option>`; }); } }
         });
         
-        // Populate Filter Dropdowns
-        fillFilterSelect('fStaffType', empSetup.staffTypes);
-        fillFilterSelect('fGender', empSetup.genders);
-        fillFilterSelect('fBlood', empSetup.bloodGroups);
         fillFilterSelect('fDept', empSetup.departments);
         fillFilterSelect('fDesig', empSetup.designations);
-        fillFilterSelect('fMarital', empSetup.maritalStatus);
-        fillFilterSelect('fRel', empSetup.religions);
-        fillFilterSelect('fUserType', empSetup.userTypes);
     }
 
     function applyAllFilters() {
         const fName = document.getElementById('searchEmpName').value.toLowerCase();
         const fId = document.getElementById('fEmpId').value.toLowerCase();
-        const fPOB = document.getElementById('fPOB') ? document.getElementById('fPOB').value.toLowerCase() : "";
-        const fNat = document.getElementById('fNat') ? document.getElementById('fNat').value.toLowerCase() : "";
-        const fStaff = document.getElementById('fStaffType') ? document.getElementById('fStaffType').value : "";
-        const fGen = document.getElementById('fGender') ? document.getElementById('fGender').value : "";
-        const fBlood = document.getElementById('fBlood') ? document.getElementById('fBlood').value : "";
         const fDept = document.getElementById('fDept') ? document.getElementById('fDept').value : "";
         const fDesig = document.getElementById('fDesig') ? document.getElementById('fDesig').value : "";
-        const fMarital = document.getElementById('fMarital') ? document.getElementById('fMarital').value : "";
-        const fRel = document.getElementById('fRel') ? document.getElementById('fRel').value : "";
-        const fUser = document.getElementById('fUserType') ? document.getElementById('fUserType').value : "";
-        const fFrom = document.getElementById('fJoinFrom') ? document.getElementById('fJoinFrom').value : "";
-        const fTo = document.getElementById('fJoinTo') ? document.getElementById('fJoinTo').value : "";
 
         let filtered = allEmployees.filter(e => {
             let mName = fName === "" || (e.empName || "").toLowerCase().includes(fName);
             let mId = fId === "" || (e.empId || "").toLowerCase().includes(fId);
-            let mPOB = fPOB === "" || (e.empPOB || "").toLowerCase().includes(fPOB);
-            let mNat = fNat === "" || (e.empNat || "").toLowerCase().includes(fNat);
-            
-            let mStaff = fStaff === "" || fStaff === "All" || e.empStaffType === fStaff;
-            let mGen = fGen === "" || fGen === "All" || e.empGender === fGen;
-            let mBlood = fBlood === "" || fBlood === "All" || e.empBlood === fBlood;
             let mDept = fDept === "" || fDept === "All" || e.empDept === fDept;
             let mDesig = fDesig === "" || fDesig === "All" || e.empDesig === fDesig;
-            let mMarital = fMarital === "" || fMarital === "All" || e.empMarital === fMarital;
-            let mRel = fRel === "" || fRel === "All" || e.empRel === fRel;
-            let mUser = fUser === "" || fUser === "All" || e.empUserType === fUser;
-
-            let mDate = true;
-            if(fFrom || fTo) {
-                if(!e.empJoinDate) { mDate = false; }
-                else {
-                    let jDate = new Date(e.empJoinDate);
-                    if(fFrom) { let fromD = new Date(fFrom); if(jDate < fromD) mDate = false; }
-                    if(fTo) { let toD = new Date(fTo); if(jDate > toD) mDate = false; }
-                }
-            }
-            return mName && mId && mPOB && mNat && mStaff && mGen && mBlood && mDept && mDesig && mMarital && mRel && mUser && mDate;
+            return mName && mId && mDept && mDesig;
         });
         renderEmployeesTable(filtered);
         document.getElementById('filterDropdownPanel').style.display = 'none';
@@ -283,7 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let actionHtml = "";
             if (isSA || userRights.includes("HR_Add")) { actionHtml = `<button class="btn-action edit" onclick='editEmp(${safeEmp})'>✏️</button>`; }
 
-            // NEW: Fallback for empty image
             let photoUrl = emp.empPhotoBase64 && emp.empPhotoBase64.startsWith('data:image') ? emp.empPhotoBase64 : DEFAULT_AVATAR;
 
             tbody.innerHTML += `<tr><td>${idx + 1}</td>
@@ -302,17 +251,26 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('qualTableBody').innerHTML = ''; document.getElementById('expTableBody').innerHTML = '';
             document.getElementById('empPhotoBase64').value = ''; document.getElementById('empPhotoPreview').src = DEFAULT_AVATAR; 
             
-            // FIXED: Safe check added
             let removeBtn = document.getElementById('btnRemove_empPhoto');
             if(removeBtn) removeBtn.style.display = 'none';
             
             addQualRow(); addExpRow(); 
-            if(formTabs.length > 0) formTabs[0].click(); // FIXED: Safe tab click
+            if(formTabs.length > 0) formTabs[0].click(); 
             showView('module-add-employee');
         });
     }
 
     document.getElementById('btn-back-to-emps')?.addEventListener('click', () => showView('module-employees-list'));
+
+    // Address Same as Correspondence Logic
+    document.getElementById('sameAddressCheck')?.addEventListener('change', function() {
+        if(this.checked) {
+            setVal('empPermAdd', getVal('empCorrAdd')); setVal('empPermCity', getVal('empCorrCity'));
+            setVal('empPermState', getVal('empCorrState')); setVal('empPermCountry', getVal('empCorrCountry')); setVal('empPermPin', getVal('empCorrPin'));
+        } else {
+            setVal('empPermAdd', ''); setVal('empPermCity', ''); setVal('empPermState', ''); setVal('empPermCountry', ''); setVal('empPermPin', '');
+        }
+    });
 
     function getOptionsHTML(arr, selectedVal) {
         let html = '<option value="">-Select-</option>';
@@ -344,16 +302,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.editEmp = function(e) {
         showView('module-add-employee'); document.getElementById('editEmpMode').value = "true"; 
-        if(formTabs.length > 0) formTabs[0].click(); // FIXED: Safe check
+        if(formTabs.length > 0) formTabs[0].click(); 
         
+        // Populate ALL Fields from the Object
         setVal('empId', e.empId); if(document.getElementById('empId')) document.getElementById('empId').readOnly = true;
-        setVal('empSalutation', e.empSalutation); setVal('empName', e.empName); setVal('empMobile', e.empMobile); setVal('empPOB', e.empPOB); setVal('empNat', e.empNat); setVal('empStaffType', e.empStaffType); setVal('empJoinDate', e.empJoinDate ? new Date(e.empJoinDate).toISOString().split('T')[0] : ''); setVal('empEmail', e.empEmail); setVal('empOffEmail', e.empOffEmail); setVal('empGender', e.empGender); setVal('empBlood', e.empBlood); setVal('empDept', e.empDept); setVal('empDob', e.empDob ? new Date(e.empDob).toISOString().split('T')[0] : ''); setVal('empBio', e.empBio); setVal('empDesig', e.empDesig); setVal('empMarital', e.empMarital); setVal('empRel', e.empRel); setVal('empUserType', e.empUserType); setVal('empWing', e.empWing); setVal('empRepAuth', e.empRepAuth); setVal('empPan', e.empPan); setVal('empAadhaar', e.empAadhaar); setVal('empMarDate', e.empMarDate ? new Date(e.empMarDate).toISOString().split('T')[0] : ''); setVal('empBank', e.empBank); setVal('empBranch', e.empBranch); setVal('empAccNo', e.empAccNo); setVal('empIfsc', e.empIfsc); setVal('empPf', e.empPf); setVal('empEsi', e.empEsi); setVal('empAccType', e.empAccType);
+        setVal('empSalutation', e.empSalutation); setVal('empName', e.empName); setVal('empDept', e.empDept); setVal('empDesig', e.empDesig);
+        setVal('empGender', e.empGender); setVal('empBlood', e.empBlood); setVal('empDob', e.empDob ? new Date(e.empDob).toISOString().split('T')[0] : '');
+        setVal('empAge', e.empAge); setVal('empJoinDate', e.empJoinDate ? new Date(e.empJoinDate).toISOString().split('T')[0] : '');
+        setVal('empType', e.empType); setVal('empUserType', e.empUserType); setVal('empRepAuth', e.empRepAuth);
+        setVal('empOffPhone', e.empOffPhone); setVal('empOffEmail', e.empOffEmail); setVal('empLoginId', e.empLoginId);
+        setVal('empRel', e.empRel); setVal('empMarital', e.empMarital); setVal('empRoles', e.empRoles);
+        
+        setVal('empMobile', e.empMobile); setVal('empEmail', e.empEmail);
+        setVal('empCorrAdd', e.empCorrAdd); setVal('empCorrCity', e.empCorrCity); setVal('empCorrState', e.empCorrState); setVal('empCorrCountry', e.empCorrCountry); setVal('empCorrPin', e.empCorrPin);
+        setVal('empPermAdd', e.empPermAdd); setVal('empPermCity', e.empPermCity); setVal('empPermState', e.empPermState); setVal('empPermCountry', e.empPermCountry); setVal('empPermPin', e.empPermPin);
+        
+        setVal('empBio', e.empBio); setVal('empSubjects', e.empSubjects); setVal('empConfDate', e.empConfDate ? new Date(e.empConfDate).toISOString().split('T')[0] : ''); setVal('empRetireDate', e.empRetireDate ? new Date(e.empRetireDate).toISOString().split('T')[0] : '');
+        setVal('empWing', e.empWing); setVal('empClassIncharge', e.empClassIncharge); setVal('empSeqNo', e.empSeqNo); setVal('empRFID', e.empRFID); setVal('empAadhaar', e.empAadhaar); setVal('empPan', e.empPan);
+        
+        setVal('empFatherName', e.empFatherName); setVal('empFatherMobile', e.empFatherMobile); setVal('empFatherProf', e.empFatherProf);
+        setVal('empMotherName', e.empMotherName); setVal('empMotherMobile', e.empMotherMobile); setVal('empMotherProf', e.empMotherProf);
+        setVal('empSpouseName', e.empSpouseName); setVal('empSpouseMobile', e.empSpouseMobile); setVal('empSpouseProf', e.empSpouseProf); setVal('empSpouseDesig', e.empSpouseDesig);
+        
+        setVal('empSalMode', e.empSalMode); setVal('empAccNo', e.empAccNo); setVal('empIfsc', e.empIfsc); setVal('empAccType', e.empAccType);
+        setVal('empBank', e.empBank); setVal('empPf', e.empPf); setVal('empEsi', e.empEsi); setVal('empUan', e.empUan);
 
-        // Load image base64
         setVal('empPhotoBase64', e.empPhotoBase64); 
         if(document.getElementById('empPhotoPreview')) document.getElementById('empPhotoPreview').src = e.empPhotoBase64 || DEFAULT_AVATAR;
-        
-        // FIXED: Safe check added
         let btnRemPhoto = document.getElementById('btnRemove_empPhoto');
         if(btnRemPhoto) { if(e.empPhotoBase64) btnRemPhoto.style.display = 'inline-block'; else btnRemPhoto.style.display = 'none'; }
 
@@ -373,9 +348,26 @@ document.addEventListener('DOMContentLoaded', () => {
         let expArr = [];
         document.querySelectorAll('#expTableBody tr').forEach(tr => { if(!tr.querySelector('.e-del').checked) { expArr.push({ org: tr.querySelector('.e-org').value, add: tr.querySelector('.e-add').value, from: tr.querySelector('.e-from').value, to: tr.querySelector('.e-to').value, dept: tr.querySelector('.e-dept').value, desig: tr.querySelector('.e-desig').value, resp: tr.querySelector('.e-resp').value }); } });
 
+        // PERFECT PAYLOAD MAPPING - ALL NEW FIELDS INCLUDED
         const payload = {
             action: isEdit ? "updateEmployee" : "saveEmployee",
-            data: { empId: getVal('empId'), empSalutation: getVal('empSalutation'), empName: getVal('empName'), empMobile: getVal('empMobile'), empPOB: getVal('empPOB'), empNat: getVal('empNat'), empStaffType: getVal('empStaffType'), empJoinDate: getVal('empJoinDate'), empEmail: getVal('empEmail'), empOffEmail: getVal('empOffEmail'), empGender: getVal('empGender'), empBlood: getVal('empBlood'), empDept: getVal('empDept'), empDob: getVal('empDob'), empBio: getVal('empBio'), empDesig: getVal('empDesig'), empMarital: getVal('empMarital'), empRel: getVal('empRel'), empUserType: getVal('empUserType'), empWing: getVal('empWing'), empRepAuth: getVal('empRepAuth'), empPan: getVal('empPan'), empAadhaar: getVal('empAadhaar'), empMarDate: getVal('empMarDate'), empBank: getVal('empBank'), empBranch: getVal('empBranch'), empAccNo: getVal('empAccNo'), empIfsc: getVal('empIfsc'), empPf: getVal('empPf'), empEsi: getVal('empEsi'), empAccType: getVal('empAccType'), empQual: JSON.stringify(qualArr), empExp: JSON.stringify(expArr), empPhotoBase64: getVal('empPhotoBase64') }
+            data: { 
+                empId: getVal('empId'), empSalutation: getVal('empSalutation'), empName: getVal('empName'), empDept: getVal('empDept'), empDesig: getVal('empDesig'),
+                empGender: getVal('empGender'), empBlood: getVal('empBlood'), empDob: getVal('empDob'), empAge: getVal('empAge'), empJoinDate: getVal('empJoinDate'),
+                empType: getVal('empType'), empUserType: getVal('empUserType'), empRepAuth: getVal('empRepAuth'), empOffPhone: getVal('empOffPhone'), empOffEmail: getVal('empOffEmail'),
+                empLoginId: getVal('empLoginId'), empRel: getVal('empRel'), empMarital: getVal('empMarital'), empRoles: getVal('empRoles'),
+                empMobile: getVal('empMobile'), empEmail: getVal('empEmail'), 
+                empCorrAdd: getVal('empCorrAdd'), empCorrCity: getVal('empCorrCity'), empCorrState: getVal('empCorrState'), empCorrCountry: getVal('empCorrCountry'), empCorrPin: getVal('empCorrPin'),
+                empPermAdd: getVal('empPermAdd'), empPermCity: getVal('empPermCity'), empPermState: getVal('empPermState'), empPermCountry: getVal('empPermCountry'), empPermPin: getVal('empPermPin'),
+                empBio: getVal('empBio'), empSubjects: getVal('empSubjects'), empConfDate: getVal('empConfDate'), empRetireDate: getVal('empRetireDate'),
+                empWing: getVal('empWing'), empClassIncharge: getVal('empClassIncharge'), empSeqNo: getVal('empSeqNo'), empRFID: getVal('empRFID'), empAadhaar: getVal('empAadhaar'), empPan: getVal('empPan'),
+                empFatherName: getVal('empFatherName'), empFatherMobile: getVal('empFatherMobile'), empFatherProf: getVal('empFatherProf'),
+                empMotherName: getVal('empMotherName'), empMotherMobile: getVal('empMotherMobile'), empMotherProf: getVal('empMotherProf'),
+                empSpouseName: getVal('empSpouseName'), empSpouseMobile: getVal('empSpouseMobile'), empSpouseProf: getVal('empSpouseProf'), empSpouseDesig: getVal('empSpouseDesig'),
+                empSalMode: getVal('empSalMode'), empAccNo: getVal('empAccNo'), empIfsc: getVal('empIfsc'), empAccType: getVal('empAccType'),
+                empBank: getVal('empBank'), empPf: getVal('empPf'), empEsi: getVal('empEsi'), empUan: getVal('empUan'),
+                empQual: JSON.stringify(qualArr), empExp: JSON.stringify(expArr), empPhotoBase64: getVal('empPhotoBase64') 
+            }
         };
 
         fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => {
@@ -468,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = document.getElementById('btnSaveES'); btn.textContent = 'Add Entry'; btn.style.background = '#5cb85c'; document.getElementById('btnCancelESEdit').style.display = 'none';
     });
 
-    // BULK MANAGE LOGIC FOR EMPLOYEE SETUP
+    // BULK MANAGE LOGIC
     window.openBulkManage = function(cat) {
         document.getElementById('bulkCatTitle').innerText = cat.toUpperCase(); document.getElementById('bulkCatTitle').dataset.cat = cat;
         const tbody = document.getElementById('bulkTableBody'); tbody.innerHTML = '';
