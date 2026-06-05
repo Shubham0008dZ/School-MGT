@@ -37,9 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let userRights = [];
     try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
 
-    // DYNAMIC SCRIPT URL FROM MULTI-TENANT LOGIN
-    const scriptURL = localStorage.getItem('erp_school_url');
-    if(!scriptURL) { window.location.href = 'login.html'; }
+    // CHANGED: Use Vercel API endpoint directly
+    const scriptURL = '/api/backend';
+    const activeSchoolName = localStorage.getItem('erp_school_name');
+    if(!activeSchoolName) { window.location.href = 'login.html'; }
 
     // DYNAMIC NAVBAR UPDATE LOGIC
     try {
@@ -58,7 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const networkHealth = runNetworkDiagnostics(scriptURL);
 
-    fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
+    // CHANGED: Use application/json for node.js backend
+    fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }), headers: { "Content-Type": "application/json" } })
     .then(res => res.json()).then(data => {
         if (data.status === "Invalid") {
             alert("Session Invalid: Your account was deleted or marked inactive.");
@@ -114,7 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const tbody = document.getElementById('empTableBody'); 
         tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳</td></tr>';
         
-        fetch(scriptURL, { redirect: "follow" })
+        // CHANGED: Update fetch to use POST with action payload and application/json
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "getEmployees" }), headers: { "Content-Type": "application/json" } })
         .then(res => { if(!res.ok) throw new Error("HTTP Status: " + res.status); return res.json(); })
         .then(res => {
             if(res.status === "Success") {
@@ -348,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let expArr = [];
         document.querySelectorAll('#expTableBody tr').forEach(tr => { if(!tr.querySelector('.e-del').checked) { expArr.push({ org: tr.querySelector('.e-org').value, add: tr.querySelector('.e-add').value, from: tr.querySelector('.e-from').value, to: tr.querySelector('.e-to').value, dept: tr.querySelector('.e-dept').value, desig: tr.querySelector('.e-desig').value, resp: tr.querySelector('.e-resp').value }); } });
 
-        // PERFECT PAYLOAD MAPPING - ALL NEW FIELDS INCLUDED
+        // PERFECT PAYLOAD MAPPING
         const payload = {
             action: isEdit ? "updateEmployee" : "saveEmployee",
             data: { 
@@ -370,7 +373,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => {
+        // CHANGED: Use application/json for node.js backend
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), headers: { "Content-Type": "application/json" } }).then(res => res.json()).then(data => {
             if(data.status === "Success") { alert(data.message); showView('module-employees-list'); syncWithDatabase(); } else alert("Error: " + data.message);
         }).finally(() => { btn.textContent = '💾 Save Employee'; btn.disabled = false; });
     });
@@ -388,7 +392,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const empId = document.getElementById('inactiveEmpSelect').value; const date = document.getElementById('inactiveDate').value; const reason = document.getElementById('inactiveReason').value;
         if(!empId || !date || !reason) { alert("Please fill all fields."); return; }
         if(confirm(`Are you sure you want to mark ${empId} as Inactive?`)) {
-            fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "inactiveEmployee", empId: empId, date: date, reason: reason }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => {
+            // CHANGED: Use application/json for node.js backend
+            fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "inactiveEmployee", empId: empId, date: date, reason: reason }), headers: { "Content-Type": "application/json" } }).then(res => res.json()).then(data => {
                 if(data.status === "Success") { alert(data.message); document.getElementById('inactiveDate').value = ""; document.getElementById('inactiveReason').value = ""; syncWithDatabase(); }
             });
         }
@@ -439,7 +444,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveEmpSetupToDB() {
         const btn = document.getElementById('btnSaveES'); let oldText = btn.textContent; btn.textContent = 'Saving...'; btn.disabled = true;
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "saveEmpSetup", data: empSetup }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => { 
+        // CHANGED: Use application/json for node.js backend
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "saveEmpSetup", data: empSetup }), headers: { "Content-Type": "application/json" } }).then(res => res.json()).then(data => { 
             if(data.status === "Success") { 
                 customAlert("Master Setup Synced!"); document.getElementById('empSetupForm').reset(); document.getElementById('esEditIndex').value = "-1";
                 document.getElementById('btnSaveES').innerText = "Add Entry"; document.getElementById('btnSaveES').style.background = "#27ae60"; document.getElementById('btnCancelESEdit').style.display = "none";
