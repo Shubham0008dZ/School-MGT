@@ -1,23 +1,108 @@
-* { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
-body { background-color: #f4f6f9; }
+* { 
+    box-sizing: border-box; 
+    font-family: Arial, sans-serif; 
+    margin: 0; 
+    padding: 0; 
+}
 
-.dashboard-header { background-color: #ffffff; padding: 15px 20px; border-bottom: 3px solid #1a3c5a; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.dashboard-header h1 { color: #1a3c5a; font-size: 22px; text-transform: uppercase; letter-spacing: 1px; }
+body { 
+    background-color: #f4f6f9; 
+}
 
-.dashboard-container { max-width: 1200px; margin: 20px auto; background: white; border: 1px solid #ddd; border-radius: 4px; }
-.section-title { background-color: #eaeaea; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; font-weight: bold; color: #555; }
-.view-all-btn { background: #ddd; border: none; padding: 5px 15px; border-radius: 15px; cursor: pointer; color: #333; }
+.dashboard-header { 
+    background-color: #ffffff; 
+    padding: 15px 20px; 
+    border-bottom: 3px solid #1a3c5a; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
 
-.modules-grid { display: flex; flex-wrap: wrap; justify-content: center; padding: 40px 20px; gap: 40px; }
-.module-card { text-decoration: none; color: #555; display: flex; flex-direction: column; align-items: center; width: 150px; text-align: center; transition: transform 0.2s; }
-.module-card:hover { transform: translateY(-5px); }
-.module-card p { margin-top: 15px; font-size: 13px; font-weight: bold; }
+.dashboard-header h1 { 
+    color: #1a3c5a; 
+    font-size: 22px; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+}
 
-.icon-circle { width: 90px; height: 90px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: inset 0 -10px 20px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.1); position: relative; }
-.icon-text { font-size: 50px; color: rgba(255,255,255,0.4); font-weight: bold; }
+.dashboard-container { 
+    max-width: 1200px; 
+    margin: 20px auto; 
+    background: white; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Added slight clean shadow */
+}
 
+.section-title { 
+    background-color: #f8f9fa; 
+    padding: 15px 25px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 1px solid #e1e8ed; 
+    font-weight: 600; 
+    color: #2c3e50; 
+    border-radius: 8px 8px 0 0;
+}
+
+/* View All button class is removed completely */
+
+.modules-grid { 
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content: center; 
+    padding: 40px 20px; 
+    gap: 40px; 
+}
+
+.module-card { 
+    text-decoration: none; 
+    color: #34495e; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    width: 150px; 
+    text-align: center; 
+    transition: transform 0.2s ease, filter 0.2s ease; 
+}
+
+.module-card:hover { 
+    transform: translateY(-5px); 
+    filter: brightness(1.05); 
+}
+
+.module-card p { 
+    margin-top: 15px; 
+    font-size: 14px; 
+    font-weight: 600; 
+    line-height: 1.3;
+}
+
+.icon-circle { 
+    width: 90px; 
+    height: 90px; 
+    border-radius: 50%; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    box-shadow: inset 0 -10px 20px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.1); 
+    position: relative; 
+    transition: box-shadow 0.3s ease;
+}
+
+.module-card:hover .icon-circle {
+    box-shadow: inset 0 -10px 20px rgba(0,0,0,0.1), 0 8px 20px rgba(0,0,0,0.15); /* Slightly lifts the circle on hover */
+}
+
+.icon-text { 
+    font-size: 50px; 
+    color: rgba(255,255,255,0.4); 
+    font-weight: bold; 
+}
+
+/* Background Gradients */
 .orange-bg { background: linear-gradient(to bottom, #ffb74d, #f57c00); }
 .yellow-bg { background: linear-gradient(to bottom, #ffca28, #fbc02d); }
 .red-bg { background: linear-gradient(to bottom, #ef5350, #c62828); }
 .blue-bg { background: linear-gradient(to bottom, #42a5f5, #1565c0); }
 .green-bg { background: linear-gradient(to bottom, #9ccc65, #558b2f); }
+.purple-bg { background: linear-gradient(to bottom, #ab47bc, #7b1fa2); } /* Added for Communication module */
