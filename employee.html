@@ -4,457 +4,367 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Management - School ERP</title>
-    <link rel="stylesheet" href="employee.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <link rel="stylesheet" href="employee.css">
+    <style>
+        .filter-dropdown {
+            display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 15px; border-radius: 4px; z-index: 1000; min-width: 250px;
+        }
+        .filter-dropdown select {
+            width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px;
+        }
+        .filter-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 5px; }
+        .btn-apply { background: #4a90e2; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+        .btn-cancel { background: white; color: #4a90e2; border: 1px solid #4a90e2; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+        
+        .crop-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;
+        }
+        .crop-modal.active { display: flex; }
+        .crop-container { background: white; padding: 20px; border-radius: 8px; text-align: center; max-width: 90%; }
+        .img-container { width: 400px; height: 300px; background: #eee; margin: 0 auto 15px; }
+        .img-container img { max-width: 100%; }
+    </style>
 </head>
 <body>
-
-<div class="top-navbar">
-    <div class="top-left">
-        <button id="sidebarToggle" class="hamburger-btn" title="Toggle Sidebar">☰</button>
-        <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
-            <span class="school-logo" style="font-size: 24px; cursor: pointer;">
-                <img id="dynamicNavLogo" src="" alt="logo" style="max-height:24px; margin-right:5px; border-radius:4px; display:none; vertical-align:middle;">
+    
+    <div class="top-navbar">
+        <div class="top-left">
+            <button class="menu-btn" id="sidebarToggle">☰</button>
+            <div class="school-logo">
+                <img id="dynamicNavLogo" src="" alt="Logo" style="height:35px; border-radius:4px; display:none;">
                 <span id="defaultNavLogo">🏫</span>
-            </span>
-            <span class="school-name" id="dynamicNavName" style="font-weight: bold; cursor: pointer;">SHUBH ERP</span>
-        </a>
-    </div>
-    <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
-    <div class="top-right" style="display:flex; align-items:center; gap:15px;">
-        <span>⚏ HR Module 🔔</span>
-        <button id="btnLogout" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:3px; cursor:pointer; font-weight:bold;">🚪 Logout</button>
-    </div>
-</div>
-
-<div class="erp-wrapper">
-    <div class="sidebar red-sidebar" id="appSidebar">
-        <div class="sidebar-header red-header"><h2>📚 SHUBH ERP</h2></div>
-        <ul class="nav-links">
-            <li><a href="index.html" class="nav-btn"><span class="nav-icon">🏠</span><span class="nav-text"> Dashboard</span></a></li>
-            <li><a href="#" class="nav-btn active" data-target="module-employees-list"><span class="nav-icon">👥</span><span class="nav-text"> Employees List</span></a></li>
-            <li><a href="#" class="nav-btn" data-target="module-manage-employee"><span class="nav-icon">🚫</span><span class="nav-text"> Inactive Employees</span></a></li>
-            <li><a href="#" class="nav-btn" data-target="module-emp-setup"><span class="nav-icon">⚙️</span><span class="nav-text"> Master Setup</span></a></li>
-        </ul>
-    </div>
-
-    <div class="main-content">
-        <div id="module-employees-list" class="app-module active-module">
-            <div class="profile-header">
-                <h2>ACTIVE EMPLOYEES ℹ️</h2>
             </div>
+            <span class="school-name" id="dynamicNavName">Loading...</span>
+        </div>
+        
+        <div class="top-right">
+            <span id="topBarModuleName" style="font-weight:bold; color:white; font-size: 14px; letter-spacing: 0.5px; margin-right: 20px;">EMPLOYEE INFORMATION</span>
+            <button class="logout-btn" id="btnLogout">🚪 Logout</button>
+        </div>
+    </div>
+
+    <div class="app-body">
+        
+        <div class="sidebar" id="appSidebar">
+            <div class="erp-brand">📚 SHUBH ERP</div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-btn">🏠 Dashboard</a></li>
+                <li><a href="#" class="nav-btn active" data-target="module-employees-list">👨‍💼 Employees List</a></li>
+                <li><a href="#" class="nav-btn" data-target="module-manage-employee">🚫 Inactive Employees</a></li>
+                <li><a href="#" class="nav-btn" data-target="module-emp-setup">⚙️ Master Setup</a></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
             
-            <div class="table-container">
-                <div class="table-toolbar" style="background:#e8f4f8; border-left:4px solid #e67e22; position:relative;">
-                    <div class="filters" style="display:flex; gap:10px; align-items:center; width:100%;">
+            <div id="module-employees-list" class="app-module active-module">
+                <div class="section-header">
+                    <h2>ACTIVE EMPLOYEES <span class="info-icon">ℹ️</span></h2>
+                </div>
+                
+                <div class="action-bar">
+                    <div style="position: relative; display:flex; gap:10px;">
+                        <button class="btn btn-dark" id="btn-toggle-filters">⧨ Filters</button>
                         
-                        <button class="btn btn-dark" id="btn-toggle-filters" style="display:flex; align-items:center; gap:6px; font-size:14px; padding:8px 15px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M3 4c0-.552.448-1 1-1h16c.552 0 1 .448 1 1v3.059c0 .265-.105.52-.293.707l-6.414 6.414A.997.997 0 0 0 14 14.879V20a1 1 0 0 1-1.555.832l-3-2A1 1 0 0 1 9 18v-3.121a.997.997 0 0 0-.293-.707L2.293 7.766A.999.999 0 0 1 2 7.059V4zm2 1.5v1.059l6.707 6.707a1 1 0 0 1 .293.707v3.382l2 1.333v-4.715a1 1 0 0 1 .293-.707L20 6.559V5.5H5z"/></svg>
-                            Filters
-                        </button>
-                        
-                        <div style="position:relative; display:flex; align-items:center; background:white; border:1px solid #e67e22; border-radius:3px; padding:0 10px; flex:1; max-width:400px;">
-                            <span style="color:#7f8c8d; font-size:16px;">⚲</span>
-                            <input type="text" id="searchEmpName" placeholder="Search Name and press Enter" style="border:none; outline:none; padding:10px; width:100%; font-size:14px;">
+                        <div class="filter-dropdown" id="filterDropdownPanel">
+                            <select id="fEmpType"><option value="">Select Employee Type</option></select>
+                            <select id="fDept"><option value="">Select Department</option></select>
+                            <select id="fDesig"><option value="">Select Designation</option></select>
+                            <select id="fWing"><option value="">Select Wing</option></select>
+                            <div class="filter-actions">
+                                <button class="btn-cancel" onclick="document.getElementById('filterDropdownPanel').style.display='none'">Cancel</button>
+                                <button class="btn-apply" id="btn-apply-filter">Apply</button>
+                            </div>
                         </div>
-                        
-                        <div id="filterDropdownPanel" class="filter-dropdown-panel">
-                            <div class="filter-group"><label>Employee ID</label><input type="text" id="fEmpId"></div>
-                            <div class="filter-group"><label>Department</label><select id="fDept"><option value="">All</option></select></div>
-                            <div class="filter-group"><label>Designation</label><select id="fDesig"><option value="">All</option></select></div>
-                            <button class="btn" style="background:#e67e22; color:white; margin-top:15px; width:100%; border-radius:3px; padding:10px; font-weight:bold;" id="btn-apply-filter">Apply Filter</button>
+
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchEmpName" placeholder="Search Name and press Enter">
+                        </div>
+                    </div>
+                    <div class="action-right">
+                        <input type="text" id="fEmpId" placeholder="Search ID" style="padding:8px; border:1px solid #ccc; border-radius:4px; font-size:13px; display:none;">
+                        <button class="btn btn-green" id="btn-open-add-emp">⊕ Add Employee</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="erp-table">
+                        <thead>
+                            <tr>
+                                <th>Sr No.</th>
+                                <th>Image</th>
+                                <th>Employee Id</th>
+                                <th>Salutation</th>
+                                <th>Employee Name</th>
+                                <th>Department</th>
+                                <th>Designation</th>
+                                <th>Contact No.</th>
+                                <th>Biometric Id</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="empTableBody">
+                            <tr><td colspan="10" style="text-align: center;">Loading Employees...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="module-manage-employee" class="app-module">
+                <div class="section-header">
+                    <h2>MANAGE INACTIVE EMPLOYEES ⚙️</h2>
+                </div>
+                
+                <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); margin-bottom:20px;">
+                    <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px;">Mark Employee Inactive</h3>
+                    <div class="grid-3-col" style="align-items: end;">
+                        <div class="erp-input-group">
+                            <label>Select Active Employee *</label>
+                            <select id="inactiveEmpSelect">
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>
+                        <div class="erp-input-group">
+                            <label>Relieving Date *</label>
+                            <input type="date" id="inactiveDate">
+                        </div>
+                        <div class="erp-input-group">
+                            <label>Reason for Leaving *</label>
+                            <input type="text" id="inactiveReason" placeholder="Resigned / Terminated etc.">
+                        </div>
+                        <div class="erp-input-group">
+                            <button class="btn btn-red" id="btnMarkInactive" style="width:100%; height:34px;">Mark as Inactive</button>
                         </div>
                     </div>
                 </div>
 
-                <div style="text-align: right; margin-bottom:10px;">
-                    <button class="btn btn-green" id="btn-open-add-emp">⊕ Add Employee</button>
+                <div class="table-container">
+                    <h3 style="margin:0 0 15px 0;">Inactive Employees History</h3>
+                    <table class="erp-table">
+                        <thead>
+                            <tr>
+                                <th>Sr No.</th>
+                                <th>Employee Id</th>
+                                <th>Employee Name</th>
+                                <th>Department</th>
+                                <th>Designation</th>
+                                <th>Relieving Date</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inactiveEmpTableBody">
+                            <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-                
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Sr No.</th><th>Image</th><th>Employee Id</th><th>Salutation</th><th>Employee Name</th><th>Department</th><th>Designation</th><th>Contact No.</th><th>Biometric Id</th><th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="empTableBody">
-                        <tr><td colspan="10" style="text-align: center;">Syncing with Database...</td></tr>
-                    </tbody>
-                </table>
             </div>
-        </div>
 
-        <div id="module-add-employee" class="app-module">
-            <div class="form-container" style="background: transparent; padding:0; box-shadow:none;">
-                <div class="profile-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:white; padding:15px; border-radius:8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                    <h2 id="formTitle" style="margin:0;">Employee List > Edit</h2>
-                    <button id="btn-back-to-emps" class="btn btn-dark">← Back</button>
+            <div id="module-add-employee" class="app-module">
+                <div class="section-header" style="justify-content: space-between;">
+                    <h2>EMPLOYEE LIST > EDIT</h2>
+                    <button class="btn btn-dark" id="btn-back-to-emps">← Back</button>
                 </div>
-                
-                <form id="employeeForm">
-                    <input type="hidden" id="editEmpMode" value="false">
-                    <input type="hidden" id="empPhotoBase64">
 
-                    <div class="emp-form-wrapper">
-                        
-                        <div class="emp-top-split">
-                            <div class="emp-photo-col">
-    <div class="photo-box">
-        <p style="margin-top:0; margin-bottom:15px; font-weight:bold; font-size:13px; color:#555;">Employee Photo</p>
-        <img id="empPhotoPreview" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" alt="Photo">
-        <div style="display:flex; gap:10px; justify-content:center;">
-            <label for="empPhotoUploadNew" class="btn btn-dark" style="padding:5px 15px; font-size:12px; cursor:pointer; margin:0;">Upload</label>
-            <button type="button" id="btnRemove_empPhoto" class="btn btn-red" style="padding:5px 15px; font-size:12px; cursor:pointer; margin:0; display:none;">🗑 Remove</button>
-        </div>
-        <input type="file" id="empPhotoUploadNew" accept="image/*" hidden>
-    </div>
-    <div class="photo-box">
-        <p style="margin-top:0; margin-bottom:15px; font-weight:bold; font-size:13px; color:#555;">Employee Signature</p>
-        <img id="empSignPreview" src="https://cdn-icons-png.flaticon.com/512/3597/3597088.png" alt="Signature" style="border-radius:0; border:1px solid #ccc; padding:10px; background:#f9f9f9;">
-        <div style="display:flex; gap:10px; justify-content:center;">
-            <label for="empSignUpload" class="btn btn-dark" style="padding:5px 15px; font-size:12px; cursor:pointer; margin:0;">Upload</label>
-            <button type="button" id="btnRemove_empSign" class="btn btn-red" style="padding:5px 15px; font-size:12px; cursor:pointer; margin:0; display:none;">🗑 Remove</button>
-        </div>
-        <input type="file" id="empSignUpload" accept="image/*" hidden>
-        <input type="hidden" id="empSignBase64">
-    </div>
-</div>
+                <div class="form-layout">
+                    <div class="emp-photo-col">
+                        <div class="photo-box">
+                            <p style="margin-top:0; margin-bottom:15px; font-weight:bold; font-size:13px; color:#555;">Employee Photo</p>
+                            <img id="empPhotoPreview" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" alt="Photo">
+                            <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+                                <label for="empPhotoUploadNew" class="btn btn-dark" style="padding:5px 12px; font-size:11px; cursor:pointer; margin:0;">Upload</label>
+                                <button type="button" id="btnEdit_empPhoto" class="btn btn-blue" style="padding:5px 12px; font-size:11px; cursor:pointer; margin:0; display:none; background:#3498db; color:white; border:none; border-radius:3px;">✏ Edit</button>
+                                <button type="button" id="btnDownload_empPhoto" class="btn btn-green" style="padding:5px 12px; font-size:11px; cursor:pointer; margin:0; display:none; background:#2ecc71; color:white; border:none; border-radius:3px;">⬇ Download</button>
+                                <button type="button" id="btnRemove_empPhoto" class="btn btn-red" style="padding:5px 12px; font-size:11px; cursor:pointer; margin:0; display:none;">🗑 Remove</button>
+                            </div>
+                            <input type="file" id="empPhotoUploadNew" accept="image/*" hidden>
+                        </div>
+                        <div class="photo-box">
+                            <p style="margin-top:0; margin-bottom:15px; font-weight:bold; font-size:13px; color:#555;">Employee Signature</p>
+                            <img id="empSignPreview" src="https://cdn-icons-png.flaticon.com/512/3597/3597088.png" alt="Signature" style="border-radius:0; border:1px solid #ccc; padding:10px; background:#f9f9f9;">
+                            <div style="display:flex; gap:10px; justify-content:center;">
+                                <label for="empSignUpload" class="btn btn-dark" style="padding:5px 15px; font-size:12px; cursor:pointer; margin:0;">Upload</label>
+                                <button type="button" id="btnRemove_empSign" class="btn btn-red" style="padding:5px 15px; font-size:12px; cursor:pointer; margin:0; display:none;">🗑 Remove</button>
+                            </div>
+                            <input type="file" id="empSignUpload" accept="image/*" hidden>
+                            <input type="hidden" id="empSignBase64">
+                        </div>
+                    </div>
 
-                            <div class="emp-basic-col">
+                    <div class="emp-details-col">
+                        <form id="employeeForm">
+                            <input type="hidden" id="editEmpMode" value="false">
+                            <input type="hidden" id="empPhotoBase64" value="">
+
+                            <div id="tab-profile" class="erp-tab-content active">
                                 <div class="grid-3-col">
                                     <div class="erp-input-group"><label>Employee ID <span class="req">*</span></label><input type="text" id="empId" required></div>
-                                    <div class="erp-input-group"><label>Department <span class="req">*</span></label><select id="empDept"></select></div>
+                                    <div class="erp-input-group"><label>Department <span class="req">*</span></label><select id="empDept" required></select></div>
                                     <div class="erp-input-group"><label>Designation</label><select id="empDesig"></select></div>
-                                    
-                                    <div class="erp-input-group"><label>Employee Name <span class="req">*</span></label><input type="text" id="empName" required></div>
+                                </div>
+                                <div class="grid-3-col">
+                                    <div class="erp-input-group" style="grid-column: span 1;">
+                                        <label>Employee Name <span class="req">*</span></label>
+                                        <div style="display:flex; gap:5px;">
+                                            <select id="empSalutation" style="width:70px;"><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option><option value="Mrs.">Mrs.</option><option value="Dr.">Dr.</option></select>
+                                            <input type="text" id="empName" required style="flex:1;">
+                                        </div>
+                                    </div>
                                     <div class="erp-input-group"><label>Gender</label><select id="empGender"></select></div>
                                     <div class="erp-input-group"><label>Blood Group</label><select id="empBlood"></select></div>
-                                    
+                                </div>
+                                <div class="grid-3-col">
                                     <div class="erp-input-group"><label>Date of Birth</label><input type="date" id="empDob"></div>
-                                    <div class="erp-input-group"><label>Age as on Today</label><input type="text" id="empAge" readonly style="background:#f8f9fa;"></div>
+                                    <div class="erp-input-group"><label>Age as on Today</label><input type="text" id="empAge" readonly style="background:#eee;"></div>
                                     <div class="erp-input-group"><label>Joining Date <span class="req">*</span></label><input type="date" id="empJoinDate" required></div>
-                                    
-                                    <div class="erp-input-group"><label>Employment Type</label><select id="empType"><option>Confirmation</option><option>Probation</option></select></div>
-                                    <div class="erp-input-group"><label>User Type <span class="req">*</span></label><select id="empUserType"></select></div>
+                                </div>
+                                <div class="grid-3-col">
+                                    <div class="erp-input-group"><label>Employment Type</label><select id="empType"></select></div>
+                                    <div class="erp-input-group"><label>User Type <span class="req">*</span></label><select id="empUserType" required></select></div>
                                     <div class="erp-input-group"><label>Reporting Authority</label><select id="empRepAuth"></select></div>
-                                    
+                                </div>
+                                <div class="grid-3-col">
                                     <div class="erp-input-group"><label>Official Phone</label><input type="text" id="empOffPhone"></div>
                                     <div class="erp-input-group"><label>Official Email</label><input type="email" id="empOffEmail"></div>
                                     <div class="erp-input-group"><label>Login ID</label><input type="text" id="empLoginId"></div>
-                                    
+                                </div>
+                                <div class="grid-3-col">
                                     <div class="erp-input-group"><label>Religion</label><select id="empRel"></select></div>
                                     <div class="erp-input-group"><label>Marital Status</label><select id="empMarital"></select></div>
-                                    <div class="erp-input-group"><label>Employee Roles</label><select id="empRoles"><option>Select Employee Roles</option></select></div>
+                                    <div class="erp-input-group"><label>Employee Roles</label><select id="empRoles"><option value="">Select Employee Roles</option></select></div>
                                 </div>
-                            </div>
-                        </div>
 
-
-
-
-
-<div class="section-header-blue">Contact Details</div>
-<div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-    <div class="grid-3-col" style="margin-bottom:15px;">
-        <div class="erp-input-group"><label>Personal Mobile No.</label><div style="display:flex;gap:5px;"><input type="text" id="empMobile" style="flex:1;"><button type="button" style="padding:0 15px; border:1px solid #a4c2f4; background:#e8f0fe; color:#1a73e8; border-radius:4px; font-weight:bold; cursor:pointer;">Verify</button></div></div>
-        <div class="erp-input-group"><label>Personal Email ID</label><div style="display:flex;gap:5px;"><input type="text" id="empEmail" style="flex:1;"><button type="button" style="padding:0 15px; border:1px solid #a4c2f4; background:#e8f0fe; color:#1a73e8; border-radius:4px; font-weight:bold; cursor:pointer;">Verify</button></div></div>
-    </div>
-    
-    <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
-    
-    <div style="display:flex; gap:20px;">
-        <div style="flex:1; background:#f8f9fa; padding:15px; border-radius:5px; border:1px solid #e9ecef;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h4 style="margin:0; color:#2c3e50;">Correspondence Address</h4>
-                <button type="button" id="btnCopyPermToCorr" class="btn btn-green-outline" style="font-size:11px; padding:4px 8px;">Copy Permanent ⬇</button>
-            </div>
-            <div class="erp-input-group" style="margin-bottom:10px;"><label>Address</label><input type="text" id="empCorrAdd"></div>
-            <div class="grid-2-col" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div class="erp-input-group"><label>City</label><input type="text" id="empCorrCity"></div>
-                <div class="erp-input-group"><label>State</label><input type="text" id="empCorrState"></div>
-                <div class="erp-input-group"><label>Country</label><input type="text" id="empCorrCountry"></div>
-                <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empCorrPin"></div>
-            </div>
-        </div>
-
-        <div style="flex:1; background:#f8f9fa; padding:15px; border-radius:5px; border:1px solid #e9ecef;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h4 style="margin:0; color:#2c3e50;">Permanent Address</h4>
-                <button type="button" id="btnCopyCorrToPerm" class="btn btn-green-outline" style="font-size:11px; padding:4px 8px;">Copy Correspondence ⬇</button>
-            </div>
-            <div class="erp-input-group" style="margin-bottom:10px;"><label>Address</label><input type="text" id="empPermAdd"></div>
-            <div class="grid-2-col" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div class="erp-input-group"><label>City</label><input type="text" id="empPermCity"></div>
-                <div class="erp-input-group"><label>State</label><input type="text" id="empPermState"></div>
-                <div class="erp-input-group"><label>Country</label><input type="text" id="empPermCountry"></div>
-                <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empPermPin"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-                        
-
-                        <div class="erp-tabs-container">
-                            <div class="erp-tabs-header">
-                                <button type="button" class="erp-tab-btn active" data-target="tab-school">School Details</button>
-                                <button type="button" class="erp-tab-btn" data-target="tab-family">Family Details</button>
-                                <button type="button" class="erp-tab-btn" data-target="tab-docs">Documents</button>
-                                <button type="button" class="erp-tab-btn" data-target="tab-edu">Education Details</button>
-                                <button type="button" class="erp-tab-btn" data-target="tab-exp">Work Experience</button>
-                                <button type="button" class="erp-tab-btn" data-target="tab-finance">Financial Details</button>
-                            </div>
-
-                            <div id="tab-school" class="erp-tab-content active">
-                                <div class="grid-4-col">
-                                    <div class="erp-input-group"><label>Biometric Code</label><input type="text" id="empBio"></div>
-                                    <div class="erp-input-group"><label>Assigned Subjects</label><input type="text" id="empSubjects"></div>
-                                    <div class="erp-input-group"><label>Confirmation Date</label><input type="date" id="empConfDate"></div>
-                                    <div class="erp-input-group"><label>Retirement Date</label><input type="date" id="empRetireDate"></div>
+                                <div class="section-header-blue">Contact Details</div>
+                                <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                                    <div class="grid-3-col" style="margin-bottom:15px;">
+                                        <div class="erp-input-group"><label>Personal Mobile No.</label><div style="display:flex;gap:5px;"><input type="text" id="empMobile" style="flex:1;"><button type="button" style="padding:0 15px; border:1px solid #a4c2f4; background:#e8f0fe; color:#1a73e8; border-radius:4px; font-weight:bold; cursor:pointer;">Verify</button></div></div>
+                                        <div class="erp-input-group"><label>Personal Email ID</label><div style="display:flex;gap:5px;"><input type="text" id="empEmail" style="flex:1;"><button type="button" style="padding:0 15px; border:1px solid #a4c2f4; background:#e8f0fe; color:#1a73e8; border-radius:4px; font-weight:bold; cursor:pointer;">Verify</button></div></div>
+                                    </div>
                                     
-                                    <div class="erp-input-group"><label>Access Rights (Wing)</label><select id="empWing"><option>Select an option</option></select></div>
-                                    <div class="erp-input-group"><label>Class In-charge</label><select id="empClassIncharge"><option>Select an option</option></select></div>
-                                    <div class="erp-input-group"><label>Sequence No.</label><input type="text" id="empSeqNo"></div>
-                                    <div class="erp-input-group"><label>RFID Card No.</label><input type="text" id="empRFID"></div>
+                                    <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
                                     
-                                    <div class="erp-input-group"><label>Aadhaar No.</label><input type="text" id="empAadhaar"></div>
-                                    <div class="erp-input-group"><label>PAN No.</label><input type="text" id="empPan"></div>
+                                    <div style="display:flex; gap:20px;">
+                                        <div style="flex:1; background:#f8f9fa; padding:15px; border-radius:5px; border:1px solid #e9ecef;">
+                                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                                <h4 style="margin:0; color:#2c3e50;">Correspondence Address</h4>
+                                                <button type="button" id="btnCopyPermToCorr" class="btn btn-green-outline" style="font-size:11px; padding:4px 8px;">Copy Permanent ⬇</button>
+                                            </div>
+                                            <div class="erp-input-group" style="margin-bottom:10px;"><label>Address</label><input type="text" id="empCorrAdd"></div>
+                                            <div class="grid-2-col" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                                                <div class="erp-input-group"><label>City</label><input type="text" id="empCorrCity"></div>
+                                                <div class="erp-input-group"><label>State</label><input type="text" id="empCorrState"></div>
+                                                <div class="erp-input-group"><label>Country</label><input type="text" id="empCorrCountry"></div>
+                                                <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empCorrPin"></div>
+                                            </div>
+                                        </div>
+
+                                        <div style="flex:1; background:#f8f9fa; padding:15px; border-radius:5px; border:1px solid #e9ecef;">
+                                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                                <h4 style="margin:0; color:#2c3e50;">Permanent Address</h4>
+                                                <button type="button" id="btnCopyCorrToPerm" class="btn btn-green-outline" style="font-size:11px; padding:4px 8px;">Copy Correspondence ⬇</button>
+                                            </div>
+                                            <div class="erp-input-group" style="margin-bottom:10px;"><label>Address</label><input type="text" id="empPermAdd"></div>
+                                            <div class="grid-2-col" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                                                <div class="erp-input-group"><label>City</label><input type="text" id="empPermCity"></div>
+                                                <div class="erp-input-group"><label>State</label><input type="text" id="empPermState"></div>
+                                                <div class="erp-input-group"><label>Country</label><input type="text" id="empPermCountry"></div>
+                                                <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empPermPin"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div id="tab-family" class="erp-tab-content">
-                                <h4 style="margin-top:0; color:#1a73e8;">Father Details</h4>
-                                <div class="grid-3-col" style="margin-bottom:20px;">
-                                    <div class="erp-input-group"><label>Father's Name</label><input type="text" id="empFatherName"></div>
-                                    <div class="erp-input-group"><label>Father's Mobile No.</label><input type="text" id="empFatherMobile"></div>
-                                    <div class="erp-input-group"><label>Father's Profession</label><input type="text" id="empFatherProf"></div>
-                                </div>
-                                <h4 style="color:#1a73e8;">Mother Details</h4>
-                                <div class="grid-3-col" style="margin-bottom:20px;">
-                                    <div class="erp-input-group"><label>Mother's Name</label><input type="text" id="empMotherName"></div>
-                                    <div class="erp-input-group"><label>Mother's Mobile No.</label><input type="text" id="empMotherMobile"></div>
-                                    <div class="erp-input-group"><label>Mother's Profession</label><input type="text" id="empMotherProf"></div>
-                                </div>
-                                <h4 style="color:#1a73e8;">Spouse Details</h4>
-                                <div class="grid-4-col">
-                                    <div class="erp-input-group"><label>Spouse's Name</label><input type="text" id="empSpouseName"></div>
-                                    <div class="erp-input-group"><label>Spouse's Mobile No.</label><input type="text" id="empSpouseMobile"></div>
-                                    <div class="erp-input-group"><label>Spouse's Profession</label><input type="text" id="empSpouseProf"></div>
-                                    <div class="erp-input-group"><label>Spouse's Designation</label><input type="text" id="empSpouseDesig"></div>
-                                </div>
+                            
+                            <div style="margin-top:20px; border-top:1px solid #eee; padding-top:20px; text-align:right;">
+                                <button type="submit" class="btn btn-green" id="btnSaveEmp">💾 Save Employee</button>
                             </div>
-
-                            <div id="tab-docs" class="erp-tab-content">
-                                <p style="color:#777;">Document upload section configuration pending...</p>
-                            </div>
-
-                            <div id="tab-edu" class="erp-tab-content">
-                                <div style="overflow-x:auto;">
-                                    <table class="data-table" style="width:100%; min-width:800px; margin-bottom:10px;">
-                                        <thead>
-                                            <tr>
-                                                <th style="width:40px;">Sr.</th>
-                                                <th>Course Type</th>
-                                                <th>Course Name</th>
-                                                <th>Institution</th>
-                                                <th>University/Board</th>
-                                                <th style="width:80px;">Duration(Mo)</th>
-                                                <th style="width:80px;">Pass Year</th>
-                                                <th style="width:80px;">% / CGPA</th>
-                                                <th>Subjects</th>
-                                                <th>Reference</th>
-                                                <th style="width:50px;">Univ?</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="qualTableBody">
-                                            </tbody>
-                                    </table>
-                                </div>
-                                <div style="display:flex; gap:10px; margin-top:10px;">
-                                    <button type="button" id="btnAddQualRow" class="btn btn-green-outline">⊕ Add Education Row</button>
-                                    <button type="button" id="btnDelQualRow" class="btn btn-red">🗑️ Remove Last Row</button>
-                                </div>
-                            </div>
-
-                            <div id="tab-exp" class="erp-tab-content">
-                                <div style="overflow-x:auto;">
-                                    <table class="data-table" style="width:100%; min-width:800px; margin-bottom:10px;">
-                                        <thead>
-                                            <tr>
-                                                <th style="width:40px;">Sr.</th>
-                                                <th>Organization Name</th>
-                                                <th>Organization Address</th>
-                                                <th style="width:130px;">From Date</th>
-                                                <th style="width:130px;">To Date</th>
-                                                <th>Department</th>
-                                                <th>Designation</th>
-                                                <th>Responsibility</th>
-                                                <th style="width:50px;">Del</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="expTableBody">
-                                            </tbody>
-                                    </table>
-                                </div>
-                                <div style="display:flex; gap:10px; margin-top:10px;">
-                                    <button type="button" id="btnAddExpRow" class="btn btn-green-outline">⊕ Add Experience Row</button>
-                                </div>
-                            </div>
-
-                            <div id="tab-finance" class="erp-tab-content">
-                                <div class="grid-4-col">
-                                    <div class="erp-input-group"><label>Preferred Salary Payment Mode</label><select id="empSalMode"><option>Select</option></select></div>
-                                    <div class="erp-input-group"><label>Account No.</label><input type="text" id="empAccNo"></div>
-                                    <div class="erp-input-group"><label>IFSC Code</label><input type="text" id="empIfsc"></div>
-                                    <div class="erp-input-group"><label>Account Type</label><select id="empAccType"><option>Select</option></select></div>
-                                    
-                                    <div class="erp-input-group"><label>Employee Salary Bank</label><select id="empBank"><option>Select</option></select></div>
-                                    <div class="erp-input-group"><label>PF No.</label><input type="text" id="empPf"></div>
-                                    <div class="erp-input-group"><label>ESI No.</label><input type="text" id="empEsi"></div>
-                                    <div class="erp-input-group"><label>UAN No.</label><input type="text" id="empUan"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
-                            <button type="button" class="btn" style="background:white; border:1px solid #ccc; padding:8px 20px; border-radius:4px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('module-add-employee').classList.remove('active-module'); document.getElementById('module-employees-list').classList.add('active-module');">Cancel</button>
-                            <button type="submit" class="btn" id="btnSaveEmp" style="background:#1a73e8; color:white; border:none; padding:8px 20px; border-radius:4px; font-weight:bold; cursor:pointer;">Save Employee</button>
-                        </div>
-                        
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div id="module-manage-employee" class="app-module">
-            <div class="form-container">
-                <div class="profile-header"><h2>MANAGE INACTIVE EMPLOYEES</h2></div>
-                <div style="background:#fdfdfd; padding:15px; border:1px solid #eee; margin-bottom:20px;">
-                    <div class="form-row" style="align-items: flex-end;">
-                        <div class="input-group"><label>Select Active Employee</label><select id="inactiveEmpSelect"></select></div>
-                        <div class="input-group"><label>Relieving Date</label><input type="date" id="inactiveDate"></div>
-                        <div class="input-group" style="flex:2;"><label>Reason</label><input type="text" id="inactiveReason" placeholder="Resigned / Terminated"></div>
-                        <button class="btn btn-red" id="btnMarkInactive" style="padding:10px 20px;">Mark Inactive</button>
+                        </form>
                     </div>
                 </div>
-                <h4 class="section-title">Inactive Employee List</h4>
-                <table class="data-table">
-                    <thead><tr><th>Sr No.</th><th>Employee Id</th><th>Employee Name</th><th>Department</th><th>Designation</th><th>Relieving Date</th><th>Reason</th></tr></thead>
-                    <tbody id="inactiveEmpTableBody"></tbody>
+            </div>
+
+            <div id="module-emp-setup" class="app-module">
+                <div class="section-header">
+                    <h2>HR MASTER SETUP ⚙️</h2>
+                </div>
+                <div style="display:flex; gap:30px; align-items:flex-start;">
+                    <div style="flex:1; background:white; padding:20px; border-radius:8px; border:1px solid #eee; box-shadow:0 2px 5px rgba(0,0,0,0.05); position:sticky; top:20px;">
+                        <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px; color:#2c3e50;">Add / Edit Master Entry</h3>
+                        <form id="empSetupForm">
+                            <input type="hidden" id="esEditIndex" value="-1">
+                            <div class="erp-input-group" style="margin-bottom:15px;">
+                                <label style="font-weight:bold; color:#555;">Setup Category *</label>
+                                <select id="esCategory" required style="padding:10px; font-size:14px;">
+                                    <option value="departments">Departments</option>
+                                    <option value="designations">Designations</option>
+                                    <option value="staffTypes">Staff Types</option>
+                                    <option value="bloodGroups">Blood Groups</option>
+                                    <option value="maritalStatus">Marital Status</option>
+                                    <option value="religions">Religions</option>
+                                    <option value="genders">Genders</option>
+                                    <option value="userTypes">User Types</option>
+                                    <option value="wings">Wings</option>
+                                    <option value="reportingAuths">Reporting Authorities</option>
+                                    <option value="accountTypes">Bank Account Types</option>
+                                    <option value="courseTypes">Course Types (Edu)</option>
+                                    <option value="qualNames">Qualification Names (Edu)</option>
+                                </select>
+                            </div>
+                            <div class="erp-input-group" style="margin-bottom:15px;">
+                                <label style="font-weight:bold; color:#555;">Name / Value *</label>
+                                <input type="text" id="esValue" required style="padding:10px; font-size:14px;" placeholder="e.g., HR, Male, etc.">
+                            </div>
+                            <div style="display:flex; gap:10px;">
+                                <button type="submit" class="btn btn-green" id="btnSaveES" style="flex:1; padding:10px; font-size:15px;">Add Entry</button>
+                                <button type="button" class="btn btn-dark" id="btnCancelESEdit" style="display:none; padding:10px;">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div style="flex:2; background:white; padding:20px; border-radius:8px; border:1px solid #eee; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                        <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px; color:#2c3e50;">Current Configurations</h3>
+                        <div id="esDisplay"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="bulkManageModal" class="crop-modal">
+        <div class="crop-container" style="width: 500px; text-align:left;">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px;">Bulk Manage: <span id="bulkCatTitle" style="color:#e67e22;"></span></h3>
+            <p style="font-size:12px; color:#666; margin-bottom:10px;">Add or edit multiple entries. Leave empty to ignore.</p>
+            <div style="max-height:300px; overflow-y:auto; margin-bottom:15px; border:1px solid #ccc; padding:10px;">
+                <table style="width:100%; border-collapse: collapse;" id="bulkTable">
+                    <tbody id="bulkTableBody"></tbody>
                 </table>
+                <button type="button" id="btnAddBulkRow" style="margin-top:10px; padding:5px 10px; background:#eee; border:1px solid #ccc; cursor:pointer;">+ Add Row</button>
             </div>
-        </div>
-
-        <div id="module-emp-setup" class="app-module">
-            <div class="profile-header"><h2>HR MASTER SETUP ⚙️</h2></div>
-            <div style="display:flex; gap:20px; align-items: flex-start;">
-                
-                <div style="width:35%; background:white; padding:20px; border:1px solid #ccc; border-radius:5px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-                    <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; color:#2c3e50;">Add / Edit Master Entry</h3>
-                    <form id="empSetupForm" style="margin-top:15px;">
-                        <input type="hidden" id="esEditIndex" value="-1">
-                        <input type="hidden" id="esEditCategory" value="">
-
-                        <div style="margin-bottom:15px;">
-                            <label style="font-weight:bold; display:block; margin-bottom:5px; color:#555;">Setup Category *</label>
-                            <select id="esCategory" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                                <option value="departments">Departments</option>
-                                <option value="designations">Designations</option>
-                                <option value="staffTypes">Staff Types</option>
-                                <option value="bloodGroups">Blood Groups</option>
-                                <option value="maritalStatus">Marital Status</option>
-                                <option value="religions">Religions</option>
-                                <option value="genders">Genders</option>
-                                <option value="userTypes">User Types</option>
-                                <option value="wings">Wings</option>
-                                <option value="reportingAuths">Reporting Auths</option>
-                                <option value="accountTypes">Account Types</option>
-                                <option value="courseTypes">Course Types (Qual)</option>
-                                <option value="qualNames">Qualification Names</option>
-                            </select>
-                        </div>
-                        <div style="margin-bottom:15px;">
-                            <label style="font-weight:bold; display:block; margin-bottom:5px; color:#555;">Name / Value *</label>
-                            <input type="text" id="esValue" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;" placeholder="e.g., HR, Male, etc.">
-                        </div>
-                        <div style="display:flex; gap:10px;">
-                            <button type="submit" id="btnSaveES" class="btn btn-green" style="flex:1; padding:10px; font-size:15px;">Add Entry</button>
-                            <button type="button" id="btnCancelESEdit" class="btn btn-dark" style="display:none; padding:10px;">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div style="width:65%; background:white; padding:20px; border:1px solid #ccc; border-radius:5px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-                    <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; color:#2c3e50;">Current Configurations</h3>
-                    <div id="esDisplay" style="margin-top:15px; display:flex; flex-direction:column; gap:20px; max-height:600px; overflow-y:auto; padding-right:10px;">
-                        <div style="text-align:center; padding:20px; color:#7f8c8d;">Fetching Configs...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<div id="bulkManageModal" class="modal-overlay">
-    <div class="modal-card" style="width: 600px; max-height: 90vh;">
-        <div class="modal-header" style="background:#8e44ad; display:flex; justify-content:space-between; align-items:center; padding:15px;">
-            <h3 style="margin:0; color:white;">Bulk Manage: <span id="bulkCatTitle"></span></h3>
-            <span class="close-modal" id="closeBulkModal" style="cursor:pointer; color:white;">&times;</span>
-        </div>
-        <div class="modal-body" style="padding:20px; overflow-y:auto; background:#fcfcfc;">
-            <table class="bulk-table">
-                <thead id="bulkTableHeader"><tr><th>Value</th><th style="width:50px;">Action</th></tr></thead>
-                <tbody id="bulkTableBody"></tbody>
-            </table>
-            <button type="button" class="btn btn-green-outline" id="btnAddBulkRow" style="margin-top:15px;">⊕ Add Row</button>
-            <div style="text-align:right; margin-top:25px; border-top:1px solid #ddd; padding-top:15px; display:flex; justify-content:flex-end; gap:10px;">
+            <div style="text-align:right;">
                 <button type="button" class="btn btn-dark" id="btnCancelBulk">Cancel</button>
-                <button type="button" class="btn btn-green" id="btnSaveBulk">Update All</button>
+                <button type="button" class="btn btn-green" id="btnSaveBulk">Save All Updates</button>
             </div>
         </div>
     </div>
-</div>
 
-<div id="cropModalOverlay" class="modal-overlay">
-    <div class="modal-card" style="width: 600px;">
-        <div class="modal-header" style="background:#2c3e50; padding:15px;">
-            <h3 style="margin:0; color:white;">Crop Image</h3>
-        </div>
-        <div class="modal-body" style="padding:20px; text-align:center;">
-            <div class="crop-container">
-                <img id="cropImageTarget" style="max-width: 100%;">
+    <div class="crop-modal" id="cropModalOverlay">
+        <div class="crop-container">
+            <h3 style="margin-top:0;">Crop Photo</h3>
+            <div class="img-container">
+                <img id="cropImageTarget" src="">
             </div>
-            <div style="text-align:right; margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+            <div>
                 <button type="button" class="btn btn-dark" id="btnCancelCrop">Cancel</button>
-                <button type="button" class="btn btn-green" id="btnApplyCrop">Apply Crop</button>
+                <button type="button" class="btn btn-green" id="btnApplyCrop">Crop & Apply</button>
             </div>
         </div>
     </div>
-</div>
 
-<script src="employee.js"></script>
-
-<script>
-// Logic to handle tab switching specifically for this new layout
-document.addEventListener('DOMContentLoaded', () => {
-    const tabBtns = document.querySelectorAll('.erp-tab-btn');
-    const tabContents = document.querySelectorAll('.erp-tab-content');
-
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-
-            btn.classList.add('active');
-            const targetId = btn.getAttribute('data-target');
-            document.getElementById(targetId).classList.add('active');
-        });
-    });
-});
-</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="employee.js"></script>
 </body>
 </html>
