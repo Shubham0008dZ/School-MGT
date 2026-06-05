@@ -22,7 +22,6 @@ function runNetworkDiagnostics(currentUrl) {
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // SIDEBAR TOGGLE
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('appSidebar');
     if(sidebarToggle && sidebar) {
@@ -37,12 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let userRights = [];
     try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
 
-    // CHANGED: Use Vercel API endpoint directly
     const scriptURL = '/api/backend';
     const activeSchoolName = localStorage.getItem('erp_school_name');
     if(!activeSchoolName) { window.location.href = 'login.html'; }
 
-    // DYNAMIC NAVBAR UPDATE LOGIC
     try {
         let savedName = localStorage.getItem('erp_school_name');
         let savedLogo = localStorage.getItem('erp_school_logo');
@@ -59,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const networkHealth = runNetworkDiagnostics(scriptURL);
 
-    // CHANGED: Use application/json for node.js backend
     fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }), headers: { "Content-Type": "application/json" } })
     .then(res => res.json()).then(data => {
         if (data.status === "Invalid") {
@@ -87,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let allEmployees = [];
     let empSetup = { departments: [], designations: [], staffTypes: [], bloodGroups: [], maritalStatus: [], religions: [], genders: [], userTypes: [], wings: [], reportingAuths: [], accountTypes: [], courseTypes: [], qualNames: [] };
     const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/128/3135/3135715.png';
+    const DEFAULT_SIGN = 'https://cdn-icons-png.flaticon.com/512/3597/3597088.png';
 
     function showView(targetId) {
         document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
@@ -109,14 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // ==========================================
-    // AUTO LOAD SYNC
-    // ==========================================
     window.syncWithDatabase = function() {
         const tbody = document.getElementById('empTableBody'); 
         tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳</td></tr>';
         
-        // CHANGED: Update fetch to use POST with action payload and application/json
         fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "getEmployees" }), headers: { "Content-Type": "application/json" } })
         .then(res => { if(!res.ok) throw new Error("HTTP Status: " + res.status); return res.json(); })
         .then(res => {
@@ -133,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // CROPPER JS LOGIC
+    // CROPPER & PHOTO UPLOAD LOGIC
     // ==========================================
     let cropper = null;
     const fileInput = document.getElementById('empPhotoUploadNew');
@@ -176,6 +169,46 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnCancelCrop')?.addEventListener('click', () => {
         document.getElementById('cropModalOverlay').classList.remove('active');
         if(cropper) { cropper.destroy(); cropper = null; }
+    });
+
+    // ==========================================
+    // SIGNATURE UPLOAD LOGIC
+    // ==========================================
+    const signInput = document.getElementById('empSignUpload');
+    if(signInput) {
+        signInput.addEventListener('change', function(e) {
+            if(this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const base64 = evt.target.result;
+                    document.getElementById('empSignBase64').value = base64;
+                    document.getElementById('empSignPreview').src = base64;
+                    let btnRemSign = document.getElementById('btnRemove_empSign');
+                    if(btnRemSign) btnRemSign.style.display = 'inline-block';
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+            this.value = ''; 
+        });
+    }
+
+    document.getElementById('btnRemove_empSign')?.addEventListener('click', function() {
+        document.getElementById('empSignBase64').value = '';
+        document.getElementById('empSignPreview').src = DEFAULT_SIGN;
+        this.style.display = 'none';
+    });
+
+    // ==========================================
+    // AGE CALCULATOR
+    // ==========================================
+    document.getElementById('empDob')?.addEventListener('change', function() {
+        if(!this.value) { document.getElementById('empAge').value = ''; return; }
+        const dob = new Date(this.value);
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) { age--; }
+        document.getElementById('empAge').value = age + " Years";
     });
 
     // ==========================================
@@ -252,10 +285,12 @@ document.addEventListener('DOMContentLoaded', () => {
         addEmpBtn.addEventListener('click', () => {
             document.getElementById('employeeForm').reset(); document.getElementById('editEmpMode').value = "false"; document.getElementById('empId').readOnly = false;
             document.getElementById('qualTableBody').innerHTML = ''; document.getElementById('expTableBody').innerHTML = '';
-            document.getElementById('empPhotoBase64').value = ''; document.getElementById('empPhotoPreview').src = DEFAULT_AVATAR; 
             
-            let removeBtn = document.getElementById('btnRemove_empPhoto');
-            if(removeBtn) removeBtn.style.display = 'none';
+            // Reset Images and hide remove buttons
+            document.getElementById('empPhotoBase64').value = ''; document.getElementById('empPhotoPreview').src = DEFAULT_AVATAR; 
+            if(document.getElementById('btnRemove_empPhoto')) document.getElementById('btnRemove_empPhoto').style.display = 'none';
+            document.getElementById('empSignBase64').value = ''; document.getElementById('empSignPreview').src = DEFAULT_SIGN;
+            if(document.getElementById('btnRemove_empSign')) document.getElementById('btnRemove_empSign').style.display = 'none';
             
             addQualRow(); addExpRow(); 
             if(formTabs.length > 0) formTabs[0].click(); 
@@ -265,14 +300,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btn-back-to-emps')?.addEventListener('click', () => showView('module-employees-list'));
 
-    // Address Same as Correspondence Logic
-    document.getElementById('sameAddressCheck')?.addEventListener('change', function() {
-        if(this.checked) {
-            setVal('empPermAdd', getVal('empCorrAdd')); setVal('empPermCity', getVal('empCorrCity'));
-            setVal('empPermState', getVal('empCorrState')); setVal('empPermCountry', getVal('empCorrCountry')); setVal('empPermPin', getVal('empCorrPin'));
-        } else {
-            setVal('empPermAdd', ''); setVal('empPermCity', ''); setVal('empPermState', ''); setVal('empPermCountry', ''); setVal('empPermPin', '');
-        }
+    // NEW ADDRESS COPY LOGIC
+    document.getElementById('btnCopyCorrToPerm')?.addEventListener('click', function() {
+        setVal('empPermAdd', getVal('empCorrAdd')); setVal('empPermCity', getVal('empCorrCity'));
+        setVal('empPermState', getVal('empCorrState')); setVal('empPermCountry', getVal('empCorrCountry')); setVal('empPermPin', getVal('empCorrPin'));
+    });
+
+    document.getElementById('btnCopyPermToCorr')?.addEventListener('click', function() {
+        setVal('empCorrAdd', getVal('empPermAdd')); setVal('empCorrCity', getVal('empPermCity'));
+        setVal('empCorrState', getVal('empPermState')); setVal('empCorrCountry', getVal('empPermCountry')); setVal('empCorrPin', getVal('empPermPin'));
     });
 
     function getOptionsHTML(arr, selectedVal) {
@@ -307,7 +343,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showView('module-add-employee'); document.getElementById('editEmpMode').value = "true"; 
         if(formTabs.length > 0) formTabs[0].click(); 
         
-        // Populate ALL Fields from the Object
         setVal('empId', e.empId); if(document.getElementById('empId')) document.getElementById('empId').readOnly = true;
         setVal('empSalutation', e.empSalutation); setVal('empName', e.empName); setVal('empDept', e.empDept); setVal('empDesig', e.empDesig);
         setVal('empGender', e.empGender); setVal('empBlood', e.empBlood); setVal('empDob', e.empDob ? new Date(e.empDob).toISOString().split('T')[0] : '');
@@ -330,10 +365,17 @@ document.addEventListener('DOMContentLoaded', () => {
         setVal('empSalMode', e.empSalMode); setVal('empAccNo', e.empAccNo); setVal('empIfsc', e.empIfsc); setVal('empAccType', e.empAccType);
         setVal('empBank', e.empBank); setVal('empPf', e.empPf); setVal('empEsi', e.empEsi); setVal('empUan', e.empUan);
 
+        // Photo loading
         setVal('empPhotoBase64', e.empPhotoBase64); 
         if(document.getElementById('empPhotoPreview')) document.getElementById('empPhotoPreview').src = e.empPhotoBase64 || DEFAULT_AVATAR;
         let btnRemPhoto = document.getElementById('btnRemove_empPhoto');
         if(btnRemPhoto) { if(e.empPhotoBase64) btnRemPhoto.style.display = 'inline-block'; else btnRemPhoto.style.display = 'none'; }
+
+        // Signature loading
+        setVal('empSignBase64', e.empSignBase64); 
+        if(document.getElementById('empSignPreview')) document.getElementById('empSignPreview').src = e.empSignBase64 || DEFAULT_SIGN;
+        let btnRemSign = document.getElementById('btnRemove_empSign');
+        if(btnRemSign) { if(e.empSignBase64) btnRemSign.style.display = 'inline-block'; else btnRemSign.style.display = 'none'; }
 
         if(document.getElementById('qualTableBody')) document.getElementById('qualTableBody').innerHTML = ''; 
         if(document.getElementById('expTableBody')) document.getElementById('expTableBody').innerHTML = '';
@@ -351,7 +393,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let expArr = [];
         document.querySelectorAll('#expTableBody tr').forEach(tr => { if(!tr.querySelector('.e-del').checked) { expArr.push({ org: tr.querySelector('.e-org').value, add: tr.querySelector('.e-add').value, from: tr.querySelector('.e-from').value, to: tr.querySelector('.e-to').value, dept: tr.querySelector('.e-dept').value, desig: tr.querySelector('.e-desig').value, resp: tr.querySelector('.e-resp').value }); } });
 
-        // PERFECT PAYLOAD MAPPING
         const payload = {
             action: isEdit ? "updateEmployee" : "saveEmployee",
             data: { 
@@ -369,11 +410,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 empSpouseName: getVal('empSpouseName'), empSpouseMobile: getVal('empSpouseMobile'), empSpouseProf: getVal('empSpouseProf'), empSpouseDesig: getVal('empSpouseDesig'),
                 empSalMode: getVal('empSalMode'), empAccNo: getVal('empAccNo'), empIfsc: getVal('empIfsc'), empAccType: getVal('empAccType'),
                 empBank: getVal('empBank'), empPf: getVal('empPf'), empEsi: getVal('empEsi'), empUan: getVal('empUan'),
-                empQual: JSON.stringify(qualArr), empExp: JSON.stringify(expArr), empPhotoBase64: getVal('empPhotoBase64') 
+                empQual: JSON.stringify(qualArr), empExp: JSON.stringify(expArr), empPhotoBase64: getVal('empPhotoBase64'), empSignBase64: getVal('empSignBase64') 
             }
         };
 
-        // CHANGED: Use application/json for node.js backend
         fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), headers: { "Content-Type": "application/json" } }).then(res => res.json()).then(data => {
             if(data.status === "Success") { alert(data.message); showView('module-employees-list'); syncWithDatabase(); } else alert("Error: " + data.message);
         }).finally(() => { btn.textContent = '💾 Save Employee'; btn.disabled = false; });
@@ -392,7 +432,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const empId = document.getElementById('inactiveEmpSelect').value; const date = document.getElementById('inactiveDate').value; const reason = document.getElementById('inactiveReason').value;
         if(!empId || !date || !reason) { alert("Please fill all fields."); return; }
         if(confirm(`Are you sure you want to mark ${empId} as Inactive?`)) {
-            // CHANGED: Use application/json for node.js backend
             fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "inactiveEmployee", empId: empId, date: date, reason: reason }), headers: { "Content-Type": "application/json" } }).then(res => res.json()).then(data => {
                 if(data.status === "Success") { alert(data.message); document.getElementById('inactiveDate').value = ""; document.getElementById('inactiveReason').value = ""; syncWithDatabase(); }
             });
@@ -444,7 +483,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveEmpSetupToDB() {
         const btn = document.getElementById('btnSaveES'); let oldText = btn.textContent; btn.textContent = 'Saving...'; btn.disabled = true;
-        // CHANGED: Use application/json for node.js backend
         fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "saveEmpSetup", data: empSetup }), headers: { "Content-Type": "application/json" } }).then(res => res.json()).then(data => { 
             if(data.status === "Success") { 
                 customAlert("Master Setup Synced!"); document.getElementById('empSetupForm').reset(); document.getElementById('esEditIndex').value = "-1";
@@ -466,7 +504,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = document.getElementById('btnSaveES'); btn.textContent = 'Add Entry'; btn.style.background = '#5cb85c'; document.getElementById('btnCancelESEdit').style.display = 'none';
     });
 
-    // BULK MANAGE LOGIC
     window.openBulkManage = function(cat) {
         document.getElementById('bulkCatTitle').innerText = cat.toUpperCase(); document.getElementById('bulkCatTitle').dataset.cat = cat;
         const tbody = document.getElementById('bulkTableBody'); tbody.innerHTML = '';
