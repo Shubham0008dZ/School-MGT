@@ -126,10 +126,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // CROPPER & PHOTO UPLOAD LOGIC
+    // CROPPER & PHOTO UPLOAD LOGIC (With Edit & Download)
     // ==========================================
     let cropper = null;
     const fileInput = document.getElementById('empPhotoUploadNew');
+    
+    // Help function to toggle photo action buttons
+    function togglePhotoButtons(show) {
+        const btnRem = document.getElementById('btnRemove_empPhoto');
+        const btnEdit = document.getElementById('btnEdit_empPhoto');
+        const btnDl = document.getElementById('btnDownload_empPhoto');
+        if(btnRem) btnRem.style.display = show ? 'inline-block' : 'none';
+        if(btnEdit) btnEdit.style.display = show ? 'inline-block' : 'none';
+        if(btnDl) btnDl.style.display = show ? 'inline-block' : 'none';
+    }
+
     if(fileInput) {
         fileInput.addEventListener('change', function(e) {
             if(this.files && this.files[0]) {
@@ -146,10 +157,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // EDIT BUTTON LOGIC
+    document.getElementById('btnEdit_empPhoto')?.addEventListener('click', function() {
+        const currentSrc = document.getElementById('empPhotoPreview').src;
+        if(currentSrc && currentSrc !== DEFAULT_AVATAR) {
+            document.getElementById('cropImageTarget').src = currentSrc;
+            document.getElementById('cropModalOverlay').classList.add('active');
+            if(cropper) { cropper.destroy(); }
+            cropper = new Cropper(document.getElementById('cropImageTarget'), { aspectRatio: NaN, viewMode: 1, autoCropArea: 1 });
+        }
+    });
+
+    // DOWNLOAD BUTTON LOGIC
+    document.getElementById('btnDownload_empPhoto')?.addEventListener('click', function() {
+        const currentSrc = document.getElementById('empPhotoPreview').src;
+        if(currentSrc && currentSrc !== DEFAULT_AVATAR) {
+            const empId = document.getElementById('empId').value || 'Employee';
+            const link = document.createElement('a');
+            link.href = currentSrc;
+            link.download = `${empId}_Photo.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    });
+
     document.getElementById('btnRemove_empPhoto')?.addEventListener('click', function() {
         document.getElementById('empPhotoBase64').value = '';
         document.getElementById('empPhotoPreview').src = DEFAULT_AVATAR;
-        this.style.display = 'none';
+        togglePhotoButtons(false);
     });
 
     document.getElementById('btnApplyCrop')?.addEventListener('click', () => {
@@ -159,13 +195,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const base64 = canvas.toDataURL('image/jpeg', 0.8);
                 document.getElementById('empPhotoBase64').value = base64;
                 document.getElementById('empPhotoPreview').src = base64;
-                let removeBtn = document.getElementById('btnRemove_empPhoto');
-                if(removeBtn) removeBtn.style.display = 'inline-block';
+                togglePhotoButtons(true);
             }
             document.getElementById('cropModalOverlay').classList.remove('active');
             cropper.destroy(); cropper = null;
         }
     });
+    
     document.getElementById('btnCancelCrop')?.addEventListener('click', () => {
         document.getElementById('cropModalOverlay').classList.remove('active');
         if(cropper) { cropper.destroy(); cropper = null; }
@@ -228,8 +264,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if(el) { el.innerHTML = '<option value="">-Select-</option>'; if(empSetup[setupKey]) { empSetup[setupKey].forEach(d => { el.innerHTML += `<option value="${d}">${d}</option>`; }); } }
         });
         
+        // Populate specific filter dropdowns
         fillFilterSelect('fDept', empSetup.departments);
         fillFilterSelect('fDesig', empSetup.designations);
+        fillFilterSelect('fEmpType', empSetup.staffTypes);
+        fillFilterSelect('fWing', empSetup.wings);
     }
 
     function applyAllFilters() {
@@ -237,13 +276,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const fId = document.getElementById('fEmpId').value.toLowerCase();
         const fDept = document.getElementById('fDept') ? document.getElementById('fDept').value : "";
         const fDesig = document.getElementById('fDesig') ? document.getElementById('fDesig').value : "";
+        const fType = document.getElementById('fEmpType') ? document.getElementById('fEmpType').value : "";
+        const fWing = document.getElementById('fWing') ? document.getElementById('fWing').value : "";
 
         let filtered = allEmployees.filter(e => {
             let mName = fName === "" || (e.empName || "").toLowerCase().includes(fName);
             let mId = fId === "" || (e.empId || "").toLowerCase().includes(fId);
             let mDept = fDept === "" || fDept === "All" || e.empDept === fDept;
             let mDesig = fDesig === "" || fDesig === "All" || e.empDesig === fDesig;
-            return mName && mId && mDept && mDesig;
+            let mType = fType === "" || fType === "All" || e.empType === fType;
+            let mWing = fWing === "" || fWing === "All" || e.empWing === fWing;
+            return mName && mId && mDept && mDesig && mType && mWing;
         });
         renderEmployeesTable(filtered);
         document.getElementById('filterDropdownPanel').style.display = 'none';
@@ -288,7 +331,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Reset Images and hide remove buttons
             document.getElementById('empPhotoBase64').value = ''; document.getElementById('empPhotoPreview').src = DEFAULT_AVATAR; 
-            if(document.getElementById('btnRemove_empPhoto')) document.getElementById('btnRemove_empPhoto').style.display = 'none';
+            togglePhotoButtons(false);
+            
             document.getElementById('empSignBase64').value = ''; document.getElementById('empSignPreview').src = DEFAULT_SIGN;
             if(document.getElementById('btnRemove_empSign')) document.getElementById('btnRemove_empSign').style.display = 'none';
             
@@ -365,17 +409,20 @@ document.addEventListener('DOMContentLoaded', () => {
         setVal('empSalMode', e.empSalMode); setVal('empAccNo', e.empAccNo); setVal('empIfsc', e.empIfsc); setVal('empAccType', e.empAccType);
         setVal('empBank', e.empBank); setVal('empPf', e.empPf); setVal('empEsi', e.empEsi); setVal('empUan', e.empUan);
 
-        // Photo loading
+        // Photo loading with toggle logic for Edit and Download
         setVal('empPhotoBase64', e.empPhotoBase64); 
         if(document.getElementById('empPhotoPreview')) document.getElementById('empPhotoPreview').src = e.empPhotoBase64 || DEFAULT_AVATAR;
-        let btnRemPhoto = document.getElementById('btnRemove_empPhoto');
-        if(btnRemPhoto) { if(e.empPhotoBase64) btnRemPhoto.style.display = 'inline-block'; else btnRemPhoto.style.display = 'none'; }
+        if(e.empPhotoBase64 && e.empPhotoBase64 !== DEFAULT_AVATAR) {
+            togglePhotoButtons(true);
+        } else {
+            togglePhotoButtons(false);
+        }
 
         // Signature loading
         setVal('empSignBase64', e.empSignBase64); 
         if(document.getElementById('empSignPreview')) document.getElementById('empSignPreview').src = e.empSignBase64 || DEFAULT_SIGN;
         let btnRemSign = document.getElementById('btnRemove_empSign');
-        if(btnRemSign) { if(e.empSignBase64) btnRemSign.style.display = 'inline-block'; else btnRemSign.style.display = 'none'; }
+        if(btnRemSign) { if(e.empSignBase64 && e.empSignBase64 !== DEFAULT_SIGN) btnRemSign.style.display = 'inline-block'; else btnRemSign.style.display = 'none'; }
 
         if(document.getElementById('qualTableBody')) document.getElementById('qualTableBody').innerHTML = ''; 
         if(document.getElementById('expTableBody')) document.getElementById('expTableBody').innerHTML = '';
