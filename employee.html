@@ -100,19 +100,26 @@
                         
                         <div class="emp-top-split">
                             <div class="emp-photo-col">
-                                <div class="photo-box">
-                                    <p style="margin-top:0; margin-bottom:15px; font-weight:bold; font-size:13px; color:#555;">Employee Photo</p>
-                                    <img id="empPhotoPreview" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" alt="Photo">
-                                    <label for="empPhotoUploadNew" class="btn btn-dark" style="padding:5px 15px; font-size:12px; cursor:pointer;">Upload</label>
-                                    <input type="file" id="empPhotoUploadNew" accept="image/*" hidden>
-                                </div>
-                                <div class="photo-box">
-                                    <p style="margin-top:0; margin-bottom:15px; font-weight:bold; font-size:13px; color:#555;">Employee Signature</p>
-                                    <img id="empSignPreview" src="https://cdn-icons-png.flaticon.com/512/3597/3597088.png" alt="Signature" style="border-radius:0; border:1px solid #ccc; padding:10px; background:#f9f9f9;">
-                                    <label for="empSignUpload" class="btn btn-red" style="padding:5px 15px; font-size:12px; cursor:pointer; background:#ffeded; color:#e74c3c; border:1px solid #fadbd8;">🗑 Remove</label>
-                                    <input type="file" id="empSignUpload" accept="image/*" hidden>
-                                </div>
-                            </div>
+    <div class="photo-box">
+        <p style="margin-top:0; margin-bottom:15px; font-weight:bold; font-size:13px; color:#555;">Employee Photo</p>
+        <img id="empPhotoPreview" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" alt="Photo">
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <label for="empPhotoUploadNew" class="btn btn-dark" style="padding:5px 15px; font-size:12px; cursor:pointer; margin:0;">Upload</label>
+            <button type="button" id="btnRemove_empPhoto" class="btn btn-red" style="padding:5px 15px; font-size:12px; cursor:pointer; margin:0; display:none;">🗑 Remove</button>
+        </div>
+        <input type="file" id="empPhotoUploadNew" accept="image/*" hidden>
+    </div>
+    <div class="photo-box">
+        <p style="margin-top:0; margin-bottom:15px; font-weight:bold; font-size:13px; color:#555;">Employee Signature</p>
+        <img id="empSignPreview" src="https://cdn-icons-png.flaticon.com/512/3597/3597088.png" alt="Signature" style="border-radius:0; border:1px solid #ccc; padding:10px; background:#f9f9f9;">
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <label for="empSignUpload" class="btn btn-dark" style="padding:5px 15px; font-size:12px; cursor:pointer; margin:0;">Upload</label>
+            <button type="button" id="btnRemove_empSign" class="btn btn-red" style="padding:5px 15px; font-size:12px; cursor:pointer; margin:0; display:none;">🗑 Remove</button>
+        </div>
+        <input type="file" id="empSignUpload" accept="image/*" hidden>
+        <input type="hidden" id="empSignBase64">
+    </div>
+</div>
 
                             <div class="emp-basic-col">
                                 <div class="grid-3-col">
