@@ -64,8 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (data.status === "Valid" && data.user) { localStorage.setItem('erp_active_user', JSON.stringify(data.user)); }
     }).catch(err => console.log("Background sync paused.", err));
 
-    const topRightSpans = document.querySelectorAll('.top-right span');
-    if(topRightSpans.length > 0) { topRightSpans[0].innerHTML = `👤 Welcome, <b>${activeUser.empName}</b>`; }
+    // YAHAN SE WOH GHOST ADMINISTRATOR OVERWRITE WALI LINE HATA DI GAYI HAI. TERA MODULE NAME AB SAFE HAI!
 
     if (!isSA && !userRights.some(r => r.startsWith("HR_"))) { window.location.href = 'index.html'; return; }
 
@@ -126,12 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // CROPPER & PHOTO UPLOAD LOGIC (With Edit & Download)
+    // CROPPER & PHOTO UPLOAD LOGIC
     // ==========================================
     let cropper = null;
     const fileInput = document.getElementById('empPhotoUploadNew');
     
-    // Help function to toggle photo action buttons
     function togglePhotoButtons(show) {
         const btnRem = document.getElementById('btnRemove_empPhoto');
         const btnEdit = document.getElementById('btnEdit_empPhoto');
@@ -157,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // EDIT BUTTON LOGIC
     document.getElementById('btnEdit_empPhoto')?.addEventListener('click', function() {
         const currentSrc = document.getElementById('empPhotoPreview').src;
         if(currentSrc && currentSrc !== DEFAULT_AVATAR) {
@@ -168,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // DOWNLOAD BUTTON LOGIC
     document.getElementById('btnDownload_empPhoto')?.addEventListener('click', function() {
         const currentSrc = document.getElementById('empPhotoPreview').src;
         if(currentSrc && currentSrc !== DEFAULT_AVATAR) {
@@ -248,13 +244,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // FILTER AND SEARCH LOGIC
+    // FILTER AND SEARCH LOGIC (FIXED "ALL" BUG)
     // ==========================================
     const categoryMapping = { 'departments': 'empDept', 'designations': 'empDesig', 'staffTypes': 'empType', 'bloodGroups': 'empBlood', 'maritalStatus': 'empMarital', 'religions': 'empRel', 'genders': 'empGender', 'userTypes': 'empUserType', 'wings': 'empWing', 'reportingAuths': 'empRepAuth', 'accountTypes': 'empAccType' };
 
-    function fillFilterSelect(id, array) {
+    // BUG FIXED: Ab default label accept karega
+    function fillFilterSelect(id, array, defaultLabel) {
         const el = document.getElementById(id); if(!el) return;
-        el.innerHTML = '<option value="">All</option>';
+        el.innerHTML = `<option value="">${defaultLabel}</option>`;
         if(array) { array.forEach(item => { el.innerHTML += `<option value="${item}">${item}</option>`; }); }
     }
 
@@ -264,11 +261,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if(el) { el.innerHTML = '<option value="">-Select-</option>'; if(empSetup[setupKey]) { empSetup[setupKey].forEach(d => { el.innerHTML += `<option value="${d}">${d}</option>`; }); } }
         });
         
-        // Populate specific filter dropdowns
-        fillFilterSelect('fDept', empSetup.departments);
-        fillFilterSelect('fDesig', empSetup.designations);
-        fillFilterSelect('fEmpType', empSetup.staffTypes);
-        fillFilterSelect('fWing', empSetup.wings);
+        // BUG FIXED: Ab filter fields ke naam properly aayenge
+        fillFilterSelect('fEmpType', empSetup.staffTypes, 'Select Employee Type');
+        fillFilterSelect('fDept', empSetup.departments, 'Select Department');
+        fillFilterSelect('fDesig', empSetup.designations, 'Select Designation');
+        fillFilterSelect('fWing', empSetup.wings, 'Select Wing');
     }
 
     function applyAllFilters() {
@@ -282,10 +279,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let filtered = allEmployees.filter(e => {
             let mName = fName === "" || (e.empName || "").toLowerCase().includes(fName);
             let mId = fId === "" || (e.empId || "").toLowerCase().includes(fId);
-            let mDept = fDept === "" || fDept === "All" || e.empDept === fDept;
-            let mDesig = fDesig === "" || fDesig === "All" || e.empDesig === fDesig;
-            let mType = fType === "" || fType === "All" || e.empType === fType;
-            let mWing = fWing === "" || fWing === "All" || e.empWing === fWing;
+            let mDept = fDept === "" || e.empDept === fDept;
+            let mDesig = fDesig === "" || e.empDesig === fDesig;
+            let mType = fType === "" || e.empType === fType;
+            let mWing = fWing === "" || e.empWing === fWing;
             return mName && mId && mDept && mDesig && mType && mWing;
         });
         renderEmployeesTable(filtered);
@@ -329,7 +326,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('employeeForm').reset(); document.getElementById('editEmpMode').value = "false"; document.getElementById('empId').readOnly = false;
             document.getElementById('qualTableBody').innerHTML = ''; document.getElementById('expTableBody').innerHTML = '';
             
-            // Reset Images and hide remove buttons
             document.getElementById('empPhotoBase64').value = ''; document.getElementById('empPhotoPreview').src = DEFAULT_AVATAR; 
             togglePhotoButtons(false);
             
@@ -344,7 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btn-back-to-emps')?.addEventListener('click', () => showView('module-employees-list'));
 
-    // NEW ADDRESS COPY LOGIC
     document.getElementById('btnCopyCorrToPerm')?.addEventListener('click', function() {
         setVal('empPermAdd', getVal('empCorrAdd')); setVal('empPermCity', getVal('empCorrCity'));
         setVal('empPermState', getVal('empCorrState')); setVal('empPermCountry', getVal('empCorrCountry')); setVal('empPermPin', getVal('empCorrPin'));
@@ -409,7 +404,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setVal('empSalMode', e.empSalMode); setVal('empAccNo', e.empAccNo); setVal('empIfsc', e.empIfsc); setVal('empAccType', e.empAccType);
         setVal('empBank', e.empBank); setVal('empPf', e.empPf); setVal('empEsi', e.empEsi); setVal('empUan', e.empUan);
 
-        // Photo loading with toggle logic for Edit and Download
         setVal('empPhotoBase64', e.empPhotoBase64); 
         if(document.getElementById('empPhotoPreview')) document.getElementById('empPhotoPreview').src = e.empPhotoBase64 || DEFAULT_AVATAR;
         if(e.empPhotoBase64 && e.empPhotoBase64 !== DEFAULT_AVATAR) {
@@ -418,7 +412,6 @@ document.addEventListener('DOMContentLoaded', () => {
             togglePhotoButtons(false);
         }
 
-        // Signature loading
         setVal('empSignBase64', e.empSignBase64); 
         if(document.getElementById('empSignPreview')) document.getElementById('empSignPreview').src = e.empSignBase64 || DEFAULT_SIGN;
         let btnRemSign = document.getElementById('btnRemove_empSign');
