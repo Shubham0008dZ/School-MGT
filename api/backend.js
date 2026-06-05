@@ -1,7 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 
 // TODO: Yahan apni Supabase details daal
-const supabaseUrl = 'TERA_SUPABASE_PROJECT_URL_YAHAN_DAAL';
+const supabaseUrl = 'https://xjsevqbyylfuncscwovv.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhqc2V2cWJ5eWxmdW5jc2N3b3Z2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MjE1NjEsImV4cCI6MjA5NjE5NzU2MX0.1x-VnJZg0Eb-x4Bb9FkJhVHMZAmbZntGymyxraZkWpk';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
