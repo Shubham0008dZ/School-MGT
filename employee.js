@@ -201,9 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(cropper) { cropper.destroy(); cropper = null; }
     });
 
-    // ==========================================
-    // SIGNATURE UPLOAD LOGIC
-    // ==========================================
     const signInput = document.getElementById('empSignUpload');
     if(signInput) {
         signInput.addEventListener('change', function(e) {
@@ -228,9 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
         this.style.display = 'none';
     });
 
-    // ==========================================
-    // AGE CALCULATOR
-    // ==========================================
     document.getElementById('empDob')?.addEventListener('change', function() {
         if(!this.value) { document.getElementById('empAge').value = ''; return; }
         const dob = new Date(this.value);
@@ -241,9 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('empAge').value = age + " Years";
     });
 
-    // ==========================================
-    // FILTER AND SEARCH LOGIC
-    // ==========================================
     const categoryMapping = { 'departments': 'empDept', 'designations': 'empDesig', 'staffTypes': 'empType', 'bloodGroups': 'empBlood', 'maritalStatus': 'empMarital', 'religions': 'empRel', 'genders': 'empGender', 'userTypes': 'empUserType', 'wings': 'empWing', 'reportingAuths': 'empRepAuth', 'accountTypes': 'empAccType' };
 
     function fillFilterSelect(id, array, defaultLabel) {
@@ -257,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let selectId = categoryMapping[setupKey]; let el = document.getElementById(selectId);
             if(el) { el.innerHTML = '<option value="">-Select-</option>'; if(empSetup[setupKey]) { empSetup[setupKey].forEach(d => { el.innerHTML += `<option value="${d}">${d}</option>`; }); } }
         });
-        
         fillFilterSelect('fEmpType', empSetup.staffTypes, 'Select Employee Type');
         fillFilterSelect('fDept', empSetup.departments, 'Select Department');
         fillFilterSelect('fDesig', empSetup.designations, 'Select Designation');
@@ -313,9 +303,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==========================================
-    // ADD / EDIT FORM LOGIC
-    // ==========================================
     const addEmpBtn = document.getElementById('btn-open-add-emp');
     if(addEmpBtn) {
         addEmpBtn.addEventListener('click', () => {
@@ -337,21 +324,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-back-to-emps')?.addEventListener('click', () => showView('module-employees-list'));
     document.getElementById('btn-back-to-emps2')?.addEventListener('click', () => showView('module-employees-list'));
 
-    // ==========================================
-    // BIDIRECTIONAL ADDRESS COPY LOGIC
-    // ==========================================
     function getVal(id) { return document.getElementById(id) ? document.getElementById(id).value : ''; }
     function setVal(id, val) { if(document.getElementById(id)) document.getElementById(id).value = val || ''; }
 
-    const chkSameAsCorr = document.getElementById('chkSameAsCorr'); // Toggle in Perm section
-    const chkSameAsPerm = document.getElementById('chkSameAsPerm'); // Toggle in Corr section
+    const chkSameAsCorr = document.getElementById('chkSameAsCorr'); 
+    const chkSameAsPerm = document.getElementById('chkSameAsPerm'); 
 
     if (chkSameAsCorr) {
         chkSameAsCorr.addEventListener('change', function() {
             if (this.checked) {
                 setVal('empPermAdd', getVal('empCorrAdd')); setVal('empPermCity', getVal('empCorrCity'));
                 setVal('empPermState', getVal('empCorrState')); setVal('empPermCountry', getVal('empCorrCountry')); setVal('empPermPin', getVal('empCorrPin'));
-                if (chkSameAsPerm) chkSameAsPerm.checked = false; // Prevent loop
+                if (chkSameAsPerm) chkSameAsPerm.checked = false; 
             } else {
                 setVal('empPermAdd', ''); setVal('empPermCity', ''); setVal('empPermState', ''); setVal('empPermCountry', ''); setVal('empPermPin', '');
             }
@@ -363,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (this.checked) {
                 setVal('empCorrAdd', getVal('empPermAdd')); setVal('empCorrCity', getVal('empPermCity'));
                 setVal('empCorrState', getVal('empPermState')); setVal('empCorrCountry', getVal('empPermCountry')); setVal('empCorrPin', getVal('empPermPin'));
-                if (chkSameAsCorr) chkSameAsCorr.checked = false; // Prevent loop
+                if (chkSameAsCorr) chkSameAsCorr.checked = false; 
             } else {
                 setVal('empCorrAdd', ''); setVal('empCorrCity', ''); setVal('empCorrState', ''); setVal('empCorrCountry', ''); setVal('empCorrPin', '');
             }
@@ -376,15 +360,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return html;
     }
 
-    // ==========================================
-    // EDUCATION TABLE (FIXED: Removed Ref and Unv)
-    // ==========================================
     function addQualRow(data = {}) {
         const tbody = document.getElementById('qualTableBody'); if(!tbody) return;
         const srNo = tbody.children.length + 1; const tr = document.createElement('tr');
         let cTypeOpts = getOptionsHTML(empSetup.courseTypes, data.type); let qNameOpts = getOptionsHTML(empSetup.qualNames, data.name);
         
-        // Exact 8 input columns (Ref and Unv removed from DOM entirely)
         tr.innerHTML = `
             <td>${srNo}</td>
             <td><select class="q-type">${cTypeOpts}</select></td>
@@ -400,15 +380,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // EXPERIENCE TABLE (FIXED: Removed Exclude and simplified)
+    // WORK EXPERIENCE TABLE FIX (No Sr column HTML injection)
     // ==========================================
     function addExpRow(data = {}) {
         const tbody = document.getElementById('expTableBody'); if(!tbody) return;
-        const srNo = tbody.children.length + 1; const tr = document.createElement('tr');
+        const tr = document.createElement('tr');
         
-        // Exact 5 input columns based on your screenshot
+        // Exact 5 input columns matching your HTML Headers
         tr.innerHTML = `
-            <td class="e-sr">${srNo}</td>
             <td><input type="text" class="e-org" value="${data.org || ''}"></td>
             <td><input type="text" class="e-add" value="${data.add || ''}"></td>
             <td><input type="text" class="e-desig" value="${data.desig || ''}"></td>
@@ -439,7 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setVal('empCorrAdd', e.empCorrAdd); setVal('empCorrCity', e.empCorrCity); setVal('empCorrState', e.empCorrState); setVal('empCorrCountry', e.empCorrCountry); setVal('empCorrPin', e.empCorrPin);
         setVal('empPermAdd', e.empPermAdd); setVal('empPermCity', e.empPermCity); setVal('empPermState', e.empPermState); setVal('empPermCountry', e.empPermCountry); setVal('empPermPin', e.empPermPin);
         
-        // Reset Toggles
         if (chkSameAsCorr) chkSameAsCorr.checked = false;
         if (chkSameAsPerm) chkSameAsPerm.checked = false;
 
@@ -479,7 +457,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let qualArr = [];
         document.querySelectorAll('#qualTableBody tr').forEach(tr => { 
-            // Removed ref and unv extraction
             qualArr.push({ 
                 type: tr.querySelector('.q-type').value, 
                 name: tr.querySelector('.q-name').value, 
@@ -494,7 +471,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let expArr = [];
         document.querySelectorAll('#expTableBody tr').forEach(tr => { 
-            // Removed exclude and other hidden columns extraction
             expArr.push({ 
                 org: tr.querySelector('.e-org').value, 
                 add: tr.querySelector('.e-add').value, 
@@ -530,9 +506,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }).finally(() => { btn.textContent = 'Save & Close'; btn.disabled = false; });
     });
 
-    // ==========================================
-    // INACTIVE EMPLOYEES LOGIC
-    // ==========================================
     function populateInactiveDropdown() {
         const sel = document.getElementById('inactiveEmpSelect'); if(!sel) return;
         sel.innerHTML = '<option value="">--Select Active Employee--</option>';
@@ -561,9 +534,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==========================================
-    // MASTER SETUP INTEGRATION
-    // ==========================================
     function renderSetupDisplay() {
         const disp = document.getElementById('esDisplay'); if(!disp) return;
         disp.innerHTML = '';
