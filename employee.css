@@ -120,14 +120,28 @@ body, html { height: 100%; background-color: #f4f6f9; overflow: hidden; }
 .btn-verify { background: #f0f8ff; color: #4a90e2; border: 1px solid #a4c2f4; border-radius: 4px; padding: 0 15px; font-weight: bold; cursor: pointer; font-size: 12px; height: 36px;}
 
 /* Custom Toggle Switch (YES/NO) */
+/* Custom Toggle Switch (YES/NO FIX) */
 .switch-custom { position: relative; display: inline-block; width: 50px; height: 24px; margin-top: 5px; }
 .switch-custom input { opacity: 0; width: 0; height: 0; }
 .slider-custom { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
-.slider-custom:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-.switch-custom input:checked + .slider-custom { background-color: #4a90e2; }
+.slider-custom:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; z-index: 2;}
+
+/* Default NO State */
+.switch-text { position: absolute; right: 6px; top: 6px; font-size: 9px; color: white; font-weight: bold; pointer-events: none; z-index: 1;}
+
+/* Checked YES State (Green color and YES text) */
+.switch-custom input:checked + .slider-custom { background-color: #27ae60; } /* Green background */
 .switch-custom input:checked + .slider-custom:before { transform: translateX(26px); }
-.switch-text { position: absolute; right: 6px; top: 6px; font-size: 9px; color: white; font-weight: bold; pointer-events: none;}
-.switch-custom input:checked ~ .switch-text { right: auto; left: 6px; }
+
+/* The Hack: We hide the original NO span, and create a pseudo-element for YES */
+.switch-custom input:checked ~ .switch-text { color: transparent; } /* Hide 'NO' text visually */
+.switch-custom input:checked ~ .switch-text::after { 
+    content: 'YES'; 
+    color: white; 
+    position: absolute; 
+    left: -20px; /* Shift to left side */
+    top: 0;
+}
 
 /* FLAT TABS FOR SECTIONS */
 .erp-tabs-container { margin-top: 10px; background: transparent;}
