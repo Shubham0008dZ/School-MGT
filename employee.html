@@ -219,35 +219,65 @@
                         </div>
 
                         <div class="section-header-blue-light" style="margin-top: 10px;">Contact Details</div>
-                        <div style="background:white; padding:15px; border-radius:4px; border:1px solid #e9ecef; margin-bottom: 25px;">
+                        <div style="background:white; padding:20px; border-radius:4px; border:1px solid #e9ecef; margin-bottom: 25px;">
                             
-                            <div class="grid-3-col" style="margin-bottom:15px;">
-                                <div class="erp-input-group"><label>Personal Mobile No.</label><div style="display:flex;gap:5px;"><input type="text" id="empMobile" style="flex:1;"><button type="button" class="btn-verify">Verify</button></div></div>
-                                <div class="erp-input-group"><label>Personal Email ID</label><div style="display:flex;gap:5px;"><input type="text" id="empEmail" style="flex:1;"><button type="button" class="btn-verify">Verify</button></div></div>
-                                <div class="erp-input-group"><label>Correspondence Address</label><input type="text" id="empCorrAdd" placeholder="Enter Correspondence Address"></div>
-                            </div>
-                            <div class="grid-4-col" style="margin-bottom:15px;">
-                                <div class="erp-input-group"><label>City</label><input type="text" id="empCorrCity" placeholder="Enter City"></div>
-                                <div class="erp-input-group"><label>State</label><input type="text" id="empCorrState" placeholder="Enter State"></div>
-                                <div class="erp-input-group"><label>Country</label><input type="text" id="empCorrCountry" placeholder="Enter Country"></div>
-                                <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empCorrPin" placeholder="Enter PIN Code"></div>
-                            </div>
-
-                            <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
-
-                            <div class="grid-3-col" style="margin-bottom:15px;">
+                            <div class="grid-2-col" style="margin-bottom:25px;">
                                 <div class="erp-input-group">
-                                    <label>Permanent Address Same As Correspondence Address</label>
-                                    <label class="switch-custom"><input type="checkbox" id="chkSameAddr"><span class="slider-custom"></span><span class="switch-text">NO</span></label>
+                                    <label>Personal Mobile No.</label>
+                                    <div style="display:flex;gap:5px;">
+                                        <input type="text" id="empMobile" style="flex:1;">
+                                        <button type="button" class="btn-verify">Verify</button>
+                                    </div>
                                 </div>
-                                <div class="erp-input-group" style="grid-column: span 1;"><label>Permanent Address</label><input type="text" id="empPermAdd" placeholder="Enter Permanent Address"></div>
-                                <div class="erp-input-group"><label>City</label><input type="text" id="empPermCity" placeholder="Enter City"></div>
+                                <div class="erp-input-group">
+                                    <label>Personal Email ID</label>
+                                    <div style="display:flex;gap:5px;">
+                                        <input type="text" id="empEmail" style="flex:1;">
+                                        <button type="button" class="btn-verify">Verify</button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="grid-4-col">
-                                <div class="erp-input-group"><label>State</label><input type="text" id="empPermState" placeholder="Enter State"></div>
-                                <div class="erp-input-group"><label>Country</label><input type="text" id="empPermCountry" placeholder="Enter Country"></div>
-                                <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empPermPin" placeholder="Enter PIN Code"></div>
-                                <div></div> 
+
+                            <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+
+                            <div style="display:flex; gap:30px;">
+                                
+                                <div style="flex:1;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                        <h4 style="margin:0; color:#3b5998;">Permanent Address</h4>
+                                    </div>
+                                    <div class="erp-input-group" style="margin-bottom:10px;"><label>Address</label><input type="text" id="empPermAdd" placeholder="Enter Permanent Address"></div>
+                                    <div class="grid-2-col" style="margin-bottom:10px;">
+                                        <div class="erp-input-group"><label>City</label><input type="text" id="empPermCity" placeholder="Enter City"></div>
+                                        <div class="erp-input-group"><label>State</label><input type="text" id="empPermState" placeholder="Enter State"></div>
+                                    </div>
+                                    <div class="grid-2-col">
+                                        <div class="erp-input-group"><label>Country</label><input type="text" id="empPermCountry" placeholder="Enter Country"></div>
+                                        <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empPermPin" placeholder="Enter PIN Code"></div>
+                                    </div>
+                                </div>
+
+                                <div style="width:1px; background:#eee;"></div>
+
+                                <div style="flex:1;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                        <h4 style="margin:0; color:#3b5998;">Correspondence Address</h4>
+                                        <div style="display:flex; align-items:center; gap:10px;">
+                                            <span style="font-size:11px; font-weight:bold; color:#555;">Same As Permanent?</span>
+                                            <label class="switch-custom"><input type="checkbox" id="chkSameAddr"><span class="slider-custom"></span><span class="switch-text">NO</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="erp-input-group" style="margin-bottom:10px;"><label>Address</label><input type="text" id="empCorrAdd" placeholder="Enter Correspondence Address"></div>
+                                    <div class="grid-2-col" style="margin-bottom:10px;">
+                                        <div class="erp-input-group"><label>City</label><input type="text" id="empCorrCity" placeholder="Enter City"></div>
+                                        <div class="erp-input-group"><label>State</label><input type="text" id="empCorrState" placeholder="Enter State"></div>
+                                    </div>
+                                    <div class="grid-2-col">
+                                        <div class="erp-input-group"><label>Country</label><input type="text" id="empCorrCountry" placeholder="Enter Country"></div>
+                                        <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empCorrPin" placeholder="Enter PIN Code"></div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
 
@@ -349,7 +379,6 @@
                                     <table class="data-table erp-edu-table" style="border: none;">
                                         <thead>
                                             <tr>
-                                                <th>Sr</th>
                                                 <th>Course</th>
                                                 <th>Qualification</th>
                                                 <th>Institution</th>
@@ -358,9 +387,7 @@
                                                 <th>Passing Year</th>
                                                 <th>Percentage/CGPA</th>
                                                 <th>Subject</th>
-                                                <th>Ref</th>
-                                                <th>Unv</th>
-                                            </tr>
+                                                <th></th> </tr>
                                         </thead>
                                         <tbody id="qualTableBody"></tbody>
                                     </table>
@@ -376,22 +403,19 @@
                                     <table class="data-table erp-exp-table" style="border: none;">
                                         <thead>
                                             <tr>
-                                                <th>Sr</th>
                                                 <th>Organization Name</th>
                                                 <th>Organization Address</th>
+                                                <th>Designation</th>
                                                 <th>From Date</th>
                                                 <th>To Date</th>
-                                                <th>Dept</th>
-                                                <th>Designation</th>
-                                                <th>Resp</th>
-                                                <th>Exclude</th>
-                                            </tr>
+                                                <th></th> </tr>
                                         </thead>
                                         <tbody id="expTableBody"></tbody>
                                     </table>
                                 </div>
-                                <div class="table-toolbar" style="margin-top: 15px; border: none; padding: 0;">
+                                <div class="table-toolbar" style="margin-top: 15px; display: flex; gap: 10px; border: none; padding: 0;">
                                     <button type="button" class="btn-dark-outline" id="btnAddExpRow">+ Add Experience</button>
+                                    <button type="button" class="btn-red" id="btnDelExpRow">- Remove Last</button>
                                 </div>
                             </div>
 
