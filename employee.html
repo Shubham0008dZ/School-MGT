@@ -8,8 +8,7 @@
     <link rel="stylesheet" href="employee.css">
 </head>
 <body>
-
-    <!-- TOP NAVBAR -->
+    
     <div class="top-navbar">
         <div class="top-left">
             <button class="menu-btn" id="sidebarToggle">☰</button>
@@ -19,15 +18,15 @@
             </div>
             <span class="school-name" id="dynamicNavName">Loading...</span>
         </div>
+        
         <div class="top-right">
-            <span id="topBarModuleName" style="font-weight:bold; color:white; font-size:14px; letter-spacing:0.5px; margin-right:20px;">EMPLOYEE INFORMATION</span>
+            <span id="topBarModuleName" style="font-weight:bold; color:white; font-size: 14px; letter-spacing: 0.5px; margin-right: 20px;">EMPLOYEE INFORMATION</span>
             <button class="logout-btn" id="btnLogout">🚪 Logout</button>
         </div>
     </div>
 
     <div class="app-body">
-
-        <!-- SIDEBAR -->
+        
         <div class="sidebar" id="appSidebar">
             <div class="erp-brand">📚 SHUBH ERP</div>
             <ul class="nav-links">
@@ -39,17 +38,17 @@
         </div>
 
         <div class="main-content">
-
-            <!-- ============================================================
-                 MODULE 1: EMPLOYEE LIST
-                 ============================================================ -->
+            
+            <!-- LIST MODULE -->
             <div id="module-employees-list" class="app-module active-module">
                 <div class="section-header">
                     <h2>ACTIVE EMPLOYEES <span class="info-icon">ℹ️</span></h2>
                 </div>
+                
                 <div class="action-bar">
-                    <div style="position:relative; display:flex; gap:10px;">
+                    <div style="position: relative; display:flex; gap:10px;">
                         <button class="btn btn-dark" id="btn-toggle-filters">⧨ Filters</button>
+                        
                         <div class="filter-dropdown" id="filterDropdownPanel">
                             <select id="fEmpType"><option value="">Select Employee Type</option></select>
                             <select id="fDept"><option value="">Select Department</option></select>
@@ -60,6 +59,7 @@
                                 <button class="btn-apply" id="btn-apply-filter">Apply</button>
                             </div>
                         </div>
+
                         <div class="search-box">
                             <span class="search-icon">🔍</span>
                             <input type="text" id="searchEmpName" placeholder="Search Name and press Enter">
@@ -70,6 +70,7 @@
                         <button class="btn btn-green" id="btn-open-add-emp">⊕ Add Employee</button>
                     </div>
                 </div>
+
                 <div class="table-container">
                     <table class="erp-table">
                         <thead>
@@ -87,25 +88,26 @@
                             </tr>
                         </thead>
                         <tbody id="empTableBody">
-                            <tr><td colspan="10" style="text-align:center;">Loading Employees...</td></tr>
+                            <tr><td colspan="10" style="text-align: center;">Loading Employees...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- ============================================================
-                 MODULE 2: INACTIVE EMPLOYEES
-                 ============================================================ -->
+            <!-- INACTIVE MODULE -->
             <div id="module-manage-employee" class="app-module">
                 <div class="section-header">
                     <h2>MANAGE INACTIVE EMPLOYEES ⚙️</h2>
                 </div>
+                
                 <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); margin-bottom:20px;">
                     <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px;">Mark Employee Inactive</h3>
-                    <div class="grid-3-col" style="align-items:end;">
+                    <div class="grid-3-col" style="align-items: end;">
                         <div class="erp-input-group">
                             <label>Select Active Employee *</label>
-                            <select id="inactiveEmpSelect"><option value="">--Select--</option></select>
+                            <select id="inactiveEmpSelect">
+                                <option value="">--Select--</option>
+                            </select>
                         </div>
                         <div class="erp-input-group">
                             <label>Relieving Date *</label>
@@ -120,6 +122,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="table-container">
                     <h3 style="margin:0 0 15px 0;">Inactive Employees History</h3>
                     <table class="erp-table">
@@ -135,690 +138,323 @@
                             </tr>
                         </thead>
                         <tbody id="inactiveEmpTableBody">
-                            <tr><td colspan="7" style="text-align:center;">Loading...</td></tr>
+                            <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- ============================================================
-                 MODULE 3: ADD / EDIT EMPLOYEE (BLUE THEME - EXACT SS LAYOUT)
-                 ============================================================ -->
+            <!-- ADD / EDIT MODULE (EXACT SCREENSHOT LAYOUT REPLICATION) -->
             <div id="module-add-employee" class="app-module">
-
-                <!-- Breadcrumb Header -->
-                <div class="emp-page-header">
-                    <div class="emp-breadcrumb">
-                        <span class="emp-breadcrumb-link" id="btn-back-to-emps">Employee List</span>
-                        <span class="emp-breadcrumb-sep">›</span>
-                        <span class="emp-breadcrumb-current">Edit</span>
-                    </div>
+                <div class="section-header" style="justify-content: space-between;">
+                    <h2>EMPLOYEE LIST > EDIT</h2>
+                    <button class="btn btn-dark" id="btn-back-to-emps">← Back</button>
                 </div>
 
-                <!-- Main Form Card -->
-                <div class="emp-form-card">
-                    <div class="emp-form-wrapper">
-                        <div class="emp-top-split">
+                <div class="emp-form-wrapper">
+                    <div class="emp-top-split">
+                        
+                        <!-- LEFT COLUMN (Photos & Signature) -->
+                        <div class="emp-photo-col">
+                            <div class="photo-box">
+                                <p style="margin-top:0; margin-bottom:15px; font-weight:bold; font-size:13px; color:#555;">Employee Photo</p>
+                                <img id="empPhotoPreview" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" alt="Photo">
+                                <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+                                    <label for="empPhotoUploadNew" class="btn btn-dark" style="padding:5px 12px; font-size:11px; cursor:pointer; margin:0;">Upload</label>
+                                    <button type="button" id="btnEdit_empPhoto" class="btn btn-blue" style="padding:5px 12px; font-size:11px; cursor:pointer; margin:0; display:none;">✏ Edit</button>
+                                    <button type="button" id="btnDownload_empPhoto" class="btn btn-green" style="padding:5px 12px; font-size:11px; cursor:pointer; margin:0; display:none;">⬇ Download</button>
+                                    <button type="button" id="btnRemove_empPhoto" class="btn btn-red" style="padding:5px 12px; font-size:11px; cursor:pointer; margin:0; display:none;">🗑 Remove</button>
+                                </div>
+                                <input type="file" id="empPhotoUploadNew" accept="image/*" hidden>
+                            </div>
+                            <div class="photo-box">
+                                <p style="margin-top:0; margin-bottom:15px; font-weight:bold; font-size:13px; color:#555;">Employee Signature</p>
+                                <img id="empSignPreview" src="https://cdn-icons-png.flaticon.com/512/3597/3597088.png" alt="Signature" style="border-radius:0; border:1px solid #ccc; padding:10px; background:#f9f9f9;">
+                                <div style="display:flex; gap:10px; justify-content:center;">
+                                    <label for="empSignUpload" class="btn btn-dark" style="padding:5px 15px; font-size:12px; cursor:pointer; margin:0;">Upload</label>
+                                    <button type="button" id="btnRemove_empSign" class="btn btn-red" style="padding:5px 15px; font-size:12px; cursor:pointer; margin:0; display:none;">🗑 Remove</button>
+                                </div>
+                                <input type="file" id="empSignUpload" accept="image/*" hidden>
+                                <input type="hidden" id="empSignBase64">
+                            </div>
+                        </div>
 
-                            <!-- LEFT COLUMN: Photo + Signature -->
-                            <div class="emp-photo-col">
+                        <!-- RIGHT COLUMN (Form Data - Basic + Tabs) -->
+                        <div class="emp-basic-col">
+                            <form id="employeeForm">
+                                <input type="hidden" id="editEmpMode" value="false">
+                                <input type="hidden" id="empPhotoBase64" value="">
+                                <input type="hidden" id="empSignBase64" value="">
 
-                                <!-- Photo Box -->
-                                <div class="emp-photo-box">
-                                    <p class="emp-photo-label">Employee Photo</p>
-                                    <div class="emp-photo-circle-wrap">
-                                        <img id="empPhotoPreview" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" alt="Photo" class="emp-photo-circle">
+                                <!-- BASIC INFO SECTION (Always visible at top) -->
+                                <div class="grid-3-col" style="margin-bottom: 15px;">
+                                    <div class="erp-input-group"><label>Employee ID <span class="req">*</span></label><input type="text" id="empId" required placeholder="VPS/145"></div>
+                                    <div class="erp-input-group"><label>Department <span class="req">*</span></label><select id="empDept" required></select></div>
+                                    <div class="erp-input-group"><label>Designation</label><select id="empDesig"></select></div>
+                                </div>
+                                <div class="grid-3-col" style="margin-bottom: 15px;">
+                                    <div class="erp-input-group">
+                                        <label>Employee Name <span class="req">*</span></label>
+                                        <div style="display:flex; gap:5px;">
+                                            <select id="empSalutation" style="width:70px;"><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option><option value="Mrs.">Mrs.</option><option value="Dr.">Dr.</option></select>
+                                            <input type="text" id="empName" required style="flex:1;">
+                                        </div>
                                     </div>
-                                    <div class="emp-photo-btns">
-                                        <label for="empPhotoUploadNew" class="emp-btn-upload">Upload</label>
-                                        <button type="button" id="btnEdit_empPhoto" class="emp-btn-edit-photo" style="display:none;">✏ Edit</button>
-                                        <button type="button" id="btnDownload_empPhoto" class="emp-btn-dl-photo" style="display:none;">⬇ Download</button>
-                                    </div>
-                                    <button type="button" id="btnRemove_empPhoto" class="emp-btn-remove-photo" style="display:none;">🗑 Remove</button>
-                                    <input type="file" id="empPhotoUploadNew" accept="image/*" hidden>
+                                    <div class="erp-input-group"><label>Gender</label><select id="empGender"></select></div>
+                                    <div class="erp-input-group"><label>Blood Group</label><select id="empBlood"></select></div>
+                                </div>
+                                <div class="grid-3-col" style="margin-bottom: 15px;">
+                                    <div class="erp-input-group"><label>Date of Birth</label><input type="date" id="empDob"></div>
+                                    <div class="erp-input-group"><label>Age as on Today</label><input type="text" id="empAge" readonly style="background:#f4f6f9;"></div>
+                                    <div class="erp-input-group"><label>Joining Date <span class="req">*</span></label><input type="date" id="empJoinDate" required></div>
+                                </div>
+                                <div class="grid-3-col" style="margin-bottom: 15px;">
+                                    <div class="erp-input-group"><label>Employement Type</label><select id="empType"></select></div>
+                                    <div class="erp-input-group"><label>User Type <span class="req">*</span></label><select id="empUserType" required></select></div>
+                                    <div class="erp-input-group"><label>Reporting Authority</label><select id="empRepAuth"></select></div>
+                                </div>
+                                <div class="grid-3-col" style="margin-bottom: 15px;">
+                                    <div class="erp-input-group"><label>Official Phone</label><input type="text" id="empOffPhone"></div>
+                                    <div class="erp-input-group"><label>Official Email</label><input type="email" id="empOffEmail"></div>
+                                    <div class="erp-input-group"><label>Login ID</label><input type="text" id="empLoginId"></div>
+                                </div>
+                                <div class="grid-3-col" style="margin-bottom: 15px;">
+                                    <div class="erp-input-group"><label>Religion</label><select id="empRel"></select></div>
+                                    <div class="erp-input-group"><label>Marital Status</label><select id="empMarital"></select></div>
+                                    <div class="erp-input-group"><label>Employee Roles</label><select id="empRoles"><option value="">Select Employee Roles</option></select></div>
                                 </div>
 
-                                <!-- Signature Box -->
-                                <div class="emp-photo-box">
-                                    <p class="emp-photo-label">Employee Signature</p>
-                                    <div class="emp-sign-wrap">
-                                        <img id="empSignPreview" src="https://cdn-icons-png.flaticon.com/512/3597/3597088.png" alt="Signature" class="emp-sign-img">
+                                <!-- CONTACT DETAILS SECTION (Always visible at top) -->
+                                <div class="section-header-blue" style="margin-top: 25px;">Contact Details</div>
+                                <div style="background:white; padding:15px; border-radius:4px; border:1px solid #e9ecef; margin-bottom: 25px;">
+                                    
+                                    <div class="grid-3-col" style="margin-bottom:15px;">
+                                        <div class="erp-input-group"><label>Personal Mobile No.</label><div style="display:flex;gap:5px;"><input type="text" id="empMobile" style="flex:1;"><button type="button" class="btn-verify">Verify</button></div></div>
+                                        <div class="erp-input-group"><label>Personal Email ID</label><div style="display:flex;gap:5px;"><input type="text" id="empEmail" style="flex:1;"><button type="button" class="btn-verify">Verify</button></div></div>
+                                        <div class="erp-input-group"><label>Correspondence Address</label><input type="text" id="empCorrAdd" placeholder="Enter Correspondence Address"></div>
                                     </div>
-                                    <div class="emp-photo-btns">
-                                        <label for="empSignUpload" class="emp-btn-upload">Upload</label>
-                                        <button type="button" id="btnRemove_empSign" class="emp-btn-remove-photo" style="display:none;">🗑 Remove</button>
+                                    <div class="grid-4-col" style="margin-bottom:15px;">
+                                        <div class="erp-input-group"><label>City</label><input type="text" id="empCorrCity" placeholder="Enter City"></div>
+                                        <div class="erp-input-group"><label>State</label><input type="text" id="empCorrState" placeholder="Enter State"></div>
+                                        <div class="erp-input-group"><label>Country</label><input type="text" id="empCorrCountry" placeholder="Enter Country"></div>
+                                        <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empCorrPin" placeholder="Enter PIN Code"></div>
                                     </div>
-                                    <input type="file" id="empSignUpload" accept="image/*" hidden>
-                                    <input type="hidden" id="empSignBase64">
+
+                                    <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+
+                                    <div class="grid-3-col" style="margin-bottom:15px;">
+                                        <div class="erp-input-group">
+                                            <label>Permanent Address Same As Correspondence Address</label>
+                                            <label class="switch-custom"><input type="checkbox" id="chkSameAddr"><span class="slider-custom"></span><span class="switch-text">NO</span></label>
+                                        </div>
+                                        <div class="erp-input-group" style="grid-column: span 1;"><label>Permanent Address</label><input type="text" id="empPermAdd" placeholder="Enter Permanent Address"></div>
+                                        <div class="erp-input-group"><label>City</label><input type="text" id="empPermCity" placeholder="Enter City"></div>
+                                    </div>
+                                    <div class="grid-4-col">
+                                        <div class="erp-input-group"><label>State</label><input type="text" id="empPermState" placeholder="Enter State"></div>
+                                        <div class="erp-input-group"><label>Country</label><input type="text" id="empPermCountry" placeholder="Enter Country"></div>
+                                        <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empPermPin" placeholder="Enter PIN Code"></div>
+                                        <!-- Blank for grid alignment -->
+                                        <div></div> 
+                                    </div>
                                 </div>
 
-                            </div>
-                            <!-- END LEFT COLUMN -->
+                                <!-- NEW TABBED SECTIONS (Below Basic Info) -->
+                                <div class="erp-tabs-container">
+                                    <div class="erp-tabs-header">
+                                        <button type="button" class="erp-tab-btn active" data-target="tab-school">School Details</button>
+                                        <button type="button" class="erp-tab-btn" data-target="tab-family">Family Details</button>
+                                        <button type="button" class="erp-tab-btn" data-target="tab-documents">Documents</button>
+                                        <button type="button" class="erp-tab-btn" data-target="tab-education">Education Details</button>
+                                        <button type="button" class="erp-tab-btn" data-target="tab-experience">Work Experience</button>
+                                        <button type="button" class="erp-tab-btn" data-target="tab-financial">Financial Details</button>
+                                    </div>
 
-                            <!-- RIGHT COLUMN: Form -->
-                            <div class="emp-basic-col">
-                                <form id="employeeForm">
-                                    <input type="hidden" id="editEmpMode" value="false">
-                                    <input type="hidden" id="empPhotoBase64" value="">
-
-                                    <!-- ROW 1: Employee ID | Department | Designation -->
-                                    <div class="emp-grid-3" style="margin-bottom:14px;">
-                                        <div class="erp-input-group">
-                                            <label>Employee ID <span class="req">*</span></label>
-                                            <input type="text" id="empId" required placeholder="VPS/145">
+                                    <!-- TAB 1: School Details -->
+                                    <div id="tab-school" class="erp-tab-content active">
+                                        <div class="grid-4-col" style="margin-bottom:15px;">
+                                            <div class="erp-input-group"><label>Biometric Code</label><input type="text" id="empBio" placeholder="Enter Code"></div>
+                                            <div class="erp-input-group"><label>Assigned Subjects</label><input type="text" id="empSubjects" placeholder="Enter Assigned Subjects"></div>
+                                            <div class="erp-input-group"><label>Confirmation Date</label><input type="date" id="empConfDate"></div>
+                                            <div class="erp-input-group"><label>Retirement Date</label><input type="date" id="empRetireDate"></div>
                                         </div>
-                                        <div class="erp-input-group">
-                                            <label>Department <span class="req">*</span></label>
-                                            <div class="emp-select-wrap">
-                                                <select id="empDept" required></select>
+                                        <div class="grid-4-col" style="margin-bottom:15px;">
+                                            <div class="erp-input-group"><label>Date of Regularisation</label><input type="date" id="empRegDate"></div>
+                                            <div class="erp-input-group"><label>Service End Date</label><input type="date" id="empSrvEnd"></div>
+                                            <div class="erp-input-group"><label>Anniversary Date</label><input type="date" id="empAnnivDate"></div>
+                                            <div class="erp-input-group"><label>Wing</label><select id="empWing"></select></div>
+                                        </div>
+                                        <div class="grid-4-col" style="margin-bottom:15px;">
+                                            <div class="erp-input-group"><label>Access Rights (Wing)</label><select id="empAccRights"><option>Select an option</option></select></div>
+                                            <div class="erp-input-group"><label>Class In-charge</label><select id="empClassIncharge"><option>Select an option</option></select></div>
+                                            <div class="erp-input-group"><label>Sequence No.</label><input type="text" id="empSeqNo" placeholder="Enter Sequence No."></div>
+                                            <div class="erp-input-group"><label>RFID Card No.</label><input type="text" id="empRFID" placeholder="Enter RFID Card No."></div>
+                                        </div>
+                                        <div class="grid-4-col" style="margin-bottom:15px;">
+                                            <div class="erp-input-group"><label>OASIS ID.</label><input type="text" id="empOasis" placeholder="Enter OASIS ID."></div>
+                                            <div class="erp-input-group"><label>Aadhaar No.</label><input type="text" id="empAadhaar" placeholder="Enter Aadhaar No."></div>
+                                            <div class="erp-input-group"><label>PAN No</label><input type="text" id="empPan" placeholder="Enter PAN No"></div>
+                                            <div class="erp-input-group"><label>Election Card No</label><input type="text" id="empElecCard" placeholder="Enter Election Card No"></div>
+                                        </div>
+                                        <div class="grid-4-col" style="margin-bottom:15px;">
+                                            <div class="erp-input-group"><label>Nationality</label><input type="text" id="empNat" placeholder="Indian"></div>
+                                            <div class="erp-input-group"><label>Place of Birth</label><input type="text" id="empPob" placeholder="Enter Place of Birth"></div>
+                                            <div class="erp-input-group"><label>Employee Parameter</label><select id="empParam"><option>Select Employee Parameter</option></select></div>
+                                            <div class="erp-input-group"><label>Appraisal Initiation Date</label><input type="date" id="empApprDate"></div>
+                                        </div>
+                                        <div class="grid-4-col">
+                                            <div class="erp-input-group">
+                                                <label>Assign as Class In-Charge</label>
+                                                <label class="switch-custom"><input type="checkbox" id="chkAssignClass"><span class="slider-custom"></span><span class="switch-text">NO</span></label>
                                             </div>
-                                        </div>
-                                        <div class="erp-input-group">
-                                            <label>Designation</label>
-                                            <div class="emp-select-wrap">
-                                                <select id="empDesig"></select>
+                                            <div class="erp-input-group">
+                                                <label>Allow Internal Communication</label>
+                                                <label class="switch-custom"><input type="checkbox" id="chkIntComm"><span class="slider-custom"></span><span class="switch-text">NO</span></label>
+                                            </div>
+                                            <div class="erp-input-group">
+                                                <label>Daily Wage Employee</label>
+                                                <label class="switch-custom"><input type="checkbox" id="chkDailyWage"><span class="slider-custom"></span><span class="switch-text">NO</span></label>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- ROW 2: Employee Name | Gender | Blood Group -->
-                                    <div class="emp-grid-3" style="margin-bottom:14px;">
-                                        <div class="erp-input-group">
-                                            <label>Employee Name <span class="req">*</span></label>
-                                            <input type="text" id="empName" required placeholder="Enter Name">
+                                    <!-- TAB 2: Family Details -->
+                                    <div id="tab-family" class="erp-tab-content">
+                                        <div class="section-header-blue-light">Father Details</div>
+                                        <div class="grid-3-col" style="margin-bottom: 25px;">
+                                            <div class="erp-input-group"><label>Father's Name</label><input type="text" id="empFatherName" placeholder="Enter Father's Name"></div>
+                                            <div class="erp-input-group"><label>Father's Mobile No.</label><input type="text" id="empFatherMobile" placeholder="Enter Father's Mobile No."></div>
+                                            <div class="erp-input-group"><label>Father's Profession</label><input type="text" id="empFatherProf" placeholder="Enter Father's Profession"></div>
                                         </div>
-                                        <div class="erp-input-group">
-                                            <label>Gender</label>
-                                            <div class="emp-select-wrap">
-                                                <select id="empGender"></select>
-                                            </div>
+
+                                        <div class="section-header-blue-light">Mother Details</div>
+                                        <div class="grid-3-col" style="margin-bottom: 25px;">
+                                            <div class="erp-input-group"><label>Mother's Name</label><input type="text" id="empMotherName" placeholder="Enter Mother's Name"></div>
+                                            <div class="erp-input-group"><label>Mother's Mobile No.</label><input type="text" id="empMotherMobile" placeholder="Enter Mother's Mobile No."></div>
+                                            <div class="erp-input-group"><label>Mother's Profession</label><input type="text" id="empMotherProf" placeholder="Enter Mother's Profession"></div>
                                         </div>
-                                        <div class="erp-input-group">
-                                            <label>Blood Group</label>
-                                            <div class="emp-select-wrap">
-                                                <select id="empBlood"></select>
+
+                                        <div class="section-header-blue-light">Spouse Details</div>
+                                        <div class="grid-4-col" style="margin-bottom: 15px;">
+                                            <div class="erp-input-group"><label>Spouse's Name</label><input type="text" id="empSpouseName" placeholder="Enter Spouse's Name"></div>
+                                            <div class="erp-input-group"><label>Spouse's Mobile No.</label><input type="text" id="empSpouseMobile" placeholder="Enter Spouse's Mobile No."></div>
+                                            <div class="erp-input-group"><label>Spouse's Profession</label><input type="text" id="empSpouseProf" placeholder="Enter Spouse's Profession"></div>
+                                            <div class="erp-input-group"><label>Spouse's Designation</label><input type="text" id="empSpouseDesig" placeholder="Enter Spouse's Designation"></div>
+                                        </div>
+                                        <div class="grid-4-col">
+                                            <div class="erp-input-group"><label>Spouse's Organization Name</label><input type="text" id="empSpouseOrg" placeholder="Enter Organization Name"></div>
+                                            <div class="erp-input-group"><label>Spouse's Qualification</label><input type="text" id="empSpouseQual" placeholder="Enter Qualification"></div>
+                                            <div class="erp-input-group">
+                                                <label>Does the spouse have a transferable job?</label>
+                                                <label class="switch-custom"><input type="checkbox" id="chkSpouseTrans"><span class="slider-custom"></span><span class="switch-text">NO</span></label>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Salutation hidden (kept for JS) -->
-                                    <select id="empSalutation" style="display:none;"><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option><option value="Mrs.">Mrs.</option><option value="Dr.">Dr.</option></select>
+                                    <!-- TAB 3: Documents -->
+                                    <div id="tab-documents" class="erp-tab-content">
+                                        <p style="text-align:center; padding: 30px; color: #7f8c8d;">Document Upload Section (Coming Soon)</p>
+                                    </div>
 
-                                    <!-- ROW 3: DOB | Age | Joining Date -->
-                                    <div class="emp-grid-3" style="margin-bottom:14px;">
-                                        <div class="erp-input-group">
-                                            <label>Date of Birth</label>
-                                            <input type="date" id="empDob">
+                                    <!-- TAB 4: Education Details -->
+                                    <div id="tab-education" class="erp-tab-content">
+                                        <div style="overflow-x:auto;">
+                                            <table class="data-table" style="border: none;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="border:none; background:white;">Course</th>
+                                                        <th style="border:none; background:white;">Qualification</th>
+                                                        <th style="border:none; background:white;">Institution</th>
+                                                        <th style="border:none; background:white;">University/Board</th>
+                                                        <th style="border:none; background:white;">Duration In Months</th>
+                                                        <th style="border:none; background:white;">Passing Year</th>
+                                                        <th style="border:none; background:white;">Percentage/CGPA</th>
+                                                        <th style="border:none; background:white;">Subject</th>
+                                                        <!-- Hidden for logic integrity, but kept for JS -->
+                                                        <th style="display:none;">Reference</th>
+                                                        <th style="display:none;">Unv</th>
+                                                        <th style="border:none; background:white;"></th> <!-- Delete Col -->
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="qualTableBody"></tbody>
+                                            </table>
                                         </div>
-                                        <div class="erp-input-group">
-                                            <label>Age as on Today</label>
-                                            <input type="text" id="empAge" readonly class="emp-readonly-input">
-                                        </div>
-                                        <div class="erp-input-group">
-                                            <label>Joining Date <span class="req">*</span></label>
-                                            <input type="date" id="empJoinDate" required>
+                                        <div class="table-toolbar" style="margin-top: 15px; display: flex; gap: 10px; border: none; padding: 0;">
+                                            <button type="button" class="btn-dark-outline" id="btnAddQualRow">+ Add Qualification</button>
+                                            <button type="button" class="btn-red" id="btnDelQualRow">- Remove Last</button>
                                         </div>
                                     </div>
 
-                                    <!-- ROW 4: Employment Type | User Type | Reporting Authority -->
-                                    <div class="emp-grid-3" style="margin-bottom:14px;">
-                                        <div class="erp-input-group">
-                                            <label>Employment Type</label>
-                                            <div class="emp-select-wrap">
-                                                <select id="empType"></select>
-                                            </div>
+                                    <!-- TAB 5: Work Experience -->
+                                    <div id="tab-experience" class="erp-tab-content">
+                                        <div style="overflow-x:auto;">
+                                            <table class="data-table" style="border: none;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="border:none; background:white;">Organization Name</th>
+                                                        <th style="border:none; background:white;">Organization Address</th>
+                                                        <th style="border:none; background:white;">Designation</th>
+                                                        <th style="border:none; background:white;">From Date</th>
+                                                        <th style="border:none; background:white;">To Date</th>
+                                                        <!-- Hidden for logic integrity -->
+                                                        <th style="display:none;">Dept</th>
+                                                        <th style="display:none;">Resp</th>
+                                                        <th style="display:none;">Excl</th>
+                                                        <th style="border:none; background:white;"></th> <!-- Delete Col -->
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="expTableBody"></tbody>
+                                            </table>
                                         </div>
-                                        <div class="erp-input-group">
-                                            <label>User Type <span class="req">*</span></label>
-                                            <div class="emp-select-wrap">
-                                                <select id="empUserType" required></select>
-                                            </div>
-                                        </div>
-                                        <div class="erp-input-group">
-                                            <label>Reporting Authority</label>
-                                            <div class="emp-select-wrap">
-                                                <select id="empRepAuth"></select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- ROW 5: Official Phone | Official Email | Login ID -->
-                                    <div class="emp-grid-3" style="margin-bottom:14px;">
-                                        <div class="erp-input-group">
-                                            <label>Official Phone</label>
-                                            <input type="text" id="empOffPhone" placeholder="Enter Official Phone">
-                                        </div>
-                                        <div class="erp-input-group">
-                                            <label>Official Email</label>
-                                            <input type="email" id="empOffEmail" placeholder="Enter Official Email">
-                                        </div>
-                                        <div class="erp-input-group">
-                                            <label>Login ID</label>
-                                            <input type="text" id="empLoginId" placeholder="Enter Login ID">
+                                        <div class="table-toolbar" style="margin-top: 15px; border: none; padding: 0;">
+                                            <button type="button" class="btn-dark-outline" id="btnAddExpRow">+ Add Experience</button>
                                         </div>
                                     </div>
 
-                                    <!-- ROW 6: Religion | Marital Status | Employee Roles -->
-                                    <div class="emp-grid-3" style="margin-bottom:14px;">
-                                        <div class="erp-input-group">
-                                            <label>Religion</label>
-                                            <div class="emp-select-wrap">
-                                                <select id="empRel"></select>
-                                            </div>
+                                    <!-- TAB 6: Financial Details -->
+                                    <div id="tab-financial" class="erp-tab-content">
+                                        <div class="grid-4-col" style="margin-bottom:15px;">
+                                            <div class="erp-input-group"><label>Preferred Salary Payment Mode</label><select id="empSalMode"><option>Select Payment Mode</option></select></div>
+                                            <div class="erp-input-group"><label>Account No.</label><input type="text" id="empAccNo" placeholder="Enter Account No."></div>
+                                            <div class="erp-input-group"><label>IFSC code</label><input type="text" id="empIfsc" placeholder="Enter IFSC code"></div>
+                                            <div class="erp-input-group"><label>Account Type</label><select id="empAccType"><option>Select Account Type</option></select></div>
                                         </div>
-                                        <div class="erp-input-group">
-                                            <label>Marital Status</label>
-                                            <div class="emp-select-wrap">
-                                                <select id="empMarital"></select>
-                                            </div>
+                                        <div class="grid-4-col" style="margin-bottom:15px;">
+                                            <div class="erp-input-group"><label>Employee Salary Bank</label><select id="empSalBank"><option>Select Bank</option></select></div>
+                                            <div class="erp-input-group"><label>School Bank</label><select id="empSchoolBank"><option>Select School Bank</option></select></div>
+                                            <div class="erp-input-group"><label>Employee Bank Branch</label><input type="text" id="empBank" placeholder="Enter Branch"></div>
+                                            <div class="erp-input-group"><label>Employee Ledger</label><select id="empLedger"><option>Select Ledger</option></select></div>
                                         </div>
-                                        <div class="erp-input-group">
-                                            <label>Employee Roles</label>
-                                            <div class="emp-select-wrap">
-                                                <select id="empRoles"><option value="">Select Employee Roles</option></select>
+                                        <div class="grid-4-col" style="margin-bottom:15px;">
+                                            <div class="erp-input-group"><label>Cost Center</label><select id="empCostCenter"><option>Select Cost Center</option></select></div>
+                                            <div class="erp-input-group"><label>PF No.</label><input type="text" id="empPf" placeholder="Enter PF No."></div>
+                                            <div class="erp-input-group"><label>ESI No.</label><input type="text" id="empEsi" placeholder="Enter ESI No."></div>
+                                            <div class="erp-input-group"><label>UAN No.</label><input type="text" id="empUan" placeholder="Enter UAN No."></div>
+                                        </div>
+                                        <div class="grid-4-col">
+                                            <div class="erp-input-group">
+                                                <label>No Contribution in the pension fund?</label>
+                                                <label class="switch-custom"><input type="checkbox" id="chkPension"><span class="slider-custom"></span><span class="switch-text">NO</span></label>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                                
+                                <!-- BOTTOM ACTION BUTTONS (Exact Match) -->
+                                <div style="margin-top:30px; display:flex; justify-content: flex-end; gap: 10px;">
+                                    <button type="button" class="btn-footer-outline">Cancel</button>
+                                    <button type="button" class="btn-footer-solid">Previous</button>
+                                    <button type="submit" id="btnSaveEmp" class="btn-footer-solid">Save & Close</button>
+                                    <button type="button" class="btn-footer-solid">Save & Next</button>
+                                </div>
 
-                                    <!-- ==========================================
-                                         CONTACT DETAILS SECTION
-                                         ========================================== -->
-                                    <div class="emp-section-heading">Contact Details</div>
-
-                                    <div class="emp-contact-box">
-                                        <!-- Personal Mobile | Email | Correspondence Address -->
-                                        <div class="emp-grid-3" style="margin-bottom:14px;">
-                                            <div class="erp-input-group">
-                                                <label>Personal Mobile No.</label>
-                                                <div class="emp-input-verify">
-                                                    <input type="text" id="empMobile" placeholder="Enter Mobile No.">
-                                                    <button type="button" class="emp-verify-btn">Verify</button>
-                                                </div>
-                                            </div>
-                                            <div class="erp-input-group">
-                                                <label>Personal Email ID</label>
-                                                <div class="emp-input-verify">
-                                                    <input type="text" id="empEmail" placeholder="Enter Email ID">
-                                                    <button type="button" class="emp-verify-btn">Verify</button>
-                                                </div>
-                                            </div>
-                                            <div class="erp-input-group">
-                                                <label>Correspondence Address</label>
-                                                <input type="text" id="empCorrAdd" placeholder="Enter Correspondence Address">
-                                            </div>
-                                        </div>
-
-                                        <!-- City | State | Country | PIN -->
-                                        <div class="emp-grid-4" style="margin-bottom:14px;">
-                                            <div class="erp-input-group">
-                                                <label>City</label>
-                                                <input type="text" id="empCorrCity" placeholder="Enter City">
-                                            </div>
-                                            <div class="erp-input-group">
-                                                <label>State</label>
-                                                <input type="text" id="empCorrState" placeholder="Enter State">
-                                            </div>
-                                            <div class="erp-input-group">
-                                                <label>Country</label>
-                                                <input type="text" id="empCorrCountry" placeholder="Enter Country">
-                                            </div>
-                                            <div class="erp-input-group">
-                                                <label>PIN Code</label>
-                                                <input type="text" id="empCorrPin" placeholder="Enter PIN Code">
-                                            </div>
-                                        </div>
-
-                                        <hr class="emp-divider">
-
-                                        <!-- Permanent Address Toggle + Permanent Address -->
-                                        <div class="emp-grid-3" style="margin-bottom:14px;">
-                                            <div class="erp-input-group">
-                                                <label>Permanent Address Same As Correspondence Address</label>
-                                                <label class="switch-custom">
-                                                    <input type="checkbox" id="chkSameAddr">
-                                                    <span class="slider-custom"></span>
-                                                    <span class="switch-text">NO</span>
-                                                </label>
-                                            </div>
-                                            <div class="erp-input-group">
-                                                <label>Permanent Address</label>
-                                                <input type="text" id="empPermAdd" placeholder="Enter Permanent Address">
-                                            </div>
-                                            <div class="erp-input-group">
-                                                <label>City</label>
-                                                <input type="text" id="empPermCity" placeholder="Enter City">
-                                            </div>
-                                        </div>
-
-                                        <!-- State | Country | PIN -->
-                                        <div class="emp-grid-4">
-                                            <div class="erp-input-group">
-                                                <label>State</label>
-                                                <input type="text" id="empPermState" placeholder="Enter State">
-                                            </div>
-                                            <div class="erp-input-group">
-                                                <label>Country</label>
-                                                <input type="text" id="empPermCountry" placeholder="Enter Country">
-                                            </div>
-                                            <div class="erp-input-group">
-                                                <label>PIN Code</label>
-                                                <input type="text" id="empPermPin" placeholder="Enter PIN Code">
-                                            </div>
-                                            <div></div>
-                                        </div>
-                                    </div>
-                                    <!-- END CONTACT DETAILS -->
-
-                                    <!-- ==========================================
-                                         TABBED SECTIONS
-                                         ========================================== -->
-                                    <div class="erp-tabs-container">
-                                        <div class="erp-tabs-header">
-                                            <button type="button" class="erp-tab-btn active" data-target="tab-school">School Details</button>
-                                            <button type="button" class="erp-tab-btn" data-target="tab-family">Family Details</button>
-                                            <button type="button" class="erp-tab-btn" data-target="tab-documents">Documents</button>
-                                            <button type="button" class="erp-tab-btn" data-target="tab-education">Education Details</button>
-                                            <button type="button" class="erp-tab-btn" data-target="tab-experience">Work Experience</button>
-                                            <button type="button" class="erp-tab-btn" data-target="tab-financial">Financial Details</button>
-                                        </div>
-
-                                        <!-- TAB 1: School Details -->
-                                        <div id="tab-school" class="erp-tab-content active">
-                                            <div class="emp-grid-4" style="margin-bottom:14px;">
-                                                <div class="erp-input-group">
-                                                    <label>Biometric Code</label>
-                                                    <input type="text" id="empBio" placeholder="Enter Code">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Assigned Subjects</label>
-                                                    <input type="text" id="empSubjects" placeholder="Enter Assigned Subjects">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Confirmation Date</label>
-                                                    <input type="date" id="empConfDate">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Retirement Date</label>
-                                                    <input type="date" id="empRetireDate">
-                                                </div>
-                                            </div>
-                                            <div class="emp-grid-4" style="margin-bottom:14px;">
-                                                <div class="erp-input-group">
-                                                    <label>Date of Regularisation</label>
-                                                    <input type="date" id="empRegDate">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Service End Date</label>
-                                                    <input type="date" id="empSrvEnd">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Anniversary Date</label>
-                                                    <input type="date" id="empAnnivDate">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Wing</label>
-                                                    <div class="emp-select-wrap">
-                                                        <select id="empWing"></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="emp-grid-4" style="margin-bottom:14px;">
-                                                <div class="erp-input-group">
-                                                    <label>Access Rights (Wing)</label>
-                                                    <div class="emp-select-wrap">
-                                                        <select id="empAccRights"><option>Select an option</option></select>
-                                                    </div>
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Class In-charge</label>
-                                                    <div class="emp-select-wrap">
-                                                        <select id="empClassIncharge"><option>Select an option</option></select>
-                                                    </div>
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Sequence No.</label>
-                                                    <input type="text" id="empSeqNo" placeholder="Enter Sequence No.">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>RFID Card No.</label>
-                                                    <input type="text" id="empRFID" placeholder="Enter RFID Card No.">
-                                                </div>
-                                            </div>
-                                            <div class="emp-grid-4" style="margin-bottom:14px;">
-                                                <div class="erp-input-group">
-                                                    <label>OASIS ID.</label>
-                                                    <input type="text" id="empOasis" placeholder="Enter OASIS ID.">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Aadhaar No.</label>
-                                                    <input type="text" id="empAadhaar" placeholder="Enter Aadhaar No.">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>PAN No</label>
-                                                    <input type="text" id="empPan" placeholder="Enter PAN No">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Election Card No</label>
-                                                    <input type="text" id="empElecCard" placeholder="Enter Election Card No">
-                                                </div>
-                                            </div>
-                                            <div class="emp-grid-4" style="margin-bottom:14px;">
-                                                <div class="erp-input-group">
-                                                    <label>Nationality</label>
-                                                    <input type="text" id="empNat" placeholder="Indian">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Place of Birth</label>
-                                                    <input type="text" id="empPob" placeholder="Enter Place of Birth">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Employee Parameter</label>
-                                                    <div class="emp-select-wrap">
-                                                        <select id="empParam"><option>Select Employee Parameter</option></select>
-                                                    </div>
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Appraisal Initiation Date</label>
-                                                    <input type="date" id="empApprDate">
-                                                </div>
-                                            </div>
-                                            <div class="emp-grid-4">
-                                                <div class="erp-input-group">
-                                                    <label>Assign as Class In-Charge</label>
-                                                    <label class="switch-custom">
-                                                        <input type="checkbox" id="chkAssignClass">
-                                                        <span class="slider-custom"></span>
-                                                        <span class="switch-text">NO</span>
-                                                    </label>
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Allow Internal Communication</label>
-                                                    <label class="switch-custom">
-                                                        <input type="checkbox" id="chkIntComm">
-                                                        <span class="slider-custom"></span>
-                                                        <span class="switch-text">NO</span>
-                                                    </label>
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Daily Wage Employee</label>
-                                                    <label class="switch-custom">
-                                                        <input type="checkbox" id="chkDailyWage">
-                                                        <span class="slider-custom"></span>
-                                                        <span class="switch-text">NO</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-
-                                            <!-- School Tab Footer Buttons -->
-                                            <div class="emp-tab-footer">
-                                                <button type="button" class="emp-btn-cancel" id="btn-cancel-school">Cancel</button>
-                                                <button type="button" class="emp-btn-save-close" id="btnSaveEmp-school">Save &amp; Close</button>
-                                                <button type="button" class="emp-btn-save-next" id="btnSaveNext-school">Save &amp; Next</button>
-                                            </div>
-                                        </div>
-
-                                        <!-- TAB 2: Family Details -->
-                                        <div id="tab-family" class="erp-tab-content">
-                                            <div class="emp-sub-section-heading">Father Details</div>
-                                            <div class="emp-grid-3" style="margin-bottom:25px;">
-                                                <div class="erp-input-group">
-                                                    <label>Father's Name</label>
-                                                    <input type="text" id="empFatherName" placeholder="Enter Father's Name">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Father's Mobile No.</label>
-                                                    <input type="text" id="empFatherMobile" placeholder="Enter Father's Mobile No.">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Father's Profession</label>
-                                                    <input type="text" id="empFatherProf" placeholder="Enter Father's Profession">
-                                                </div>
-                                            </div>
-
-                                            <div class="emp-sub-section-heading">Mother Details</div>
-                                            <div class="emp-grid-3" style="margin-bottom:25px;">
-                                                <div class="erp-input-group">
-                                                    <label>Mother's Name</label>
-                                                    <input type="text" id="empMotherName" placeholder="Enter Mother's Name">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Mother's Mobile No.</label>
-                                                    <input type="text" id="empMotherMobile" placeholder="Enter Mother's Mobile No.">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Mother's Profession</label>
-                                                    <input type="text" id="empMotherProf" placeholder="Enter Mother's Profession">
-                                                </div>
-                                            </div>
-
-                                            <div class="emp-sub-section-heading">Spouse Details</div>
-                                            <div class="emp-grid-4" style="margin-bottom:15px;">
-                                                <div class="erp-input-group">
-                                                    <label>Spouse's Name</label>
-                                                    <input type="text" id="empSpouseName" placeholder="Enter Spouse's Name">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Spouse's Mobile No.</label>
-                                                    <input type="text" id="empSpouseMobile" placeholder="Enter Spouse's Mobile No.">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Spouse's Profession</label>
-                                                    <input type="text" id="empSpouseProf" placeholder="Enter Spouse's Profession">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Spouse's Designation</label>
-                                                    <input type="text" id="empSpouseDesig" placeholder="Enter Spouse's Designation">
-                                                </div>
-                                            </div>
-                                            <div class="emp-grid-4">
-                                                <div class="erp-input-group">
-                                                    <label>Spouse's Organization Name</label>
-                                                    <input type="text" id="empSpouseOrg" placeholder="Enter Organization Name">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Spouse's Qualification</label>
-                                                    <input type="text" id="empSpouseQual" placeholder="Enter Qualification">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Does the spouse have a transferable job?</label>
-                                                    <label class="switch-custom">
-                                                        <input type="checkbox" id="chkSpouseTrans">
-                                                        <span class="slider-custom"></span>
-                                                        <span class="switch-text">NO</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-
-                                            <!-- Family Tab Footer Buttons -->
-                                            <div class="emp-tab-footer">
-                                                <button type="button" class="emp-btn-cancel" id="btn-cancel-family">Cancel</button>
-                                                <button type="button" class="emp-btn-prev" id="btnPrev-family">Previous</button>
-                                                <button type="button" class="emp-btn-save-close" id="btnSaveClose-family">Save &amp; Close</button>
-                                                <button type="button" class="emp-btn-save-next" id="btnSaveNext-family">Save &amp; Next</button>
-                                            </div>
-                                        </div>
-
-                                        <!-- TAB 3: Documents -->
-                                        <div id="tab-documents" class="erp-tab-content">
-                                            <p style="text-align:center; padding:30px; color:#7f8c8d;">Document Upload Section (Coming Soon)</p>
-                                            <div class="emp-tab-footer">
-                                                <button type="button" class="emp-btn-cancel">Cancel</button>
-                                                <button type="button" class="emp-btn-prev">Previous</button>
-                                                <button type="button" class="emp-btn-save-close">Save &amp; Close</button>
-                                                <button type="button" class="emp-btn-save-next">Save &amp; Next</button>
-                                            </div>
-                                        </div>
-
-                                        <!-- TAB 4: Education Details -->
-                                        <div id="tab-education" class="erp-tab-content">
-                                            <div style="overflow-x:auto;">
-                                                <table class="data-table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Course</th>
-                                                            <th>Qualification</th>
-                                                            <th>Institution</th>
-                                                            <th>University/Board</th>
-                                                            <th>Duration In Months</th>
-                                                            <th>Passing Year</th>
-                                                            <th>Percentage/CGPA</th>
-                                                            <th>Subject</th>
-                                                            <th style="display:none;">Reference</th>
-                                                            <th style="display:none;">Unv</th>
-                                                            <th></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="qualTableBody"></tbody>
-                                                </table>
-                                            </div>
-                                            <div class="emp-table-toolbar">
-                                                <button type="button" class="btn-dark-outline" id="btnAddQualRow">+ Add Qualification</button>
-                                                <button type="button" class="btn btn-red" id="btnDelQualRow">- Remove Last</button>
-                                            </div>
-                                            <div class="emp-tab-footer">
-                                                <button type="button" class="emp-btn-cancel">Cancel</button>
-                                                <button type="button" class="emp-btn-prev">Previous</button>
-                                                <button type="button" class="emp-btn-save-close">Save &amp; Close</button>
-                                                <button type="button" class="emp-btn-save-next">Save &amp; Next</button>
-                                            </div>
-                                        </div>
-
-                                        <!-- TAB 5: Work Experience -->
-                                        <div id="tab-experience" class="erp-tab-content">
-                                            <div style="overflow-x:auto;">
-                                                <table class="data-table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Organization Name</th>
-                                                            <th>Organization Address</th>
-                                                            <th>Designation</th>
-                                                            <th>From Date</th>
-                                                            <th>To Date</th>
-                                                            <th style="display:none;">Dept</th>
-                                                            <th style="display:none;">Resp</th>
-                                                            <th style="display:none;">Excl</th>
-                                                            <th></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="expTableBody"></tbody>
-                                                </table>
-                                            </div>
-                                            <div class="emp-table-toolbar">
-                                                <button type="button" class="btn-dark-outline" id="btnAddExpRow">+ Add Experience</button>
-                                            </div>
-                                            <div class="emp-tab-footer">
-                                                <button type="button" class="emp-btn-cancel">Cancel</button>
-                                                <button type="button" class="emp-btn-prev">Previous</button>
-                                                <button type="button" class="emp-btn-save-close">Save &amp; Close</button>
-                                                <button type="button" class="emp-btn-save-next">Save &amp; Next</button>
-                                            </div>
-                                        </div>
-
-                                        <!-- TAB 6: Financial Details -->
-                                        <div id="tab-financial" class="erp-tab-content">
-                                            <div class="emp-grid-4" style="margin-bottom:14px;">
-                                                <div class="erp-input-group">
-                                                    <label>Preferred Salary Payment Mode</label>
-                                                    <div class="emp-select-wrap">
-                                                        <select id="empSalMode"><option>Select Payment Mode</option></select>
-                                                    </div>
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Account No.</label>
-                                                    <input type="text" id="empAccNo" placeholder="Enter Account No.">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>IFSC code</label>
-                                                    <input type="text" id="empIfsc" placeholder="Enter IFSC code">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Account Type</label>
-                                                    <div class="emp-select-wrap">
-                                                        <select id="empAccType"><option>Select Account Type</option></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="emp-grid-4" style="margin-bottom:14px;">
-                                                <div class="erp-input-group">
-                                                    <label>Employee Salary Bank</label>
-                                                    <div class="emp-select-wrap">
-                                                        <select id="empSalBank"><option>Select Bank</option></select>
-                                                    </div>
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>School Bank</label>
-                                                    <div class="emp-select-wrap">
-                                                        <select id="empSchoolBank"><option>Select School Bank</option></select>
-                                                    </div>
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Employee Bank Branch</label>
-                                                    <input type="text" id="empBank" placeholder="Enter Branch">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>Employee Ledger</label>
-                                                    <div class="emp-select-wrap">
-                                                        <select id="empLedger"><option>Select Ledger</option></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="emp-grid-4" style="margin-bottom:14px;">
-                                                <div class="erp-input-group">
-                                                    <label>Cost Center</label>
-                                                    <div class="emp-select-wrap">
-                                                        <select id="empCostCenter"><option>Select Cost Center</option></select>
-                                                    </div>
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>PF No.</label>
-                                                    <input type="text" id="empPf" placeholder="Enter PF No.">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>ESI No.</label>
-                                                    <input type="text" id="empEsi" placeholder="Enter ESI No.">
-                                                </div>
-                                                <div class="erp-input-group">
-                                                    <label>UAN No.</label>
-                                                    <input type="text" id="empUan" placeholder="Enter UAN No.">
-                                                </div>
-                                            </div>
-                                            <div class="emp-grid-4">
-                                                <div class="erp-input-group">
-                                                    <label>No Contribution in the pension fund?</label>
-                                                    <label class="switch-custom">
-                                                        <input type="checkbox" id="chkNoPension">
-                                                        <span class="slider-custom"></span>
-                                                        <span class="switch-text">NO</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-
-                                            <!-- Financial Tab Footer -->
-                                            <div class="emp-tab-footer">
-                                                <button type="button" class="emp-btn-cancel">Cancel</button>
-                                                <button type="button" class="emp-btn-prev">Previous</button>
-                                                <button type="submit" id="btnSaveEmp" class="emp-btn-save-close">Save</button>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                    <!-- END TABS -->
-
-                                </form>
-                            </div>
-                            <!-- END RIGHT COLUMN -->
-
+                            </form>
                         </div>
                     </div>
                 </div>
-                <!-- END FORM CARD -->
-
             </div>
-            <!-- END MODULE ADD/EDIT -->
 
-            <!-- ============================================================
-                 MODULE 4: MASTER SETUP
-                 ============================================================ -->
+            <!-- SETUP MODULE -->
             <div id="module-emp-setup" class="app-module">
                 <div class="section-header">
                     <h2>HR MASTER SETUP ⚙️</h2>
@@ -856,6 +492,7 @@
                             </div>
                         </form>
                     </div>
+                    
                     <div style="flex:2; background:white; padding:20px; border-radius:8px; border:1px solid #eee; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
                         <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px; color:#2c3e50;">Current Configurations</h3>
                         <div id="esDisplay"></div>
@@ -864,18 +501,15 @@
             </div>
 
         </div>
-        <!-- END MAIN CONTENT -->
-
     </div>
-    <!-- END APP BODY -->
 
     <!-- BULK MANAGE MODAL -->
     <div id="bulkManageModal" class="crop-modal">
-        <div class="crop-container" style="width:500px; text-align:left;">
+        <div class="crop-container" style="width: 500px; text-align:left;">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px;">Bulk Manage: <span id="bulkCatTitle" style="color:#e67e22;"></span></h3>
             <p style="font-size:12px; color:#666; margin-bottom:10px;">Add or edit multiple entries. Leave empty to ignore.</p>
             <div style="max-height:300px; overflow-y:auto; margin-bottom:15px; border:1px solid #ccc; padding:10px;">
-                <table style="width:100%; border-collapse:collapse;" id="bulkTable">
+                <table style="width:100%; border-collapse: collapse;" id="bulkTable">
                     <tbody id="bulkTableBody"></tbody>
                 </table>
                 <button type="button" id="btnAddBulkRow" style="margin-top:10px; padding:5px 10px; background:#eee; border:1px solid #ccc; cursor:pointer;">+ Add Row</button>
@@ -887,7 +521,7 @@
         </div>
     </div>
 
-    <!-- CROPPER MODAL -->
+    <!-- CROPPER JS MODAL -->
     <div class="crop-modal" id="cropModalOverlay">
         <div class="crop-container">
             <h3 style="margin-top:0;">Crop Photo</h3>
@@ -896,7 +530,7 @@
             </div>
             <div>
                 <button type="button" class="btn btn-dark" id="btnCancelCrop">Cancel</button>
-                <button type="button" class="btn btn-green" id="btnApplyCrop">Crop &amp; Apply</button>
+                <button type="button" class="btn btn-green" id="btnApplyCrop">Crop & Apply</button>
             </div>
         </div>
     </div>
