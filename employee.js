@@ -1,7 +1,7 @@
 window.customAlert = function(message) {
     let overlay = document.createElement('div');
     overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
-    overlay.innerHTML = `<div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;"><p style="color:#333;margin-bottom:20px;font-size:15px;font-weight:bold;">${message}</p><button onclick="this.parentElement.parentElement.remove()" style="padding:8px 25px;background:#e67e22;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">OK</button></div>`;
+    overlay.innerHTML = `<div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;"><p style="color:#333;margin-bottom:20px;font-size:15px;font-weight:bold;">${message}</p><button onclick="this.parentElement.parentElement.remove()" style="padding:8px 25px;background:#4a90e2;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">OK</button></div>`;
     document.body.appendChild(overlay);
 };
 
@@ -14,12 +14,6 @@ window.customConfirm = function(message, onConfirm) {
     document.getElementById('cc-ok').addEventListener('click', () => { overlay.remove(); onConfirm(); });
 };
 
-function runNetworkDiagnostics(currentUrl) {
-    let diagnostics = { isDummyUrl: false, isBrowserOnline: navigator.onLine, timestamp: new Date().toISOString() };
-    if(currentUrl.includes("YOUR_NEW_DEPLOYMENT_ID_HERE")) { diagnostics.isDummyUrl = true; console.error("CRITICAL ERROR: Dummy URL detected."); }
-    console.log("Network Diagnostics Run: ", diagnostics); return diagnostics;
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     
     const sidebarToggle = document.getElementById('sidebarToggle');
@@ -27,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if(sidebarToggle && sidebar) {
         sidebarToggle.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
     }
+
+    const scriptURL = localStorage.getItem('erp_school_url');
+    if(!scriptURL) { window.location.href = 'login.html'; return;}
 
     const activeUserStr = localStorage.getItem('erp_active_user');
     if (!activeUserStr) { window.location.href = 'login.html'; return; }
@@ -36,41 +33,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let userRights = [];
     try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
 
-    const scriptURL = '/api/backend';
-    const activeSchoolName = localStorage.getItem('erp_school_name');
-    if(!activeSchoolName) { window.location.href = 'login.html'; }
-
     try {
         let savedName = localStorage.getItem('erp_school_name');
         let savedLogo = localStorage.getItem('erp_school_logo');
         let navNameEl = document.getElementById('dynamicNavName');
         let navLogoImg = document.getElementById('dynamicNavLogo');
         let navLogoDefault = document.getElementById('defaultNavLogo');
-        
         if(savedName && navNameEl) navNameEl.innerText = savedName; 
         if(savedLogo && savedLogo.startsWith('http') && navLogoImg) {
             navLogoImg.src = savedLogo; navLogoImg.style.display = 'inline-block';
             if(navLogoDefault) navLogoDefault.style.display = 'none';
         }
     } catch(error) { console.error("Navbar logic failed:", error); }
-    
-    const networkHealth = runNetworkDiagnostics(scriptURL);
-
-    fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }), headers: { "Content-Type": "application/json" } })
-    .then(res => res.json()).then(data => {
-        if (data.status === "Invalid") {
-            alert("Session Invalid: Your account was deleted or marked inactive.");
-            localStorage.removeItem('erp_active_user'); window.location.href = 'login.html';
-        } else if (data.status === "Valid" && data.user) { localStorage.setItem('erp_active_user', JSON.stringify(data.user)); }
-    }).catch(err => console.log("Background sync paused.", err));
-
-    if (!isSA && !userRights.some(r => r.startsWith("HR_"))) { window.location.href = 'index.html'; return; }
-
-    if (!isSA) {
-        if(!userRights.includes("HR_Add")) { let addBtn = document.getElementById('btn-open-add-emp'); if(addBtn) addBtn.remove(); }
-        if(!userRights.includes("HR_Inactive")) { let inactNav = document.querySelector('.nav-btn[data-target="module-manage-employee"]'); if(inactNav) inactNav.remove(); }
-        if(!userRights.includes("HR_Setup")) { let setupNav = document.querySelector('.nav-btn[data-target="module-emp-setup"]'); if(setupNav) setupNav.remove(); }
-    }
 
     const btnLogout = document.getElementById('btnLogout');
     if(btnLogout) {
@@ -85,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showView(targetId) {
         document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
         document.getElementById(targetId).classList.add('active-module');
-        if(targetId === 'module-dashboard') { updateDashboard(); } // DASHBOARD HOOK
+        if(targetId === 'module-dashboard') { updateDashboard(); }
     }
 
     document.querySelectorAll('.nav-btn').forEach(link => {
@@ -115,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 allEmployees = res.employees || [];
                 if(res.empSetup) { Object.keys(empSetup).forEach(k => { empSetup[k] = res.empSetup[k] || []; }); }
                 populateSetupDropdowns(); renderSetupDisplay(); renderEmployeesTable(allEmployees); populateInactiveDropdown(); renderInactiveEmployeesTable(); 
-                updateDashboard(); // DASHBOARD INIT HOOK
+                updateDashboard(); 
             } else {
                 if(tbody) tbody.innerHTML = `<tr><td colspan="10" style="color:red; text-align:center;"><b>Error:</b> ${res.message}</td></tr>`; 
             }
@@ -124,9 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==========================================
-    // CROPPER & PHOTO UPLOAD LOGIC
-    // ==========================================
     let cropper = null;
     const fileInput = document.getElementById('empPhotoUploadNew');
     
@@ -649,7 +620,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('dashNewMale').innerText = newMale; document.getElementById('dashNewFemale').innerText = newFem;
             document.getElementById('dashSepEmp').innerText = sepEmps.length;
             document.getElementById('dashSepMale').innerText = sepMale; document.getElementById('dashSepFemale').innerText = sepFem;
-            // Static Ratio for now, adjust math if students exist
             document.getElementById('dashRatio').innerText = "8:1"; 
         }
 
@@ -705,7 +675,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let femData = labels.map(l => labelsObj[l].female);
         let unspecData = labels.map(l => labelsObj[l].unspec);
 
-        // Update Chart
         let ctx = document.getElementById('mainSummaryChart');
         if(ctx) {
             if(mainSummaryChartInstance) mainSummaryChartInstance.destroy();
@@ -723,7 +692,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Update List Table
         let tbody = document.getElementById('summaryListBody');
         let tfoot = document.getElementById('summaryListFoot');
         let theader = document.getElementById('listCategoryHeader');
@@ -742,7 +710,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderWidgetLists(activeEmps, sepEmps, newEmps) {
-        // Birthdays (Next 30 days logic)
         let bdayDiv = document.getElementById('dashBirthdays');
         if(bdayDiv) {
             let today = new Date();
@@ -763,7 +730,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // New Joinees
         let joinDiv = document.getElementById('dashJoinees');
         if(joinDiv) {
             let recent = newEmps.sort((a,b) => new Date(b.empJoinDate) - new Date(a.empJoinDate)).slice(0, 5);
@@ -777,7 +743,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Separated
         let sepDiv = document.getElementById('dashSeparatedList');
         if(sepDiv) {
             let left = sepEmps.slice(0, 5);
@@ -796,8 +761,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let ctx = document.getElementById('tenureChart');
         if(!ctx) return;
 
-        // Simple bucketing logic for demonstration
-        let activeCounts = [0, 0, 0, 0, 0, 0]; // 0-1, 1-2, 2-4, 4-7, 7-10, 15+
+        let activeCounts = [0, 0, 0, 0, 0, 0]; 
         let inactiveCounts = [0, 0, 0, 0, 0, 0];
 
         function getBucket(years) {
