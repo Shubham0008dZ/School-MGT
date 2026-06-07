@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Management - School ERP</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="employee.css">
 </head>
 <body>
@@ -30,8 +31,8 @@
         <div class="sidebar" id="appSidebar">
             <div class="erp-brand">📚 SHUBH ERP</div>
             <ul class="nav-links">
-                <li><a href="index.html" class="nav-btn"><span class="nav-icon">🏠</span><span class="nav-text">Dashboard</span></a></li>
-                <li><a href="#" class="nav-btn active" data-target="module-employees-list"><span class="nav-icon">👨‍💼</span><span class="nav-text">Employees List</span></a></li>
+                <li><a href="#" class="nav-btn active" data-target="module-dashboard"><span class="nav-icon">🏠</span><span class="nav-text">Dashboard</span></a></li>
+                <li><a href="#" class="nav-btn" data-target="module-employees-list"><span class="nav-icon">👨‍💼</span><span class="nav-text">Employees List</span></a></li>
                 <li><a href="#" class="nav-btn" data-target="module-manage-employee"><span class="nav-icon">🚫</span><span class="nav-text">Inactive Employees</span></a></li>
                 <li><a href="#" class="nav-btn" data-target="module-emp-setup"><span class="nav-icon">⚙️</span><span class="nav-text">Master Setup</span></a></li>
             </ul>
@@ -39,7 +40,140 @@
 
         <div class="main-content">
             
-            <div id="module-employees-list" class="app-module active-module">
+            <div id="module-dashboard" class="app-module active-module">
+                
+                <div class="dash-top-cards">
+                    <div class="dash-card card-blue">
+                        <div class="card-header-flex">
+                            <div class="card-icon">👥</div>
+                            <div class="card-info">
+                                <h3>Total Employees: <span id="dashTotalEmp">0</span></h3>
+                                <p>Total active employees in the school.</p>
+                            </div>
+                        </div>
+                        <div class="card-footer-flex">
+                            <div><strong id="dashTotalMale">0</strong><br><span>Male</span></div>
+                            <div><strong id="dashTotalFemale">0</strong><br><span>Female</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="dash-card card-green">
+                        <div class="card-header-flex">
+                            <div class="card-icon">🆕</div>
+                            <div class="card-info">
+                                <h3>New Employees: <span id="dashNewEmp">0</span></h3>
+                                <p>Employees who joined in the current year.</p>
+                            </div>
+                        </div>
+                        <div class="card-footer-flex">
+                            <div><strong id="dashNewMale">0</strong><br><span>Male</span></div>
+                            <div><strong id="dashNewFemale">0</strong><br><span>Female</span></div>
+                        </div>
+                    </div>
+
+                    <div class="dash-card card-red">
+                        <div class="card-header-flex">
+                            <div class="card-icon">🚪</div>
+                            <div class="card-info">
+                                <h3>Separated Employees: <span id="dashSepEmp">0</span></h3>
+                                <p>Employees who left in the current year.</p>
+                            </div>
+                        </div>
+                        <div class="card-footer-flex">
+                            <div><strong id="dashSepMale">0</strong><br><span>Male</span></div>
+                            <div><strong id="dashSepFemale">0</strong><br><span>Female</span></div>
+                        </div>
+                    </div>
+
+                    <div class="dash-card card-ratio">
+                        <h3>Student-Teacher Ratio</h3>
+                        <h2 id="dashRatio">N/A</h2>
+                    </div>
+                </div>
+
+                <div class="dash-summary-section">
+                    <div class="summary-header">
+                        <h3>Employee Summary</h3>
+                    </div>
+                    <div class="summary-controls">
+                        <div class="summary-tabs">
+                            <button class="sum-tab active" data-type="department">Department-wise</button>
+                            <button class="sum-tab" data-type="designation">Designation-wise</button>
+                            <button class="sum-tab" data-type="wing">Wing-wise</button>
+                            <button class="sum-tab" data-type="blood">Blood Group-wise</button>
+                            <button class="sum-tab" data-type="type">Type-wise</button>
+                        </div>
+                        <div class="view-toggles">
+                            <button class="view-btn active" id="btnGraphView">📊</button>
+                            <button class="view-btn" id="btnListView">📋</button>
+                        </div>
+                    </div>
+
+                    <div id="summaryGraphView" class="summary-view active">
+                        <canvas id="mainSummaryChart" height="80"></canvas>
+                    </div>
+
+                    <div id="summaryListView" class="summary-view" style="display: none;">
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th id="listCategoryHeader">Department</th>
+                                    <th>Male</th>
+                                    <th>Female</th>
+                                    <th>Unspecified</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summaryListBody">
+                                </tbody>
+                            <tfoot id="summaryListFoot" style="font-weight: bold; background: #e9ecef;">
+                                </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="dash-bottom-grid">
+                    <div class="dash-widget">
+                        <div class="widget-header">
+                            <h4>Employee Birthdays (Upcoming)</h4>
+                        </div>
+                        <div class="widget-body" id="dashBirthdays">
+                            <p style="text-align:center; color:#777; padding:20px;">Loading...</p>
+                        </div>
+                    </div>
+
+                    <div class="dash-widget">
+                        <div class="widget-header">
+                            <h4>New Joinees</h4>
+                        </div>
+                        <div class="widget-body" id="dashJoinees">
+                            <p style="text-align:center; color:#777; padding:20px;">Loading...</p>
+                        </div>
+                    </div>
+
+                    <div class="dash-widget">
+                        <div class="widget-header">
+                            <h4>Separated Employees</h4>
+                        </div>
+                        <div class="widget-body" id="dashSeparatedList">
+                            <p style="text-align:center; color:#777; padding:20px;">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-bottom-charts">
+                    <div class="dash-widget">
+                        <div class="widget-header">
+                            <h4>Employee Tenure Analysis</h4>
+                        </div>
+                        <div class="widget-body">
+                            <canvas id="tenureChart" height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div id="module-employees-list" class="app-module">
                 <div class="section-header">
                     <h2>ACTIVE EMPLOYEES <span class="info-icon">ℹ️</span></h2>
                 </div>
@@ -218,85 +352,70 @@
                             </div>
                         </div>
 
+                        <div class="section-header-blue-light" style="margin-top: 10px;">Contact Details</div>
+                        <div style="background:white; padding:20px; border-radius:4px; border:1px solid #e9ecef; margin-bottom: 25px;">
+                            
+                            <div class="grid-2-col" style="margin-bottom:25px;">
+                                <div class="erp-input-group">
+                                    <label>Personal Mobile No.</label>
+                                    <div style="display:flex;gap:5px;">
+                                        <input type="text" id="empMobile" style="flex:1;">
+                                        <button type="button" class="btn-verify">Verify</button>
+                                    </div>
+                                </div>
+                                <div class="erp-input-group">
+                                    <label>Personal Email ID</label>
+                                    <div style="display:flex;gap:5px;">
+                                        <input type="text" id="empEmail" style="flex:1;">
+                                        <button type="button" class="btn-verify">Verify</button>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
 
-<div class="section-header-blue-light" style="margin-top: 10px;">Contact Details</div>
-<div style="background:white; padding:20px; border-radius:4px; border:1px solid #e9ecef; margin-bottom: 25px;">
-    
-    <div class="grid-2-col" style="margin-bottom:25px;">
-        <div class="erp-input-group">
-            <label>Personal Mobile No.</label>
-            <div style="display:flex;gap:5px;">
-                <input type="text" id="empMobile" style="flex:1;">
-                <button type="button" class="btn-verify">Verify</button>
-            </div>
-        </div>
-        <div class="erp-input-group">
-            <label>Personal Email ID</label>
-            <div style="display:flex;gap:5px;">
-                <input type="text" id="empEmail" style="flex:1;">
-                <button type="button" class="btn-verify">Verify</button>
-            </div>
-        </div>
-    </div>
+                            <div style="display:flex; gap:30px;">
+                                <div style="flex:1;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                        <h4 style="margin:0; color:#3b5998;">Permanent Address</h4>
+                                        <div style="display:flex; align-items:center; gap:10px;">
+                                            <span style="font-size:11px; font-weight:bold; color:#555;">Same As Correspondence?</span>
+                                            <label class="switch-custom"><input type="checkbox" id="chkSameAsCorr"><span class="slider-custom"></span><span class="switch-text">NO</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="erp-input-group" style="margin-bottom:10px;"><label>Address</label><input type="text" id="empPermAdd" placeholder="Enter Permanent Address"></div>
+                                    <div class="grid-2-col" style="margin-bottom:10px;">
+                                        <div class="erp-input-group"><label>City</label><input type="text" id="empPermCity" placeholder="Enter City"></div>
+                                        <div class="erp-input-group"><label>State</label><input type="text" id="empPermState" placeholder="Enter State"></div>
+                                    </div>
+                                    <div class="grid-2-col">
+                                        <div class="erp-input-group"><label>Country</label><input type="text" id="empPermCountry" placeholder="Enter Country"></div>
+                                        <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empPermPin" placeholder="Enter PIN Code"></div>
+                                    </div>
+                                </div>
 
-    <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+                                <div style="width:1px; background:#eee;"></div>
 
-    <div style="display:flex; gap:30px;">
-        
-        <div style="flex:1;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h4 style="margin:0; color:#3b5998;">Permanent Address</h4>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <span style="font-size:11px; font-weight:bold; color:#555;">Same As Correspondence?</span>
-                    <label class="switch-custom"><input type="checkbox" id="chkSameAsCorr"><span class="slider-custom"></span><span class="switch-text">NO</span></label>
-                </div>
-            </div>
-            <div class="erp-input-group" style="margin-bottom:10px;"><label>Address</label><input type="text" id="empPermAdd" placeholder="Enter Permanent Address"></div>
-            <div class="grid-2-col" style="margin-bottom:10px;">
-                <div class="erp-input-group"><label>City</label><input type="text" id="empPermCity" placeholder="Enter City"></div>
-                <div class="erp-input-group"><label>State</label><input type="text" id="empPermState" placeholder="Enter State"></div>
-            </div>
-            <div class="grid-2-col">
-                <div class="erp-input-group"><label>Country</label><input type="text" id="empPermCountry" placeholder="Enter Country"></div>
-                <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empPermPin" placeholder="Enter PIN Code"></div>
-            </div>
-        </div>
-
-        <div style="width:1px; background:#eee;"></div>
-
-        <div style="flex:1;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h4 style="margin:0; color:#3b5998;">Correspondence Address</h4>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <span style="font-size:11px; font-weight:bold; color:#555;">Same As Permanent?</span>
-                    <label class="switch-custom"><input type="checkbox" id="chkSameAsPerm"><span class="slider-custom"></span><span class="switch-text">NO</span></label>
-                </div>
-            </div>
-            <div class="erp-input-group" style="margin-bottom:10px;"><label>Address</label><input type="text" id="empCorrAdd" placeholder="Enter Correspondence Address"></div>
-            <div class="grid-2-col" style="margin-bottom:10px;">
-                <div class="erp-input-group"><label>City</label><input type="text" id="empCorrCity" placeholder="Enter City"></div>
-                <div class="erp-input-group"><label>State</label><input type="text" id="empCorrState" placeholder="Enter State"></div>
-            </div>
-            <div class="grid-2-col">
-                <div class="erp-input-group"><label>Country</label><input type="text" id="empCorrCountry" placeholder="Enter Country"></div>
-                <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empCorrPin" placeholder="Enter PIN Code"></div>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-                        
+                                <div style="flex:1;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                        <h4 style="margin:0; color:#3b5998;">Correspondence Address</h4>
+                                        <div style="display:flex; align-items:center; gap:10px;">
+                                            <span style="font-size:11px; font-weight:bold; color:#555;">Same As Permanent?</span>
+                                            <label class="switch-custom"><input type="checkbox" id="chkSameAsPerm"><span class="slider-custom"></span><span class="switch-text">NO</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="erp-input-group" style="margin-bottom:10px;"><label>Address</label><input type="text" id="empCorrAdd" placeholder="Enter Correspondence Address"></div>
+                                    <div class="grid-2-col" style="margin-bottom:10px;">
+                                        <div class="erp-input-group"><label>City</label><input type="text" id="empCorrCity" placeholder="Enter City"></div>
+                                        <div class="erp-input-group"><label>State</label><input type="text" id="empCorrState" placeholder="Enter State"></div>
+                                    </div>
+                                    <div class="grid-2-col">
+                                        <div class="erp-input-group"><label>Country</label><input type="text" id="empCorrCountry" placeholder="Enter Country"></div>
+                                        <div class="erp-input-group"><label>PIN Code</label><input type="text" id="empCorrPin" placeholder="Enter PIN Code"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="erp-tabs-container">
                             <div class="erp-tabs-header">
@@ -393,22 +512,22 @@
 
                             <div id="tab-education" class="erp-tab-content">
                                 <div style="overflow-x:auto;">
-                                   <table class="data-table erp-edu-table" style="border: none;">
-    <thead>
-        <tr>
-            <th>Sr</th>
-            <th>Course</th>
-            <th>Qualification</th>
-            <th>Institution</th>
-            <th>University/Board</th>
-            <th>Duration In Months</th>
-            <th>Passing Year</th>
-            <th>Percentage/CGPA</th>
-            <th>Subject</th>
-        </tr>
-    </thead>
-    <tbody id="qualTableBody"></tbody>
-</table>
+                                    <table class="data-table erp-edu-table" style="border: none;">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr</th>
+                                                <th>Course</th>
+                                                <th>Qualification</th>
+                                                <th>Institution</th>
+                                                <th>University/Board</th>
+                                                <th>Duration In Months</th>
+                                                <th>Passing Year</th>
+                                                <th>Percentage/CGPA</th>
+                                                <th>Subject</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="qualTableBody"></tbody>
+                                    </table>
                                 </div>
                                 <div class="table-toolbar" style="margin-top: 15px; display: flex; gap: 10px; border: none; padding: 0;">
                                     <button type="button" class="btn-dark-outline" id="btnAddQualRow">+ Add Qualification</button>
@@ -418,19 +537,18 @@
 
                             <div id="tab-experience" class="erp-tab-content">
                                 <div style="overflow-x:auto;">
-                                   <table class="data-table erp-exp-table" style="border: none;">
-                                         <thead>
-                                                   <tr>
-                                                      <!-- <th>Sr</th> -->
-                                                         <th>Organization Name</th>
-                                                         <th>Organization Address</th>
-                                                         <th>Designation</th>
-                                                         <th>From Date</th>
-                                                         <th>To Date</th>
-                                                   </tr>
-                                          </thead>
-    <tbody id="expTableBody"></tbody>
-</table>
+                                    <table class="data-table erp-exp-table" style="border: none;">
+                                        <thead>
+                                            <tr>
+                                                <th>Organization Name</th>
+                                                <th>Organization Address</th>
+                                                <th>Designation</th>
+                                                <th>From Date</th>
+                                                <th>To Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="expTableBody"></tbody>
+                                    </table>
                                 </div>
                                 <div class="table-toolbar" style="margin-top: 15px; display: flex; gap: 10px; border: none; padding: 0;">
                                     <button type="button" class="btn-dark-outline" id="btnAddExpRow">+ Add Experience</button>
@@ -555,7 +673,5 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-    <script src="employee.js"></script>
 </body>
 </html>
