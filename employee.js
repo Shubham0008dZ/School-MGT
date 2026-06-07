@@ -22,8 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarToggle.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
     }
 
-    const scriptURL = localStorage.getItem('erp_school_url');
-    if(!scriptURL) { window.location.href = 'login.html'; return;}
+   const scriptURL = '/api/backend'; // Tera naya Vercel backend route
 
     const activeUserStr = localStorage.getItem('erp_active_user');
     if (!activeUserStr) { window.location.href = 'login.html'; return; }
