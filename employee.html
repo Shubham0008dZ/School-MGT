@@ -11,13 +11,15 @@
 <body>
     
     <div class="top-navbar">
-        <div class="top-left">
+       <div class="top-left">
             <button class="menu-btn" id="sidebarToggle">☰</button>
-            <div class="school-logo">
-                <img id="dynamicNavLogo" src="" alt="Logo" style="height:35px; border-radius:4px; display:none;">
-                <span id="defaultNavLogo">🏫</span>
+            <div style="display:flex; align-items:center; cursor:pointer;" onclick="window.location.href='index.html'">
+                <div class="school-logo">
+                    <img id="dynamicNavLogo" src="" alt="Logo" style="height:35px; border-radius:4px; display:none;">
+                    <span id="defaultNavLogo">🏫</span>
+                </div>
+                <span class="school-name" id="dynamicNavName">Loading...</span>
             </div>
-            <span class="school-name" id="dynamicNavName">Loading...</span>
         </div>
         
         <div class="top-right">
