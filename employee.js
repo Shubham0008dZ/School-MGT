@@ -78,11 +78,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // ==========================================
+    // CORS FIX: application/json changed to text/plain
+    // ==========================================
+    fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }), headers: { "Content-Type": "text/plain;charset=utf-8" } })
+    .then(res => res.json()).then(data => {
+        if (data.status === "Invalid") {
+            alert("Session Invalid: Your account was deleted or marked inactive.");
+            localStorage.removeItem('erp_active_user'); window.location.href = 'login.html';
+        } else if (data.status === "Valid" && data.user) { localStorage.setItem('erp_active_user', JSON.stringify(data.user)); }
+    }).catch(err => console.log("Background sync paused.", err));
+
     window.syncWithDatabase = function() {
         const tbody = document.getElementById('empTableBody'); 
         if(tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳</td></tr>';
         
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "getEmployees" }), headers: { "Content-Type": "application/json" } })
+        // CORS FIX
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "getEmployees" }), headers: { "Content-Type": "text/plain;charset=utf-8" } })
         .then(res => { if(!res.ok) throw new Error("HTTP Status: " + res.status); return res.json(); })
         .then(res => {
             if(res.status === "Success") {
@@ -472,7 +484,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), headers: { "Content-Type": "application/json" } }).then(res => res.json()).then(data => {
+        // CORS FIX
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => {
             if(data.status === "Success") { alert(data.message); showView('module-employees-list'); syncWithDatabase(); } else alert("Error: " + data.message);
         }).finally(() => { btn.textContent = 'Save & Close'; btn.disabled = false; });
     });
@@ -487,7 +500,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const empId = document.getElementById('inactiveEmpSelect').value; const date = document.getElementById('inactiveDate').value; const reason = document.getElementById('inactiveReason').value;
         if(!empId || !date || !reason) { alert("Please fill all fields."); return; }
         if(confirm(`Are you sure you want to mark ${empId} as Inactive?`)) {
-            fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "inactiveEmployee", empId: empId, date: date, reason: reason }), headers: { "Content-Type": "application/json" } }).then(res => res.json()).then(data => {
+            // CORS FIX
+            fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "inactiveEmployee", empId: empId, date: date, reason: reason }), headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => {
                 if(data.status === "Success") { alert(data.message); document.getElementById('inactiveDate').value = ""; document.getElementById('inactiveReason').value = ""; syncWithDatabase(); }
             });
         }
@@ -535,7 +549,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveEmpSetupToDB() {
         const btn = document.getElementById('btnSaveES'); let oldText = btn.textContent; btn.textContent = 'Saving...'; btn.disabled = true;
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "saveEmpSetup", data: empSetup }), headers: { "Content-Type": "application/json" } }).then(res => res.json()).then(data => { 
+        // CORS FIX
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "saveEmpSetup", data: empSetup }), headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => { 
             if(data.status === "Success") { 
                 customAlert("Master Setup Synced!"); document.getElementById('empSetupForm').reset(); document.getElementById('esEditIndex').value = "-1";
                 document.getElementById('btnSaveES').innerText = "Add Entry"; document.getElementById('btnSaveES').style.background = "#27ae60"; document.getElementById('btnCancelESEdit').style.display = "none";
@@ -592,7 +607,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const activeEmps = allEmployees.filter(e => e.Status !== "Inactive");
         const inactiveEmps = allEmployees.filter(e => e.Status === "Inactive");
 
-        // 1. TOP CARDS CALCULATION
         let totalActive = activeEmps.length;
         let totMale = activeEmps.filter(e => e.empGender === 'Male').length;
         let totFem = activeEmps.filter(e => e.empGender === 'Female').length;
@@ -623,8 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('dashRatio').innerText = "8:1"; 
         }
 
-        // 2. SUMMARY SECTION
-        renderSummarySection('department'); // Default load
+        renderSummarySection('department'); 
         
         document.querySelectorAll('.sum-tab').forEach(tab => {
             tab.addEventListener('click', function() {
@@ -649,10 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // 3. BOTTOM LIST WIDGETS
         renderWidgetLists(activeEmps, sepEmps, newEmps);
-
-        // 4. TENURE CHART
         renderTenureChart(activeEmps, inactiveEmps);
     }
 
