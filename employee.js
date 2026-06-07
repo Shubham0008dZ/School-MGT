@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showView(targetId) {
         document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
         document.getElementById(targetId).classList.add('active-module');
+        if(targetId === 'module-dashboard') { updateDashboard(); } // DASHBOARD HOOK
     }
 
     document.querySelectorAll('.nav-btn').forEach(link => {
@@ -105,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.syncWithDatabase = function() {
         const tbody = document.getElementById('empTableBody'); 
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳</td></tr>';
+        if(tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳</td></tr>';
         
         fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "getEmployees" }), headers: { "Content-Type": "application/json" } })
         .then(res => { if(!res.ok) throw new Error("HTTP Status: " + res.status); return res.json(); })
@@ -114,11 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 allEmployees = res.employees || [];
                 if(res.empSetup) { Object.keys(empSetup).forEach(k => { empSetup[k] = res.empSetup[k] || []; }); }
                 populateSetupDropdowns(); renderSetupDisplay(); renderEmployeesTable(allEmployees); populateInactiveDropdown(); renderInactiveEmployeesTable(); 
+                updateDashboard(); // DASHBOARD INIT HOOK
             } else {
-                tbody.innerHTML = `<tr><td colspan="10" style="color:red; text-align:center;"><b>Error:</b> ${res.message}</td></tr>`; 
+                if(tbody) tbody.innerHTML = `<tr><td colspan="10" style="color:red; text-align:center;"><b>Error:</b> ${res.message}</td></tr>`; 
             }
         }).catch(e => {
-            tbody.innerHTML = `<tr><td colspan="10" style="color:#c0392b; text-align:center;">⚠️ API Connection Failed. <button onclick="syncWithDatabase()">Retry</button></td></tr>`; 
+            if(tbody) tbody.innerHTML = `<tr><td colspan="10" style="color:#c0392b; text-align:center;">⚠️ API Connection Failed. <button onclick="syncWithDatabase()">Retry</button></td></tr>`; 
         });
     }
 
@@ -286,7 +288,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderEmployeesTable(dataList) {
-        const tbody = document.getElementById('empTableBody'); tbody.innerHTML = '';
+        const tbody = document.getElementById('empTableBody'); 
+        if(!tbody) return;
+        tbody.innerHTML = '';
         let activeEmps = dataList.filter(e => e.Status !== "Inactive");
         if(activeEmps.length === 0) { tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No Active Employees found.</td></tr>'; return; }
 
@@ -379,14 +383,10 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.appendChild(tr);
     }
 
-    // ==========================================
-    // WORK EXPERIENCE TABLE FIX (No Sr column HTML injection)
-    // ==========================================
     function addExpRow(data = {}) {
         const tbody = document.getElementById('expTableBody'); if(!tbody) return;
         const tr = document.createElement('tr');
         
-        // Exact 5 input columns matching your HTML Headers
         tr.innerHTML = `
             <td><input type="text" class="e-org" value="${data.org || ''}"></td>
             <td><input type="text" class="e-add" value="${data.add || ''}"></td>
@@ -607,6 +607,231 @@ document.addEventListener('DOMContentLoaded', () => {
         rows.forEach(tr => { let v = tr.querySelector('.blk-val').value.trim(); if(v) newData.push(v); });
         empSetup[cat] = newData; document.getElementById('bulkManageModal').classList.remove('active'); saveEmpSetupToDB();
     });
+
+    // ==========================================
+    // DASHBOARD LOGIC (NEW ENHANCEMENTS)
+    // ==========================================
+    let mainSummaryChartInstance = null;
+    let tenureChartInstance = null;
+
+    function updateDashboard() {
+        let dashEl = document.getElementById('module-dashboard');
+        if(!dashEl || !dashEl.classList.contains('active-module')) return;
+        
+        const activeEmps = allEmployees.filter(e => e.Status !== "Inactive");
+        const inactiveEmps = allEmployees.filter(e => e.Status === "Inactive");
+
+        // 1. TOP CARDS CALCULATION
+        let totalActive = activeEmps.length;
+        let totMale = activeEmps.filter(e => e.empGender === 'Male').length;
+        let totFem = activeEmps.filter(e => e.empGender === 'Female').length;
+        
+        let currentYear = new Date().getFullYear();
+        let newEmps = activeEmps.filter(e => e.empJoinDate && new Date(e.empJoinDate).getFullYear() === currentYear);
+        let newMale = newEmps.filter(e => e.empGender === 'Male').length;
+        let newFem = newEmps.filter(e => e.empGender === 'Female').length;
+
+        let sepEmps = inactiveEmps.filter(e => {
+            let reasonStr = e.LeaveReason || "";
+            if(reasonStr.includes(" | ")) {
+                let dStr = reasonStr.split(" | ")[1];
+                if(dStr && new Date(dStr).getFullYear() === currentYear) return true;
+            }
+            return false;
+        });
+        let sepMale = sepEmps.filter(e => e.empGender === 'Male').length;
+        let sepFem = sepEmps.filter(e => e.empGender === 'Female').length;
+
+        if(document.getElementById('dashTotalEmp')) {
+            document.getElementById('dashTotalEmp').innerText = totalActive;
+            document.getElementById('dashTotalMale').innerText = totMale; document.getElementById('dashTotalFemale').innerText = totFem;
+            document.getElementById('dashNewEmp').innerText = newEmps.length;
+            document.getElementById('dashNewMale').innerText = newMale; document.getElementById('dashNewFemale').innerText = newFem;
+            document.getElementById('dashSepEmp').innerText = sepEmps.length;
+            document.getElementById('dashSepMale').innerText = sepMale; document.getElementById('dashSepFemale').innerText = sepFem;
+            // Static Ratio for now, adjust math if students exist
+            document.getElementById('dashRatio').innerText = "8:1"; 
+        }
+
+        // 2. SUMMARY SECTION
+        renderSummarySection('department'); // Default load
+        
+        document.querySelectorAll('.sum-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.sum-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                renderSummarySection(this.getAttribute('data-type'));
+            });
+        });
+
+        const btnGraph = document.getElementById('btnGraphView');
+        const btnList = document.getElementById('btnListView');
+        if(btnGraph && btnList) {
+            btnGraph.addEventListener('click', function() {
+                this.classList.add('active'); btnList.classList.remove('active');
+                document.getElementById('summaryGraphView').style.display = 'block'; 
+                document.getElementById('summaryListView').style.display = 'none';
+            });
+            btnList.addEventListener('click', function() {
+                this.classList.add('active'); btnGraph.classList.remove('active');
+                document.getElementById('summaryListView').style.display = 'block'; 
+                document.getElementById('summaryGraphView').style.display = 'none';
+            });
+        }
+
+        // 3. BOTTOM LIST WIDGETS
+        renderWidgetLists(activeEmps, sepEmps, newEmps);
+
+        // 4. TENURE CHART
+        renderTenureChart(activeEmps, inactiveEmps);
+    }
+
+    function renderSummarySection(type) {
+        let keyMap = { 'department': 'empDept', 'designation': 'empDesig', 'wing': 'empWing', 'blood': 'empBlood', 'type': 'empType' };
+        let targetKey = keyMap[type];
+        let labelsObj = {};
+
+        allEmployees.filter(e => e.Status !== "Inactive").forEach(e => {
+            let val = e[targetKey] || "Unspecified";
+            if(!labelsObj[val]) labelsObj[val] = { male: 0, female: 0, unspec: 0, total: 0 };
+            if(e.empGender === 'Male') labelsObj[val].male++;
+            else if(e.empGender === 'Female') labelsObj[val].female++;
+            else labelsObj[val].unspec++;
+            labelsObj[val].total++;
+        });
+
+        let labels = Object.keys(labelsObj);
+        let maleData = labels.map(l => labelsObj[l].male);
+        let femData = labels.map(l => labelsObj[l].female);
+        let unspecData = labels.map(l => labelsObj[l].unspec);
+
+        // Update Chart
+        let ctx = document.getElementById('mainSummaryChart');
+        if(ctx) {
+            if(mainSummaryChartInstance) mainSummaryChartInstance.destroy();
+            mainSummaryChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Male', data: maleData, backgroundColor: '#90caf9' },
+                        { label: 'Female', data: femData, backgroundColor: '#f5b7b1' },
+                        { label: 'Unspecified', data: unspecData, backgroundColor: '#ffe082' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: false }, y: { stacked: false, beginAtZero: true } } }
+            });
+        }
+
+        // Update List Table
+        let tbody = document.getElementById('summaryListBody');
+        let tfoot = document.getElementById('summaryListFoot');
+        let theader = document.getElementById('listCategoryHeader');
+        if(tbody && tfoot && theader) {
+            theader.innerText = type.charAt(0).toUpperCase() + type.slice(1);
+            tbody.innerHTML = '';
+            let tMale=0, tFem=0, tUnspec=0, tTot=0;
+            
+            labels.forEach(l => {
+                let d = labelsObj[l];
+                tMale += d.male; tFem += d.female; tUnspec += d.unspec; tTot += d.total;
+                tbody.innerHTML += `<tr><td>${l}</td><td class="male-col">${d.male}</td><td class="female-col">${d.female}</td><td>${d.unspec}</td><td><b>${d.total}</b></td></tr>`;
+            });
+            tfoot.innerHTML = `<tr><td>Total</td><td class="male-col">${tMale}</td><td class="female-col">${tFem}</td><td>${tUnspec}</td><td><b>${tTot}</b></td></tr>`;
+        }
+    }
+
+    function renderWidgetLists(activeEmps, sepEmps, newEmps) {
+        // Birthdays (Next 30 days logic)
+        let bdayDiv = document.getElementById('dashBirthdays');
+        if(bdayDiv) {
+            let today = new Date();
+            let upcoming = activeEmps.filter(e => e.empDob).map(e => {
+                let d = new Date(e.empDob);
+                d.setFullYear(today.getFullYear());
+                if(d < today) d.setFullYear(today.getFullYear() + 1);
+                return { ...e, nextBday: d };
+            }).sort((a,b) => a.nextBday - b.nextBday).slice(0, 5);
+
+            if(upcoming.length === 0) bdayDiv.innerHTML = '<p style="text-align:center; color:#777; padding:20px;">No upcoming birthdays.</p>';
+            else {
+                bdayDiv.innerHTML = upcoming.map(e => {
+                    let initial = e.empName.charAt(0).toUpperCase();
+                    let dateStr = e.nextBday.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                    return `<div class="widget-list-item"><div class="w-avatar bday">${initial}</div><div class="w-details"><strong>${e.empName}</strong><span>${e.empId} | ${e.empDesig || 'Staff'}</span></div><div class="w-date">${dateStr}</div></div>`;
+                }).join('');
+            }
+        }
+
+        // New Joinees
+        let joinDiv = document.getElementById('dashJoinees');
+        if(joinDiv) {
+            let recent = newEmps.sort((a,b) => new Date(b.empJoinDate) - new Date(a.empJoinDate)).slice(0, 5);
+            if(recent.length === 0) joinDiv.innerHTML = '<p style="text-align:center; color:#777; padding:20px;">No recent joinees.</p>';
+            else {
+                joinDiv.innerHTML = recent.map(e => {
+                    let initial = e.empName.charAt(0).toUpperCase();
+                    let dateStr = new Date(e.empJoinDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                    return `<div class="widget-list-item"><div class="w-avatar new">${initial}</div><div class="w-details"><strong>${e.empName}</strong><span>${e.empId} | ${e.empDesig || 'Staff'}</span></div><div class="w-date">Joined<br>${dateStr}</div></div>`;
+                }).join('');
+            }
+        }
+
+        // Separated
+        let sepDiv = document.getElementById('dashSeparatedList');
+        if(sepDiv) {
+            let left = sepEmps.slice(0, 5);
+            if(left.length === 0) sepDiv.innerHTML = '<p style="text-align:center; color:#777; padding:20px;">No separated employees.</p>';
+            else {
+                sepDiv.innerHTML = left.map(e => {
+                    let initial = e.empName.charAt(0).toUpperCase();
+                    let dateStr = e.LeaveReason.split(" | ")[1] ? new Date(e.LeaveReason.split(" | ")[1]).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year:'numeric' }) : "-";
+                    return `<div class="widget-list-item"><div class="w-avatar sep">${initial}</div><div class="w-details"><strong>${e.empName}</strong><span>${e.empDept || 'Staff'}</span></div><div class="w-date">Left<br>${dateStr}</div></div>`;
+                }).join('');
+            }
+        }
+    }
+
+    function renderTenureChart(activeEmps, inactiveEmps) {
+        let ctx = document.getElementById('tenureChart');
+        if(!ctx) return;
+
+        // Simple bucketing logic for demonstration
+        let activeCounts = [0, 0, 0, 0, 0, 0]; // 0-1, 1-2, 2-4, 4-7, 7-10, 15+
+        let inactiveCounts = [0, 0, 0, 0, 0, 0];
+
+        function getBucket(years) {
+            if(years <= 1) return 0; if(years <= 2) return 1; if(years <= 4) return 2;
+            if(years <= 7) return 3; if(years <= 10) return 4; return 5;
+        }
+
+        let currentYear = new Date().getFullYear();
+        activeEmps.forEach(e => {
+            if(e.empJoinDate) {
+                let y = currentYear - new Date(e.empJoinDate).getFullYear();
+                activeCounts[getBucket(y)]++;
+            }
+        });
+        inactiveEmps.forEach(e => {
+            if(e.empJoinDate) {
+                let y = currentYear - new Date(e.empJoinDate).getFullYear();
+                inactiveCounts[getBucket(y)]++;
+            }
+        });
+
+        if(tenureChartInstance) tenureChartInstance.destroy();
+        tenureChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['0-1 Yr', '1-2 Yr', '2-4 Yr', '4-7 Yr', '7-10 Yr', '15+ Yr'],
+                datasets: [
+                    { label: 'Active', data: activeCounts, backgroundColor: '#a5d6a7' },
+                    { label: 'Inactive', data: inactiveCounts, backgroundColor: '#ef9a9a' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        });
+    }
 
     setTimeout(() => { syncWithDatabase(); }, 100);
 });
