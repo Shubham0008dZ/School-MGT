@@ -78,10 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // ==========================================
-    // CORS FIX: application/json changed to text/plain
-    // ==========================================
-    fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }), headers: { "Content-Type": "text/plain;charset=utf-8" } })
+    fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }), headers: { "Content-Type": "application/json" } })
     .then(res => res.json()).then(data => {
         if (data.status === "Invalid") {
             alert("Session Invalid: Your account was deleted or marked inactive.");
@@ -93,8 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tbody = document.getElementById('empTableBody'); 
         if(tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳</td></tr>';
         
-        // CORS FIX
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "getEmployees" }), headers: { "Content-Type": "text/plain;charset=utf-8" } })
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "getEmployees" }), headers: { "Content-Type": "application/json" } })
         .then(res => { if(!res.ok) throw new Error("HTTP Status: " + res.status); return res.json(); })
         .then(res => {
             if(res.status === "Success") {
@@ -484,8 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        // CORS FIX
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => {
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), headers: { "Content-Type": "application/json" } }).then(res => res.json()).then(data => {
             if(data.status === "Success") { alert(data.message); showView('module-employees-list'); syncWithDatabase(); } else alert("Error: " + data.message);
         }).finally(() => { btn.textContent = 'Save & Close'; btn.disabled = false; });
     });
@@ -500,8 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const empId = document.getElementById('inactiveEmpSelect').value; const date = document.getElementById('inactiveDate').value; const reason = document.getElementById('inactiveReason').value;
         if(!empId || !date || !reason) { alert("Please fill all fields."); return; }
         if(confirm(`Are you sure you want to mark ${empId} as Inactive?`)) {
-            // CORS FIX
-            fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "inactiveEmployee", empId: empId, date: date, reason: reason }), headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => {
+            fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "inactiveEmployee", empId: empId, date: date, reason: reason }), headers: { "Content-Type": "application/json" } }).then(res => res.json()).then(data => {
                 if(data.status === "Success") { alert(data.message); document.getElementById('inactiveDate').value = ""; document.getElementById('inactiveReason').value = ""; syncWithDatabase(); }
             });
         }
@@ -549,8 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveEmpSetupToDB() {
         const btn = document.getElementById('btnSaveES'); let oldText = btn.textContent; btn.textContent = 'Saving...'; btn.disabled = true;
-        // CORS FIX
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "saveEmpSetup", data: empSetup }), headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => { 
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "saveEmpSetup", data: empSetup }), headers: { "Content-Type": "application/json" } }).then(res => res.json()).then(data => { 
             if(data.status === "Success") { 
                 customAlert("Master Setup Synced!"); document.getElementById('empSetupForm').reset(); document.getElementById('esEditIndex').value = "-1";
                 document.getElementById('btnSaveES').innerText = "Add Entry"; document.getElementById('btnSaveES').style.background = "#27ae60"; document.getElementById('btnCancelESEdit').style.display = "none";
