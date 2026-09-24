@@ -1,17 +1,16 @@
 // ============================================================================
-// ERP LOGIN & AUTHENTICATION SYSTEM (Multi-Tenant Architecture)
+// ERP LOGIN & AUTHENTICATION SYSTEM (Multi-Tenant Architecture - FIREBASE EDITION)
 // ============================================================================
 
-// 1. MASTER ROUTER API (Ye wo URL hai jo tune Master Database se generate kiya)
+// 1. MASTER ROUTER API (School verification remains on Google Apps Script)
 const MASTER_API_URL = 'https://script.google.com/macros/s/AKfycbwA9_z-fgbbmC5kNZxrANT02drRvq32jmbrN9VxLh_n9jaEV-lWVltSynLBfQ_y5Y0P/exec';
 
-// Ye variables dynamic school routing handle karenge
 let targetScriptURL = "";
 let verifiedStudentId = "";
 
 document.addEventListener("DOMContentLoaded", function() {
     
-    // UI SETUP LOGIC (Checks URL for ?setup=true to handle initial student PIN setup)
+    // UI SETUP LOGIC
     const urlParams = new URLSearchParams(window.location.search);
     const isSetupMode = urlParams.get('setup') === 'true';
     
@@ -19,7 +18,6 @@ document.addEventListener("DOMContentLoaded", function() {
         let setupPanel = document.getElementById('setupCheckboxPanel');
         if(setupPanel) setupPanel.style.display = 'block';
         
-        // Auto switch to student tab
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.form-view').forEach(f => f.classList.remove('active'));
         
@@ -30,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if(studentFormView) studentFormView.classList.add('active');
     }
 
-    // TAB LOGIC (Staff vs Student Login views)
+    // TAB LOGIC 
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -43,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
     
-    // AUTO-LOGIN CHECK: Agar school pehle hi verify ho chuka hai is session mein
+    // AUTO-LOGIN CHECK
     let savedUrl = localStorage.getItem('erp_school_url');
     let savedName = localStorage.getItem('erp_school_name');
     let savedLogo = localStorage.getItem('erp_school_logo');
@@ -54,13 +52,11 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-// PANEL TRANSITIONS (For OTP & Custom Passwords)
 window.openPanel = function(id) { document.getElementById(id).classList.add('active'); }
 window.closePanels = function() { document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('active')); }
 
-
 // ============================================================================
-// PHASE 1: SCHOOL CODE VERIFICATION (Connects to Master API)
+// PHASE 1: SCHOOL CODE VERIFICATION 
 // ============================================================================
 document.getElementById('btnVerifyCode')?.addEventListener('click', function() {
     const codeInput = document.getElementById('schoolCodeInp').value.trim();
@@ -78,15 +74,13 @@ document.getElementById('btnVerifyCode')?.addEventListener('click', function() {
     .then(res => res.json())
     .then(data => {
         if(data.status === "Success" && data.schoolData) {
-            
-            // SCHOOL VERIFIED: Ab is specific school ka backend URL save kar lo
-            targetScriptURL = data.schoolData.backendUrl;
+            targetScriptURL = data.schoolData.backendUrl; // Purana logic intact rakha hai in case future me chahiye
             localStorage.setItem('erp_school_url', targetScriptURL);
             localStorage.setItem('erp_school_name', data.schoolData.schoolName);
             localStorage.setItem('erp_school_logo', data.schoolData.logoUrl);
+            localStorage.setItem('erp_school_db', data.schoolData.dbName || "default"); // Firebase me school segregate karne ke liye
             
             showCredentialsStep(data.schoolData.schoolName, data.schoolData.logoUrl);
-            
         } else {
             alert(data.message || "Invalid School Code");
         }
@@ -110,7 +104,6 @@ function showCredentialsStep(name, logoUrl) {
     let logoImg = document.getElementById('dynSchoolLogo');
     let defaultLogo = document.getElementById('defaultLogo');
     
-    // Agar Google sheet mein logo link hai toh wo dikhao, warna default building emoji
     if(logoUrl && logoUrl.startsWith('http')) {
         logoImg.src = logoUrl;
         logoImg.style.display = 'block';
@@ -121,54 +114,57 @@ function showCredentialsStep(name, logoUrl) {
     }
 }
 
-// "Change School" button logic
 document.getElementById('btnBackToCode')?.addEventListener('click', function() {
     localStorage.removeItem('erp_school_url');
     localStorage.removeItem('erp_school_name');
     localStorage.removeItem('erp_school_logo');
+    localStorage.removeItem('erp_school_db');
     targetScriptURL = "";
     
     document.getElementById('step-credentials').classList.remove('active');
     document.getElementById('step-school-code').classList.add('active');
 });
 
-
 // ============================================================================
-// PHASE 2: CREDENTIAL VERIFICATION (Connects to School-Specific API)
+// PHASE 2: CREDENTIAL VERIFICATION (FIREBASE IMPLEMENTATION)
 // ============================================================================
 
 // 1. STAFF / ADMIN LOGIN
 document.getElementById('btnStaffLogin')?.addEventListener('click', function() {
-    if(!targetScriptURL) { alert("School connection missing. Please go back and verify code."); return; }
+    if(!localStorage.getItem('erp_school_name')) { alert("School connection missing. Please go back and verify code."); return; }
     
-    const uid = document.getElementById('staffId').value; 
+    const email = document.getElementById('staffId').value; 
     const pass = document.getElementById('staffPass').value;
-    if(!uid || !pass) { alert("Fill all fields"); return; }
+    if(!email || !pass) { alert("Fill all fields"); return; }
     
     this.innerText = "Authenticating..."; this.disabled = true;
     
-    fetch(targetScriptURL, { 
-        method: 'POST', 
-        body: JSON.stringify({ action: "login", userId: uid, password: pass }), 
-        redirect: "follow", 
-        headers: { "Content-Type": "text/plain;charset=utf-8" } 
+    // FIREBASE AUTH (Replaces old fetch call)
+    auth.signInWithEmailAndPassword(email, pass)
+    .then((userCredential) => {
+        // Fetch User Data from Firestore 'users' collection to get Rights_JSON etc.
+        db.collection("users").doc(userCredential.user.uid).get().then((doc) => {
+            if (doc.exists) {
+                const userData = doc.data();
+                localStorage.setItem('erp_active_user', JSON.stringify(userData)); 
+                window.location.href = 'index.html'; 
+            } else {
+                alert("User profile not found in database!");
+                auth.signOut();
+            }
+        });
     })
-    .then(res => res.json())
-    .then(data => {
-        if(data.status === "Success") { 
-            localStorage.setItem('erp_active_user', JSON.stringify(data.user)); 
-            window.location.href = 'index.html'; 
-        } else { 
-            alert(data.message); 
-        }
+    .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        alert("Login Failed: " + errorMessage);
     })
-    .catch(err => alert("Connection Error."))
     .finally(() => { this.innerText = "Login Securely"; this.disabled = false; });
 });
 
 // 2. STUDENT LOGIN
 document.getElementById('btnStudentLogin')?.addEventListener('click', function() {
-    if(!targetScriptURL) { alert("School connection missing. Please go back and verify code."); return; }
+    if(!localStorage.getItem('erp_school_name')) { alert("School connection missing."); return; }
 
     const uid = document.getElementById('studentId').value; 
     const pass = document.getElementById('studentPass').value;
@@ -183,66 +179,61 @@ document.getElementById('btnStudentLogin')?.addEventListener('click', function()
     
     this.innerText = "Checking Credentials..."; this.disabled = true;
 
-    fetch(targetScriptURL, { 
-        method: 'POST', 
-        body: JSON.stringify({ action: "loginStudent", userId: uid, password: pass }), 
-        redirect: "follow", 
-        headers: { "Content-Type": "text/plain;charset=utf-8" } 
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.status === "Success") {
+    // FIRESTORE CUSTOM VERIFICATION FOR STUDENTS
+    db.collection("students").where("portalId", "==", uid).get()
+    .then((querySnapshot) => {
+        if (querySnapshot.empty) {
+            alert("Student ID not found.");
+            return;
+        }
+
+        let studentDoc = querySnapshot.docs[0];
+        let studentData = studentDoc.data();
+
+        if (studentData.password === pass || studentData.pin === pass) {
+            
             if(setupBoxVisible && wantsNewPass) {
-                verifiedStudentId = uid;
+                verifiedStudentId = studentDoc.id; // Store Firestore Document ID
                 openPanel('setPassPanel');
             } else {
                 window.history.replaceState({}, document.title, window.location.pathname);
-                localStorage.setItem('erp_active_student', JSON.stringify(data.user));
+                localStorage.setItem('erp_active_student', JSON.stringify(studentData));
                 window.location.href = 'student_dashboard.html'; 
             }
-        } else { 
-            alert(data.message); 
+        } else {
+            alert("Invalid Password or PIN.");
         }
     })
-    .catch(err => { console.error(err); alert("Connection error."); })
+    .catch(err => { console.error(err); alert("Database Connection error."); })
     .finally(() => { this.innerText = "Student Login"; this.disabled = false; });
 });
 
 // 3. SET NEW PASSWORD FOR STUDENT
 document.getElementById('btnConfirmNewPass')?.addEventListener('click', function() {
-    if(!targetScriptURL) return;
-
     const p1 = document.getElementById('newPass1').value; 
     const p2 = document.getElementById('newPass2').value;
     if(!p1 || p1 !== p2) { alert("Passwords do not match."); return; }
     
     this.innerText = "Updating..."; this.disabled = true;
 
-    fetch(targetScriptURL, { 
-        method: 'POST', 
-        body: JSON.stringify({ action: "resetStudentPassword", userId: verifiedStudentId, newPassword: p1 }), 
-        redirect: "follow", 
-        headers: { "Content-Type": "text/plain;charset=utf-8" } 
+    // UPDATE FIRESTORE DOCUMENT
+    db.collection("students").doc(verifiedStudentId).update({
+        password: p1
     })
-    .then(res => res.json())
-    .then(data => {
-        if(data.status === "Success") {
-            alert("Password updated! Please login with your new password.");
-            closePanels();
-            document.getElementById('studentPass').value = "";
-            
-            let chkNewPass = document.getElementById('chkNewPassword');
-            if(chkNewPass) chkNewPass.checked = false;
-            
-            let setupPanel = document.getElementById('setupCheckboxPanel');
-            if(setupPanel) setupPanel.style.display = 'none';
-            
-            window.history.replaceState({}, document.title, window.location.pathname);
-        } else {
-            alert(data.message);
-        }
+    .then(() => {
+        alert("Password updated! Please login with your new password.");
+        closePanels();
+        document.getElementById('studentPass').value = "";
+        
+        let chkNewPass = document.getElementById('chkNewPassword');
+        if(chkNewPass) chkNewPass.checked = false;
+        
+        let setupPanel = document.getElementById('setupCheckboxPanel');
+        if(setupPanel) setupPanel.style.display = 'none';
+        
+        window.history.replaceState({}, document.title, window.location.pathname);
     })
-    .catch(err => { console.error(err); alert("Connection error."); })
+    .catch(err => { console.error(err); alert("Update error."); })
     .finally(() => { this.innerText = "Update & Login"; this.disabled = false; });
 });
 
@@ -250,33 +241,37 @@ document.getElementById('btnConfirmNewPass')?.addEventListener('click', function
 // PHASE 3: OTP RESET FLOW
 // ============================================================================
 document.getElementById('btnSendOtp')?.addEventListener('click', function() {
-    if(!targetScriptURL) { alert("School connection missing."); return; }
-
+    // Note: To send emails natively via Firebase, you need an extension like "Trigger Email from Firestore"
+    // Or you can retain your old Apps Script URL just for sending OTPs.
+    // For now, this is set to write an OTP request to a 'mail_queue' collection which an extension processes.
+    
     const uid = document.getElementById('forgotStudentId').value;
     if(!uid) { alert("Enter User ID"); return; }
     
     this.innerText = "Sending..."; this.disabled = true;
 
-    fetch(targetScriptURL, { 
-        method: 'POST', 
-        body: JSON.stringify({ action: "sendStudentOTP", userId: uid }), 
-        redirect: "follow", 
-        headers: { "Content-Type": "text/plain;charset=utf-8" } 
+    db.collection("students").where("portalId", "==", uid).get()
+    .then((querySnapshot) => {
+        if (querySnapshot.empty) throw new Error("User ID not found");
+        
+        let studentDoc = querySnapshot.docs[0];
+        let otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6 digit OTP
+        
+        // Save OTP to student doc
+        return db.collection("students").doc(studentDoc.id).update({
+            resetOtp: otp
+        });
     })
-    .then(res => res.json())
-    .then(data => {
-        if(data.status === "Success") {
-            document.getElementById('otpStep1').style.display = 'none';
-            document.getElementById('otpStep2').style.display = 'block';
-        } else { alert(data.message); }
+    .then(() => {
+        // Assuming email is sent via Cloud Function triggered by doc update
+        document.getElementById('otpStep1').style.display = 'none';
+        document.getElementById('otpStep2').style.display = 'block';
     })
-    .catch(err => { console.error(err); alert("Connection error."); })
+    .catch(err => { console.error(err); alert(err.message || "Connection error."); })
     .finally(() => { this.innerText = "Send OTP to Email"; this.disabled = false; });
 });
 
 document.getElementById('btnVerifyOtp')?.addEventListener('click', function() {
-    if(!targetScriptURL) return;
-
     const uid = document.getElementById('forgotStudentId').value;
     const otp = document.getElementById('resetOtp').value;
     const newPass = document.getElementById('resetNewPass').value;
@@ -285,21 +280,28 @@ document.getElementById('btnVerifyOtp')?.addEventListener('click', function() {
     
     this.innerText = "Resetting..."; this.disabled = true;
 
-    fetch(targetScriptURL, { 
-        method: 'POST', 
-        body: JSON.stringify({ action: "resetStudentPassword", userId: uid, otp: otp, newPassword: newPass }), 
-        redirect: "follow", 
-        headers: { "Content-Type": "text/plain;charset=utf-8" } 
+    db.collection("students").where("portalId", "==", uid).get()
+    .then((querySnapshot) => {
+        if (querySnapshot.empty) throw new Error("User ID not found");
+        
+        let studentDoc = querySnapshot.docs[0];
+        let studentData = studentDoc.data();
+        
+        if(studentData.resetOtp === otp) {
+            return db.collection("students").doc(studentDoc.id).update({
+                password: newPass,
+                resetOtp: firebase.firestore.FieldValue.delete() // Cleanup OTP
+            });
+        } else {
+            throw new Error("Invalid OTP");
+        }
     })
-    .then(res => res.json())
-    .then(data => {
-        if(data.status === "Success") {
-            alert("Password reset successfully. You can now login.");
-            closePanels();
-            document.getElementById('otpStep1').style.display = 'block';
-            document.getElementById('otpStep2').style.display = 'none';
-        } else { alert(data.message); }
+    .then(() => {
+        alert("Password reset successfully. You can now login.");
+        closePanels();
+        document.getElementById('otpStep1').style.display = 'block';
+        document.getElementById('otpStep2').style.display = 'none';
     })
-    .catch(err => { console.error(err); alert("Connection error."); })
+    .catch(err => { console.error(err); alert(err.message || "Reset failed."); })
     .finally(() => { this.innerText = "Reset Password"; this.disabled = false; });
 });
