@@ -5,22 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ERP - Secure Login</title>
     
-    <!-- FIREBASE SDKS ADDED HERE -->
+    <!-- FIREBASE SDKS (Compat version for plain HTML/JS) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
 
     <script>
-        // FIREBASE INITIALIZATION (Same as index.html)
+        // YOUR REAL FIREBASE CONFIGURATION
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyAHS0Xk5o-PZK_bBGtsQqGlS9TLOcnXCsM",
+            authDomain: "school-erp-3bd0a.firebaseapp.com",
+            projectId: "school-erp-3bd0a",
+            storageBucket: "school-erp-3bd0a.firebasestorage.app",
+            messagingSenderId: "222944507292",
+            appId: "1:222944507292:web:3b80280c1359b9fa6ec459",
+            measurementId: "G-DW790DMME9"
         };
-        firebase.initializeApp(firebaseConfig);
+        
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const analytics = firebase.analytics();
         const db = firebase.firestore();
         const auth = firebase.auth();
     </script>
@@ -81,6 +86,7 @@
 
 <div class="login-box">
     
+    <!-- PHASE 1: SCHOOL CODE -->
     <div id="step-school-code" class="step-view active">
         <div class="logo">🏢</div>
         <h2>SHUBH ERP</h2>
@@ -93,6 +99,7 @@
         <button class="btn-verify" id="btnVerifyCode">Verify School</button>
     </div>
 
+    <!-- PHASE 2: LOGIN -->
     <div id="step-credentials" class="step-view">
         
         <img id="dynSchoolLogo" class="dynamic-logo" src="" alt="School Logo">
@@ -142,6 +149,7 @@
         <button class="btn-back-link" id="btnBackToCode">← Change School Code</button>
     </div>
 
+    <!-- PHASE 3: SET PASSWORD & OTP PANELS -->
     <div id="setPassPanel" class="slide-panel">
         <button class="back-btn" onclick="closePanels()">← Back to Login</button>
         <h3 style="margin-bottom:10px; color:#2c3e50;">Set Custom Password</h3>
@@ -172,6 +180,7 @@
 
 </div>
 
+<!-- Make sure to use the 100% Firebase powered login.js I provided in the previous step -->
 <script src="login.js"></script>
 </body>
 </html>
