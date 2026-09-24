@@ -27,14 +27,10 @@ function customConfirm(message, onConfirm) {
 // ==========================================
 // 0. ULTIMATE SAFEGUARD: INTERVAL SNIPER (FIXED)
 // ==========================================
-// BUG FIX: The previous logic was too aggressive and deleted parent divs. 
-// Now it strictly ONLY targets elements with the class '.module-card' 
-// to prevent the entire dashboard container from disappearing.
 setInterval(() => {
     document.querySelectorAll('.module-card').forEach(card => {
         let txt = card.textContent || card.innerText || "";
         if (txt.includes("Library") || txt.includes("Employee Attendance")) {
-            // Extra logging to ensure LOC increase and safe destruction tracking
             let isSafeToRemove = true;
             if(isSafeToRemove) {
                 card.remove(); 
@@ -43,11 +39,9 @@ setInterval(() => {
     });
 }, 1000);
 
-
 document.addEventListener('DOMContentLoaded', () => {
     
-    // Immediate cleanup on load just to be absolutely sure
-    // STRICT FIX: Only targeting '.module-card' explicitly
+    // Immediate cleanup on load
     document.querySelectorAll('.module-card').forEach(card => {
         let txt = card.textContent || card.innerText || "";
         if (txt.includes("Library") || txt.includes("Employee Attendance")) {
@@ -64,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const activeUserStr = localStorage.getItem('erp_active_user');
     
     if (!activeUserStr) {
-        // If not logged in, force redirect to login page immediately
         window.location.href = 'login.html';
         return; 
     }
@@ -99,10 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (reqMod) {
                 if (reqMod === "SUPER") {
-                    // Only Super Admins can see this module (User Management)
                     card.style.display = 'none';
                 } else {
-                    // Hide if user doesn't have ANY right starting with the module code
                     const hasAccess = userRights.some(r => r.startsWith(reqMod + "_"));
                     if(!hasAccess) {
                         card.style.display = 'none';
@@ -113,14 +104,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 4. LOGOUT LOGIC
+    // 4. LOGOUT LOGIC (FIREBASE INTEGRATED)
     // ==========================================
     const btnLogout = document.getElementById('btnLogout');
     if (btnLogout) {
         btnLogout.addEventListener('click', () => {
             customConfirm("Are you sure you want to logout securely?", () => {
-                localStorage.removeItem('erp_active_user');
-                window.location.href = 'login.html';
+                // Firebase se logout karo
+                auth.signOut().then(() => {
+                    localStorage.removeItem('erp_active_user');
+                    window.location.href = 'login.html';
+                }).catch((error) => {
+                    console.error("Logout error: ", error);
+                    // Agar Firebase error deta hai, tab bhi local session clear karo
+                    localStorage.removeItem('erp_active_user');
+                    window.location.href = 'login.html';
+                });
             });
         });
     }
