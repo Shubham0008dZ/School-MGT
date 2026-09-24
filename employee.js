@@ -22,13 +22,14 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarToggle.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
     }
 
-   const scriptURL = '/api/backend'; // Tera naya Vercel backend route
-
+    // Google Backend Script URL has been completely removed.
+    
     const activeUserStr = localStorage.getItem('erp_active_user');
     if (!activeUserStr) { window.location.href = 'login.html'; return; }
     
     const activeUser = JSON.parse(activeUserStr);
     const isSA = activeUser.Is_SuperAdmin === "Yes";
+    const schoolCode = activeUser.schoolCode || localStorage.getItem('erp_school_code'); 
     let userRights = [];
     try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
 
@@ -47,7 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const btnLogout = document.getElementById('btnLogout');
     if(btnLogout) {
-        btnLogout.addEventListener('click', () => { customConfirm("Are you sure you want to logout?", () => { localStorage.removeItem('erp_active_user'); window.location.href = 'login.html'; }); });
+        btnLogout.addEventListener('click', () => { 
+            customConfirm("Are you sure you want to logout?", () => { 
+                auth.signOut().then(() => {
+                    localStorage.removeItem('erp_active_user'); 
+                    window.location.href = 'login.html'; 
+                });
+            }); 
+        });
     }
 
     let allEmployees = [];
@@ -77,32 +85,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }), headers: { "Content-Type": "text/plain;charset=utf-8" } })
-    .then(res => res.json()).then(data => {
-        if (data.status === "Invalid") {
-            alert("Session Invalid: Your account was deleted or marked inactive.");
-            localStorage.removeItem('erp_active_user'); window.location.href = 'login.html';
-        } else if (data.status === "Valid" && data.user) { localStorage.setItem('erp_active_user', JSON.stringify(data.user)); }
-    }).catch(err => console.log("Background sync paused.", err));
-
-    window.syncWithDatabase = function() {
+    // ==========================================
+    // FIREBASE DATABASE SYNCHRONIZATION
+    // ==========================================
+    window.syncWithDatabase = async function() {
         const tbody = document.getElementById('empTableBody'); 
         if(tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳</td></tr>';
         
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "getEmployees" }), headers: { "Content-Type": "text/plain;charset=utf-8" } })
-        .then(res => { if(!res.ok) throw new Error("HTTP Status: " + res.status); return res.json(); })
-        .then(res => {
-            if(res.status === "Success") {
-                allEmployees = res.employees || [];
-                if(res.empSetup) { Object.keys(empSetup).forEach(k => { empSetup[k] = res.empSetup[k] || []; }); }
-                populateSetupDropdowns(); renderSetupDisplay(); renderEmployeesTable(allEmployees); populateInactiveDropdown(); renderInactiveEmployeesTable(); 
-                updateDashboard(); 
-            } else {
-                if(tbody) tbody.innerHTML = `<tr><td colspan="10" style="color:red; text-align:center;"><b>Error:</b> ${res.message}</td></tr>`; 
+        try {
+            // 1. Fetch Master Setup for this specific school
+            let setupDoc = await db.collection("setups").doc(schoolCode).get();
+            if(setupDoc.exists) {
+                let data = setupDoc.data();
+                Object.keys(empSetup).forEach(k => { empSetup[k] = data[k] || []; });
             }
-        }).catch(e => {
-            if(tbody) tbody.innerHTML = `<tr><td colspan="10" style="color:#c0392b; text-align:center;">⚠️ API Connection Failed. <button onclick="syncWithDatabase()">Retry</button></td></tr>`; 
-        });
+
+            // 2. Fetch all employees for this specific school ONLY
+            let empSnapshot = await db.collection("employees").where("schoolCode", "==", schoolCode).get();
+            allEmployees = [];
+            empSnapshot.forEach((doc) => {
+                allEmployees.push(doc.data());
+            });
+
+            populateSetupDropdowns(); 
+            renderSetupDisplay(); 
+            renderEmployeesTable(allEmployees); 
+            populateInactiveDropdown(); 
+            renderInactiveEmployeesTable(); 
+            updateDashboard(); 
+            
+        } catch(e) {
+            console.error("Firebase Sync Error:", e);
+            if(tbody) tbody.innerHTML = `<tr><td colspan="10" style="color:#c0392b; text-align:center;">⚠️ Database Connection Failed. <button onclick="syncWithDatabase()">Retry</button></td></tr>`; 
+        }
     }
 
     let cropper = null;
@@ -429,8 +444,13 @@ document.addEventListener('DOMContentLoaded', () => {
         try { let eData = JSON.parse(e.empExp); if(Array.isArray(eData) && eData.length > 0) eData.forEach(d => addExpRow(d)); else addExpRow(); } catch(err) { addExpRow(); }
     }
 
-    document.getElementById('employeeForm')?.addEventListener('submit', function(e) {
-        e.preventDefault(); const btn = document.getElementById('btnSaveEmp'); const isEdit = document.getElementById('editEmpMode').value === "true";
+    // ==========================================
+    // SAVE / UPDATE EMPLOYEE (FIRESTORE)
+    // ==========================================
+    document.getElementById('employeeForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault(); 
+        const btn = document.getElementById('btnSaveEmp'); 
+        const isEdit = document.getElementById('editEmpMode').value === "true";
         btn.textContent = 'Syncing...'; btn.disabled = true;
 
         let qualArr = [];
@@ -458,30 +478,52 @@ document.addEventListener('DOMContentLoaded', () => {
             }); 
         });
 
-        const payload = {
-            action: isEdit ? "updateEmployee" : "saveEmployee",
-            data: { 
-                empId: getVal('empId'), empSalutation: getVal('empSalutation'), empName: getVal('empName'), empDept: getVal('empDept'), empDesig: getVal('empDesig'),
-                empGender: getVal('empGender'), empBlood: getVal('empBlood'), empDob: getVal('empDob'), empAge: getVal('empAge'), empJoinDate: getVal('empJoinDate'),
-                empType: getVal('empType'), empUserType: getVal('empUserType'), empRepAuth: getVal('empRepAuth'), empOffPhone: getVal('empOffPhone'), empOffEmail: getVal('empOffEmail'),
-                empLoginId: getVal('empLoginId'), empRel: getVal('empRel'), empMarital: getVal('empMarital'), empRoles: getVal('empRoles'),
-                empMobile: getVal('empMobile'), empEmail: getVal('empEmail'), 
-                empCorrAdd: getVal('empCorrAdd'), empCorrCity: getVal('empCorrCity'), empCorrState: getVal('empCorrState'), empCorrCountry: getVal('empCorrCountry'), empCorrPin: getVal('empCorrPin'),
-                empPermAdd: getVal('empPermAdd'), empPermCity: getVal('empPermCity'), empPermState: getVal('empPermState'), empPermCountry: getVal('empPermCountry'), empPermPin: getVal('empPermPin'),
-                empBio: getVal('empBio'), empSubjects: getVal('empSubjects'), empConfDate: getVal('empConfDate'), empRetireDate: getVal('empRetireDate'),
-                empWing: getVal('empWing'), empClassIncharge: getVal('empClassIncharge'), empSeqNo: getVal('empSeqNo'), empRFID: getVal('empRFID'), empAadhaar: getVal('empAadhaar'), empPan: getVal('empPan'),
-                empFatherName: getVal('empFatherName'), empFatherMobile: getVal('empFatherMobile'), empFatherProf: getVal('empFatherProf'),
-                empMotherName: getVal('empMotherName'), empMotherMobile: getVal('empMotherMobile'), empMotherProf: getVal('empMotherProf'),
-                empSpouseName: getVal('empSpouseName'), empSpouseMobile: getVal('empSpouseMobile'), empSpouseProf: getVal('empSpouseProf'), empSpouseDesig: getVal('empSpouseDesig'),
-                empSalMode: getVal('empSalMode'), empAccNo: getVal('empAccNo'), empIfsc: getVal('empIfsc'), empAccType: getVal('empAccType'),
-                empBank: getVal('empBank'), empPf: getVal('empPf'), empEsi: getVal('empEsi'), empUan: getVal('empUan'),
-                empQual: JSON.stringify(qualArr), empExp: JSON.stringify(expArr), empPhotoBase64: getVal('empPhotoBase64'), empSignBase64: getVal('empSignBase64') 
-            }
+        const empData = { 
+            empId: getVal('empId'), empSalutation: getVal('empSalutation'), empName: getVal('empName'), empDept: getVal('empDept'), empDesig: getVal('empDesig'),
+            empGender: getVal('empGender'), empBlood: getVal('empBlood'), empDob: getVal('empDob'), empAge: getVal('empAge'), empJoinDate: getVal('empJoinDate'),
+            empType: getVal('empType'), empUserType: getVal('empUserType'), empRepAuth: getVal('empRepAuth'), empOffPhone: getVal('empOffPhone'), empOffEmail: getVal('empOffEmail'),
+            empLoginId: getVal('empLoginId'), empRel: getVal('empRel'), empMarital: getVal('empMarital'), empRoles: getVal('empRoles'),
+            empMobile: getVal('empMobile'), empEmail: getVal('empEmail'), 
+            empCorrAdd: getVal('empCorrAdd'), empCorrCity: getVal('empCorrCity'), empCorrState: getVal('empCorrState'), empCorrCountry: getVal('empCorrCountry'), empCorrPin: getVal('empCorrPin'),
+            empPermAdd: getVal('empPermAdd'), empPermCity: getVal('empPermCity'), empPermState: getVal('empPermState'), empPermCountry: getVal('empPermCountry'), empPermPin: getVal('empPermPin'),
+            empBio: getVal('empBio'), empSubjects: getVal('empSubjects'), empConfDate: getVal('empConfDate'), empRetireDate: getVal('empRetireDate'),
+            empWing: getVal('empWing'), empClassIncharge: getVal('empClassIncharge'), empSeqNo: getVal('empSeqNo'), empRFID: getVal('empRFID'), empAadhaar: getVal('empAadhaar'), empPan: getVal('empPan'),
+            empFatherName: getVal('empFatherName'), empFatherMobile: getVal('empFatherMobile'), empFatherProf: getVal('empFatherProf'),
+            empMotherName: getVal('empMotherName'), empMotherMobile: getVal('empMotherMobile'), empMotherProf: getVal('empMotherProf'),
+            empSpouseName: getVal('empSpouseName'), empSpouseMobile: getVal('empSpouseMobile'), empSpouseProf: getVal('empSpouseProf'), empSpouseDesig: getVal('empSpouseDesig'),
+            empSalMode: getVal('empSalMode'), empAccNo: getVal('empAccNo'), empIfsc: getVal('empIfsc'), empAccType: getVal('empAccType'),
+            empBank: getVal('empBank'), empPf: getVal('empPf'), empEsi: getVal('empEsi'), empUan: getVal('empUan'),
+            empQual: JSON.stringify(qualArr), empExp: JSON.stringify(expArr), empPhotoBase64: getVal('empPhotoBase64'), empSignBase64: getVal('empSignBase64'),
+            schoolCode: schoolCode // MANDATORY TENANT SCOPING
         };
 
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => {
-            if(data.status === "Success") { alert(data.message); showView('module-employees-list'); syncWithDatabase(); } else alert("Error: " + data.message);
-        }).finally(() => { btn.textContent = 'Save & Close'; btn.disabled = false; });
+        if(!isEdit) {
+            empData.Status = "Active";
+        }
+
+        // Generate unique doc ID combining school code and employee ID
+        let docId = `${schoolCode}_${empData.empId}`;
+
+        try {
+            if(!isEdit) {
+                // Check if employee ID already exists for this school
+                let checkDoc = await db.collection("employees").doc(docId).get();
+                if(checkDoc.exists) {
+                    alert("An Employee with this ID already exists!");
+                    btn.textContent = 'Save & Close'; btn.disabled = false;
+                    return;
+                }
+            }
+            // Save to Firestore
+            await db.collection("employees").doc(docId).set(empData, { merge: true });
+            alert(isEdit ? "Employee Updated Successfully!" : "Employee Saved Successfully!");
+            showView('module-employees-list'); 
+            syncWithDatabase(); 
+        } catch(err) {
+            alert("Error saving data: " + err.message);
+        } finally {
+            btn.textContent = 'Save & Close'; btn.disabled = false; 
+        }
     });
 
     function populateInactiveDropdown() {
@@ -490,13 +532,27 @@ document.addEventListener('DOMContentLoaded', () => {
         allEmployees.forEach(e => { if(e.Status !== "Inactive") { sel.innerHTML += `<option value="${e.empId}">${e.empId} - ${e.empName}</option>`; } });
     }
 
-    document.getElementById('btnMarkInactive')?.addEventListener('click', () => {
+    // ==========================================
+    // MARK EMPLOYEE INACTIVE (FIRESTORE)
+    // ==========================================
+    document.getElementById('btnMarkInactive')?.addEventListener('click', async () => {
         const empId = document.getElementById('inactiveEmpSelect').value; const date = document.getElementById('inactiveDate').value; const reason = document.getElementById('inactiveReason').value;
         if(!empId || !date || !reason) { alert("Please fill all fields."); return; }
+        
         if(confirm(`Are you sure you want to mark ${empId} as Inactive?`)) {
-            fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "inactiveEmployee", empId: empId, date: date, reason: reason }), headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => {
-                if(data.status === "Success") { alert(data.message); document.getElementById('inactiveDate').value = ""; document.getElementById('inactiveReason').value = ""; syncWithDatabase(); }
-            });
+            let docId = `${schoolCode}_${empId}`;
+            try {
+                await db.collection("employees").doc(docId).update({
+                    Status: "Inactive",
+                    LeaveReason: `${reason} | ${date}`
+                });
+                alert("Employee successfully marked as Inactive.");
+                document.getElementById('inactiveDate').value = ""; 
+                document.getElementById('inactiveReason').value = ""; 
+                syncWithDatabase(); 
+            } catch(error) {
+                alert("Error marking employee inactive: " + error.message);
+            }
         }
     });
 
@@ -540,15 +596,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ==========================================
+    // SAVE MASTER SETUP (FIRESTORE)
+    // ==========================================
     function saveEmpSetupToDB() {
         const btn = document.getElementById('btnSaveES'); let oldText = btn.textContent; btn.textContent = 'Saving...'; btn.disabled = true;
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "saveEmpSetup", data: empSetup }), headers: { "Content-Type": "text/plain;charset=utf-8" } }).then(res => res.json()).then(data => { 
-            if(data.status === "Success") { 
-                customAlert("Master Setup Synced!"); document.getElementById('empSetupForm').reset(); document.getElementById('esEditIndex').value = "-1";
-                document.getElementById('btnSaveES').innerText = "Add Entry"; document.getElementById('btnSaveES').style.background = "#27ae60"; document.getElementById('btnCancelESEdit').style.display = "none";
-                document.getElementById('esCategory').dispatchEvent(new Event('change')); renderSetupDisplay(); populateSetupDropdowns();
-            } 
-        }).finally(() => { btn.textContent = oldText; btn.disabled = false; });
+        
+        db.collection("setups").doc(schoolCode).set(empSetup, { merge: true })
+        .then(() => { 
+            customAlert("Master Setup Synced!"); 
+            document.getElementById('empSetupForm').reset(); 
+            document.getElementById('esEditIndex').value = "-1";
+            document.getElementById('btnSaveES').innerText = "Add Entry"; 
+            document.getElementById('btnSaveES').style.background = "#27ae60"; 
+            document.getElementById('btnCancelESEdit').style.display = "none";
+            document.getElementById('esCategory').dispatchEvent(new Event('change')); 
+            renderSetupDisplay(); 
+            populateSetupDropdowns();
+        })
+        .catch(err => {
+            alert("Error saving setup: " + err.message);
+        })
+        .finally(() => { 
+            btn.textContent = oldText; 
+            btn.disabled = false; 
+        });
     }
 
     window.editES = function(cat, index) {
@@ -587,7 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // DASHBOARD LOGIC (NEW ENHANCEMENTS)
+    // DASHBOARD LOGIC (Intact & Maintained)
     // ==========================================
     let mainSummaryChartInstance = null;
     let tenureChartInstance = null;
