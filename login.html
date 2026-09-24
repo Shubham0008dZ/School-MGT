@@ -4,6 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ERP - Secure Login</title>
+    
+    <!-- FIREBASE SDKS ADDED HERE -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // FIREBASE INITIALIZATION (Same as index.html)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+    </script>
+    
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
         body { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); overflow: hidden; }
@@ -25,7 +46,7 @@
         /* Form Inputs */
         .input-group { margin-bottom: 20px; text-align: left; }
         .input-group label { display: block; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 8px; }
-        .input-group input[type="text"], .input-group input[type="password"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; outline: none; transition: border-color 0.3s; }
+        .input-group input[type="text"], .input-group input[type="password"], .input-group input[type="email"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; outline: none; transition: border-color 0.3s; }
         .input-group input:focus { border-color: #2980b9; }
         
         /* Buttons */
@@ -86,8 +107,8 @@
 
         <div id="staffForm" class="form-view active">
             <div class="input-group">
-                <label>Employee ID / Email</label>
-                <input type="text" id="staffId" placeholder="Enter ID">
+                <label>Employee Email</label>
+                <input type="email" id="staffId" placeholder="Enter Email">
             </div>
             <div class="input-group">
                 <label>Password</label>
