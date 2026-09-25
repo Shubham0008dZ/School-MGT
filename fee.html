@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fee Management - School ERP</title>
-    <link rel="stylesheet" href="fee.css">
+    <title>SHUBH ERP · Fee Management</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <!-- FIREBASE SDKS -->
@@ -29,44 +28,2659 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
     </script>
+
+    <!-- ============================================================
+         ORIGINAL FEE CSS — embedded locally
+         Source preserved from the supplied fee.css.
+         ============================================================ -->
+    <style id="fee-original-styles">
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body,
+        html {
+            height: 100%;
+            background-color: #f4f4f9;
+        }
+
+        .top-navbar {
+            background-color: #0d284a;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            height: 50px;
+        }
+
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: bold;
+        }
+
+        .top-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .global-search {
+            width: 50%;
+            padding: 5px 10px;
+            border-radius: 3px;
+            border: none;
+        }
+
+        .erp-wrapper {
+            display: flex;
+            height: calc(100vh - 50px);
+        }
+
+        .sidebar {
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            background-color: #f04336;
+            color: white;
+        }
+
+        .red-header {
+            background-color: #d63024;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .red-header h2 {
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        .nav-links li a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+        }
+
+        .nav-links li a:hover,
+        .nav-links li a.active {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-left: 5px solid white;
+            font-weight: bold;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: white;
+        }
+
+        .app-module {
+            display: none;
+        }
+
+        .app-module.active-module {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .profile-header h2 {
+            font-size: 18px;
+            color: #333;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .table-toolbar {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+        }
+
+        .search-small {
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .btn {
+            border: none;
+            padding: 8px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .btn-dark {
+            background-color: #333;
+            color: white;
+        }
+
+        .btn-green {
+            background-color: #5cb85c;
+            color: white;
+        }
+
+        .btn-green:hover {
+            background-color: #4cae4c;
+        }
+
+        .btn-green-outline {
+            background-color: white;
+            color: #5cb85c;
+            border: 1px solid #5cb85c;
+        }
+
+        .btn-red {
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .data-table th {
+            background-color: #f1f1f1;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        /* Student Link in Table */
+        .student-ledger-link {
+            color: #2980b9;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 1px dashed #2980b9;
+        }
+
+        .student-ledger-link:hover {
+            color: #e74c3c;
+            border-bottom-color: #e74c3c;
+        }
+
+        .fee-form-wrapper {
+            background: #fff;
+        }
+
+        .fee-top-bar {
+            display: flex;
+            gap: 15px;
+            background: #fdfdfd;
+            padding: 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .fee-top-bar .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .fee-top-bar label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .fee-top-bar input,
+        .fee-top-bar select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+
+        .fee-main-split {
+            display: flex;
+            gap: 20px;
+        }
+
+        .fee-profile-panel {
+            width: 28%;
+            background: #4e7389;
+            color: white;
+            border-radius: 5px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-img-box {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-img-box img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #fff;
+            padding: 2px;
+        }
+
+        .profile-details {
+            padding: 15px;
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .profile-details p {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+            padding-bottom: 5px;
+        }
+
+        .payable-box {
+            background: #2c3e50;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .fee-details-panel {
+            width: 72%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .fee-heads-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            border: 1px solid #ccc;
+        }
+
+        .fee-heads-table th {
+            background: #ecf0f1;
+            color: #333;
+            padding: 8px 4px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        .fee-heads-table td {
+            padding: 8px 4px;
+            border: 1px solid #ccc;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .fee-heads-table input[type="number"] {
+            width: 100%;
+            min-width: 60px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            box-sizing: border-box;
+            text-align: right;
+        }
+
+        .fee-heads-table input[type="checkbox"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .f-row {
+            transition: 0.2s;
+        }
+
+        .f-row.disabled-row {
+            opacity: 0.6;
+            background-color: #fce4e4;
+        }
+
+        .f-row.disabled-row td {
+            text-decoration: line-through;
+            color: #e74c3c;
+        }
+
+        .f-row.disabled-row input[type="number"] {
+            pointer-events: none;
+            background: transparent;
+            text-decoration: line-through;
+            color: #e74c3c;
+        }
+
+        .f-row.disabled-row .f-chk {
+            pointer-events: auto;
+        }
+
+        .section-title-red {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 10px;
+            border-radius: 3px;
+        }
+
+        .total-info-grid {
+            display: flex;
+            gap: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            align-items: center;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .total-info-grid input {
+            width: 120px;
+            padding: 6px;
+            margin-left: 5px;
+            border: 1px solid #ccc;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            border: 1px solid #ccc;
+        }
+
+        .payment-table th {
+            background: #ecf0f1;
+            color: #333;
+            padding: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .payment-table td {
+            padding: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .payment-table input,
+        .payment-table select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        /* MODAL STYLES */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.2s;
+        }
+
+        .modal-card {
+            background: #fff;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-header {
+            padding: 15px 20px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .close-modal {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ecf0f1;
+            font-weight: bold;
+        }
+
+        #printSection {
+            display: none;
+        }
+
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            body * {
+                visibility: hidden;
+            }
+
+            .top-navbar,
+            .erp-wrapper {
+                display: none !important;
+            }
+
+            #printSection {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+                margin: 0;
+                padding: 0;
+            }
+
+            #printSection * {
+                visibility: visible;
+            }
+
+            .print-container {
+                padding: 20px;
+                font-family: Arial, sans-serif;
+                border: 2px solid #000;
+            }
+
+            .print-header {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 20px;
+                border-bottom: 2px solid #000;
+                padding-bottom: 10px;
+                margin-bottom: 10px;
+            }
+
+            .print-logo {
+                font-size: 50px;
+            }
+
+            .print-school-info {
+                text-align: center;
+            }
+
+            .print-school-info h2 {
+                margin: 0 0 5px 0;
+                font-size: 24px;
+                color: #000;
+            }
+
+            .print-school-info p {
+                margin: 2px 0;
+                font-size: 13px;
+                color: #333;
+            }
+
+            .print-title {
+                text-align: center;
+                font-size: 16px;
+                margin: 10px 0;
+                font-weight: bold;
+            }
+
+            .print-details-wrapper {
+                display: flex;
+                border: 1px solid #000;
+                margin-bottom: 0;
+            }
+
+            .print-info-table {
+                width: 50%;
+                border-collapse: collapse;
+                font-size: 13px;
+            }
+
+            .print-info-table:first-child {
+                border-right: 1px solid #000;
+            }
+
+            .print-info-table th {
+                border-bottom: 1px solid #000;
+                padding: 5px;
+                font-size: 14px;
+            }
+
+            .print-info-table td {
+                padding: 4px 8px;
+                vertical-align: top;
+            }
+
+            .print-particulars-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 13px;
+                border: 1px solid #000;
+                border-top: none;
+            }
+
+            .print-particulars-table th,
+            .print-particulars-table td {
+                border: 1px solid #000;
+                padding: 6px;
+            }
+
+            .print-particulars-table th {
+                font-weight: bold;
+            }
+
+            .print-particulars-table td {
+                text-align: right;
+            }
+
+            .print-particulars-table td:first-child {
+                text-align: left;
+            }
+        }
+    </style>
+
+    <!-- ============================================================
+         SHUBH ERP BASE THEME — same visual system as Student SIS
+         ============================================================ -->
+    <style id="shubh-erp-base-theme">
+        /* ===================================================================
+   SHUBH ERP — Student Information System
+   Design language: "School Ledger" — navy + brass on paper, a nod to
+   the register books this module digitises. Serif display type for
+   headings (Fraunces), a plain grotesque (Inter) for interface text.
+=================================================================== */
+
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --ink: #14213D;
+            --ink-soft: #253355;
+            --ink-2: #1c2740;
+            --brass: #C08A2E;
+            --brass-soft: #E4B563;
+            --paper: #F4F1E9;
+            --paper-2: #FBFAF6;
+            --white: #FFFFFF;
+            --line: #E3DFD2;
+            --line-soft: #ECE8DC;
+            --text: #211D18;
+            --text-mute: #6D6759;
+            --text-faint: #948E7D;
+            --good: #1F7A52;
+            --good-bg: #E7F3EC;
+            --bad: #B23A2E;
+            --bad-bg: #FBEAE7;
+            --warn: #B4791E;
+            --warn-bg: #FAF0DE;
+            --info: #2A5C8A;
+            --info-bg: #E9F1F8;
+            --radius-s: 6px;
+            --radius-m: 10px;
+            --radius-l: 16px;
+            --shadow-1: 0 1px 2px rgba(20, 33, 61, .06), 0 2px 8px rgba(20, 33, 61, .05);
+            --shadow-2: 0 8px 28px rgba(20, 33, 61, .14);
+            --sidebar-w: 258px;
+            --sidebar-w-collapsed: 68px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--paper);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 600;
+            letter-spacing: -.01em;
+            color: var(--ink);
+            margin: 0;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        ::selection {
+            background: var(--brass-soft);
+            color: var(--ink);
+        }
+
+        ::-webkit-scrollbar {
+            width: 9px;
+            height: 9px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #C9C3B0;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        /* ---------------- Top Navbar ---------------- */
+        .top-navbar {
+            height: 58px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--ink);
+            color: #EFEAD9;
+            border-bottom: 1px solid rgba(255, 255, 255, .06);
+            position: relative;
+            z-index: 40;
+        }
+
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .hamburger-btn {
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .1);
+            color: #EFEAD9;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .15s;
+        }
+
+        .hamburger-btn:hover {
+            background: rgba(255, 255, 255, .14);
+            color: var(--brass-soft);
+        }
+
+        .top-left a {
+            text-decoration: none;
+        }
+
+        .school-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        #defaultNavLogo {
+            font-size: 20px;
+            filter: grayscale(0) saturate(1.3);
+        }
+
+        .school-name {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: 17px;
+            letter-spacing: .01em;
+            color: #F7F3E7;
+        }
+
+        .top-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        .global-search {
+            width: 100%;
+            max-width: 420px;
+            padding: 9px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            background: rgba(255, 255, 255, .07);
+            color: #F7F3E7;
+            font-size: 13px;
+            outline: none;
+            transition: background .15s, border-color .15s;
+        }
+
+        .global-search::placeholder {
+            color: #A9A38E;
+        }
+
+        .global-search:focus {
+            background: rgba(255, 255, 255, .12);
+            border-color: var(--brass-soft);
+        }
+
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+            color: #D8D2BF;
+        }
+
+        .top-right span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #btnLogout {
+            background: transparent !important;
+            color: #F0B8AE !important;
+            border: 1px solid rgba(240, 184, 174, .35) !important;
+            padding: 7px 14px !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 12px !important;
+            cursor: pointer;
+            transition: .15s;
+        }
+
+        #btnLogout:hover {
+            background: rgba(178, 58, 46, .25) !important;
+            border-color: #F0B8AE !important;
+        }
+
+        /* ---------------- Layout Shell ---------------- */
+        .erp-wrapper {
+            display: flex;
+            height: calc(100vh - 58px);
+        }
+
+        /* ---------------- Sidebar ---------------- */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--ink);
+            display: flex;
+            flex-direction: column;
+            transition: width .25s ease;
+            overflow-x: hidden;
+            white-space: nowrap;
+            border-right: 1px solid rgba(255, 255, 255, .05);
+        }
+
+        .sidebar-header {
+            padding: 22px 20px 14px;
+        }
+
+        .sidebar-header h2 {
+            color: #F7F3E7;
+            font-size: 15px;
+            margin: 0;
+            letter-spacing: .03em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-header::after {
+            content: "";
+            display: block;
+            height: 1px;
+            margin-top: 16px;
+            background: linear-gradient(90deg, var(--brass) 0%, rgba(192, 138, 46, 0) 70%);
+        }
+
+        .nav-links {
+            list-style: none;
+            margin: 10px 0 0;
+            padding: 0 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .nav-links li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #C9C4B2;
+            text-decoration: none;
+            padding: 11px 14px;
+            border-radius: 9px;
+            font-size: 13.5px;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+            transition: background .15s, color .15s;
+        }
+
+        .nav-icon {
+            font-size: 16px;
+            width: 18px;
+            text-align: center;
+            opacity: .9;
+        }
+
+        .nav-links li a:hover {
+            background: rgba(255, 255, 255, .06);
+            color: #F7F3E7;
+        }
+
+        .nav-links li a.active {
+            background: rgba(192, 138, 46, .16);
+            color: #F7F3E7;
+            border-left: 3px solid var(--brass);
+            font-weight: 600;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-w-collapsed);
+        }
+
+        .sidebar.collapsed .sidebar-header h2 {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-links li a {
+            justify-content: center;
+            padding: 12px 0;
+            border-left: none;
+        }
+
+        .sidebar.collapsed .nav-links li a.active {
+            border-left: none;
+            background: rgba(192, 138, 46, .2);
+        }
+
+        /* ---------------- Main Content ---------------- */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 26px 30px 60px;
+            background: var(--paper);
+        }
+
+        .app-module {
+            display: none;
+        }
+
+        .app-module.active-module {
+            display: block;
+            animation: fadeIn .25s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-bottom: 16px;
+            margin-bottom: 22px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .profile-header h2 {
+            font-size: 23px;
+            text-transform: none;
+            letter-spacing: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ---------------- Buttons ---------------- */
+        .btn {
+            border: none;
+            padding: 9px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: transform .05s ease, box-shadow .15s ease, background .15s ease;
+            letter-spacing: .01em;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-dark {
+            background: var(--ink);
+            color: #F4F1E9;
+        }
+
+        .btn-dark:hover {
+            background: var(--ink-soft);
+        }
+
+        .btn-green {
+            background: var(--good);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(31, 122, 82, .25);
+        }
+
+        .btn-green:hover {
+            background: #186640;
+        }
+
+        .btn-green-outline {
+            background: var(--white);
+            color: var(--good);
+            border: 1.5px solid var(--good);
+        }
+
+        .btn-green-outline:hover {
+            background: var(--good-bg);
+        }
+
+        .btn-red {
+            background: var(--bad);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 7px;
+        }
+
+        .btn-red:hover {
+            background: #963025;
+        }
+
+        .btn-blue {
+            background: var(--info) !important;
+            color: #fff !important;
+            border-radius: 8px !important;
+        }
+
+        .btn-blue:hover {
+            background: #1f4a70 !important;
+        }
+
+        .btn-purple {
+            background: #5B4A8A;
+            color: #fff;
+            border: none;
+            padding: 7px 13px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-purple:hover {
+            background: #48396e;
+        }
+
+        /* ---------------- Table Toolbar / Filters ---------------- */
+        .table-toolbar {
+            background: var(--white) !important;
+            border: 1px solid var(--line) !important;
+            border-left: 3px solid var(--brass) !important;
+            border-radius: var(--radius-m);
+            padding: 12px 14px !important;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-1);
+            position: relative;
+        }
+
+        .filters {
+            position: relative;
+        }
+
+        .filter-dropdown-panel {
+            display: none;
+            position: absolute;
+            top: 58px;
+            left: 0;
+            width: 390px;
+            max-width: calc(100vw - 40px);
+            padding: 15px;
+            background: var(--white) !important;
+            border: 1px solid var(--line) !important;
+            border-top: 3px solid var(--brass) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 14px 32px rgba(20, 33, 61, .18) !important;
+            z-index: 99999;
+        }
+
+        .filters>div[style*="border:1px solid #27ae60"] {
+            border: 1px solid var(--line) !important;
+            background: var(--paper-2) !important;
+            border-radius: 8px !important;
+        }
+
+        #searchName {
+            background: transparent;
+        }
+
+        .filter-dropdown-panel .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .filter-dropdown-panel .filter-group:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .filter-dropdown-panel .filter-group label {
+            flex: 0 0 82px;
+            margin: 0;
+            color: var(--ink);
+            font-size: 11.5px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .filter-dropdown-panel .filter-group select {
+            flex: 1;
+            width: 100%;
+            min-width: 0;
+            padding: 8px 10px;
+            background: var(--paper-2) !important;
+            color: var(--text) !important;
+            border: 1px solid #cfc9b6 !important;
+            border-radius: 7px !important;
+            font-family: 'Inter', sans-serif;
+            font-size: 12.5px;
+            cursor: pointer;
+        }
+
+        .filter-dropdown-panel .filter-group select:focus {
+            outline: none;
+            border-color: var(--brass) !important;
+            box-shadow: 0 0 0 2px rgba(192, 138, 46, .12);
+        }
+
+        #btn-apply-filter {
+            display: block;
+            margin-top: 13px !important;
+            width: 100% !important;
+            padding: 10px 12px !important;
+            border-radius: 8px !important;
+        }
+
+        @media (max-width:680px) {
+            .filter-dropdown-panel {
+                left: 0;
+                width: min(390px, calc(100vw - 30px));
+            }
+        }
+
+        /* ---------------- Data Table ---------------- */
+        .table-container {
+            background: transparent;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 13px;
+            background: var(--white);
+            border-radius: var(--radius-m);
+            overflow: hidden;
+            box-shadow: var(--shadow-1);
+            border: 1px solid var(--line);
+        }
+
+        .data-table th {
+            background: var(--ink);
+            color: #EFEAD9;
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 2px solid var(--brass);
+            border-right: none;
+            font-size: 12px;
+            letter-spacing: .02em;
+        }
+
+        .data-table td {
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--line-soft);
+            vertical-align: middle;
+            color: var(--text);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: #FBF8F0;
+        }
+
+        .data-table tr:nth-child(even) td {
+            background: var(--paper-2);
+        }
+
+        .data-table tr:nth-child(even):hover td {
+            background: #F5F1E4;
+        }
+
+        .student-ledger-link {
+            color: var(--info);
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px dashed rgba(42, 92, 138, .4);
+        }
+
+        .student-ledger-link:hover {
+            color: var(--brass);
+            border-color: var(--brass);
+        }
+
+        /* ---------------- Dashboard ---------------- */
+        .dashboard-top-cards {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .top-card {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 20px 22px;
+            border-radius: var(--radius-l);
+            color: #fff;
+            box-shadow: var(--shadow-1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .top-card::after {
+            content: "";
+            position: absolute;
+            right: -20px;
+            top: -20px;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .08);
+        }
+
+        .card-total {
+            background: linear-gradient(135deg, #14213D, #233457);
+        }
+
+        .card-male {
+            background: linear-gradient(135deg, #B4791E, #8F5E14);
+        }
+
+        .card-female {
+            background: linear-gradient(135deg, #5B4A8A, #3E3162);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-right: 16px;
+            opacity: .95;
+        }
+
+        .card-info h3 {
+            margin: 0;
+            font-size: 26px;
+            color: #fff;
+            font-family: 'Fraunces', serif;
+        }
+
+        .card-info p {
+            margin: 4px 0 0;
+            font-size: 12.5px;
+            opacity: .85;
+            line-height: 1.3;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .dash-chart-box {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-m);
+            box-shadow: var(--shadow-1);
+            overflow: hidden;
+        }
+
+        .chart-box-header {
+            background: var(--paper-2);
+            padding: 11px 15px;
+            border-bottom: 1px solid var(--line);
+            font-weight: 600;
+            color: var(--ink);
+            font-size: 13px;
+        }
+
+        .chart-box-content {
+            padding: 14px;
+        }
+
+        .view-graph {
+            height: 200px;
+            width: 100%;
+        }
+
+        /* ---------------- Forms / Admission ---------------- */
+        .form-container {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-l);
+            padding: 26px 28px;
+            box-shadow: var(--shadow-1);
+        }
+
+        .form-header {
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .form-header h2 {
+            font-size: 20px;
+        }
+
+        .form-tabs {
+            display: flex;
+            gap: 4px;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 22px;
+        }
+
+        .form-tabs .tab {
+            padding: 10px 18px;
+            background: none;
+            border: none;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-mute);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-tabs .tab.active {
+            color: var(--ink);
+            border-bottom-color: var(--brass);
+        }
+
+        .form-tab-content {
+            display: none;
+            animation: fadeIn .2s;
+        }
+
+        .form-tab-content.active {
+            display: block;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .top-row {
+            background: var(--paper-2) !important;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-m);
+            padding: 14px 16px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .input-group label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-mute);
+            margin-bottom: 6px;
+            text-transform: none;
+            letter-spacing: .01em;
+        }
+
+        .input-group input,
+        .input-group select {
+            padding: 9px 11px;
+            border: 1px solid #D8D2C0;
+            border-radius: 7px;
+            font-size: 13px;
+            background: var(--paper-2);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            transition: border-color .15s, background .15s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--brass);
+            background: #fff;
+        }
+
+        .input-group input[readonly] {
+            background: #EDEAE0;
+            color: var(--text-mute);
+        }
+
+        .section-title {
+            background: transparent;
+            padding: 0;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ink);
+            margin: 26px 0 16px;
+            border-left: none;
+            position: relative;
+            padding-left: 14px;
+            font-family: 'Fraunces', serif;
+        }
+
+        .section-title::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 2px;
+            bottom: 2px;
+            width: 4px;
+            background: var(--brass);
+            border-radius: 2px;
+        }
+
+        .main-details {
+            display: flex;
+            gap: 24px;
+        }
+
+        .left-fields {
+            flex: 3;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .right-photo {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .photo-fieldset {
+            border: 1.5px dashed #CFC7AE;
+            padding: 16px;
+            text-align: center;
+            border-radius: var(--radius-m);
+            width: 100%;
+            max-width: 200px;
+            background: var(--paper-2);
+        }
+
+        .photo-fieldset legend {
+            padding: 0 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-mute);
+        }
+
+        .photo-preview-box img {
+            width: 107px;
+            height: 150px;
+            border: 1px solid var(--line);
+            margin-bottom: 10px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .upload-btn {
+            background: var(--ink);
+            color: #F4F1E9;
+            padding: 7px 14px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 11.5px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .upload-btn:hover {
+            background: var(--ink-soft);
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .submit-section {
+            text-align: right;
+            margin-top: 24px;
+            border-top: 1px solid var(--line);
+            padding-top: 18px;
+        }
+
+        .submit-btn {
+            background: var(--good);
+            color: #fff;
+            border: none;
+            padding: 11px 28px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 9px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(31, 122, 82, .3);
+        }
+
+        .submit-btn:hover {
+            background: #186640;
+        }
+
+        /* ---------------- Modals ---------------- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 20, 15, .55);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(1.5px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn .18s;
+        }
+
+        .modal-card {
+            background: var(--white);
+            border-radius: var(--radius-l);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 22px;
+            background: var(--ink) !important;
+            color: #F4F1E9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: #F4F1E9 !important;
+            font-size: 16px;
+        }
+
+        .close-modal {
+            font-size: 22px;
+            cursor: pointer;
+            color: #C9C4B2;
+            font-weight: 400;
+            line-height: 1;
+        }
+
+        .close-modal:hover {
+            color: #fff;
+        }
+
+        .config-badge {
+            display: inline-flex;
+            align-items: center;
+            background: var(--paper-2);
+            border: 1px solid var(--line);
+            color: var(--text);
+            margin: 4px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .bulk-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .bulk-table th,
+        .bulk-table td {
+            border: 1px solid var(--line);
+            padding: 8px;
+            text-align: left;
+        }
+
+        .bulk-table th {
+            background-color: var(--paper-2);
+            color: var(--ink);
+            font-weight: 700;
+        }
+
+        .bulk-table input {
+            width: 100%;
+            padding: 7px;
+            border: 1px solid #D8D2C0;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .bulk-table input:focus {
+            border-color: var(--brass);
+            outline: none;
+        }
+
+        /* ---------------- Bulk Actions module ---------------- */
+        .bulk-card {
+            background: var(--white);
+            padding: 22px;
+            border-radius: var(--radius-l);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-1);
+            margin-bottom: 20px;
+        }
+
+        .bulk-header {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            font-family: 'Fraunces', serif;
+        }
+
+        .erp-select,
+        .erp-input {
+            border: 1px solid #D8D2C0 !important;
+            border-radius: 7px !important;
+            background: var(--paper-2) !important;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .erp-select:focus,
+        .erp-input:focus {
+            outline: none;
+            border-color: var(--brass) !important;
+        }
+
+        /* ---------------- Reports module ---------------- */
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 18px;
+        }
+
+        .report-card {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-l);
+            padding: 20px;
+            cursor: pointer;
+            transition: .18s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: var(--shadow-1);
+        }
+
+        .report-card:hover {
+            border-color: var(--brass);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-2);
+        }
+
+        .report-icon {
+            font-size: 22px;
+            background: var(--paper-2);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 1px solid var(--line);
+        }
+
+        .report-text h4 {
+            margin: 0 0 4px;
+            color: var(--ink);
+            font-family: 'Fraunces', serif;
+            font-size: 15px;
+        }
+
+        .report-text p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-mute);
+        }
+
+        /* ---------------- Master Setup ---------------- */
+        #module-master-setup>div>div {
+            background: var(--white) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-l) !important;
+            box-shadow: var(--shadow-1) !important;
+        }
+
+        #module-master-setup h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 16px;
+            border-bottom: 1px solid var(--line) !important;
+        }
+
+        #module-master-setup input,
+        #module-master-setup select {
+            border: 1px solid #D8D2C0 !important;
+            border-radius: 7px !important;
+            background: var(--paper-2) !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        #module-master-setup input:focus,
+        #module-master-setup select:focus {
+            outline: none;
+            border-color: var(--brass) !important;
+        }
+
+        #msDisplayArea>div {
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-m) !important;
+        }
+
+        #msDisplayArea h4 {
+            border-bottom: 2px solid var(--brass) !important;
+            font-family: 'Fraunces', serif;
+            letter-spacing: .02em;
+        }
+
+        #msDisplayArea>div>div>div {
+            background: var(--ink) !important;
+            border-radius: 20px !important;
+        }
+
+        /* ---------------- Ledger Modal polish ---------------- */
+        #ledgerModal .modal-body {
+            background: var(--paper) !important;
+        }
+
+        #ledgerExportArea>div:first-child {
+            border-radius: var(--radius-m) !important;
+            box-shadow: var(--shadow-1);
+        }
+
+        #ledgerExportArea table {
+            border-radius: var(--radius-m);
+            overflow: hidden;
+            box-shadow: var(--shadow-1);
+        }
+
+        /* ---------------- Photo crop & remove ---------------- */
+        .btn-remove-photo {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--bad);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 10px;
+            padding: 4px 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .3);
+        }
+
+        .btn-remove-photo:hover {
+            background: #8f2c22;
+        }
+
+        .crop-container {
+            width: 100%;
+            max-height: 400px;
+            background: #1c1c1c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-radius: var(--radius-m);
+        }
+
+        /* ---------------- Responsive ---------------- */
+        @media (max-width:960px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grid-row,
+            .left-fields {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width:680px) {
+            .sidebar {
+                position: fixed;
+                z-index: 60;
+                height: calc(100vh - 58px);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-row,
+            .left-fields {
+                grid-template-columns: 1fr;
+            }
+
+            .main-details {
+                flex-direction: column;
+            }
+
+            .dashboard-top-cards {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <!-- ============================================================
+         FEE MANAGEMENT THEME OVERRIDES — UI only
+         ============================================================ -->
+    <style id="fee-theme-overrides">
+        /* =====================================================================
+   FEE MANAGEMENT — SHUBH ERP CONSISTENT THEME
+   ---------------------------------------------------------------------
+   Visual layer only. Original fee module classes/IDs are retained so
+   the existing fee.js workflow continues to target the same elements.
+   Auth, rights, Firebase and payment/ledger calculations remain intact.
+   ===================================================================== */
+
+        html,
+        body {
+            height: 100%;
+            background: var(--paper);
+        }
+
+        body {
+            margin: 0;
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .erp-wrapper {
+            display: flex;
+            height: calc(100vh - 58px);
+        }
+
+        .top-navbar {
+            height: 58px;
+            min-height: 58px;
+            padding: 0 22px;
+        }
+
+        .top-navbar .top-left {
+            gap: 14px;
+        }
+
+        .top-navbar .hamburger-btn {
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .1);
+            color: #EFEAD9;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .top-navbar .hamburger-btn:hover {
+            background: rgba(255, 255, 255, .14);
+            color: var(--brass-soft);
+        }
+
+        .top-navbar .top-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+            color: #D8D2BF;
+        }
+
+        .top-navbar .top-right span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-logout-fee {
+            background: transparent !important;
+            color: #F0B8AE !important;
+            border: 1px solid rgba(240, 184, 174, .35) !important;
+            padding: 7px 14px !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 12px !important;
+            cursor: pointer;
+        }
+
+        .btn-logout-fee:hover {
+            background: rgba(178, 58, 46, .25) !important;
+            border-color: #F0B8AE !important;
+        }
+
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--ink);
+            display: flex;
+            flex-direction: column;
+            transition: width .25s ease;
+            overflow-x: hidden;
+            white-space: nowrap;
+            border-right: 1px solid rgba(255, 255, 255, .05);
+        }
+
+        .sidebar-header {
+            padding: 22px 20px 14px;
+        }
+
+        .sidebar-header h2 {
+            color: #F7F3E7;
+            font-size: 15px;
+            margin: 0;
+            letter-spacing: .03em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-header::after {
+            content: "";
+            display: block;
+            height: 1px;
+            margin-top: 16px;
+            background: linear-gradient(90deg, var(--brass) 0%, rgba(192, 138, 46, 0) 70%);
+        }
+
+        .sidebar .nav-links {
+            list-style: none;
+            margin: 10px 0 0;
+            padding: 0 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .sidebar .nav-links li a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #C9C4B2;
+            text-decoration: none;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border-left: 3px solid transparent;
+            border-bottom: none;
+            font-size: 13.5px;
+            font-weight: 500;
+            transition: background .15s, color .15s;
+        }
+
+        .sidebar .nav-links li a:hover {
+            background: rgba(255, 255, 255, .06);
+            color: #F7F3E7;
+        }
+
+        .sidebar .nav-links li a.active {
+            background: rgba(192, 138, 46, .16);
+            color: #F7F3E7;
+            border-left: 3px solid var(--brass);
+            font-weight: 600;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-w-collapsed);
+        }
+
+        .sidebar.collapsed .sidebar-header h2 {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-links li a {
+            justify-content: center;
+            padding: 12px 0;
+            border-left: none;
+        }
+
+        .sidebar.collapsed .nav-links li a.active {
+            border-left: none;
+            background: rgba(192, 138, 46, .2);
+        }
+
+        .sidebar .nav-icon {
+            font-size: 16px;
+            width: 18px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 26px 30px 60px;
+            background: var(--paper);
+            height: 100%;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-bottom: 16px;
+            margin-bottom: 22px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .profile-header h2 {
+            font-size: 23px;
+            color: var(--ink);
+            margin: 0;
+            text-transform: none;
+            letter-spacing: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Fraunces', Georgia, serif;
+        }
+
+        /* Receipt list toolbar */
+        .table-toolbar {
+            background: var(--white) !important;
+            border: 1px solid var(--line) !important;
+            border-left: 3px solid var(--brass) !important;
+            border-radius: var(--radius-m) !important;
+            padding: 12px 14px !important;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-1);
+        }
+
+        .table-toolbar .filters {
+            gap: 14px !important;
+        }
+
+        .search-small {
+            padding: 9px 11px !important;
+            border: 1px solid #D8D2C0 !important;
+            border-radius: 7px !important;
+            background: var(--paper-2) !important;
+            color: var(--text);
+            outline: none;
+        }
+
+        .search-small:focus {
+            border-color: var(--brass) !important;
+            background: #fff !important;
+        }
+
+        .btn {
+            border: none;
+            padding: 9px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: transform .05s ease, box-shadow .15s ease, background .15s ease;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-dark {
+            background: var(--ink) !important;
+            color: #F4F1E9 !important;
+        }
+
+        .btn-dark:hover {
+            background: var(--ink-soft) !important;
+        }
+
+        .btn-green {
+            background: var(--good) !important;
+            color: #fff !important;
+            box-shadow: 0 2px 8px rgba(31, 122, 82, .25);
+        }
+
+        .btn-green:hover {
+            background: #186640 !important;
+        }
+
+        .btn-green-outline {
+            background: #fff !important;
+            color: var(--good) !important;
+            border: 1.5px solid var(--good) !important;
+        }
+
+        .btn-red {
+            background: var(--bad) !important;
+            color: #fff !important;
+            border-radius: 7px !important;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 13px;
+            background: var(--white) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-m) !important;
+            overflow: hidden;
+            box-shadow: var(--shadow-1);
+        }
+
+        .data-table th {
+            background: var(--ink) !important;
+            color: #EFEAD9 !important;
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 14px !important;
+            border: none !important;
+            border-bottom: 2px solid var(--brass) !important;
+            font-size: 12px;
+            letter-spacing: .02em;
+        }
+
+        .data-table td {
+            padding: 11px 14px !important;
+            border: none !important;
+            border-bottom: 1px solid var(--line-soft) !important;
+            vertical-align: middle;
+            color: var(--text);
+            background: var(--white);
+        }
+
+        .data-table tr:nth-child(even) td {
+            background: var(--paper-2);
+        }
+
+        .data-table tr:hover td {
+            background: #FBF8F0;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .student-ledger-link {
+            color: var(--info) !important;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px dashed rgba(42, 92, 138, .4);
+        }
+
+        .student-ledger-link:hover {
+            color: var(--brass) !important;
+            border-color: var(--brass);
+        }
+
+        /* Fee entry */
+        .fee-form-wrapper {
+            background: transparent;
+        }
+
+        .fee-top-bar {
+            display: flex;
+            gap: 16px;
+            background: var(--paper-2) !important;
+            padding: 14px 16px !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-m) !important;
+            margin-bottom: 18px;
+            align-items: end;
+            box-shadow: var(--shadow-1);
+        }
+
+        .fee-top-bar label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-mute);
+            margin-bottom: 6px;
+        }
+
+        .fee-top-bar input,
+        .fee-top-bar select {
+            padding: 9px 11px !important;
+            border: 1px solid #D8D2C0 !important;
+            border-radius: 7px !important;
+            font-size: 13px;
+            background: var(--white) !important;
+            color: var(--text);
+            outline: none;
+        }
+
+        .fee-top-bar input:focus,
+        .fee-top-bar select:focus {
+            border-color: var(--brass) !important;
+        }
+
+        .fee-main-split {
+            display: flex;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .fee-profile-panel {
+            width: 28%;
+            background: linear-gradient(135deg, #14213D, #233457) !important;
+            color: #fff;
+            border-radius: var(--radius-l) !important;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-1);
+        }
+
+        .profile-img-box {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, .14);
+        }
+
+        .profile-img-box img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #fff;
+            padding: 2px;
+            border: 1px solid rgba(255, 255, 255, .3);
+        }
+
+        .profile-details {
+            padding: 18px;
+            flex: 1;
+            font-size: 12.5px;
+        }
+
+        .profile-details p {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+            border-bottom: 1px dashed rgba(255, 255, 255, .18);
+            padding-bottom: 7px;
+        }
+
+        .payable-box {
+            background: rgba(192, 138, 46, .22) !important;
+            color: #F7F3E7;
+            padding: 16px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            border-top: 1px solid rgba(255, 255, 255, .12);
+        }
+
+        .fee-details-panel {
+            width: 72%;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            min-width: 0;
+        }
+
+        .fee-heads-table,
+        .payment-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 12px;
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-m);
+            overflow: hidden;
+        }
+
+        .fee-heads-table th,
+        .payment-table th {
+            background: var(--ink) !important;
+            color: #EFEAD9 !important;
+            padding: 9px 7px !important;
+            border: none !important;
+            border-bottom: 2px solid var(--brass) !important;
+            text-align: center;
+        }
+
+        .fee-heads-table td,
+        .payment-table td {
+            padding: 8px 7px !important;
+            border: none !important;
+            border-bottom: 1px solid var(--line-soft) !important;
+            text-align: center;
+            vertical-align: middle;
+            background: var(--white);
+        }
+
+        .fee-heads-table tr:last-child td,
+        .payment-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .fee-heads-table input[type="number"],
+        .payment-table input,
+        .payment-table select {
+            width: 100%;
+            padding: 7px 8px !important;
+            border: 1px solid #D8D2C0 !important;
+            border-radius: 6px !important;
+            background: var(--paper-2) !important;
+            color: var(--text);
+            box-sizing: border-box;
+        }
+
+        .fee-heads-table input:focus,
+        .payment-table input:focus,
+        .payment-table select:focus {
+            outline: none;
+            border-color: var(--brass) !important;
+            background: #fff !important;
+        }
+
+        .f-row.disabled-row {
+            opacity: .6;
+            background: #FBEAE7;
+        }
+
+        .f-row.disabled-row td {
+            text-decoration: line-through;
+            color: var(--bad);
+        }
+
+        .f-row.disabled-row input[type="number"] {
+            pointer-events: none;
+            background: transparent !important;
+            text-decoration: line-through;
+            color: var(--bad);
+        }
+
+        .section-title-red {
+            background: transparent !important;
+            color: var(--ink) !important;
+            padding: 0 0 0 14px !important;
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 600;
+            font-size: 15px;
+            margin: 24px 0 12px;
+            border-left: 4px solid var(--brass);
+            border-radius: 0;
+        }
+
+        .total-info-grid {
+            display: flex;
+            gap: 14px;
+            padding: 14px;
+            background: var(--paper-2) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-m);
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+            flex-wrap: wrap;
+        }
+
+        .total-info-grid input {
+            width: 120px;
+            padding: 7px 8px;
+            margin-left: 5px;
+            border: 1px solid #D8D2C0;
+            border-radius: 6px;
+            background: #fff;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 20, 15, .58);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(1.5px);
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn .18s;
+        }
+
+        .modal-card {
+            background: var(--white);
+            border-radius: var(--radius-l);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+            overflow: hidden;
+            border: 1px solid var(--line);
+        }
+
+        .modal-header {
+            padding: 16px 22px;
+            background: var(--ink) !important;
+            color: #F4F1E9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0;
+        }
+
+        .modal-header h3 {
+            color: #F4F1E9 !important;
+            font-family: 'Fraunces', Georgia, serif;
+            font-size: 16px;
+        }
+
+        .close-modal {
+            font-size: 22px;
+            cursor: pointer;
+            color: #C9C4B2;
+            font-weight: 400;
+            line-height: 1;
+        }
+
+        .close-modal:hover {
+            color: #fff;
+        }
+
+        #ledgerModal .modal-body {
+            background: var(--paper) !important;
+        }
+
+        #ledgerExportArea {
+            background: transparent !important;
+        }
+
+        #ledgerExportArea>div:first-child {
+            background: var(--white) !important;
+            border-color: var(--line) !important;
+            border-left-color: var(--brass) !important;
+            border-radius: var(--radius-m) !important;
+            box-shadow: var(--shadow-1);
+        }
+
+        /* Fee setup */
+        #module-fee-setup>div>div {
+            background: var(--white) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-l) !important;
+            box-shadow: var(--shadow-1);
+        }
+
+        #module-fee-setup h3 {
+            font-family: 'Fraunces', Georgia, serif;
+            color: var(--ink) !important;
+            border-bottom: 1px solid var(--line);
+        }
+
+        #module-fee-setup label {
+            color: var(--text-mute) !important;
+            font-size: 11.5px !important;
+        }
+
+        #module-fee-setup input,
+        #module-fee-setup select {
+            border: 1px solid #D8D2C0 !important;
+            border-radius: 7px !important;
+            background: var(--paper-2) !important;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+        }
+
+        #module-fee-setup input:focus,
+        #module-fee-setup select:focus {
+            outline: none;
+            border-color: var(--brass) !important;
+            background: #fff !important;
+        }
+
+        /* Print: intentionally left clean/white for physical receipt output. */
+
+        @media (max-width:960px) {
+            .fee-main-split {
+                flex-direction: column;
+            }
+
+            .fee-profile-panel,
+            .fee-details-panel {
+                width: 100%;
+            }
+
+            .fee-top-bar {
+                flex-wrap: wrap;
+            }
+
+            .fee-top-bar .input-group {
+                min-width: 180px;
+                flex: 1 1 180px !important;
+            }
+        }
+
+        @media (max-width:680px) {
+            .sidebar {
+                position: fixed;
+                z-index: 60;
+                height: calc(100vh - 58px);
+            }
+
+            .top-center {
+                display: none;
+            }
+
+            .main-content {
+                padding: 20px 16px 40px;
+            }
+
+            .profile-header h2 {
+                font-size: 21px !important;
+            }
+
+            .fee-top-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .fee-top-bar .input-group {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .total-info-grid {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .total-info-grid p {
+                width: 100%;
+            }
+
+            .total-info-grid input {
+                width: 100%;
+                margin-left: 0;
+            }
+        }
+    </style>
+
+
+    <!-- ============================================================
+         SECURITY / BROWSER HARDENING HINTS
+         These do not change application logic or Firebase/auth flow.
+         Server-side headers (HSTS, CSP, X-Frame-Options, etc.) should
+         still be configured at the hosting layer for production.
+         ============================================================ -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta name="color-scheme" content="light">
+
 </head>
 
 <body>
 
+    <!-- ============================================================
+         GLOBAL ERP HEADER
+         Same SHUBH ERP visual shell used by Student SIS / Employee.
+         Functional IDs are preserved for the existing fee.js logic.
+         ============================================================ -->
     <div class="top-navbar">
         <div class="top-left">
-            <a href="index.html"
-                style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
-                <span class="school-logo" style="font-size: 24px; cursor: pointer;">
+            <button class="hamburger-btn" id="sidebarToggle" title="Toggle Sidebar">☰</button>
+            <a href="index.html" style="color:white; text-decoration:none; display:flex; align-items:center; gap:12px;">
+                <span class="school-logo">
                     <img id="dynamicNavLogo" src="" alt="logo"
-                        style="max-height:24px; margin-right:5px; border-radius:4px; display:none; vertical-align:middle;">
+                        style="max-height:26px; margin-right:4px; border-radius:5px; display:none; vertical-align:middle;">
                     <span id="defaultNavLogo">🏫</span>
                 </span>
-                <span class="school-name" id="dynamicNavName" style="font-weight: bold; cursor: pointer;">SHUBH
-                    ERP</span>
+                <span class="school-name" id="dynamicNavName">SHUBH ERP</span>
             </a>
         </div>
-        <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
-        <div class="top-right" style="display:flex; align-items:center; gap:15px;">
-            <span>⚏ Fee Module 🔔</span>
-            <button id="btnLogout"
-                style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:3px; cursor:pointer; font-weight:bold;">🚪
-                Logout</button>
+
+        <div class="top-center">
+            <input type="text" placeholder="Search students, receipt no…" class="global-search">
+        </div>
+
+        <div class="top-right">
+            <span>⚏&nbsp;Fee Module&nbsp;&nbsp;🔔</span>
+            <button id="btnLogout" class="btn-logout-fee">🚪 Logout</button>
         </div>
     </div>
 
     <div class="erp-wrapper">
-        <div class="sidebar red-sidebar">
-            <div class="sidebar-header red-header">
+        <!-- ============================================================
+             SIDEBAR
+             Same navy + brass navigation shell as Student SIS.
+             Existing fee module data-target values are unchanged.
+             ============================================================ -->
+        <div class="sidebar" id="appSidebar">
+            <div class="sidebar-header">
                 <h2>📚 SHUBH ERP</h2>
             </div>
             <ul class="nav-links">
-                <li><a href="index.html" class="nav-btn">🏠 Dashboard</a></li>
-                <li><a href="#" class="nav-btn active" data-target="module-receipts-list">📄 Student Fee Receipts</a>
-                </li>
-                <li><a href="#" class="nav-btn" data-target="module-add-receipt" id="sideAddReceipt">➕ Add Receipt</a>
-                </li>
-                <li><a href="#" class="nav-btn" data-target="module-fee-setup">⚙️ Fee Setup</a></li>
+                <li><a href="index.html" class="nav-btn">🏠 <span class="nav-text">Dashboard</span></a></li>
+                <li><a href="#" class="nav-btn active" data-target="module-receipts-list">📄 <span
+                            class="nav-text">Student Fee Receipts</span></a></li>
+                <li><a href="#" class="nav-btn" data-target="module-add-receipt" id="sideAddReceipt">➕ <span
+                            class="nav-text">Add Receipt</span></a></li>
+                <li><a href="#" class="nav-btn" data-target="module-fee-setup">⚙️ <span class="nav-text">Fee
+                            Setup</span></a></li>
             </ul>
         </div>
 
@@ -531,7 +3145,770 @@
         </div>
     </div>
 
-    <script src="fee.js"></script>
+    <!-- ============================================================
+         SIDEBAR COLLAPSE CONTROL
+         Presentation-shell interaction only. The supplied fee.js block
+         below is preserved verbatim.
+         ============================================================ -->
+    <script id="fee-sidebar-ui">
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('appSidebar');
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', function () {
+                    sidebar.classList.toggle('collapsed');
+                });
+            }
+        });
+    </script>
+
+    <!-- ============================================================
+         ORIGINAL FEE LOGIC — embedded verbatim
+         Auth, rights, Firebase, receipt, payment, ledger and print logic
+         are preserved from the supplied fee.js.
+         ============================================================ -->
+    <script id="fee-inline-logic">
+        window.customAlert = function (message) {
+            let overlay = document.createElement('div');
+            overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+            overlay.innerHTML = `<div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;"><p style="color:#333;margin-bottom:20px;font-size:15px;font-weight:bold;">${message}</p><button onclick="this.parentElement.parentElement.remove()" style="padding:8px 25px;background:#3498db;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">OK</button></div>`;
+            document.body.appendChild(overlay);
+        };
+
+        window.customConfirm = function (message, onConfirm) {
+            let overlay = document.createElement('div');
+            overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+            overlay.innerHTML = `<div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;"><p style="color:#555;margin-bottom:20px;">${message}</p><div style="display:flex;justify-content:center;gap:10px;"><button id="cc-cancel" style="padding:8px 20px;background:#95a5a6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Cancel</button><button id="cc-ok" style="padding:8px 20px;background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Confirm</button></div></div>`;
+            document.body.appendChild(overlay);
+            document.getElementById('cc-cancel').addEventListener('click', () => overlay.remove());
+            document.getElementById('cc-ok').addEventListener('click', () => { overlay.remove(); onConfirm(); });
+        };
+
+        // Global Arrays
+        let allStudents = []; let setupClasses = []; let feeHeads = []; let feeReceipts = [];
+        const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
+        let schoolCode = "";
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // UI Setup (Safe from fetch errors)
+            document.querySelectorAll('.nav-btn').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    if (this.getAttribute('href') !== '#') return; e.preventDefault();
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const targetId = this.getAttribute('data-target');
+                    if (targetId) {
+                        document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
+                        document.getElementById(targetId).classList.add('active-module');
+                    }
+                });
+            });
+
+            const addReceiptTrigger = document.getElementById('btn-open-add-receipt');
+            if (addReceiptTrigger) {
+                addReceiptTrigger.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    document.getElementById('sideAddReceipt').classList.add('active');
+                    document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
+                    document.getElementById('module-add-receipt').classList.add('active-module');
+                });
+            }
+
+            const activeUserStr = localStorage.getItem('erp_active_user');
+            if (!activeUserStr) { window.location.href = 'login.html'; return; }
+            const activeUser = JSON.parse(activeUserStr);
+            const isSA = activeUser.Is_SuperAdmin === "Yes";
+            schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode;
+            let userRights = [];
+            try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch (e) { }
+
+            // DYNAMIC NAVBAR UPDATE
+            try {
+                let savedName = localStorage.getItem('erp_school_name');
+                let savedLogo = localStorage.getItem('erp_school_logo');
+                let navNameEl = document.getElementById('dynamicNavName');
+                let navLogoImg = document.getElementById('dynamicNavLogo');
+                let navLogoDefault = document.getElementById('defaultNavLogo');
+                if (savedName && navNameEl) navNameEl.innerText = savedName;
+                if (savedLogo && savedLogo.startsWith('http') && navLogoImg) {
+                    navLogoImg.src = savedLogo; navLogoImg.style.display = 'inline-block';
+                    if (navLogoDefault) navLogoDefault.style.display = 'none';
+                }
+            } catch (error) { }
+
+            const topRightSpans = document.querySelectorAll('.top-right span');
+            if (topRightSpans.length > 0) { topRightSpans[0].innerHTML = `👤 Welcome, <b>${activeUser.empName}</b>`; }
+
+            if (!isSA && !userRights.some(r => r.startsWith("FEE_"))) { window.location.href = 'index.html'; return; }
+            if (!isSA) {
+                if (!userRights.includes("FEE_Add")) {
+                    let addBtn1 = document.getElementById('btn-open-add-receipt'); let addBtn2 = document.getElementById('sideAddReceipt');
+                    if (addBtn1) addBtn1.remove(); if (addBtn2) addBtn2.remove();
+                }
+                if (!userRights.includes("FEE_Setup")) {
+                    let setupNav = document.querySelector('.nav-btn[data-target="module-fee-setup"]');
+                    if (setupNav) setupNav.remove();
+                }
+            }
+
+            const btnLogout = document.getElementById('btnLogout');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', () => {
+                    customConfirm("Are you sure you want to logout?", () => {
+                        auth.signOut().then(() => { localStorage.removeItem('erp_active_user'); window.location.href = 'login.html'; });
+                    });
+                });
+            }
+
+            function formatToDDMMYYYY(dateString) {
+                if (!dateString) return ""; const d = new Date(dateString); if (isNaN(d.getTime())) return dateString;
+                return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+            }
+
+            let feeDateElem = document.getElementById('feeDate');
+            if (feeDateElem) feeDateElem.value = new Date().toISOString().split('T')[0];
+
+            function executePrint(studentName, receiptNo) {
+                let originalTitle = document.title;
+                let safeName = studentName ? studentName.replace(/[^a-zA-Z0-9]/g, "_") : "Student";
+                let safeReceipt = receiptNo ? String(receiptNo).replace(/[^a-zA-Z0-9]/g, "_") : "Receipt";
+                document.title = `${safeName}_Receipt_${safeReceipt}`;
+                window.print();
+                document.title = originalTitle;
+            }
+
+            // ==========================================
+            // AUTO LOAD SYNC (FIRESTORE)
+            // ==========================================
+            window.initData = async function () {
+                const tbody = document.getElementById('receiptsTableBody');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">Fetching Database... ⏳</td></tr>';
+
+                try {
+                    // Fetch Setup Data
+                    let setupDoc = await db.collection("setups").doc(schoolCode).get().catch(() => null);
+                    if (setupDoc && setupDoc.exists) {
+                        let setup = setupDoc.data();
+                        setupClasses = setup.classes || [];
+                        feeHeads = setup.feeHeads || [];
+                    }
+
+                    // Fetch Students Data
+                    let studentSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
+                    allStudents = [];
+                    if (studentSnap.forEach) { studentSnap.forEach(doc => { allStudents.push(doc.data()); }); }
+
+                    // Fetch Fee Receipts
+                    let feeSnap = await db.collection("fee_receipts").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
+                    feeReceipts = [];
+                    if (feeSnap.forEach) { feeSnap.forEach(doc => feeReceipts.push(doc.data())); }
+
+                    populateStudentsDropdown();
+                    renderFeeHeadsSetupList();
+                    renderReceiptsTable();
+                    updateNextReceiptNo();
+
+                } catch (error) {
+                    console.error("Firebase Sync Error:", error);
+                    if (tbody) tbody.innerHTML = `<tr><td colspan="11" style="color:#c0392b; text-align:center;"><b>Connection Failed:</b> ${error.message} <button onclick="initData()">Retry</button></td></tr>`;
+                }
+            }
+
+            document.getElementById('btnSyncFees')?.addEventListener('click', initData);
+
+            function populateStudentsDropdown() {
+                const sel = document.getElementById('feeStudentSelect');
+                if (!sel) return;
+                sel.innerHTML = '<option value="">-- Search and Select Student --</option>';
+                allStudents.forEach(s => {
+                    let val = `${s.regNo} - ${s.studentFirstName || s.studentName} (${s.studentClass}) - ${s.fatherName}`;
+                    sel.innerHTML += `<option value="${s.regNo}">${val}</option>`;
+                });
+            }
+
+            document.getElementById('feeStudentSelect')?.addEventListener('change', triggerTableGeneration);
+            document.getElementById('feeMonthSelect')?.addEventListener('change', triggerTableGeneration);
+
+            function triggerTableGeneration() {
+                const regNo = document.getElementById('feeStudentSelect').value; const selectedMonth = document.getElementById('feeMonthSelect').value;
+                if (!regNo) { clearProfilePanel(); return; }
+                const student = allStudents.find(s => String(s.regNo) === String(regNo));
+                if (student) {
+                    document.getElementById('profName').innerText = student.studentFirstName || student.studentName || 'N/A';
+                    document.getElementById('profReg').innerText = student.regNo; document.getElementById('profClass').innerText = student.studentClass || '-';
+                    document.getElementById('profFather').innerText = student.fatherName || '-'; document.getElementById('profMother').innerText = student.motherName || '-';
+                    generateFeeTable(student, selectedMonth);
+                }
+            }
+
+            function clearProfilePanel() {
+                ['profName', 'profReg', 'profClass', 'profFather', 'profMother'].forEach(id => {
+                    let el = document.getElementById(id);
+                    if (el) el.innerText = "-";
+                });
+                let tbody = document.getElementById('feeHeadsTbody');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Select a student to view fee heads</td></tr>';
+                resetTotals();
+            }
+
+            function generateFeeTable(student, selectedMonthVal) {
+                const tbody = document.getElementById('feeHeadsTbody'); tbody.innerHTML = '';
+                let classFeeAmount = 0;
+                if (student.studentClass) { let cSetup = setupClasses.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass); if (cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); } }
+
+                let paidMap = {};
+                feeReceipts.forEach(r => {
+                    if (String(r.Reg_No).trim() === String(student.regNo).trim()) {
+                        try { let details = JSON.parse(r.Paid_Heads || "[]"); details.forEach(d => { let uid = d.head + "_" + d.period; paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0); }); } catch (e) { }
+                    }
+                });
+
+                let allRows = []; let selectedMonthIdx = academicMonths.indexOf(selectedMonthVal); if (selectedMonthIdx === -1) selectedMonthIdx = 0;
+                for (let i = 0; i <= selectedMonthIdx; i++) {
+                    let uid = "Monthly Tuition Fee_" + academicMonths[i]; let alreadyPaid = paidMap[uid] || 0; let remaining = classFeeAmount - alreadyPaid;
+                    if (remaining > 0) { allRows.push({ head: "Monthly Tuition Fee", period: academicMonths[i], amount: remaining }); }
+                }
+
+                feeHeads.forEach(fh => {
+                    let amount = parseFloat(fh.Amount) || 0;
+                    if (fh.Frequency === "Monthly") {
+                        for (let i = 0; i <= selectedMonthIdx; i++) {
+                            let uid = fh.Head_Name + "_" + academicMonths[i]; let alreadyPaid = paidMap[uid] || 0; let remaining = amount - alreadyPaid;
+                            if (remaining > 0) { allRows.push({ head: fh.Head_Name, period: academicMonths[i], amount: remaining }); }
+                        }
+                    } else {
+                        let uid = fh.Head_Name + "_" + fh.Frequency; let alreadyPaid = paidMap[uid] || 0; let remaining = amount - alreadyPaid;
+                        if (remaining > 0) { allRows.push({ head: fh.Head_Name, period: fh.Frequency, amount: remaining }); }
+                    }
+                });
+
+                if (allRows.length === 0) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:green; font-weight:bold;">All Fees Cleared / Paid up to selected month!</td></tr>'; resetTotals(); return; }
+
+                allRows.forEach((r, idx) => {
+                    tbody.innerHTML += `<tr class="f-row" data-head="${r.head}" data-period="${r.period}"><td><input type="checkbox" class="f-chk" title="Check to delete/exclude row"></td><td class="f-head" style="text-align:left;"><b>${r.head}</b></td><td>${r.period}</td><td><input type="number" class="f-actual" value="${r.amount.toFixed(2)}" readonly style="border:none; background:transparent; font-weight:bold;"></td><td><input type="number" class="f-conc" value="0.00"></td><td><input type="number" class="f-waiver" value="0.00"></td><td><input type="number" class="f-net" value="${r.amount.toFixed(2)}" style="font-weight:bold; color:#e74c3c; background:#fff;"></td><td><input type="number" class="f-paid" value="${r.amount.toFixed(2)}" style="background:#e8f4f8;"></td><td><input type="number" class="f-bal" value="0.00" readonly style="border:none; background:transparent; font-weight:bold;"></td></tr>`;
+                });
+
+                attachCalculationListeners(); calculateTotals();
+            }
+
+            function attachCalculationListeners() {
+                document.querySelectorAll('.f-row').forEach(row => {
+                    row.querySelector('.f-conc').addEventListener('input', () => { updateRowNetAndPaid(row); calculateTotals(); });
+                    row.querySelector('.f-waiver').addEventListener('input', () => { updateRowNetAndPaid(row); calculateTotals(); });
+                    row.querySelector('.f-net').addEventListener('input', () => { row.querySelector('.f-paid').value = (parseFloat(row.querySelector('.f-net').value) || 0).toFixed(2); updateRowBal(row); calculateTotals(); });
+                    row.querySelector('.f-paid').addEventListener('input', () => { updateRowBal(row); calculateTotals(); });
+                    row.querySelector('.f-chk').addEventListener('change', function () {
+                        if (this.checked) { row.classList.add('disabled-row'); row.querySelector('.f-paid').value = "0.00"; } else { row.classList.remove('disabled-row'); updateRowNetAndPaid(row); }
+                        calculateTotals();
+                    });
+                });
+                document.getElementById('finalAdvance')?.addEventListener('input', calculateTotals);
+            }
+
+            function updateRowNetAndPaid(row) {
+                let act = parseFloat(row.querySelector('.f-actual').value) || 0; let conc = parseFloat(row.querySelector('.f-conc').value) || 0; let waiv = parseFloat(row.querySelector('.f-waiver').value) || 0;
+                let net = act - conc - waiv; if (net < 0) net = 0;
+                row.querySelector('.f-net').value = net.toFixed(2); row.querySelector('.f-paid').value = net.toFixed(2); row.querySelector('.f-bal').value = "0.00";
+            }
+
+            function updateRowBal(row) {
+                let net = parseFloat(row.querySelector('.f-net').value) || 0; let paid = parseFloat(row.querySelector('.f-paid').value) || 0;
+                row.querySelector('.f-bal').value = (net - paid).toFixed(2);
+            }
+
+            function calculateTotals() {
+                let totAct = 0, totConc = 0, totWaiv = 0, totNet = 0, totPaid = 0, totBal = 0;
+                document.querySelectorAll('.f-row').forEach(row => {
+                    if (!row.querySelector('.f-chk').checked) {
+                        totAct += parseFloat(row.querySelector('.f-actual').value) || 0; totConc += parseFloat(row.querySelector('.f-conc').value) || 0;
+                        totWaiv += parseFloat(row.querySelector('.f-waiver').value) || 0; totNet += parseFloat(row.querySelector('.f-net').value) || 0;
+                        totPaid += parseFloat(row.querySelector('.f-paid').value) || 0; totBal += parseFloat(row.querySelector('.f-bal').value) || 0;
+                    }
+                });
+                document.getElementById('totActual').innerText = totAct.toFixed(2); document.getElementById('totConcession').innerText = totConc.toFixed(2);
+                document.getElementById('totWaiver').innerText = totWaiv.toFixed(2); document.getElementById('totNet').innerText = totNet.toFixed(2);
+                document.getElementById('totPaid').innerText = totPaid.toFixed(2); document.getElementById('totBal').innerText = totBal.toFixed(2);
+                document.getElementById('profPayable').innerText = totNet.toFixed(2); document.getElementById('finalPayable').value = totNet.toFixed(2);
+                let advance = parseFloat(document.getElementById('finalAdvance').value) || 0; let finalPaid = totPaid + advance;
+                document.getElementById('finalTotalPaid').value = finalPaid.toFixed(2); document.getElementById('payAmount').value = finalPaid.toFixed(2);
+            }
+
+            function resetTotals() {
+                ['totActual', 'totConcession', 'totWaiver', 'totNet', 'totPaid', 'totBal'].forEach(id => {
+                    let el = document.getElementById(id);
+                    if (el) el.innerText = "0.00";
+                });
+                if (document.getElementById('finalPayable')) document.getElementById('finalPayable').value = "0.00";
+                if (document.getElementById('finalAdvance')) document.getElementById('finalAdvance').value = "0.00";
+                if (document.getElementById('finalTotalPaid')) document.getElementById('finalTotalPaid').value = "0.00";
+                if (document.getElementById('payAmount')) document.getElementById('payAmount').value = "";
+            }
+
+            function updateNextReceiptNo() {
+                let maxNo = 0;
+                feeReceipts.forEach(r => {
+                    let parts = String(r.Receipt_No).replace("'", "").split('/');
+                    let num = parseInt(parts[parts.length - 1], 10);
+                    if (!isNaN(num) && num > maxNo) maxNo = num;
+                });
+                let rNoElem = document.getElementById('feeReceiptNo');
+                if (rNoElem) rNoElem.value = `2026-27/${maxNo + 1}`;
+            }
+
+            async function saveReceipt(onSuccessAction) {
+                const regNo = document.getElementById('feeStudentSelect').value; if (!regNo) { alert("Please select a student first."); return; }
+                const month = document.getElementById('feeMonthSelect').value; if (!month) { alert("Please select Fee Installment Month."); return; }
+                let paidDetails = [];
+                document.querySelectorAll('.f-row').forEach(row => {
+                    if (!row.querySelector('.f-chk').checked) {
+                        paidDetails.push({
+                            head: row.getAttribute('data-head'),
+                            period: row.getAttribute('data-period'),
+                            actual: row.querySelector('.f-actual').value,
+                            adj: (parseFloat(row.querySelector('.f-conc').value) || 0) + (parseFloat(row.querySelector('.f-waiver').value) || 0),
+                            payable: row.querySelector('.f-net').value,
+                            paid: row.querySelector('.f-paid').value,
+                            bal: row.querySelector('.f-bal').value
+                        });
+                    }
+                });
+                if (paidDetails.length === 0) { alert("No fees selected to pay."); return; }
+
+                let safeRegNo = regNo.replace(/\//g, '-');
+                let rNoStr = document.getElementById('feeReceiptNo').value.replace(/\//g, '-');
+                let docId = `${schoolCode}_${rNoStr}`;
+
+                const receiptData = {
+                    schoolCode: schoolCode,
+                    Receipt_No: document.getElementById('feeReceiptNo').value,
+                    Reg_No: regNo,
+                    Student_Name: document.getElementById('profName').innerText,
+                    Class_Section: document.getElementById('profClass').innerText,
+                    Installment: month,
+                    Amount: document.getElementById('finalTotalPaid').value,
+                    Payment_Mode: document.getElementById('payType').value,
+                    Date: formatToDDMMYYYY(document.getElementById('feeDate').value),
+                    Bank_Name: document.getElementById('payBank').value || '-',
+                    Ref_No: document.getElementById('payRef').value || '-',
+                    Paid_Heads: JSON.stringify(paidDetails),
+                    Timestamp: new Date().toISOString()
+                };
+
+                if (onSuccessAction === 'print') {
+                    populatePrintTemplate(receiptData, paidDetails, document.getElementById('profFather').innerText, document.getElementById('profMother').innerText);
+                }
+
+                document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '0.5');
+
+                try {
+                    await db.collection("fee_receipts").doc(docId).set(receiptData);
+                    document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '1');
+
+                    if (onSuccessAction === 'print') {
+                        executePrint(document.getElementById('profName').innerText, receiptData.Receipt_No);
+                        initData();
+                    } else {
+                        alert("Receipt Saved Successfully!");
+                        if (onSuccessAction === 'close') {
+                            document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
+                            document.getElementById('module-receipts-list').classList.add('active-module');
+                            initData();
+                        }
+                        if (onSuccessAction === 'new') {
+                            document.getElementById('feeStudentSelect').value = "";
+                            clearProfilePanel();
+                            initData();
+                        }
+                    }
+                } catch (error) {
+                    document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '1');
+                    alert("Error saving receipt: " + error.message);
+                }
+            }
+
+            document.getElementById('btnSaveReceiptClose')?.addEventListener('click', () => saveReceipt('close'));
+            document.getElementById('btnSaveReceiptNew')?.addEventListener('click', () => saveReceipt('new'));
+            document.getElementById('btnSaveReceiptPrint')?.addEventListener('click', () => saveReceipt('print'));
+
+            function renderReceiptsTable() {
+                const tbody = document.getElementById('receiptsTableBody');
+                if (!tbody) return;
+                tbody.innerHTML = '';
+                if (feeReceipts.length === 0) { tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">No receipts generated yet.</td></tr>'; return; }
+
+                [...feeReceipts].reverse().forEach((r, idx) => {
+                    let particularsStr = "";
+                    try {
+                        let rawHeads = String(r.Paid_Heads || "").trim();
+                        let rawSummary = String(r.Receipt_Summary || "").trim();
+
+                        if (rawHeads !== "" && rawHeads !== "[]" && rawHeads.startsWith("[")) {
+                            let details = JSON.parse(rawHeads);
+                            let pList = [];
+                            details.forEach(d => {
+                                let pName = d.head || "Fee";
+                                if (d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") {
+                                    pName += ` (${d.period})`;
+                                } else if (d.period) {
+                                    pName += ` (${d.period})`;
+                                }
+                                pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
+                            });
+                            particularsStr = pList.join("<br>");
+                            if (particularsStr === "") particularsStr = rawSummary || "Fee Payment";
+                        } else if (rawSummary !== "") {
+                            particularsStr = rawSummary;
+                        } else {
+                            particularsStr = "Fee Payment";
+                        }
+                    } catch (e) {
+                        particularsStr = r.Receipt_Summary || "Details Unavailable";
+                    }
+
+                    let rNo = String(r.Receipt_No).replace("'", ""); let rDate = String(r.Date).replace("'", ""); let safeReceipt = JSON.stringify(r).replace(/'/g, "&#39;");
+                    let btnHTML = `<button class="btn-red" style="background:#3498db;" title="Print" onclick='printFromHistory(${safeReceipt})'>🖨️</button>`;
+                    if (isSA || userRights.includes("FEE_Delete")) {
+                        btnHTML += `<button class="btn-red" title="Delete" onclick="deleteReceipt('${rNo}')">🗑️</button>`;
+                    }
+
+                    tbody.innerHTML += `
+                <tr>
+                    <td>${idx + 1}</td><td><b>${rNo}</b></td><td>${r.Reg_No}</td>
+                    <td><a href="#" class="student-ledger-link" onclick="openLedger('${r.Reg_No}')" title="View Fee Ledger">${r.Student_Name}</a></td>
+                    <td>${r.Class_Section}</td>
+                    <td style="text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td>
+                    <td>${r.Payment_Mode}</td><td style="color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td>
+                    <td>${rDate}</td><td>${r.Timestamp ? new Date(r.Timestamp).toLocaleString() : '-'}</td>
+                    <td>${btnHTML}</td>
+                </tr>
+            `;
+                });
+            }
+
+            window.printFromHistory = function (r) {
+                let student = allStudents.find(s => String(s.regNo) === String(r.Reg_No));
+                let fName = student ? (student.fatherName || '-') : '-';
+                let mName = student ? (student.motherName || '-') : '-';
+
+                let detailsArray = [];
+                try { if (typeof r.Paid_Heads === 'string') { detailsArray = JSON.parse(r.Paid_Heads || "[]"); } } catch (e) { }
+                let rData = { receiptNo: String(r.Receipt_No).replace("'", ""), regNo: r.Reg_No, studentName: r.Student_Name, classSec: r.Class_Section, installment: String(r.Installment).replace("'", ""), date: String(r.Date).replace("'", ""), totalAmount: r.Amount, paymentMode: r.Payment_Mode, bankName: r.Bank_Name || '-', refNo: String(r.Ref_No).replace("'", "") || '-' };
+
+                populatePrintTemplate(rData, detailsArray, fName, mName);
+                executePrint(rData.studentName, rData.receiptNo);
+            }
+
+            function populatePrintTemplate(rData, detailsArray, fName, mName) {
+                document.getElementById('p-adm').innerText = rData.regNo;
+                document.getElementById('p-name').innerText = rData.studentName;
+                document.getElementById('p-father').innerText = fName;
+                document.getElementById('p-mother').innerText = mName;
+                document.getElementById('p-class').innerText = rData.classSec;
+                document.getElementById('p-receipt').innerText = rData.receiptNo;
+                document.getElementById('p-date').innerText = rData.date;
+                document.getElementById('p-period').innerText = rData.installment;
+
+                let pBody = document.getElementById('print-particulars-body'); pBody.innerHTML = ''; let tAct = 0, tAdj = 0, tPay = 0, tPaid = 0, tBal = 0;
+                detailsArray.forEach(d => {
+                    let fee = parseFloat(d.actual) || 0; let adj = parseFloat(d.adj) || 0; let pay = parseFloat(d.payable) || 0; let pd = parseFloat(d.paid) || 0; let bal = parseFloat(d.bal) || 0;
+                    tAct += fee; tAdj += adj; tPay += pay; tPaid += pd; tBal += bal;
+                    let displayName = d.head;
+                    if (d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") { displayName += ` <span style="color:#555; font-size:11px;">(${d.period})</span>`; } else { displayName += ` <span style="color:#555; font-size:11px;">(${d.period})</span>`; }
+                    pBody.innerHTML += `<tr><td style="text-align:left; border:1px solid #333; padding:5px;">${displayName}</td><td style="border:1px solid #333; padding:5px;">${fee.toFixed(2)}</td><td style="border:1px solid #333; padding:5px;">${adj.toFixed(2)}</td><td style="border:1px solid #333; padding:5px;">${pay.toFixed(2)}</td><td style="border:1px solid #333; padding:5px;">${pd.toFixed(2)}</td><td style="border:1px solid #333; padding:5px;">${bal.toFixed(2)}</td></tr>`;
+                });
+                document.getElementById('p-t-fees').innerText = tAct.toFixed(2); document.getElementById('p-t-adj').innerText = tAdj.toFixed(2); document.getElementById('p-t-pay').innerText = tPay.toFixed(2); document.getElementById('p-t-paid').innerText = tPaid.toFixed(2); document.getElementById('p-t-bal').innerText = tBal.toFixed(2); document.getElementById('p-words').innerText = tPaid.toFixed(2) + " /-"; document.getElementById('p-pmode').innerText = rData.paymentMode; document.getElementById('p-pbank').innerText = rData.bankName; document.getElementById('p-pdate').innerText = rData.date; document.getElementById('p-pdet').innerText = rData.refNo; document.getElementById('p-pamt').innerText = rData.totalAmount;
+            }
+
+            window.deleteReceipt = function (receiptNo) {
+                if (confirm(`Are you sure you want to Delete Receipt No: ${receiptNo}?\nThis will revert the fee ledger.`)) {
+                    let rNoStr = receiptNo.replace(/\//g, '-');
+                    let docId = `${schoolCode}_${rNoStr}`;
+                    db.collection("fee_receipts").doc(docId).delete().then(() => {
+                        alert("Receipt Deleted Successfully.");
+                        initData();
+                    }).catch(err => {
+                        alert("Error deleting receipt: " + err.message);
+                    });
+                }
+            }
+
+            function renderFeeHeadsSetupList() {
+                const tbody = document.getElementById('feeHeadsListBody');
+                if (!tbody) return;
+                tbody.innerHTML = '';
+                if (feeHeads.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No Fee Heads Configured.</td></tr>'; return; }
+                feeHeads.forEach((f, idx) => {
+                    tbody.innerHTML += `<tr><td>${idx + 1}</td><td><b>${f.Head_Name}</b></td><td>${f.Frequency}</td><td>₹${f.Amount}</td><td><button class="btn-red" onclick="deleteFeeHead('${f.Head_Name}')">🗑️</button></td></tr>`;
+                });
+            }
+
+            document.getElementById('feeSetupForm')?.addEventListener('submit', async function (e) {
+                e.preventDefault(); const btnSubmit = document.getElementById('btnSubmitFeeHead'); btnSubmit.disabled = true; btnSubmit.innerText = "Adding Fee Head..."; btnSubmit.style.opacity = '0.6';
+
+                let newHead = {
+                    Head_Name: document.getElementById('headName').value.trim(),
+                    Frequency: document.getElementById('headFreq').value,
+                    Amount: document.getElementById('headAmount').value || 0
+                };
+
+                let updatedHeads = [...feeHeads];
+                let exists = updatedHeads.findIndex(h => h.Head_Name === newHead.Head_Name);
+                if (exists !== -1) {
+                    alert("Fee head already exists.");
+                    btnSubmit.disabled = false; btnSubmit.innerText = "Add Fee Head"; btnSubmit.style.opacity = '1';
+                    return;
+                }
+                updatedHeads.push(newHead);
+
+                try {
+                    await db.collection("setups").doc(schoolCode).set({ feeHeads: updatedHeads }, { merge: true });
+                    alert("Fee Head Added Successfully!");
+                    document.getElementById('feeSetupForm').reset();
+                    initData();
+                } catch (error) {
+                    alert("Error adding fee head: " + error.message);
+                } finally {
+                    btnSubmit.disabled = false; btnSubmit.innerText = "Add Fee Head"; btnSubmit.style.opacity = '1';
+                }
+            });
+
+            window.deleteFeeHead = function (headName) {
+                if (confirm(`Delete Fee Head: ${headName}?`)) {
+                    let updatedHeads = feeHeads.filter(h => h.Head_Name !== headName);
+                    db.collection("setups").doc(schoolCode).set({ feeHeads: updatedHeads }, { merge: true }).then(() => {
+                        initData();
+                    });
+                }
+            }
+
+            // ==========================================
+            // EXPORT DROPDOWN LOGIC
+            // ==========================================
+            const exportToggle = document.getElementById('btnExportLedgerToggle');
+            const exportMenu = document.getElementById('ledgerExportMenu');
+
+            if (exportToggle && exportMenu) {
+                exportToggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    exportMenu.style.display = exportMenu.style.display === 'flex' ? 'none' : 'flex';
+                });
+                document.addEventListener('click', () => {
+                    exportMenu.style.display = 'none';
+                });
+            }
+
+            // ==========================================
+            // EXPORT TO PDF LOGIC (html2pdf)
+            // ==========================================
+            document.getElementById('exportLedgerPdfBtn')?.addEventListener('click', () => {
+                let sName = document.getElementById('l-name').innerText.replace(/[^a-zA-Z0-9]/g, "_");
+                let sReg = document.getElementById('l-reg').innerText.replace(/[^a-zA-Z0-9]/g, "_");
+                let sClass = document.getElementById('l-class').innerText.replace(/[^a-zA-Z0-9]/g, "_");
+                let fileName = `${sName}_${sReg}_${sClass}.pdf`;
+
+                let element = document.getElementById('ledgerExportArea');
+
+                let opt = {
+                    margin: 0.3,
+                    filename: fileName,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+
+                let originalBg = element.style.background;
+                element.style.background = "#fff";
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    element.style.background = originalBg;
+                });
+            });
+
+            // ==========================================
+            // EXPORT TO EXCEL LOGIC (Raw HTML wrapper)
+            // ==========================================
+            document.getElementById('exportLedgerExcelBtn')?.addEventListener('click', () => {
+                let sName = document.getElementById('l-name').innerText.replace(/[^a-zA-Z0-9]/g, "_");
+                let sReg = document.getElementById('l-reg').innerText.replace(/[^a-zA-Z0-9]/g, "_");
+                let sClass = document.getElementById('l-class').innerText.replace(/[^a-zA-Z0-9]/g, "_");
+                let fileName = `${sName}_${sReg}_${sClass}.xls`;
+
+                let exportDiv = document.getElementById('ledgerExportArea').cloneNode(true);
+
+                let htmlContent = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+            <meta charset="utf-8">
+            <style>
+                table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #2c3e50; color: white; font-weight: bold; }
+            </style>
+        </head>
+        <body>
+            ${exportDiv.innerHTML}
+        </body>
+        </html>
+        `;
+
+                let blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+                let url = URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
+
+            // ==========================================
+            // THE "KUNDLI" - STUDENT FEE LEDGER 
+            // ==========================================
+            window.openLedger = function (regNo) {
+                let student = allStudents ? allStudents.find(s => String(s.regNo) === String(regNo)) : null;
+
+                let sName = "Unknown (Deleted)";
+                let sClass = "-";
+                let sFather = "-";
+
+                if (student) {
+                    sName = student.studentFirstName || student.studentName || 'N/A';
+                    sClass = student.studentClass || '-';
+                    sFather = student.fatherName || '-';
+                } else {
+                    let rec = feeReceipts.find(r => String(r.Reg_No) === String(regNo));
+                    if (rec) {
+                        sName = rec.Student_Name;
+                        sClass = rec.Class_Section;
+                    }
+                }
+
+                document.getElementById('l-name').innerText = sName;
+                document.getElementById('l-reg').innerText = regNo;
+                document.getElementById('l-class').innerText = sClass;
+                document.getElementById('l-father').innerText = sFather;
+
+                let classFeeAmount = 0;
+                if (student && student.studentClass && setupClasses) {
+                    let cSetup = setupClasses.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass);
+                    if (cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); }
+                }
+
+                let paidMap = {};
+                let histBody = document.getElementById('ledgerHistoryBody');
+                histBody.innerHTML = '';
+
+                feeReceipts.forEach(r => {
+                    if (String(r.Reg_No).trim() === String(regNo).trim()) {
+
+                        let particularsStr = "";
+                        try {
+                            let rawHeads = String(r.Paid_Heads || "").trim();
+                            let rawSummary = String(r.Receipt_Summary || "").trim();
+
+                            if (rawHeads !== "" && rawHeads !== "[]" && rawHeads.startsWith("[")) {
+                                let details = JSON.parse(rawHeads);
+                                let pList = [];
+                                details.forEach(d => {
+                                    let pName = d.head || "Fee";
+                                    if (d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") {
+                                        pName += ` (${d.period})`;
+                                    } else if (d.period) {
+                                        pName += ` (${d.period})`;
+                                    }
+                                    pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
+
+                                    let uid = d.head + "_" + d.period;
+                                    paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
+                                });
+                                particularsStr = pList.join("<br>");
+
+                                if (particularsStr === "") {
+                                    particularsStr = rawSummary || "Fee Payment";
+                                }
+                            } else if (rawSummary !== "") {
+                                particularsStr = rawSummary;
+                            } else {
+                                particularsStr = "Fee Payment";
+                            }
+                        } catch (e) {
+                            particularsStr = r.Receipt_Summary || "Details Unavailable";
+                        }
+
+                        let rNo = String(r.Receipt_No).replace("'", "");
+                        let rDate = String(r.Date).replace("'", "");
+
+                        histBody.innerHTML += `<tr><td style="padding:10px; border:1px solid #ccc;">${rDate}</td><td style="padding:10px; border:1px solid #ccc;">${rNo}</td><td style="padding:10px; border:1px solid #ccc;">${r.Payment_Mode}</td><td style="padding:10px; border:1px solid #ccc; text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td><td style="padding:10px; border:1px solid #ccc; color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td></tr>`;
+                    }
+                });
+
+                if (histBody.innerHTML === '') {
+                    histBody.innerHTML = '<tr><td colspan="5" style="padding:10px; border:1px solid #ccc; text-align:center;">No payment history found.</td></tr>';
+                }
+
+                let tbody = document.getElementById('ledgerTableBody');
+                tbody.innerHTML = '';
+                let totalDue = 0, totalPaid = 0;
+
+                academicMonths.forEach(month => {
+                    let tAmt = classFeeAmount;
+                    let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0;
+                    let tBal = tAmt - tPaid;
+                    totalDue += tAmt;
+                    totalPaid += tPaid;
+
+                    let rowBg = (tAmt > 0 && tBal <= 0) ? 'background-color:#e8f5e9;' : '';
+                    let tStyle = tBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
+
+                    tbody.innerHTML += `<tr style="${rowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>Monthly Tuition Fee (${month})</b></td><td style="padding:10px; border:1px solid #ccc;">₹${tAmt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${tPaid.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${tStyle} font-weight:bold;">₹${tBal.toFixed(2)}</td></tr>`;
+
+                    feeHeads.forEach(fh => {
+                        if (fh.Frequency === "Monthly") {
+                            let fhAmt = parseFloat(fh.Amount) || 0;
+                            let fhPaid = paidMap[fh.Head_Name + "_" + month] || 0;
+                            let fhBal = fhAmt - fhPaid;
+                            totalDue += fhAmt;
+                            totalPaid += fhPaid;
+
+                            let subRowBg = (fhAmt > 0 && fhBal <= 0) ? 'background-color:#e8f5e9;' : '';
+                            let fhStyle = fhBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
+
+                            tbody.innerHTML += `<tr style="${subRowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (${month})</b></td><td style="padding:10px; border:1px solid #ccc;">₹${fhAmt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${fhPaid.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${fhStyle} font-weight:bold;">₹${fhBal.toFixed(2)}</td></tr>`;
+                        }
+                    });
+                });
+
+                feeHeads.forEach(fh => {
+                    if (fh.Frequency === "Annually" || fh.Frequency === "One Time (Annually)") {
+                        let amt = parseFloat(fh.Amount) || 0;
+                        let pd = paidMap[fh.Head_Name + "_" + fh.Frequency] || paidMap[fh.Head_Name + "_Annually"] || 0;
+                        let bal = amt - pd;
+                        totalDue += amt;
+                        totalPaid += pd;
+
+                        let anRowBg = (amt > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
+                        let balStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
+
+                        tbody.innerHTML += `<tr style="${anRowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (Annual)</b></td><td style="padding:10px; border:1px solid #ccc;">₹${amt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${pd.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${balStyle} font-weight:bold;">₹${bal.toFixed(2)}</td></tr>`;
+                    }
+                });
+
+                document.getElementById('l-tot-due').innerText = "₹" + totalDue.toFixed(2);
+                document.getElementById('l-tot-paid').innerText = "₹" + totalPaid.toFixed(2);
+                document.getElementById('l-tot-bal').innerText = "₹" + (totalDue - totalPaid).toFixed(2);
+
+                document.getElementById('ledgerModal').classList.add('active');
+            }
+
+            document.getElementById('closeLedgerBtn')?.addEventListener('click', () => {
+                document.getElementById('ledgerModal').classList.remove('active');
+            });
+
+            initData();
+        });
+    </script>
+
 </body>
 
 </html>
