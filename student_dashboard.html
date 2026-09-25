@@ -12,6 +12,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <!-- HTML2PDF LIBRARY FOR RECEIPT GENERATION -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script>
         // YOUR REAL FIREBASE CONFIGURATION
@@ -31,9 +34,6 @@
         const auth = firebase.auth();
     </script>
 
-    <!-- ==========================================
-         INTERNAL CSS (Compiled & Formatted)
-         ========================================== -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -76,14 +76,6 @@
         .stu-avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
         .stu-details-mini h4 { font-size: 14px; color: #1e293b; margin: 0; }
         .stu-details-mini span { font-size: 11px; color: #64748b; font-weight: 500;}
-
-        /* Fee Alert Banner */
-        .fee-alert { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; display: none; }
-        .fee-alert-left { display: flex; align-items: center; gap: 15px; }
-        .fee-alert-icon { background: white; color: #ef4444; width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; border: 1px solid #fecaca;}
-        .fee-alert-text h4 { color: #991b1b; font-size: 15px; margin: 0 0 2px 0; }
-        .fee-alert-text p { color: #ef4444; font-size: 12px; margin: 0; }
-        .btn-pay { background: #ef4444; color: white; border: none; padding: 8px 25px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
 
         /* Unified Timeline Feed Card */
         .feed-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; padding: 20px; margin-bottom: 15px; transition: 0.2s; }
@@ -143,7 +135,6 @@
         .dot.l { background: #f59e0b; box-shadow: 0 0 5px rgba(245, 158, 11, 0.5); }
         .cal-dot { width: 4px; height: 4px; border-radius: 50%; position: absolute; bottom: 1px; left: 50%; transform: translateX(-50%); }
         
-        /* The Smooth Hover Card with Safe Text Wrap */
         .hover-card {
             position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
             background: #1e293b; color: white; padding: 10px 15px; border-radius: 6px;
@@ -170,6 +161,9 @@
         .full-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .full-table th, .full-table td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; text-align: left; }
         .full-table th { background: #f8fafc; color: #475569; font-weight: 600; }
+        
+        .btn-download-pdf { background: #34495e; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-download-pdf:hover { background: #2c3e50; }
 
         /* MODALS */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
@@ -181,618 +175,9 @@
         .sub-textarea:focus { border-color: #3498db; }
         .btn-submit-hw { background: #27ae60; color: white; font-weight: 600; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 15px; font-size: 14px; transition: 0.2s;}
         .btn-submit-hw:hover { background: #229954; }
-    </style>
 
-    <!-- ============================================================
-         SHUBH ERP — STUDENT PORTAL UI OVERRIDES
-         CSS ONLY. Existing JS/Firebase/session logic preserved.
-         ============================================================ -->
-    <style id="shubh-erp-student-ui">
-
-/* =====================================================================
-   SHUBH ERP — STUDENT PORTAL UI
-   ---------------------------------------------------------------------
-   STUDENT POV:
-   - Student-facing visual hierarchy
-   - Same SHUBH ERP navy + brass design language
-   - Comfortable dashboard spacing and readable cards
-   - Academic/finance widgets retain their existing purpose
-   - No application logic is modified
-   ===================================================================== */
-
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap');
-
-:root{
-  --stu-ink:#14213D;
-  --stu-ink-soft:#253355;
-  --stu-brass:#C08A2E;
-  --stu-brass-soft:#E4B563;
-  --stu-paper:#F4F1E9;
-  --stu-paper-2:#FBFAF6;
-  --stu-white:#FFFFFF;
-  --stu-line:#E3DFD2;
-  --stu-line-soft:#ECE8DC;
-  --stu-text:#211D18;
-  --stu-muted:#6D6759;
-  --stu-good:#1F7A52;
-  --stu-bad:#B23A2E;
-  --stu-info:#2A5C8A;
-  --stu-purple:#5B4A8A;
-  --stu-shadow-1:0 1px 2px rgba(20,33,61,.06),0 4px 14px rgba(20,33,61,.06);
-  --stu-shadow-2:0 12px 32px rgba(20,33,61,.12);
-}
-
-/* ---------- Page base ---------- */
-html,body{
-  background:var(--stu-paper) !important;
-  color:var(--stu-text) !important;
-  font-family:'Inter',sans-serif !important;
-}
-body{
-  min-height:100vh;
-  -webkit-font-smoothing:antialiased;
-}
-h1,h2,h3,h4{
-  font-family:'Fraunces',Georgia,serif !important;
-  color:var(--stu-ink) !important;
-}
-
-/* ---------- Top bar ---------- */
-.navbar{
-  position:sticky !important;
-  top:0 !important;
-  z-index:1000 !important;
-  height:60px !important;
-  padding:0 24px !important;
-  background:var(--stu-ink) !important;
-  border-bottom:1px solid rgba(255,255,255,.06) !important;
-  box-shadow:0 2px 12px rgba(20,33,61,.12) !important;
-}
-.logo{
-  color:#F7F3E7 !important;
-  font-family:'Fraunces',Georgia,serif !important;
-  font-size:17px !important;
-  font-weight:600 !important;
-  letter-spacing:.01em !important;
-}
-.logo img{
-  max-height:28px !important;
-  border-radius:6px !important;
-}
-.btn-logout{
-  background:transparent !important;
-  color:#F0B8AE !important;
-  border:1px solid rgba(240,184,174,.35) !important;
-  padding:7px 14px !important;
-  border-radius:8px !important;
-  font-size:12px !important;
-}
-.btn-logout:hover{
-  background:rgba(178,58,46,.25) !important;
-}
-
-/* ---------- 3-column student workspace ---------- */
-.layout{
-  width:calc(100% - 32px) !important;
-  max-width:1580px !important;
-  grid-template-columns:250px minmax(0,1fr) 320px !important;
-  gap:20px !important;
-  margin:18px auto 28px !important;
-  padding:0 !important;
-  align-items:start !important;
-}
-
-/* ---------- Left navigation ---------- */
-.sidebar{
-  position:sticky !important;
-  top:78px !important;
-  height:calc(100vh - 96px) !important;
-  overflow-y:auto !important;
-  background:var(--stu-ink) !important;
-  border:1px solid rgba(255,255,255,.05) !important;
-  border-radius:14px !important;
-  padding:18px 10px !important;
-  box-shadow:var(--stu-shadow-1) !important;
-}
-.sidebar-group{
-  margin-bottom:18px !important;
-}
-.sidebar-title{
-  padding-left:10px !important;
-  margin-bottom:8px !important;
-  color:#AFA997 !important;
-  font-size:10px !important;
-  font-weight:700 !important;
-  letter-spacing:1.2px !important;
-}
-.sidebar-grid{
-  gap:5px !important;
-}
-.nav-btn{
-  min-height:74px !important;
-  padding:10px 6px !important;
-  gap:6px !important;
-  border:1px solid transparent !important;
-  border-radius:9px !important;
-  background:transparent !important;
-  color:#C9C4B2 !important;
-  font-size:10.5px !important;
-  font-weight:600 !important;
-}
-.nav-btn:hover{
-  background:rgba(255,255,255,.06) !important;
-  color:#F7F3E7 !important;
-}
-.nav-btn.active{
-  background:rgba(192,138,46,.16) !important;
-  color:#F7F3E7 !important;
-  box-shadow:inset 0 0 0 1px rgba(192,138,46,.15) !important;
-}
-.nav-icon{
-  width:auto !important;
-  min-width:0 !important;
-  margin:0 0 2px !important;
-  color:inherit !important;
-}
-
-/* ---------- Center content ---------- */
-.center-content{
-  min-width:0 !important;
-  gap:18px !important;
-}
-.app-view{
-  animation:studentFade .25s ease !important;
-}
-@keyframes studentFade{
-  from{opacity:0;transform:translateY(5px);}
-  to{opacity:1;transform:translateY(0);}
-}
-
-/* ---------- Greeting ---------- */
-.greeting-card{
-  min-height:150px !important;
-  padding:24px 26px !important;
-  border-radius:16px !important;
-  border:1px solid var(--stu-line) !important;
-  border-top:3px solid var(--stu-brass) !important;
-  background:
-    radial-gradient(circle at 88% 18%,rgba(192,138,46,.13),transparent 28%),
-    linear-gradient(135deg,#F9F6EE 0%,#FFFFFF 78%) !important;
-  box-shadow:var(--stu-shadow-1) !important;
-}
-.greeting-text{
-  min-width:0;
-}
-.greeting-text h1{
-  margin:0 0 7px !important;
-  color:var(--stu-ink) !important;
-  font-size:27px !important;
-  line-height:1.15 !important;
-}
-.greeting-text p{
-  color:var(--stu-muted) !important;
-  line-height:1.55 !important;
-  font-size:13px !important;
-}
-.student-badge-info{
-  gap:12px !important;
-  padding:9px 14px 9px 10px !important;
-  border:1px solid var(--stu-line) !important;
-  border-radius:12px !important;
-  box-shadow:0 4px 14px rgba(20,33,61,.08) !important;
-}
-.stu-avatar-circle{
-  width:48px !important;
-  height:48px !important;
-  background:var(--stu-ink) !important;
-  border:2px solid rgba(192,138,46,.55) !important;
-}
-.stu-details-mini h4{
-  color:var(--stu-ink) !important;
-  font-size:14px !important;
-}
-.stu-details-mini span{
-  color:var(--stu-muted) !important;
-}
-
-/* ---------- Fee alert ---------- */
-.fee-alert{
-  background:#FCF4E6 !important;
-  border:1px solid #E9D3A5 !important;
-  border-left:4px solid var(--stu-brass) !important;
-  border-radius:11px !important;
-  padding:13px 16px !important;
-}
-.fee-alert-icon{
-  width:38px !important;
-  height:38px !important;
-  background:var(--stu-white) !important;
-  border:1px solid #E9D3A5 !important;
-  color:var(--stu-brass) !important;
-}
-.fee-alert-text h4{
-  color:#76500D !important;
-  font-size:14px !important;
-}
-.fee-alert-text p{
-  color:#8A6A2B !important;
-}
-.btn-pay{
-  background:var(--stu-brass) !important;
-  color:#2A1C04 !important;
-  border-radius:7px !important;
-  padding:8px 17px !important;
-}
-
-/* ---------- Communication filter pills ---------- */
-.comm-pill{
-  background:var(--stu-white) !important;
-  border:1px solid var(--stu-line) !important;
-  color:var(--stu-muted) !important;
-  padding:8px 13px !important;
-  border-radius:8px !important;
-  font-size:11.5px !important;
-}
-.comm-pill:hover{
-  background:var(--stu-paper-2) !important;
-  border-color:#D2C7AD !important;
-}
-.comm-pill.active-pill{
-  background:var(--stu-ink) !important;
-  color:#F4F1E9 !important;
-  border-color:var(--stu-ink) !important;
-}
-
-/* ---------- Feed cards ---------- */
-.feed-card{
-  background:var(--stu-white) !important;
-  border:1px solid var(--stu-line) !important;
-  border-radius:12px !important;
-  box-shadow:var(--stu-shadow-1) !important;
-  padding:18px 20px !important;
-}
-.feed-card:hover{
-  box-shadow:var(--stu-shadow-2) !important;
-  transform:translateY(-1px) !important;
-}
-.f-icon{
-  width:38px !important;
-  height:38px !important;
-  border-radius:9px !important;
-}
-.f-icon.hw{
-  background:#EAF0F7 !important;
-  color:var(--stu-info) !important;
-}
-.f-icon.circ{
-  background:#F8EFCF !important;
-  color:#866017 !important;
-}
-.f-icon.ach{
-  background:#F5EBDD !important;
-  color:#9A6417 !important;
-}
-.f-icon.rem{
-  background:#E7F3EC !important;
-  color:var(--stu-good) !important;
-}
-.f-meta h4{
-  color:var(--stu-ink) !important;
-}
-.f-meta span,
-.f-time{
-  color:var(--stu-muted) !important;
-}
-.f-title{
-  color:var(--stu-ink) !important;
-  font-family:'Fraunces',Georgia,serif !important;
-  font-size:16px !important;
-}
-.f-desc{
-  color:#5D584D !important;
-}
-.btn-attach{
-  background:var(--stu-paper-2) !important;
-  border:1px solid var(--stu-line) !important;
-  color:var(--stu-ink-soft) !important;
-  border-radius:7px !important;
-}
-.btn-eye{
-  background:var(--stu-ink) !important;
-  color:#F4F1E9 !important;
-  border:none !important;
-  border-radius:7px !important;
-}
-.btn-eye:hover{
-  background:var(--stu-ink-soft) !important;
-}
-
-/* ---------- Status badges ---------- */
-.status-badge{
-  border-radius:6px !important;
-}
-.status-badge.pending{
-  background:#FBEAE7 !important;
-  color:var(--stu-bad) !important;
-}
-.status-badge.submitted{
-  background:#EAF0F7 !important;
-  color:var(--stu-info) !important;
-}
-.status-badge.checked{
-  background:#E7F3EC !important;
-  color:var(--stu-good) !important;
-}
-
-/* ---------- Right-side widgets ---------- */
-.right-sidebar{
-  gap:18px !important;
-}
-.widget-card{
-  background:var(--stu-white) !important;
-  border:1px solid var(--stu-line) !important;
-  border-radius:12px !important;
-  padding:18px !important;
-  box-shadow:var(--stu-shadow-1) !important;
-}
-.widget-header{
-  margin-bottom:14px !important;
-  padding-bottom:11px !important;
-  border-bottom:1px solid var(--stu-line-soft) !important;
-}
-.widget-header h3{
-  color:var(--stu-ink) !important;
-  font-family:'Fraunces',Georgia,serif !important;
-  font-size:14px !important;
-}
-.widget-date{
-  color:var(--stu-muted) !important;
-  border:1px solid var(--stu-line) !important;
-  background:var(--stu-paper-2) !important;
-}
-.event-list-item{
-  margin-bottom:12px !important;
-  padding-bottom:11px !important;
-  border-bottom:1px solid var(--stu-line-soft) !important;
-}
-.evt-date-box{
-  background:var(--stu-paper-2) !important;
-  border:1px solid var(--stu-line) !important;
-}
-.evt-date-box strong{
-  color:var(--stu-ink) !important;
-}
-.evt-date-box span{
-  color:var(--stu-muted) !important;
-}
-.evt-details h4{
-  color:var(--stu-ink) !important;
-}
-.evt-details p{
-  color:var(--stu-muted) !important;
-}
-.empty-illustration{
-  opacity:.78 !important;
-}
-.empty-illustration p{
-  color:var(--stu-muted) !important;
-}
-
-/* ---------- Calendars ---------- */
-.cal-grid{
-  gap:3px !important;
-}
-.cal-day-header{
-  color:var(--stu-muted) !important;
-  font-size:10px !important;
-}
-.cal-cell{
-  background:var(--stu-paper-2) !important;
-  border:1px solid var(--stu-line-soft) !important;
-  color:var(--stu-text) !important;
-  border-radius:6px !important;
-}
-.cal-cell:hover{
-  background:#F1EDE2 !important;
-}
-.cal-cell.today{
-  background:var(--stu-ink) !important;
-  border-color:var(--stu-ink) !important;
-  color:#fff !important;
-}
-.dot.p{background:var(--stu-good) !important;}
-.dot.a{background:var(--stu-bad) !important;}
-.dot.l{background:var(--stu-brass) !important;}
-.cal-dot{box-shadow:none !important;}
-.hover-card{
-  background:var(--stu-ink) !important;
-  border-radius:7px !important;
-  box-shadow:0 8px 24px rgba(20,33,61,.24) !important;
-}
-.hover-card::after{
-  border-color:var(--stu-ink) transparent transparent transparent !important;
-}
-
-/* ---------- Attendance summary ---------- */
-.view-header{
-  margin-bottom:20px !important;
-  padding-bottom:15px !important;
-  border-bottom:1px solid var(--stu-line) !important;
-}
-.view-header h2{
-  color:var(--stu-ink) !important;
-  font-size:23px !important;
-}
-.att-summary-grid{
-  gap:14px !important;
-}
-.att-card{
-  background:var(--stu-white) !important;
-  border:1px solid var(--stu-line) !important;
-  border-radius:12px !important;
-  box-shadow:var(--stu-shadow-1) !important;
-  padding:18px !important;
-}
-.att-card p{
-  color:var(--stu-muted) !important;
-  font-size:11px !important;
-}
-.att-card h3{
-  color:var(--stu-ink) !important;
-  font-size:30px !important;
-}
-.att-card:nth-child(1) h3{color:var(--stu-good) !important;}
-.att-card:nth-child(2) h3{color:var(--stu-bad) !important;}
-.att-card:nth-child(3) h3{color:var(--stu-brass) !important;}
-
-/* ---------- Detailed attendance calendar surface ---------- */
-#view-att > div:not(.view-header){
-  background:var(--stu-white) !important;
-  border:1px solid var(--stu-line) !important;
-  border-radius:12px !important;
-  box-shadow:var(--stu-shadow-1) !important;
-}
-
-/* ---------- Fee summary ---------- */
-.fee-summary-grid{
-  gap:14px !important;
-}
-.fee-card{
-  background:var(--stu-white) !important;
-  border:1px solid var(--stu-line) !important;
-  border-radius:12px !important;
-  box-shadow:var(--stu-shadow-1) !important;
-  padding:18px !important;
-}
-.fee-card h4{
-  color:var(--stu-muted) !important;
-}
-.fee-card h2{
-  color:var(--stu-ink) !important;
-}
-
-/* ---------- Fee ledger ---------- */
-.fee-table-container{
-  background:var(--stu-white) !important;
-  border:1px solid var(--stu-line) !important;
-  border-radius:12px !important;
-  box-shadow:var(--stu-shadow-1) !important;
-}
-.full-table th{
-  background:var(--stu-ink) !important;
-  color:#EFEAD9 !important;
-  border-bottom:2px solid var(--stu-brass) !important;
-}
-.full-table td{
-  border-bottom:1px solid var(--stu-line-soft) !important;
-  color:var(--stu-text) !important;
-}
-
-/* ---------- Homework modal ---------- */
-.modal-overlay{
-  background:rgba(20,25,35,.62) !important;
-  backdrop-filter:blur(2px) !important;
-}
-.modal-card{
-  width:min(620px,92vw) !important;
-  background:var(--stu-white) !important;
-  border:1px solid var(--stu-line) !important;
-  border-radius:14px !important;
-  box-shadow:0 22px 70px rgba(20,33,61,.28) !important;
-  overflow:hidden !important;
-}
-.modal-header{
-  background:var(--stu-ink) !important;
-  border-bottom:2px solid var(--stu-brass) !important;
-}
-.modal-header h3{
-  color:#F4F1E9 !important;
-}
-.close-modal{
-  color:#C9C4B2 !important;
-}
-.close-modal:hover{
-  color:#fff !important;
-}
-#modHwSub,
-#modHwDue{
-  color:var(--stu-text) !important;
-}
-.sub-textarea{
-  border:1px solid #D8D2C0 !important;
-  background:var(--stu-paper-2) !important;
-  color:var(--stu-text) !important;
-  border-radius:8px !important;
-}
-.sub-textarea:focus{
-  border-color:var(--stu-brass) !important;
-  box-shadow:0 0 0 2px rgba(192,138,46,.10) !important;
-}
-.btn-submit-hw{
-  background:var(--stu-good) !important;
-  border-radius:8px !important;
-}
-.btn-submit-hw:hover{
-  background:#186640 !important;
-}
-
-/* ---------- Student-facing responsive layout ---------- */
-@media (max-width:1180px){
-  .layout{
-    grid-template-columns:220px minmax(0,1fr) !important;
-  }
-  .right-sidebar{
-    display:none !important;
-  }
-}
-@media (max-width:760px){
-  .navbar{
-    padding:0 14px !important;
-  }
-  .layout{
-    width:100% !important;
-    grid-template-columns:1fr !important;
-    margin:12px 0 22px !important;
-    padding:0 12px !important;
-  }
-  .sidebar{
-    position:static !important;
-    height:auto !important;
-    padding:12px !important;
-  }
-  .sidebar-grid{
-    grid-template-columns:repeat(3,1fr) !important;
-  }
-  .nav-btn{
-    min-height:62px !important;
-  }
-  .greeting-card{
-    flex-direction:column !important;
-    align-items:flex-start !important;
-    gap:16px !important;
-  }
-  .student-badge-info{
-    width:100% !important;
-  }
-  .att-summary-grid{
-    grid-template-columns:1fr !important;
-  }
-  .fee-summary-grid{
-    grid-template-columns:repeat(2,1fr) !important;
-  }
-}
-@media (max-width:480px){
-  .sidebar-grid{
-    grid-template-columns:repeat(2,1fr) !important;
-  }
-  .greeting-text h1{
-    font-size:23px !important;
-  }
-  .fee-summary-grid{
-    grid-template-columns:1fr !important;
-  }
-}
-
+        /* HIDDEN RECEIPT TEMPLATE FOR PDF */
+        #printSection { display: none; background: white; padding: 20px; font-family: Arial, sans-serif; color: #000; }
     </style>
 </head>
 <body>
@@ -800,8 +185,6 @@ h1,h2,h3,h4{
     <!-- TOP NAVBAR -->
     <div class="navbar">
         <div class="logo">
-            <img id="dynamicNavLogo" src="" alt="logo" style="max-height:24px; margin-right:5px; border-radius:4px; display:none; vertical-align:middle;">
-            <span id="defaultNavLogo">🏫</span>
             <span id="dynamicNavName" style="margin-left: 5px;">SHUBH ERP</span>
         </div>
         <button class="btn-logout" id="btnStudentLogout">Log Out</button>
@@ -829,7 +212,7 @@ h1,h2,h3,h4{
                     <button class="nav-btn" onclick="filterFeed('Circulars')"><span class="nav-icon">📢</span><span>Circular</span></button>
                     <button class="nav-btn" onclick="filterFeed('PTM')"><span class="nav-icon">🤝</span><span>PTM</span></button>
                     <button class="nav-btn" onclick="alert('Coming soon')"><span class="nav-icon">✉️</span><span>Mail Box</span></button>
-                    <button class="nav-btn" onclick="filterFeed('Circulars')"><span class="nav-icon">📰</span><span>School News</span></button>
+                    <button class="nav-btn" onclick="filterFeed('School News')"><span class="nav-icon">📰</span><span>School News</span></button>
                 </div>
             </div>
 
@@ -874,23 +257,12 @@ h1,h2,h3,h4{
                     </div>
                 </div>
 
-                <div class="fee-alert" id="feeAlertWidget" style="display: none;">
-                    <div class="fee-alert-left">
-                        <div class="fee-alert-icon">Fee</div>
-                        <div class="fee-alert-text">
-                            <h4 id="feeAlertAmount">Fee: ₹0.00</h4>
-                            <p>Pay your pending fee for current session.</p>
-                        </div>
-                    </div>
-                    <button class="btn-pay" onclick="switchView('view-fees')">View Ledger</button>
-                </div>
-
                 <div style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; border-bottom:1px solid #e2e8f0; padding-bottom:15px;">
                     <button class="comm-pill active-pill" onclick="filterFeed('All')">All Updates</button>
                     <button class="comm-pill" onclick="filterFeed('Homework')">📚 Homework</button>
                     <button class="comm-pill" onclick="filterFeed('Circulars')">📢 Circulars & Notices</button>
                     <button class="comm-pill" onclick="filterFeed('Achievements')">🏆 Achievements</button>
-                    <button class="comm-pill" onclick="filterFeed('Remarks')">⭐ Remarks & Feedback</button>
+                    <button class="comm-pill" onclick="filterFeed('Remarks')">⭐ Remarks</button>
                     <button class="comm-pill" onclick="filterFeed('PTM')">🤝 PTM</button>
                 </div>
 
@@ -929,8 +301,8 @@ h1,h2,h3,h4{
                 </div>
                 <div class="fee-table-container">
                     <table class="full-table">
-                        <thead><tr><th>Installment Details</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
-                        <tbody id="feeStatementBody"><tr><td colspan="4" style="text-align:center;">Fetching ledger... ⏳</td></tr></tbody>
+                        <thead><tr><th>Installment Details</th><th>Date</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody id="feeStatementBody"><tr><td colspan="5" style="text-align:center;">Fetching ledger... ⏳</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -939,7 +311,6 @@ h1,h2,h3,h4{
 
         <!-- RIGHT SIDEBAR (Widgets) -->
         <aside class="right-sidebar">
-            
             <div class="widget-card">
                 <div class="widget-header">
                     <h3>Timetable</h3>
@@ -967,7 +338,6 @@ h1,h2,h3,h4{
                     <div class="empty-illustration"><span>📭</span><p>No upcoming events.</p></div>
                 </div>
             </div>
-
         </aside>
     </div>
 
@@ -989,8 +359,44 @@ h1,h2,h3,h4{
         </div>
     </div>
 
+    <!-- HIDDEN RECEIPT TEMPLATE -->
+    <div id="printSection">
+        <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+            <h2 id="p-school-name" style="margin: 0;">School Name</h2>
+            <p style="margin: 5px 0 0 0; font-size: 14px;">Official Fee Receipt</p>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+                <td style="padding: 5px;"><b>Student Name:</b> <span id="p-stu-name"></span></td>
+                <td style="padding: 5px; text-align: right;"><b>Receipt No:</b> <span id="p-rec-no"></span></td>
+            </tr>
+            <tr>
+                <td style="padding: 5px;"><b>Class:</b> <span id="p-stu-class"></span></td>
+                <td style="padding: 5px; text-align: right;"><b>Date:</b> <span id="p-rec-date"></span></td>
+            </tr>
+        </table>
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid #000;">
+            <tr style="background: #f0f0f0;">
+                <th style="border: 1px solid #000; padding: 10px; text-align: left;">Particulars</th>
+                <th style="border: 1px solid #000; padding: 10px; text-align: right;">Amount (₹)</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 10px;" id="p-part"></td>
+                <td style="border: 1px solid #000; padding: 10px; text-align: right; font-weight: bold;" id="p-amt"></td>
+            </tr>
+            <tr style="background: #f0f0f0;">
+                <td style="border: 1px solid #000; padding: 10px; text-align: right;"><b>Total Paid:</b></td>
+                <td style="border: 1px solid #000; padding: 10px; text-align: right; font-weight: bold;" id="p-tot"></td>
+            </tr>
+        </table>
+        <div style="margin-top: 30px; display: flex; justify-content: space-between;">
+            <p style="font-size: 12px; color: #555;">Payment Mode: <span id="p-mode"></span></p>
+            <p style="font-size: 12px; font-weight: bold;">Authorized Signatory</p>
+        </div>
+    </div>
+
     <!-- ==========================================
-         INTERNAL JAVASCRIPT (Compiled & Secured)
+         INTERNAL JAVASCRIPT
          ========================================== -->
     <script>
         const studentStr = localStorage.getItem('student_active_session');
@@ -1001,23 +407,14 @@ h1,h2,h3,h4{
         let myId = studentData.portalId || studentData.regNo;
         let sClassRaw = studentData.studentClass ? studentData.studentClass.split('(')[0].trim() : "";
 
-        // DYNAMIC NAVBAR UPDATE LOGIC
+        // DYNAMIC NAVBAR
         try {
-            let savedName = localStorage.getItem('erp_school_name');
-            let savedLogo = localStorage.getItem('erp_school_logo');
-            let navNameEl = document.getElementById('dynamicNavName');
-            let navLogoImg = document.getElementById('dynamicNavLogo');
-            let navLogoDefault = document.getElementById('defaultNavLogo');
-            
-            if(savedName && navNameEl) navNameEl.innerText = savedName; 
-            if(savedLogo && savedLogo.startsWith('http') && navLogoImg) {
-                navLogoImg.src = savedLogo;
-                navLogoImg.style.display = 'inline-block';
-                if(navLogoDefault) navLogoDefault.style.display = 'none';
-            }
+            let savedName = localStorage.getItem('erp_school_name') || schoolCode;
+            document.getElementById('dynamicNavName').innerText = savedName; 
+            document.getElementById('p-school-name').innerText = savedName; 
         } catch(error) {}
 
-        let globalDbData = { assignments: [], submissions: [], attendance: [], receipts: [], events: [], feeHeads: [] };
+        let globalDbData = { assignments: [], submissions: [], attendance: [], receipts: [], events: [], setup: null };
         let currentFeedFilter = "All";
         let currDate = new Date();
         let attMap = {}; 
@@ -1037,38 +434,30 @@ h1,h2,h3,h4{
             let greet = "Good Evening!";
             if(hr < 12) greet = "Good Morning!";
             else if(hr < 17) greet = "Good Afternoon!";
-            if(document.getElementById('greetMsg')) document.getElementById('greetMsg').innerText = greet;
+            document.getElementById('greetMsg').innerText = greet;
 
             // Profile Info setup
             let fullName = (studentData.studentFirstName || studentData.studentName || "Student") + " " + (studentData.studentLastName || "");
-            if(document.getElementById('dashName')) document.getElementById('dashName').innerText = fullName;
-            if(document.getElementById('dashRegNo')) document.getElementById('dashRegNo').innerText = studentData.portalId || studentData.regNo || "N/A";
+            document.getElementById('dashName').innerText = fullName;
+            document.getElementById('dashRegNo').innerText = studentData.portalId || studentData.regNo || "N/A";
             
-            if(document.getElementById('dashAvatarBox')) {
-                document.getElementById('dashAvatarBox').innerText = fullName.charAt(0).toUpperCase() || "S";
-                if(studentData.studentPhotoBase64 && studentData.studentPhotoBase64.startsWith('data:image')) {
-                    document.getElementById('dashAvatarBox').innerHTML = `<img src="${studentData.studentPhotoBase64}" alt="Profile" style="width:100%;height:100%;object-fit:cover;">`;
-                }
-            }
-
+            document.getElementById('dashAvatarBox').innerText = fullName.charAt(0).toUpperCase() || "S";
+            
             let sClass = "-"; 
             if(studentData.studentClass) {
                 let match = studentData.studentClass.match(/(.*?)\s*\((.*?)\)/);
                 if(match) { sClass = match[1].trim() + " (" + match[2].trim() + ")"; } 
                 else { sClass = studentData.studentClass; }
             }
-            if(document.getElementById('dashClass')) document.getElementById('dashClass').innerText = sClass;
+            document.getElementById('dashClass').innerText = sClass;
+            document.getElementById('ttDateStr').innerText = new Date().toLocaleDateString('en-GB');
 
-            if(document.getElementById('ttDateStr')) document.getElementById('ttDateStr').innerText = new Date().toLocaleDateString('en-GB');
-
-            if(document.getElementById('btnStudentLogout')) {
-                document.getElementById('btnStudentLogout').addEventListener('click', () => {
-                    if(confirm("Are you sure you want to log out?")) { 
-                        localStorage.removeItem('student_active_session'); 
-                        window.location.href = 'login.html'; 
-                    }
-                });
-            }
+            document.getElementById('btnStudentLogout').addEventListener('click', () => {
+                if(confirm("Are you sure you want to log out?")) { 
+                    localStorage.removeItem('student_active_session'); 
+                    window.location.href = 'login.html'; 
+                }
+            });
 
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -1077,7 +466,7 @@ h1,h2,h3,h4{
                 });
             });
 
-            // SECURE DATA FETCHING FROM FIRESTORE
+            // SECURE DATA FETCHING
             fetchAllStudentDataSecurely();
 
             document.getElementById('calPrevMonth')?.addEventListener('click', () => { currDate.setMonth(currDate.getMonth() - 1); renderCalendar(); });
@@ -1086,136 +475,141 @@ h1,h2,h3,h4{
             document.getElementById('bigCalNextMonth')?.addEventListener('click', () => { currDate.setMonth(currDate.getMonth() + 1); renderCalendar(); });
         });
 
-        // STRICT FETCH: Only pulls data related to this specific student/school/class
         async function fetchAllStudentDataSecurely() {
             try {
-                // Execute restricted queries
+                // Fetch Master Setup for Fees
+                let setupDoc = await db.collection("setups").doc(schoolCode).get();
+                if(setupDoc.exists) globalDbData.setup = setupDoc.data();
+
+                // Fetch other data
                 const [evtSnap, asgSnap, subSnap, attSnap, feeSnap] = await Promise.all([
                     db.collection("events").where("schoolCode", "==", schoolCode).get(),
                     db.collection("assignments").where("schoolCode", "==", schoolCode).get(),
                     db.collection("submissions").where("schoolCode", "==", schoolCode).where("Reg_No", "==", myId).get(),
-                    db.collection("attendance").where("schoolCode", "==", schoolCode).get(), // Filtered client-side per session below
+                    db.collection("attendance").where("schoolCode", "==", schoolCode).get(), 
                     db.collection("fee_receipts").where("schoolCode", "==", schoolCode).where("Reg_No", "==", myId).get()
                 ]);
 
+                // Store Events (Notices, Circulars, PTM)
                 globalDbData.events = evtSnap.docs.map(d => d.data());
-                globalDbData.assignments = asgSnap.docs.map(d => { let obj = d.data(); obj.Assignment_ID = d.id; return obj; });
+                
+                // Combine events and assignments for unified feed
+                let allFeedItems = asgSnap.docs.map(d => { let obj = d.data(); obj.Assignment_ID = d.id; return obj; });
+                globalDbData.events.forEach(e => { allFeedItems.push(e); }); // Mix them together
+                globalDbData.assignments = allFeedItems;
+
                 globalDbData.submissions = subSnap.docs.map(d => d.data());
                 globalDbData.receipts = feeSnap.docs.map(d => d.data());
                 
-                // Strict Attendance Binding
+                // Attendance Extraction
                 let myAttendance = [];
                 attSnap.forEach(doc => {
                     let sessionData = doc.data();
                     if(sessionData.Records) {
                         let myRecord = sessionData.Records.find(r => r.regNo === myId);
-                        if(myRecord) {
-                            myAttendance.push({
-                                Date: sessionData.Date,
-                                Status: myRecord.status,
-                                Remarks: myRecord.remarks
-                            });
-                        }
+                        if(myRecord) myAttendance.push({ Date: sessionData.Date, Status: myRecord.status });
                     }
                 });
                 globalDbData.attendance = myAttendance;
 
-                // Process fetched data
-                processEvents(globalDbData.events); 
+                processEventsWidget(globalDbData.events); 
                 renderFeed(globalDbData.assignments, globalDbData.submissions); 
                 processAttendance(globalDbData.attendance); 
-                processFeeLedger(globalDbData.receipts); 
+                processFeeLedger(globalDbData.receipts, globalDbData.setup); 
 
             } catch(err) {
-                let feedCont = document.getElementById('mainFeedContainer');
-                if(feedCont) feedCont.innerHTML = `<p style="color:red; text-align:center;">Failed to connect to database securely. Access Denied or Network Error.</p>`;
+                document.getElementById('mainFeedContainer').innerHTML = `<p style="color:red; text-align:center;">Failed to connect to database securely. Access Denied or Network Error.</p>`;
             }
         }
 
         // ============================================================================
-        // EVENTS AND HOLIDAYS DISPATCH MODULE
+        // EVENTS WIDGET (Right Sidebar)
         // ============================================================================
-        function processEvents(events) {
-            if(!events) return;
-            
+        function processEventsWidget(events) {
             let evtCont = document.getElementById('eventListContainer');
-            if(evtCont) evtCont.innerHTML = '';
+            evtCont.innerHTML = '';
             
             let validEvents = events.filter(e => {
                 if(e.Audience === "Employees") return false;
-                if(e.Target_Class && e.Target_Class !== "All" && String(e.Target_Class) !== String(sClassRaw)) return false;
+                if(e.Target_Class && e.Target_Class !== "All" && !String(e.Target_Class).includes(sClassRaw)) return false;
                 return true;
             });
 
             if(validEvents.length === 0) {
-                if(evtCont) evtCont.innerHTML = '<div class="empty-illustration"><span>📭</span><p>No upcoming events.</p></div>';
+                evtCont.innerHTML = '<div class="empty-illustration"><span>📭</span><p>No upcoming events.</p></div>';
             } else {
                 validEvents.forEach(e => {
-                    let pts = String(e.Date).split('-');
-                    if(pts.length === 3) {
-                        let iso = "";
-                        if(pts[0].length === 4) iso = `${pts[0]}-${pts[1]}-${pts[2]}`; // YYYY-MM-DD
-                        else iso = `${pts[2]}-${pts[1]}-${pts[0]}`; // DD-MM-YYYY to YYYY-MM-DD
-                        
-                        eventMap[iso] = { title: e.Title, desc: e.Description, isHoliday: (e.Is_Holiday === "Yes") };
-                        
-                        let dObj = new Date(iso);
-                        let dayStr = dObj.toLocaleDateString('en-GB', {day:'numeric'});
-                        let monStr = dObj.toLocaleDateString('en-GB', {month:'short'});
-                        if(evtCont) {
-                            evtCont.innerHTML += `
-                                <div class="event-list-item">
-                                    <div class="evt-date-box"><strong>${dayStr}</strong><span>${monStr}</span></div>
-                                    <div class="evt-details"><h4>${e.Title}</h4><p>${e.Description}</p></div>
-                                </div>
-                            `;
+                    let iso = "";
+                    if(e.Date) {
+                        let pts = String(e.Date).split('-');
+                        if(pts.length === 3) {
+                            if(pts[0].length === 4) iso = `${pts[0]}-${pts[1]}-${pts[2]}`; 
+                            else iso = `${pts[2]}-${pts[1]}-${pts[0]}`; 
+                            eventMap[iso] = { title: e.Title, desc: e.Description, isHoliday: (e.Is_Holiday === "Yes") };
                         }
                     }
+
+                    let dObj = iso ? new Date(iso) : new Date(e.Timestamp);
+                    let dayStr = dObj.toLocaleDateString('en-GB', {day:'numeric'});
+                    let monStr = dObj.toLocaleDateString('en-GB', {month:'short'});
+                    
+                    evtCont.innerHTML += `
+                        <div class="event-list-item">
+                            <div class="evt-date-box"><strong>${dayStr}</strong><span>${monStr}</span></div>
+                            <div class="evt-details"><h4>${e.Title \vert{}\vert{} e.Name}</h4><p>${e.Description}</p></div>
+                        </div>
+                    `;
                 });
             }
         }
 
         // ============================================================================
-        // TIMELINE FEED RENDERING & NAVIGATION PILLS
+        // TIMELINE FEED RENDERING (Assignments + Events Mixed)
         // ============================================================================
         window.filterFeed = function(filterVal) {
             switchView('view-dashboard');
-            
             document.querySelectorAll('.comm-pill').forEach(t => t.classList.remove('active-pill'));
-            if(event && event.target && event.target.classList.contains('comm-pill')) {
-                event.target.classList.add('active-pill');
-            } else {
+            if(event && event.target && event.target.classList.contains('comm-pill')) { event.target.classList.add('active-pill'); } 
+            else {
                 let pill = document.querySelector(`.comm-pill[onclick="filterFeed('${filterVal}')"]`);
                 if(pill) pill.classList.add('active-pill');
             }
-
             currentFeedFilter = filterVal;
             renderFeed(globalDbData.assignments, globalDbData.submissions);
         }
 
-        function renderFeed(assignments, submissions) {
+        function renderFeed(allFeedItems, submissions) {
             const feedCont = document.getElementById('mainFeedContainer');
-            if(!feedCont) return;
             feedCont.innerHTML = ''; 
 
-            if(!assignments || assignments.length === 0) { 
+            if(!allFeedItems || allFeedItems.length === 0) { 
                 feedCont.innerHTML = '<p style="text-align:center; padding:30px; color:#94a3b8;">No updates found on database timeline.</p>';
                 return; 
             }
 
-            let myItems = assignments.filter(a => {
-                let matchClass = String(a.Class).includes(sClassRaw) || String(a.Class) === "All" || !a.Class;
+            let myItems = allFeedItems.filter(a => {
+                // Class check
+                let matchClass = true;
+                if(a.Class) matchClass = String(a.Class).includes(sClassRaw) || String(a.Class) === "All";
+                if(a.Target_Class) matchClass = String(a.Target_Class).includes(sClassRaw) || String(a.Target_Class) === "All";
                 
-                let targets = ["All"];
-                try { if(a.Target_Students && a.Target_Students.trim() !== "") targets = JSON.parse(a.Target_Students); } catch(e){}
-                let matchTarget = targets.includes("All") || targets.includes(String(myId));
+                // Audience / Target Student check
+                let matchTarget = true;
+                if(a.Target_Students) {
+                    let targets = ["All"];
+                    try { if(a.Target_Students.trim() !== "") targets = JSON.parse(a.Target_Students); } catch(e){}
+                    matchTarget = targets.includes("All") || targets.includes(String(myId));
+                }
+                if(a.Audience === "Employees") matchTarget = false;
 
+                // Category Type check
                 let typeMatch = true;
-                if(currentFeedFilter === "Homework") typeMatch = ["Homework", "Classwork", "Assignment", "Project"].includes(a.Type);
-                if(currentFeedFilter === "Circulars") typeMatch = ["Circular", "Notice", "News", "School News", "PTM"].includes(a.Type);
-                if(currentFeedFilter === "Achievements") typeMatch = ["Achievement"].includes(a.Type);
-                if(currentFeedFilter === "Remarks") typeMatch = ["Remarks", "Feedback"].includes(a.Type);
-                if(currentFeedFilter === "PTM") typeMatch = ["PTM"].includes(a.Type);
+                let t = a.Type || "Notice";
+                if(currentFeedFilter === "Homework") typeMatch = ["Homework", "Classwork", "Assignment", "Project"].includes(t);
+                if(currentFeedFilter === "Circulars") typeMatch = ["Circular", "Notice", "News", "School News"].includes(t);
+                if(currentFeedFilter === "Achievements") typeMatch = ["Achievement"].includes(t);
+                if(currentFeedFilter === "Remarks") typeMatch = ["Remarks", "Feedback"].includes(t);
+                if(currentFeedFilter === "PTM") typeMatch = ["PTM", "PTM Update"].includes(t);
 
                 return matchClass && matchTarget && typeMatch;
             }).sort((a, b) => new Date(b.Timestamp || 0) - new Date(a.Timestamp || 0));
@@ -1226,31 +620,20 @@ h1,h2,h3,h4{
             }
 
             myItems.forEach(a => {
-                let type = a.Type || "General";
+                let type = a.Type || "Notice";
                 let dateFormatted = a.Timestamp ? new Date(a.Timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : "-";
                 
                 let iconHtml = "📢"; let themeClass = "circ";
                 if(["Homework", "Classwork", "Assignment", "Project"].includes(type)) { iconHtml = "📚"; themeClass = "hw"; }
-                else if(type === "Achievement") { iconHtml = "🏆"; themeClass = "ach"; }
+                else if(["Achievement"].includes(type)) { iconHtml = "🏆"; themeClass = "ach"; }
                 else if(["Remarks", "Feedback"].includes(type)) { iconHtml = "📝"; themeClass = "rem"; }
-                else if(type === "PTM") { iconHtml = "🤝"; themeClass = "ach"; }
+                else if(["PTM", "PTM Update"].includes(type)) { iconHtml = "🤝"; themeClass = "ach"; }
 
-                let subjectHtml = a.Subject ? `<span style="font-size:11px; font-weight:bold; color:#64748b; text-transform:uppercase;">${a.Subject}</span>` : '';
-                let titleHtml = `<h3 class="f-title">${a.Name}</h3>`;
+                let titleHtml = `<h3 class="f-title">${a.Name || a.Title}</h3>`;
                 let descHtml = `<p class="f-desc">${a.Description || ''}</p>`;
-                
-                let attachHtml = "";
-                if(a.Attachment_Base64) { attachHtml = `<a href="${a.Attachment_Base64}" download class="btn-attach">📎 View Attachment</a>`; }
-
-                if(type === "Time Table") {
-                    let ttWidget = document.querySelectorAll('.widget-card')[0];
-                    if(ttWidget) {
-                        let ttAttachBtn = a.Attachment_Base64 ? `<br><a href="${a.Attachment_Base64}" download class="btn-attach" style="margin-top:10px; display:inline-flex;">📎 Download Timetable</a>` : '';
-                        ttWidget.innerHTML = `<div class="widget-header"><h3>Timetable</h3><span class="widget-date">${dateFormatted}</span></div><div style="font-size:13px; color:#475569;"><b>${a.Name}</b><br>${a.Description}${ttAttachBtn}</div>`;
-                    }
-                }
 
                 let hwActionHtml = "";
+                // If it's homework, show submit button
                 if(themeClass === "hw") {
                     let mySub = (submissions || []).find(s => String(s.Assignment_ID) === String(a.Assignment_ID) && String(s.Reg_No) === String(myId));
                     let statusLabel = "Pending"; let statusClass = "pending";
@@ -1258,22 +641,17 @@ h1,h2,h3,h4{
                         if(mySub.Marks && String(mySub.Marks).trim() !== "") { statusLabel = "Evaluated"; statusClass = "checked"; } 
                         else { statusLabel = "Submitted"; statusClass = "submitted"; }
                     }
-
                     let aDataStr = JSON.stringify(a).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
                     let subDataStr = mySub ? JSON.stringify(mySub).replace(/'/g, "&#39;").replace(/"/g, "&quot;") : "null";
-                    
                     hwActionHtml = `<div style="display:flex; align-items:center; justify-content:space-between; margin-top:15px; border-top:1px dashed #e2e8f0; padding-top:10px;"><div><span style="font-size:12px; font-weight:600; color:#475569;">Due: ${a.Date || '-'}</span> <span class="status-badge ${statusClass}">${statusLabel}</span></div><button class="btn-eye" onclick='openHwModal(${aDataStr},${subDataStr})'>👁️ Open Task</button></div>`;
-                } else {
-                    if(attachHtml) hwActionHtml = `<div style="margin-top:10px;">${attachHtml}</div>`;
-                    attachHtml = ""; 
-                }
+                } 
 
-                feedCont.innerHTML += `<div class="feed-card"><div class="f-header"><div class="f-header-left"><div class="f-icon ${themeClass}">${iconHtml}</div><div class="f-meta"><h4>${type}</h4><span>From: Administration</span></div></div><div class="f-time">${dateFormatted}</div></div><div class="f-body">${subjectHtml}${titleHtml}${descHtml}${attachHtml}${hwActionHtml}</div></div>`;
+                feedCont.innerHTML += `<div class="feed-card"><div class="f-header"><div class="f-header-left"><div class="f-icon ${themeClass}">${iconHtml}</div><div class="f-meta"><h4>${type}</h4><span>From: Administration</span></div></div><div class="f-time">${dateFormatted}</div></div><div class="f-body">${titleHtml}${descHtml}${hwActionHtml}</div></div>`;
             });
         }
 
         // ============================================================================
-        // HOMEWORK SUBMISSION OVERLAY (SECURE PUSH)
+        // HOMEWORK MODAL & SUBMISSION
         // ============================================================================
         let currentHwSelection = null;
         window.openHwModal = function(hwData, subData) {
@@ -1284,85 +662,62 @@ h1,h2,h3,h4{
             document.getElementById('modHwDesc').innerText = hwData.Description || 'No description attached.';
 
             const subArea = document.getElementById('submissionArea'); 
-            if(subArea) {
-                subArea.innerHTML = '';
-                if(hwData.Submission_Required === "Yes") {
-                    
-                    let isPastDue = false;
-                    let formattedDueDate = hwData.Date || "";
-                    if(formattedDueDate) {
-                        let parts = formattedDueDate.split('-'); 
-                        if(parts.length === 3) {
-                            let dueDateObj = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T23:59:59`);
-                            if(new Date() > dueDateObj) isPastDue = true;
-                        }
-                    }
-
-                    if(isPastDue && (!subData || (!subData.Marks && subData.Status !== "Submitted"))) {
-                        subArea.innerHTML = `<div style="background:#fef2f2; border:1px solid #fecaca; padding:15px; border-radius:8px; text-align:center;"><h3 style="color:#b91c1c; margin:0 0 5px 0; font-size:15px;">Submission Closed</h3><p style="font-size:13px; color:#ef4444; margin:0;">The due date (${formattedDueDate}) has passed. You can no longer submit this task.</p></div>`;
-                    } else if(!subData) {
-                        subArea.innerHTML = `<h4 style="color:#0f172a; margin-bottom:10px; font-size:14px;">Submit Your Work</h4><textarea id="stuAnsText" class="sub-textarea" placeholder="Type your answer here..."></textarea><div style="margin-top:10px;"><label style="font-size:12px; font-weight:bold; color:#64748b;">Attach File (Optional)</label><br><input type="file" id="stuAnsFile" style="margin-top:5px; font-size:12px;"><input type="hidden" id="stuAnsBase64"></div><button id="btnActualSubmit" class="btn-submit-hw" onclick="submitHwToDb()">Submit Homework</button>`;
-                        setTimeout(() => { 
-                            let fileInp = document.getElementById('stuAnsFile'); 
-                            if(fileInp) {
-                                fileInp.addEventListener('change', function() { 
-                                    if(this.files[0]) { 
-                                        const r = new FileReader(); r.onload = function(e) { document.getElementById('stuAnsBase64').value = e.target.result; }; r.readAsDataURL(this.files[0]); 
-                                    } 
-                                }); 
-                            }
-                        }, 200);
-                    } else if (subData && (!subData.Marks || String(subData.Marks).trim() === "")) {
-                        subArea.innerHTML = `<div style="background:#f0f9ff; border:1px solid #bae6fd; padding:15px; border-radius:8px; text-align:center;"><h3 style="color:#0284c7; margin:0 0 5px 0; font-size:15px;">Status: Submitted</h3><p style="font-size:13px; color:#475569; margin:0;">Waiting for teacher's review.</p></div>`;
-                    } else if (subData && subData.Marks) {
-                        let displayMarks = String(subData.Marks);
-                        subArea.innerHTML = `<div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; border-radius:8px;"><h3 style="color:#15803d; margin:0 0 10px 0; font-size:15px;">Status: Evaluated ✅</h3><div style="display:flex; justify-content:space-between; font-size:14px;"><div><b style="color:#334155;">Marks Awarded:</b> <span style="font-size:18px; color:#b91c1c; font-weight:bold; margin-left:5px;">${displayMarks}</span></div></div><div style="margin-top:10px; font-size:13px; color:#475569;"><b>Teacher Remarks:</b> ${subData.Teacher_Remarks || 'Good work.'}</div></div>`;
-                    }
-                } else {
-                    subArea.innerHTML = `<p style="text-align:center; color:#94a3b8; font-size:13px; font-weight:600;">No online submission required for this task.</p>`;
+            subArea.innerHTML = '';
+            if(hwData.Submission_Required === "Yes") {
+                if(!subData) {
+                    subArea.innerHTML = `<h4 style="color:#0f172a; margin-bottom:10px; font-size:14px;">Submit Your Work</h4><textarea id="stuAnsText" class="sub-textarea" placeholder="Type your answer here..."></textarea><button id="btnActualSubmit" class="btn-submit-hw" onclick="submitHwToDb()">Submit Homework</button>`;
+                } else if (subData && (!subData.Marks || String(subData.Marks).trim() === "")) {
+                    subArea.innerHTML = `<div style="background:#f0f9ff; border:1px solid #bae6fd; padding:15px; border-radius:8px; text-align:center;"><h3 style="color:#0284c7; margin:0 0 5px 0; font-size:15px;">Status: Submitted</h3><p style="font-size:13px; color:#475569; margin:0;">Waiting for teacher's review.</p></div>`;
+                } else if (subData && subData.Marks) {
+                    subArea.innerHTML = `<div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; border-radius:8px;"><h3 style="color:#15803d; margin:0 0 10px 0; font-size:15px;">Status: Evaluated ✅</h3><div style="font-size:14px;"><b style="color:#334155;">Marks Awarded:</b> <span style="font-size:18px; color:#b91c1c; font-weight:bold; margin-left:5px;">${subData.Marks}</span></div></div>`;
                 }
+            } else {
+                subArea.innerHTML = `<p style="text-align:center; color:#94a3b8; font-size:13px; font-weight:600;">No online submission required.</p>`;
             }
             document.getElementById('hwModal').classList.add('active');
         };
 
         window.submitHwToDb = function() {
-            if(!currentHwSelection) return;
             const btn = document.getElementById('btnActualSubmit'); 
-            btn.innerText = "Submitting..."; 
-            btn.disabled = true;
+            btn.innerText = "Submitting..."; btn.disabled = true;
 
             let safeMyId = myId.replace(/\//g, '-');
             let docId = `${schoolCode}_${currentHwSelection.Assignment_ID}_${safeMyId}`;
 
             const submissionData = {
-                schoolCode: schoolCode,
-                Assignment_ID: currentHwSelection.Assignment_ID,
-                Reg_No: myId,
-                Student_Name: studentData.studentFirstName || studentData.studentName,
+                schoolCode: schoolCode, Assignment_ID: currentHwSelection.Assignment_ID, Reg_No: myId,
+                Student_Name: document.getElementById('dashName').innerText,
                 Answer: document.getElementById('stuAnsText') ? document.getElementById('stuAnsText').value : "",
-                Attachment_Base64: document.getElementById('stuAnsBase64') ? document.getElementById('stuAnsBase64').value : "",
-                Status: "Submitted",
-                Timestamp: new Date().toISOString()
+                Status: "Submitted", Timestamp: new Date().toISOString()
             };
 
-            db.collection("submissions").doc(docId).set(submissionData)
-            .then(() => {
+            db.collection("submissions").doc(docId).set(submissionData).then(() => {
                 alert("Homework Submitted Successfully!");
                 document.getElementById('hwModal').classList.remove('active'); 
                 globalDbData.submissions.push(submissionData);
                 renderFeed(globalDbData.assignments, globalDbData.submissions);
-            })
-            .catch(err => { alert("Error saving submission: " + err.message); })
-            .finally(() => { btn.innerText = "Submit Homework"; btn.disabled = false; });
+            }).catch(err => { alert("Error: " + err.message); }).finally(() => { btn.innerText = "Submit Homework"; btn.disabled = false; });
         };
 
         // ============================================================================
-        // FINANCIAL LEDGER SYSTEM
+        // FINANCIAL LEDGER (Total Fee Fixed & Receipt Download Added)
         // ============================================================================
-        function processFeeLedger(receipts) {
+        function processFeeLedger(receipts, setupData) {
             let tbody = document.getElementById('feeStatementBody'); 
+            
+            // Calculate Total Applicable Fee from Master Setup
+            let classFeeAmount = 0;
+            if(setupData && setupData.classes && studentData.studentClass) {
+                let mySetup = setupData.classes.find(c => `${c.name} (${c.section})` === studentData.studentClass || c.name === studentData.studentClass);
+                if(mySetup && mySetup.fee) { classFeeAmount = parseFloat(mySetup.fee); }
+            }
+            // For one year (12 months) as an example
+            let totalApplicable = classFeeAmount * 12;
+
             if(!receipts || receipts.length === 0) {
-                if(tbody) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No fee records found for your account.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No fee records found.</td></tr>';
+                document.getElementById('feeTotApplicable').innerText = `₹${totalApplicable.toFixed(2)}`;
+                document.getElementById('feeTotDue').innerText = `₹${totalApplicable.toFixed(2)}`;
                 return;
             }
             
@@ -1375,46 +730,71 @@ h1,h2,h3,h4{
                 let particularsStr = r.Installment || "Fee Payment";
                 let amtStr = `₹${parseFloat(r.Amount).toFixed(2)}`;
                 
-                tbody.innerHTML += `<tr><td>${particularsStr} (Rec: ${r.Receipt_No})</td><td>${dateStr}</td><td style="color:#27ae60; font-weight:bold;">${amtStr}</td><td><span class="status-badge checked">Paid</span></td></tr>`;
+                // Download Receipt Button logic
+                let rDataStr = JSON.stringify(r).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                let actionBtn = `<button class="btn-download-pdf" onclick='downloadReceiptPDF(${rDataStr})'>🖨️ Download Receipt</button>`;
+
+                tbody.innerHTML += `<tr><td>${particularsStr} (Rec: ${r.Receipt_No})</td><td>${dateStr}</td><td style="color:#27ae60; font-weight:bold;">${amtStr}</td><td><span class="status-badge checked">Paid</span></td><td>${actionBtn}</td></tr>`;
             });
 
-            if(document.getElementById('feeTotPaid')) document.getElementById('feeTotPaid').innerText = `₹${totalPaid.toFixed(2)}`;
-            if(document.getElementById('feeTotApplicable')) document.getElementById('feeTotApplicable').innerText = "Pending Setup";
-            if(document.getElementById('feeTotDue')) document.getElementById('feeTotDue').innerText = "Check Admin";
+            document.getElementById('feeTotApplicable').innerText = `₹${totalApplicable.toFixed(2)}`;
+            document.getElementById('feeTotPaid').innerText = `₹${totalPaid.toFixed(2)}`;
+            
+            let due = totalApplicable - totalPaid;
+            document.getElementById('feeTotDue').innerText = `₹${due > 0 ? due.toFixed(2) : 0.00}`;
+            document.getElementById('feeTotAdv').innerText = `₹${due < 0 ? Math.abs(due).toFixed(2) : 0.00}`;
         }
 
+        window.downloadReceiptPDF = function(rData) {
+            document.getElementById('p-stu-name').innerText = rData.Student_Name || document.getElementById('dashName').innerText;
+            document.getElementById('p-rec-no').innerText = rData.Receipt_No;
+            document.getElementById('p-stu-class').innerText = rData.Class_Section || document.getElementById('dashClass').innerText;
+            document.getElementById('p-rec-date').innerText = rData.Date;
+            
+            document.getElementById('p-part').innerText = rData.Installment || "Fee Payment";
+            document.getElementById('p-amt').innerText = rData.Amount;
+            document.getElementById('p-tot').innerText = `₹${rData.Amount}`;
+            document.getElementById('p-mode').innerText = rData.Payment_Mode || "Cash";
+
+            let element = document.getElementById('printSection');
+            element.style.display = 'block'; // Make it temporarily visible for HTML2PDF
+
+            let opt = {
+                margin: 0.5,
+                filename: `${rData.Student_Name}_Receipt_${rData.Receipt_No.replace('/','-')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'a5', orientation: 'landscape' }
+            };
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none'; // Hide it again
+            });
+        };
+
         // ============================================================================
-        // ATTENDANCE CALENDAR ENGINE WITH EVENT TOOLTIPS
+        // ATTENDANCE CALENDAR ENGINE
         // ============================================================================
         function processAttendance(records) {
             if(!records) return; let totP = 0; let totA = 0; let totL = 0;
-            
             records.forEach(r => {
                 let parts = String(r.Date).split('-');
                 if(parts.length === 3) { 
-                    let isoDate = "";
-                    if(parts[0].length === 4) isoDate = `${parts[0]}-${parts[1]}-${parts[2]}`; 
-                    else isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-                    
+                    let isoDate = parts[0].length === 4 ? `${parts[0]}-${parts[1]}-${parts[2]}` : `${parts[2]}-${parts[1]}-${parts[0]}`;
                     attMap[isoDate] = r.Status; 
-                    if(r.Status === 'P') totP++; 
-                    else if(r.Status === 'AB') totA++; 
-                    else if(r.Status === 'L') totL++; 
+                    if(r.Status === 'P') totP++; else if(r.Status === 'AB') totA++; else if(r.Status === 'L') totL++; 
                 }
             });
-            if(document.getElementById('attTotalP')) document.getElementById('attTotalP').innerText = totP; 
-            if(document.getElementById('attTotalA')) document.getElementById('attTotalA').innerText = totA; 
-            if(document.getElementById('attTotalL')) document.getElementById('attTotalL').innerText = totL;
+            document.getElementById('attTotalP').innerText = totP; 
+            document.getElementById('attTotalA').innerText = totA; 
+            document.getElementById('attTotalL').innerText = totL;
             renderCalendar();
         }
 
         function renderCalendar() {
             const year = currDate.getFullYear(); const month = currDate.getMonth();
-            
-            let calT1 = document.getElementById('calMonthTitle');
-            let calT2 = document.getElementById('bigCalMonthTitle');
-            if(calT1) calT1.innerText = currDate.toLocaleDateString('en-GB', { month: 'short' });
-            if(calT2) calT2.innerText = currDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+            document.getElementById('calMonthTitle').innerText = currDate.toLocaleDateString('en-GB', { month: 'short' });
+            document.getElementById('bigCalMonthTitle').innerText = currDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
             
             const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate();
             const calGrid = document.getElementById('bigCalGrid'); const smallCalGrid = document.getElementById('smallCalGrid');
@@ -1426,37 +806,16 @@ h1,h2,h3,h4{
             
             for(let i = 1; i <= daysInMonth; i++) {
                 let isoDate = `${year}-${String(month+1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                let status = attMap[isoDate]; let evt = eventMap[isoDate];
                 
-                let status = attMap[isoDate]; 
-                let evt = eventMap[isoDate];
-                
-                let dotHtml = ''; let smallDot = '';
-                let hoverCardContent = "";
-                let isHolidayStyle = "";
+                let dotHtml = ''; let smallDot = ''; let hoverCardContent = ""; let isHolidayStyle = "";
 
-                if(evt && evt.isHoliday) {
-                    isHolidayStyle = "background:#fef2f2; color:#ef4444; border-color:#fecaca;";
-                    hoverCardContent = `<strong>🎉 ${evt.title}</strong><br><small>${evt.desc}</small>`;
-                    smallDot = `<div class="cal-dot" style="background:#ef4444;"></div>`;
-                } 
-                else if(status === 'P') { 
-                    dotHtml = `<div class="dot p"></div>`; smallDot = `<div class="cal-dot" style="background:#27ae60;"></div>`;
-                    hoverCardContent = `<strong>Present</strong>`;
-                } 
-                else if(status === 'AB') { 
-                    dotHtml = `<div class="dot a"></div>`; smallDot = `<div class="cal-dot" style="background:#ef4444;"></div>`;
-                    hoverCardContent = `<strong style="color:#ef4444;">Absent</strong>`;
-                } 
-                else if(status === 'L') { 
-                    dotHtml = `<div class="dot l"></div>`; smallDot = `<div class="cal-dot" style="background:#f59e0b;"></div>`;
-                    hoverCardContent = `<strong style="color:#f59e0b;">Leave / Late</strong>`;
-                }
+                if(evt && evt.isHoliday) { isHolidayStyle = "background:#fef2f2; color:#ef4444; border-color:#fecaca;"; hoverCardContent = `<strong>🎉 ${evt.title}</strong><br><small>${evt.desc}</small>`; smallDot = `<div class="cal-dot" style="background:#ef4444;"></div>`; } 
+                else if(status === 'P') { dotHtml = `<div class="dot p"></div>`; smallDot = `<div class="cal-dot" style="background:#27ae60;"></div>`; hoverCardContent = `<strong>Present</strong>`; } 
+                else if(status === 'AB') { dotHtml = `<div class="dot a"></div>`; smallDot = `<div class="cal-dot" style="background:#ef4444;"></div>`; hoverCardContent = `<strong style="color:#ef4444;">Absent</strong>`; } 
+                else if(status === 'L') { dotHtml = `<div class="dot l"></div>`; smallDot = `<div class="cal-dot" style="background:#f59e0b;"></div>`; hoverCardContent = `<strong style="color:#f59e0b;">Leave / Late</strong>`; }
 
-                if(evt && !evt.isHoliday) {
-                    hoverCardContent += hoverCardContent ? `<hr style="margin:5px 0; border:1px solid #334155;">` : ``;
-                    hoverCardContent += `<strong>📌 ${evt.title}</strong>`;
-                    smallDot = `<div class="cal-dot" style="background:#3b82f6;"></div>`;
-                }
+                if(evt && !evt.isHoliday) { hoverCardContent += hoverCardContent ? `<hr style="margin:5px 0; border:1px solid #334155;">` : ``; hoverCardContent += `<strong>📌 ${evt.title}</strong>`; smallDot = `<div class="cal-dot" style="background:#3b82f6;"></div>`; }
 
                 let hoverHtml = hoverCardContent ? `<div class="hover-card">${hoverCardContent}</div>` : "";
                 let isToday = isoDate === new Date().toISOString().split('T')[0] ? "today" : "";
@@ -1464,9 +823,7 @@ h1,h2,h3,h4{
                 htmlBig += `<div class="cal-cell ${isToday}" style="${isHolidayStyle}">${i}${dotHtml}${hoverHtml}</div>`;
                 htmlSmall += `<div class="cal-cell small ${isToday}">${i}${smallDot}</div>`;
             }
-            
-            if(calGrid) calGrid.innerHTML = htmlBig;
-            if(smallCalGrid) smallCalGrid.innerHTML = htmlSmall;
+            calGrid.innerHTML = htmlBig; smallCalGrid.innerHTML = htmlSmall;
         }
     </script>
 </body>
