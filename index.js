@@ -124,3 +124,142 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+
+
+
+
+
+
+
+// =======================================================
+// ONE-CLICK FIREBASE DATABASE SETUP (TEMPORARY DEV TOOL)
+// =======================================================
+document.getElementById('btnSetupDatabase')?.addEventListener('click', async () => {
+    
+    // Check if db is properly initialized
+    if (typeof db === 'undefined') {
+        alert("Firebase is not initialized yet. Please wait a few seconds and try again.");
+        return;
+    }
+
+    const btn = document.getElementById('btnSetupDatabase');
+    btn.innerText = "⏳ Creating Database... Please Wait!";
+    btn.disabled = true;
+    
+    const schoolCode = "VIS"; 
+
+    try {
+        console.log("Starting Firebase Database Setup...");
+
+        // 1. SETUP
+        await db.collection("setups").doc(schoolCode).set({
+            classes: [
+                { name: "Class 10", section: "A", fee: "2500" },
+                { name: "Class 10", section: "B", fee: "2500" },
+                { name: "Class 12", section: "Sci", fee: "3500" }
+            ],
+            bloodGroups: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"],
+            categories: ["General", "OBC", "SC", "ST"],
+            genders: ["Male", "Female", "Other"],
+            houses: ["Red House", "Blue House", "Green House", "Yellow House"],
+            religions: ["Hindu", "Muslim", "Sikh", "Christian", "Other"],
+            salutations: ["Mr. (Male)", "Mrs. (Female)", "Ms. (Female)", "Dr. (Male)"],
+            feeHeads: [
+                { Head_Name: "Monthly Tuition Fee", Frequency: "Monthly", Amount: "2500" },
+                { Head_Name: "Annual Charges", Frequency: "Annually", Amount: "5000" },
+                { Head_Name: "Computer Fee", Frequency: "Monthly", Amount: "300" }
+            ]
+        }, { merge: true });
+
+        // 2. STUDENT
+        await db.collection("students").doc(`${schoolCode}_VIS-STU-001`).set({
+            schoolCode: schoolCode,
+            regNo: "VIS/STU/001",
+            rollNo: "1",
+            portalId: "visstu001",
+            password: "password123",
+            pin: "1234",
+            studentFirstName: "Rahul",
+            studentLastName: "Sharma",
+            studentClass: "Class 10 (A)",
+            gender: "Male",
+            bloodGroup: "B+",
+            category: "General",
+            fatherName: "Rajesh Sharma",
+            motherName: "Sita Sharma",
+            mobile: "9876543210",
+            primaryEmail: "rahul@test.com",
+            Status: "Active"
+        }, { merge: true });
+
+        // 3. EMPLOYEE
+        await db.collection("employees").doc(`${schoolCode}_VIS-EMP-001`).set({
+            schoolCode: schoolCode,
+            empId: "VIS/EMP/001",
+            empName: "Amit Kumar",
+            empDept: "Teaching",
+            empDesig: "TGT Math",
+            empMobile: "9988776655",
+            empType: "Permanent",
+            Status: "Active"
+        }, { merge: true });
+
+        // 4. FEE RECEIPT
+        let dummyPaidHeads = [
+            { head: "Monthly Tuition Fee", period: "Apr, 26", paid: "2500" },
+            { head: "Annual Charges", period: "Annually", paid: "5000" }
+        ];
+        
+        await db.collection("fee_receipts").doc(`${schoolCode}_2026-27-1`).set({
+            schoolCode: schoolCode,
+            Receipt_No: "2026-27/1",
+            Reg_No: "VIS/STU/001",
+            Student_Name: "Rahul Sharma",
+            Class_Section: "Class 10 (A)",
+            Installment: "Apr, 26",
+            Amount: "7500",
+            Payment_Mode: "Cash",
+            Date: "05-04-2026",
+            Bank_Name: "-",
+            Ref_No: "-",
+            Paid_Heads: JSON.stringify(dummyPaidHeads),
+            Timestamp: new Date().toISOString()
+        }, { merge: true });
+
+        // 5. ASSIGNMENT (HW)
+        await db.collection("assignments").doc(`${schoolCode}_HW-001`).set({
+            schoolCode: schoolCode,
+            Type: "Homework",
+            Name: "Maths Trigonometry Setup",
+            Subject: "Maths",
+            Description: "Complete exercise 8.1 and 8.2 from NCERT.",
+            Class: "Class 10 (A)",
+            Target_Students: '["All"]',
+            Date: "10-04-2026",
+            Submission_Required: "Yes",
+            Timestamp: new Date().toISOString()
+        }, { merge: true });
+
+        // 6. EVENT (Notice)
+        await db.collection("events").doc(`${schoolCode}_EVT-001`).set({
+            schoolCode: schoolCode,
+            Title: "Welcome to New Session",
+            Description: "Welcome all students to the academic year 2026-27. Please check your timetable.",
+            Date: "01-04-2026",
+            Is_Holiday: "No",
+            Audience: "Students",
+            Target_Class: "All"
+        }, { merge: true });
+
+        btn.innerText = "✅ DATABASE CREATED SUCCESSFULLY!";
+        btn.style.background = "#27ae60";
+        alert("Boom! All Collections & Dummy Data created perfectly in Firebase! Now you can test SIS, Fees, and Dashboard.");
+
+    } catch (error) {
+        console.error("Firebase Setup Error:", error);
+        btn.innerText = "❌ ERROR (Check Console)";
+        btn.style.background = "#e74c3c";
+        alert("Error occurred: " + error.message);
+    }
+});
