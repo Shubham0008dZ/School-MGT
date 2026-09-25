@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHUBH ERP · Communication</title>
+
+    <!-- FIREBASE SDKS -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHS0Xk5o-PZK_bBGtsQqGlS9TLOcnXCsM",
+            authDomain: "school-erp-3bd0a.firebaseapp.com",
+            projectId: "school-erp-3bd0a",
+            storageBucket: "school-erp-3bd0a.firebasestorage.app",
+            messagingSenderId: "222944507292",
+            appId: "1:222944507292:web:3b80280c1359b9fa6ec459"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root { --ink:#14213D; --ink-soft:#253355; --brass:#C08A2E; --paper:#F4F1E9; --paper-2:#FBFAF6; --white:#FFFFFF; --line:#E3DFD2; --line-soft:#ECE8DC; --text:#211D18; --text-mute:#6D6759; --good:#1F7A52; --bad:#B23A2E; --info:#2A5C8A; --radius-m:10px; --radius-l:16px; --shadow-1:0 1px 2px rgba(20,33,61,.06), 0 2px 8px rgba(20,33,61,.05); --sidebar-w:258px; --sidebar-w-collapsed:68px; }
+
+        * { box-sizing:border-box; margin:0; padding:0; font-family:'Inter', sans-serif; }
+        body { background:var(--paper); color:var(--text); overflow:hidden; }
+        ::-webkit-scrollbar { width:6px; height:6px; }
+        ::-webkit-scrollbar-thumb { background:#C9C3B0; border-radius:4px; }
+        
+        h1, h2, h3 { font-family:'Fraunces', serif; color:var(--ink); font-weight:600; }
+        
+        /* NAVBAR */
+        .top-navbar { height:58px; padding:0 22px; display:flex; align-items:center; justify-content:space-between; background:var(--ink); color:#EFEAD9; }
+        .top-left { display:flex; align-items:center; gap:14px; }
+        .hamburger-btn { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); color:#EFEAD9; width:34px; height:34px; border-radius:8px; cursor:pointer; }
+        .school-name { font-family:'Fraunces', serif; font-size:17px; color:#F7F3E7; text-decoration:none; }
+        .top-right { display:flex; align-items:center; gap:16px; font-size:13px; font-weight:600; }
+        #btnLogout { background:transparent; color:#F0B8AE; border:1px solid rgba(240,184,174,.35); padding:7px 14px; border-radius:8px; cursor:pointer; font-weight:600; }
+        
+        /* LAYOUT */
+        .erp-wrapper { display:flex; height:calc(100vh - 58px); }
+        .sidebar { width:var(--sidebar-w); background:var(--ink); display:flex; flex-direction:column; transition:width .2s; overflow-x:hidden; }
+        .sidebar-header { padding:22px 20px 14px; border-bottom:1px solid rgba(192,138,46,.3); }
+        .nav-links { list-style:none; padding:10px 12px; display:flex; flex-direction:column; gap:3px; }
+        .nav-links li a { display:flex; align-items:center; gap:12px; color:#C9C4B2; text-decoration:none; padding:11px 14px; border-radius:9px; font-size:13.5px; font-weight:500; border-left:3px solid transparent; }
+        .nav-links li a:hover { background:rgba(255,255,255,.06); color:#F7F3E7; }
+        .nav-links li a.active { background:rgba(192,138,46,.16); color:#F7F3E7; border-left-color:var(--brass); }
+        
+        .main-content { flex:1; overflow-y:auto; padding:26px 30px; }
+        
+        /* MODULE HEADERS */
+        .profile-header { display:flex; justify-content:space-between; align-items:center; padding-bottom:16px; margin-bottom:22px; border-bottom:1px solid var(--line); }
+        
+        /* BUTTONS */
+        .btn { padding:9px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; border:none; }
+        .btn-dark { background:var(--ink); color:var(--white); }
+        .btn-green { background:var(--good); color:var(--white); }
+        .btn-red { background:var(--bad); color:var(--white); padding:6px 12px; border-radius:6px; }
+
+        /* FORM & CARDS */
+        .card { background:var(--white); border:1px solid var(--line); border-radius:var(--radius-l); padding:24px; box-shadow:var(--shadow-1); margin-bottom:20px; }
+        .input-group { margin-bottom:16px; }
+        .input-group label { display:block; font-size:12px; color:var(--text-mute); font-weight:600; margin-bottom:6px; }
+        .input-group input, .input-group select, .input-group textarea { width:100%; padding:10px; border:1px solid var(--line); border-radius:8px; font-family:'Inter', sans-serif; font-size:13px; background:var(--paper-2); outline:none; }
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus { border-color:var(--brass); background:var(--white); }
+        
+        /* FEED LIST */
+        .feed-item { background:var(--white); border:1px solid var(--line); border-radius:var(--radius-m); padding:16px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
+        .feed-info h4 { margin-bottom:4px; font-size:15px; color:var(--ink); }
+        .feed-info p { font-size:12px; color:var(--text-mute); margin-bottom:6px; }
+        .feed-meta { font-size:11px; font-weight:600; display:flex; gap:10px; }
+        .badge { background:var(--paper); padding:4px 8px; border-radius:4px; border:1px solid var(--line); }
+    </style>
+</head>
+
+<body>
+    <div class="top-navbar">
+        <div class="top-left">
+            <button class="hamburger-btn" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">☰</button>
+            <a href="index.html" class="school-name" id="dynamicNavName">SHUBH ERP</a>
+        </div>
+        <div class="top-right">
+            <span>⚏ Communication Module 🔔</span>
+            <button id="btnLogout">🚪 Logout</button>
+        </div>
+    </div>
+
+    <div class="erp-wrapper">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header"><h2>📚 SHUBH ERP</h2></div>
+            <ul class="nav-links">
+                <li><a href="index.html"><span>🏠</span> Dashboard</a></li>
+                <li><a href="#" class="active"><span>📢</span> Send Notice/Circular</a></li>
+                <li><a href="#" onclick="alert('SMS Module pending API integration')"><span>✉️</span> SMS Blaster</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="profile-header">
+                <h2>Communication & Notices ℹ️</h2>
+                <button class="btn btn-dark" id="btnSync">🔄 Sync Feed</button>
+            </div>
+
+            <div style="display:grid; grid-template-columns:350px 1fr; gap:20px;">
+                
+                <!-- COMPOSER CARD -->
+                <div class="card">
+                    <h3 style="margin-bottom:15px; border-bottom:1px solid var(--line); padding-bottom:10px;">Compose New</h3>
+                    
+                    <div class="input-group">
+                        <label>Post Type</label>
+                        <select id="postType">
+                            <option value="Notice">Notice</option>
+                            <option value="Circular">Circular</option>
+                            <option value="PTM">PTM Update</option>
+                            <option value="School News">School News</option>
+                            <option value="Achievement">Achievement</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Title / Subject</label>
+                        <input type="text" id="postTitle" placeholder="e.g. Summer Break Notice">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Description</label>
+                        <textarea id="postDesc" rows="4" placeholder="Type your message here..."></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Target Audience</label>
+                        <select id="postAudience">
+                            <option value="Students">All Students</option>
+                            <option value="Employees">Staff Only</option>
+                            <option value="Both">Everyone</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" id="classSelectGroup">
+                        <label>Specific Class (Optional)</label>
+                        <select id="postClass">
+                            <option value="All">Entire School</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Event Date (Optional)</label>
+                        <input type="date" id="postDate">
+                    </div>
+
+                    <button class="btn btn-green" style="width:100%; margin-top:10px;" id="btnPublish">📢 Publish to Portal</button>
+                </div>
+
+                <!-- PUBLISHED FEED CARD -->
+                <div class="card" style="background:var(--paper-2);">
+                    <h3 style="margin-bottom:15px;">Recent Publications</h3>
+                    <div id="feedContainer">
+                        <p style="text-align:center; padding:20px; color:var(--text-mute);">Loading active notices...</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Authentication Check
+        const activeUserStr = localStorage.getItem('erp_active_user');
+        if (!activeUserStr) { window.location.href = 'login.html'; }
+        const activeUser = JSON.parse(activeUserStr);
+        const schoolCode = localStorage.getItem('erp_school_code') || "VIS";
+
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            if(confirm("Log out?")) { auth.signOut().then(() => { localStorage.removeItem('erp_active_user'); window.location.href='login.html'; }); }
+        });
+
+        // Initialize Data
+        let setupClasses = [];
+        let globalEvents = [];
+
+        async function initData() {
+            document.getElementById('feedContainer').innerHTML = '<p style="text-align:center;">Fetching...</p>';
+            try {
+                // Fetch Setup for Classes
+                let setupDoc = await db.collection("setups").doc(schoolCode).get();
+                if (setupDoc.exists && setupDoc.data().classes) {
+                    setupClasses = setupDoc.data().classes;
+                    let sel = document.getElementById('postClass');
+                    sel.innerHTML = '<option value="All">Entire School</option>';
+                    setupClasses.forEach(c => {
+                        let val = `${c.name} (${c.section})`;
+                        sel.innerHTML += `<option value="${val}">${val}</option>`;
+                    });
+                }
+
+                // Fetch Events
+                let evtSnap = await db.collection("events").where("schoolCode", "==", schoolCode).get();
+                globalEvents = [];
+                evtSnap.forEach(doc => { let d = doc.data(); d.id = doc.id; globalEvents.push(d); });
+                
+                renderFeed();
+
+            } catch(e) {
+                document.getElementById('feedContainer').innerHTML = `<p style="color:red; text-align:center;">Error: ${e.message}</p>`;
+            }
+        }
+
+        document.getElementById('btnSync').addEventListener('click', initData);
+
+        // Render Feed
+        function renderFeed() {
+            let container = document.getElementById('feedContainer');
+            container.innerHTML = '';
+            
+            if(globalEvents.length === 0) {
+                container.innerHTML = '<p style="text-align:center; padding:20px; color:#6D6759;">No active notices found.</p>';
+                return;
+            }
+
+            // Sort newest first
+            globalEvents.sort((a,b) => new Date(b.Timestamp || 0) - new Date(a.Timestamp || 0));
+
+            globalEvents.forEach(evt => {
+                let d = evt.Timestamp ? new Date(evt.Timestamp).toLocaleDateString() : 'N/A';
+                container.innerHTML += `
+                    <div class="feed-item">
+                        <div class="feed-info">
+                            <h4>${evt.Title}</h4>
+                            <p>${evt.Description}</p>
+                            <div class="feed-meta">
+                                <span class="badge" style="background:#E9F1F8; color:#2A5C8A;">${evt.Type || 'Notice'}</span>
+                                <span class="badge">Audience: ${evt.Audience || 'All'}</span>
+                                <span class="badge">Class: ${evt.Target_Class || 'All'}</span>
+                                <span class="badge" style="border:none;">Published: ${d}</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-red" onclick="deleteNotice('${evt.id}')">🗑️</button>
+                    </div>
+                `;
+            });
+        }
+
+        // Publish Notice
+        document.getElementById('btnPublish').addEventListener('click', async () => {
+            let title = document.getElementById('postTitle').value.trim();
+            let desc = document.getElementById('postDesc').value.trim();
+            
+            if(!title || !desc) { alert("Title and Description are required!"); return; }
+
+            let btn = document.getElementById('btnPublish');
+            btn.innerText = "Publishing..."; btn.disabled = true;
+
+            let docId = `${schoolCode}_EVT-${Date.now()}`;
+            let payload = {
+                schoolCode: schoolCode,
+                Type: document.getElementById('postType').value,
+                Title: title,
+                Description: desc,
+                Audience: document.getElementById('postAudience').value,
+                Target_Class: document.getElementById('postClass').value,
+                Date: document.getElementById('postDate').value || new Date().toISOString().split('T')[0],
+                Is_Holiday: "No",
+                Timestamp: new Date().toISOString()
+            };
+
+            try {
+                await db.collection("events").doc(docId).set(payload, { merge: true });
+                alert("Published Successfully! Students will see this on their dashboard.");
+                document.getElementById('postTitle').value = '';
+                document.getElementById('postDesc').value = '';
+                initData();
+            } catch(e) {
+                alert("Error publishing: " + e.message);
+            } finally {
+                btn.innerText = "📢 Publish to Portal"; btn.disabled = false;
+            }
+        });
+
+        // Delete Notice
+        window.deleteNotice = async function(id) {
+            if(confirm("Are you sure you want to delete this notice from the portal?")) {
+                try {
+                    await db.collection("events").doc(id).delete();
+                    initData();
+                } catch(e) { alert("Error deleting: " + e.message); }
+            }
+        }
+
+        // Hide class selector if audience is Employees
+        document.getElementById('postAudience').addEventListener('change', function() {
+            if(this.value === "Employees") document.getElementById('classSelectGroup').style.display = 'none';
+            else document.getElementById('classSelectGroup').style.display = 'block';
+        });
+
+        setTimeout(initData, 200);
+    </script>
+</body>
+</html>
