@@ -21,11 +21,13 @@
             appId: "1:222944507292:web:3b80280c1359b9fa6ec459"
         };
         
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        // 1. Primary App (For Admin's normal usage)
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
         const auth = firebase.auth();
+
+        // 2. Secondary App (MAGIC TRICK: Used ONLY to create new employee accounts without logging out Admin)
+        const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
     </script>
 
     <style>
@@ -93,10 +95,6 @@
         .module-rights-header { background: #f9f9f9; padding: 10px 15px; font-weight: bold; color: #34495e; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;}
         .module-rights-body { padding: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: #fff;}
         .right-item { display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #555;}
-
-        .auth-option { display: flex; align-items: flex-start; gap: 10px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 15px; cursor: pointer; transition: 0.3s; background: #fafafa;}
-        .auth-option:hover { border-color: #3498db; background: #f0f8ff;}
-        .auth-desc { font-size: 12px; color: #777; margin-top: 5px; line-height: 1.4;}
     </style>
 </head>
 <body>
@@ -104,10 +102,7 @@
 <div class="top-navbar">
     <div class="top-left">
         <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 15px;">
-            <span class="school-logo">
-                <img id="dynamicNavLogo" src="" alt="logo" style="max-height:24px; margin-right:5px; border-radius:4px; display:none; vertical-align:middle;">
-                <span id="defaultNavLogo">🏫</span>
-            </span>
+            <span class="school-logo">🏫</span>
             <span class="school-name" id="dynamicNavName">SHUBH ERP</span>
         </a>
     </div>
@@ -143,10 +138,10 @@
                 
                 <table class="data-table">
                     <thead>
-                        <tr><th>Sr No.</th><th>Employee Id</th><th>Employee Name</th><th>Department</th><th>Designation</th><th>Super Admin</th><th>Assign Rights</th></tr>
+                        <tr><th>Sr No.</th><th>Employee Id</th><th>Employee Name</th><th>Registered Email</th><th>Super Admin</th><th>Assign Rights</th></tr>
                     </thead>
                     <tbody id="userTableBody">
-                        <tr><td colspan="7" style="text-align: center;">Fetching Database... ⏳</td></tr>
+                        <tr><td colspan="6" style="text-align: center;">Fetching Database... ⏳</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -184,10 +179,9 @@
 <div id="assignRightsModal" class="modal-overlay">
     <div class="detailed-modal-content">
         <div class="modal-header-custom">
-            <h3>Assign Rights: <span id="rightsEmpName" style="color:#f1c40f;">Employee</span> (<span id="rightsEmpId">ID</span>)</h3>
+            <h3>Assign Rights: <span id="rightsEmpName" style="color:#f1c40f;">Employee</span></h3>
             <span onclick="document.getElementById('assignRightsModal').style.display='none'" style="cursor:pointer; font-size:24px;">&times;</span>
         </div>
-        
         <div style="padding:20px; overflow-y:auto; background:#f4f7f6; flex:1;">
             
             <div style="background:#fff; border-left:5px solid #e74c3c; padding:15px; border-radius:5px; display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
@@ -202,58 +196,13 @@
             </div>
 
             <div id="granularRightsContainer">
-                <!-- SIS -->
-                <div class="module-rights-group">
-                    <div class="module-rights-header"><span>Student Info System (SIS)</span></div>
-                    <div class="module-rights-body">
-                        <div class="right-item"><span>View Module</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_View"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>Add Student</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_Add"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>Edit Student</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_Edit"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>Delete Student</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_Delete"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>Master Setup</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_Setup"><span class="capsule-slider"></span></label></div>
-                    </div>
-                </div>
-                <!-- HR -->
-                <div class="module-rights-group">
-                    <div class="module-rights-header"><span>Human Resources (HR)</span></div>
-                    <div class="module-rights-body">
-                        <div class="right-item"><span>View Module</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HR_View"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>Add Employee</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HR_Add"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>Edit Employee</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HR_Edit"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>Mark Inactive</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HR_Inactive"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>HR Setup</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HR_Setup"><span class="capsule-slider"></span></label></div>
-                    </div>
-                </div>
-                <!-- FEE -->
-                <div class="module-rights-group">
-                    <div class="module-rights-header"><span>Fee Management</span></div>
-                    <div class="module-rights-body">
-                        <div class="right-item"><span>View Ledger</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="FEE_View"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>Collect Fee</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="FEE_Collect"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>Delete Receipt</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="FEE_Delete"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>Manage Heads</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="FEE_Heads"><span class="capsule-slider"></span></label></div>
-                    </div>
-                </div>
-                <!-- ATTENDANCE -->
-                <div class="module-rights-group">
-                    <div class="module-rights-header"><span>Attendance System</span></div>
-                    <div class="module-rights-body">
-                        <div class="right-item"><span>Mark Attendance</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="ATT_Mark"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>View Register</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="ATT_View"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>Send Alerts</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="ATT_Alerts"><span class="capsule-slider"></span></label></div>
-                    </div>
-                </div>
-                <!-- COMMUNICATION -->
-                <div class="module-rights-group">
-                    <div class="module-rights-header"><span>Communication (Homework/Notices)</span></div>
-                    <div class="module-rights-body">
-                        <div class="right-item"><span>View Records</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HW_View"><span class="capsule-slider"></span></label></div>
-                        <div class="right-item"><span>Upload Data</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HW_Upload"><span class="capsule-slider"></span></label></div>
-                    </div>
-                </div>
+                <div class="module-rights-group"><div class="module-rights-header"><span>Student Info System (SIS)</span></div><div class="module-rights-body"><div class="right-item"><span>View Module</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_View"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Add Student</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_Add"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Edit Student</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_Edit"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Delete Student</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_Delete"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Master Setup</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_Setup"><span class="capsule-slider"></span></label></div></div></div>
+                <div class="module-rights-group"><div class="module-rights-header"><span>Human Resources (HR)</span></div><div class="module-rights-body"><div class="right-item"><span>View Module</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HR_View"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Add Employee</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HR_Add"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Edit Employee</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HR_Edit"><span class="capsule-slider"></span></label></div><div class="right-item"><span>HR Setup</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HR_Setup"><span class="capsule-slider"></span></label></div></div></div>
+                <div class="module-rights-group"><div class="module-rights-header"><span>Fee Management</span></div><div class="module-rights-body"><div class="right-item"><span>View Ledger</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="FEE_View"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Collect Fee</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="FEE_Collect"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Delete Receipt</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="FEE_Delete"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Manage Heads</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="FEE_Heads"><span class="capsule-slider"></span></label></div></div></div>
+                <div class="module-rights-group"><div class="module-rights-header"><span>Attendance System</span></div><div class="module-rights-body"><div class="right-item"><span>Mark Attendance</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="ATT_Mark"><span class="capsule-slider"></span></label></div><div class="right-item"><span>View Register</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="ATT_View"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Send Alerts</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="ATT_Alerts"><span class="capsule-slider"></span></label></div></div></div>
+                <div class="module-rights-group"><div class="module-rights-header"><span>Communication (Homework/Notices)</span></div><div class="module-rights-body"><div class="right-item"><span>View Records</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HW_View"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Upload Data</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HW_Upload"><span class="capsule-slider"></span></label></div></div></div>
             </div>
         </div>
-        
         <div style="background:#fff; padding:15px 20px; border-top:1px solid #ddd; display:flex; justify-content:flex-end; gap:10px;">
             <button onclick="document.getElementById('assignRightsModal').style.display='none'" style="padding:10px 20px; background:#95a5a6; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">Cancel</button>
             <button id="btnSaveRights" style="padding:10px 20px; background:#27ae60; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">💾 Save Rights</button>
@@ -265,62 +214,55 @@
 <div id="authModal" class="modal-overlay">
     <div class="detailed-modal-content" style="width:500px;">
         <div class="modal-header-custom" style="background:#f39c12;">
-            <h3>Update Login Auth: <span id="authUserName">Name</span></h3>
+            <h3>Login Setup: <span id="authUserName">Name</span></h3>
             <span onclick="document.getElementById('authModal').style.display='none'" style="cursor:pointer; font-size:24px;">&times;</span>
         </div>
         
         <div style="padding:20px; background:#fff;">
             <input type="hidden" id="authTargetId">
-            <input type="hidden" id="authTargetType"> <!-- 'employee' or 'student' -->
+            <input type="hidden" id="authTargetType"> 
 
-            <div id="manualAuthInputs" style="background:#f9f9f9; padding:15px; border-radius:5px; border:1px solid #ddd; margin-bottom:15px;">
-                <p style="font-size:12px; color:#555; margin-bottom:15px;">Set or update the custom login credentials for this user.</p>
+            <div style="background:#f9f9f9; padding:15px; border-radius:5px; border:1px solid #ddd; margin-bottom:15px;">
+                <p id="authInstruction" style="font-size:12px; color:#555; margin-bottom:15px;">Set or update login credentials.</p>
                 <div style="margin-bottom:10px;">
-                    <label style="display:block; font-size:12px; font-weight:bold; color:#555; margin-bottom:5px;">Custom User ID *</label>
-                    <input type="text" id="customUid" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:3px;" placeholder="e.g. EMP001">
+                    <label id="uidLabel" style="display:block; font-size:12px; font-weight:bold; color:#555; margin-bottom:5px;">User ID *</label>
+                    <input type="text" id="customUid" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:3px;" placeholder="...">
                 </div>
                 <div>
-                    <label style="display:block; font-size:12px; font-weight:bold; color:#555; margin-bottom:5px;">Custom Password / PIN *</label>
-                    <input type="text" id="customPass" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:3px;" placeholder="e.g. 123456">
+                    <label id="pwdLabel" style="display:block; font-size:12px; font-weight:bold; color:#555; margin-bottom:5px;">Password / PIN *</label>
+                    <input type="text" id="customPass" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:3px;" placeholder="...">
                 </div>
             </div>
 
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
                 <button onclick="document.getElementById('authModal').style.display='none'" style="padding:10px 20px; background:#95a5a6; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">Cancel</button>
-                <button id="btnSaveAuthInfo" style="padding:10px 20px; background:#2980b9; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">💾 Save Credentials</button>
+                <button id="btnSaveAuthInfo" style="padding:10px 20px; background:#2980b9; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">💾 Save & Register</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- ==========================================
-     INTERNAL JAVASCRIPT (Compiled & Secured)
+     INTERNAL JAVASCRIPT
      ========================================== -->
 <script>
-    // Security & Auth Verification
+    // Security & Auth
     const activeUserStr = localStorage.getItem('erp_active_user');
     if (!activeUserStr) { window.location.href = 'login.html'; }
     const activeUser = JSON.parse(activeUserStr);
     const isSA = activeUser.Is_SuperAdmin === "Yes";
     const schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode;
     
-    // RBAC Control
-    let userRights = [];
-    try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
-    if (!isSA && !userRights.some(r => r.startsWith("SUPER_"))) { window.location.href = 'index.html'; }
-
-    // Dynamic Navbar
+    // UI Setup
     try {
         let savedName = localStorage.getItem('erp_school_name');
         if(savedName) document.getElementById('dynamicNavName').innerText = savedName; 
     } catch(error) {}
 
-    // Logout
     document.getElementById('btnLogout').addEventListener('click', () => {
         if(confirm("Log out?")) { auth.signOut().then(() => { localStorage.removeItem('erp_active_user'); window.location.href='login.html'; }); }
     });
 
-    // Navigation Tabs
     document.querySelectorAll('.nav-btn[data-target]').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -331,32 +273,45 @@
         });
     });
 
-    // Global Data Arrays
     let allEmployees = [];
     let allStudents = [];
 
     async function loadAllUsers() {
-        document.getElementById('userTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;">Fetching Employees...</td></tr>';
+        document.getElementById('userTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center;">Fetching Employees...</td></tr>';
         document.getElementById('studentUserTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;">Fetching Students...</td></tr>';
 
         try {
-            const [empSnap, stuSnap] = await Promise.all([
-                db.collection("employees").where("schoolCode", "==", schoolCode).get(),
-                db.collection("students").where("schoolCode", "==", schoolCode).get()
-            ]);
-
+            // Get Employees
+            let empSnap = await db.collection("employees").where("schoolCode", "==", schoolCode).get();
             allEmployees = [];
             empSnap.forEach(doc => { let d = doc.data(); d.docId = doc.id; allEmployees.push(d); });
             
+            // Get Students
+            let stuSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get();
             allStudents = [];
             stuSnap.forEach(doc => { let d = doc.data(); d.docId = doc.id; allStudents.push(d); });
+
+            // ALSO Fetch "users" collection to match Employee Auth Details
+            let userSnap = await db.collection("users").where("schoolCode", "==", schoolCode).get();
+            let authUsers = [];
+            userSnap.forEach(doc => { let d = doc.data(); d.uid = doc.id; authUsers.push(d); });
+
+            // Merge Employee Data with Auth Data
+            allEmployees.forEach(emp => {
+                let authMatch = authUsers.find(u => u.empId === emp.empId);
+                if(authMatch) {
+                    emp.registeredEmail = authMatch.email;
+                    emp.Rights_JSON = authMatch.Rights_JSON;
+                    emp.Is_SuperAdmin = authMatch.Is_SuperAdmin;
+                    emp.authUid = authMatch.uid;
+                }
+            });
 
             renderEmployees();
             renderStudents();
 
         } catch(e) {
             console.error("Firebase Sync Error:", e);
-            document.getElementById('userTableBody').innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">Database Error: ${e.message}</td></tr>`;
         }
     }
 
@@ -368,24 +323,21 @@
     function renderEmployees() {
         const tbody = document.getElementById('userTableBody');
         tbody.innerHTML = '';
-        
-        if(allEmployees.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No employees found.</td></tr>'; return; }
+        if(allEmployees.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No employees found.</td></tr>'; return; }
 
         allEmployees.forEach((emp, index) => {
             let isAdmin = emp.Is_SuperAdmin === "Yes" ? '<span class="badge-admin">YES</span>' : '<span class="badge-user">NO</span>';
+            let emailDisp = emp.registeredEmail ? `<span style="color:#2980b9; font-weight:bold;">${emp.registeredEmail}</span>` : `<span style="color:#e74c3c;">Not Set</span>`;
             
             let btnHTML = `<button class="btn-action-rights" onclick="openRightsModal('${emp.empId}')">⚙️ Rights</button>`;
-            
-            // Add custom login button for employees too
-            btnHTML += `<button class="btn-action-auth" onclick="openAuthModal('${emp.empId}', 'employee')">🔑 Login Info</button>`;
+            btnHTML += `<button class="btn-action-auth" onclick="openAuthModal('${emp.empId}', 'employee')">📧 Setup Login</button>`;
 
             tbody.innerHTML += `
                 <tr>
                     <td>${index + 1}</td>
                     <td>${emp.empId}</td>
                     <td><b>${emp.empName}</b></td>
-                    <td>${emp.empDept || '-'}</td>
-                    <td>${emp.empDesig || '-'}</td>
+                    <td>${emailDisp}</td>
                     <td>${isAdmin}</td>
                     <td>${btnHTML}</td>
                 </tr>
@@ -397,15 +349,18 @@
     window.openRightsModal = function(empId) {
         selectedEmpForRights = allEmployees.find(e => e.empId === empId);
         if(!selectedEmpForRights) return;
+        
+        if(!selectedEmpForRights.authUid) {
+            alert("This employee does not have a Firebase Auth Account yet. Please click 'Setup Login' first.");
+            return;
+        }
 
         document.getElementById('rightsEmpName').innerText = selectedEmpForRights.empName;
         document.getElementById('rightsEmpId').innerText = selectedEmpForRights.empId;
 
-        // Reset check boxes
         document.getElementById('toggleSuperAdmin').checked = (selectedEmpForRights.Is_SuperAdmin === "Yes");
         document.querySelectorAll('.right-chk').forEach(chk => chk.checked = false);
 
-        // Fill existing rights
         try {
             let userRights = JSON.parse(selectedEmpForRights.Rights_JSON || "[]");
             document.querySelectorAll('.right-chk').forEach(chk => {
@@ -413,16 +368,15 @@
             });
         } catch(e) {}
 
-        // Super Admin Toggle Logic
         let superChk = document.getElementById('toggleSuperAdmin');
         let rightsGroup = document.getElementById('granularRightsContainer');
-        if(superChk.checked) { rightsGroup.style.opacity = '0.4'; rightsGroup.style.pointerEvents = 'none'; }
-        else { rightsGroup.style.opacity = '1'; rightsGroup.style.pointerEvents = 'auto'; }
-
-        superChk.addEventListener('change', function() {
-            if(this.checked) { rightsGroup.style.opacity = '0.4'; rightsGroup.style.pointerEvents = 'none'; }
+        
+        let updateOpacity = () => {
+            if(superChk.checked) { rightsGroup.style.opacity = '0.4'; rightsGroup.style.pointerEvents = 'none'; }
             else { rightsGroup.style.opacity = '1'; rightsGroup.style.pointerEvents = 'auto'; }
-        });
+        };
+        updateOpacity();
+        superChk.addEventListener('change', updateOpacity);
 
         document.getElementById('assignRightsModal').style.display = 'flex';
     };
@@ -442,22 +396,22 @@
         };
 
         try {
-            await db.collection("employees").doc(selectedEmpForRights.docId).set(payload, {merge: true});
+            // Update in users collection
+            await db.collection("users").doc(selectedEmpForRights.authUid).set(payload, {merge: true});
             alert("Rights updated successfully in Database.");
             document.getElementById('assignRightsModal').style.display = 'none';
-            loadAllUsers(); // Reload to reflect changes
+            loadAllUsers(); 
         } catch(e) {
             alert("Error updating rights: " + e.message);
         }
     });
 
     // ==========================================
-    // STUDENT RENDERING & AUTH
+    // STUDENT RENDERING
     // ==========================================
     function renderStudents() {
         const tbody = document.getElementById('studentUserTableBody');
         tbody.innerHTML = '';
-        
         if(allStudents.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No students found.</td></tr>'; return; }
 
         allStudents.forEach((stu, index) => {
@@ -481,73 +435,100 @@
     }
 
     // ==========================================
-    // AUTH MODAL (MANUAL CREDENTIALS FOR FIRESTORE)
+    // AUTH MODAL (SMART FIREBASE INTEGRATION)
     // ==========================================
     let currentAuthTarget = null;
     window.openAuthModal = function(id, type) {
         document.getElementById('authTargetId').value = id;
         document.getElementById('authTargetType').value = type;
 
-        if(type === 'student') {
-            currentAuthTarget = allStudents.find(s => s.regNo === id);
-            document.getElementById('authUserName').innerText = currentAuthTarget.studentFirstName || currentAuthTarget.studentName;
-            document.getElementById('customUid').value = currentAuthTarget.portalId || "";
-            document.getElementById('customPass').value = currentAuthTarget.pin || currentAuthTarget.password || "";
-        } else {
+        if(type === 'employee') {
             currentAuthTarget = allEmployees.find(e => e.empId === id);
             document.getElementById('authUserName').innerText = currentAuthTarget.empName;
+            document.getElementById('authInstruction').innerText = "Register this employee in Firebase Authentication.";
+            document.getElementById('uidLabel').innerText = "Valid Email Address (For Auth) *";
+            document.getElementById('customUid').type = "email";
+            document.getElementById('customUid').placeholder = "e.g. name@school.com";
+            document.getElementById('customUid').value = currentAuthTarget.registeredEmail || "";
+            
+            document.getElementById('pwdLabel').innerText = "Set Password (Min 6 chars) *";
+            document.getElementById('customPass').placeholder = "e.g. Pass@123";
+            document.getElementById('customPass').value = ""; // Don't show old password for security
+        } else {
+            currentAuthTarget = allStudents.find(s => s.regNo === id);
+            document.getElementById('authUserName').innerText = currentAuthTarget.studentFirstName || currentAuthTarget.studentName;
+            document.getElementById('authInstruction').innerText = "Set Custom Portal ID and PIN for Student Dashboard access.";
+            document.getElementById('uidLabel').innerText = "Custom Portal ID *";
+            document.getElementById('customUid').type = "text";
+            document.getElementById('customUid').placeholder = "e.g. VIS001";
             document.getElementById('customUid').value = currentAuthTarget.portalId || "";
+            
+            document.getElementById('pwdLabel').innerText = "Security PIN *";
+            document.getElementById('customPass').placeholder = "e.g. 123456";
             document.getElementById('customPass').value = currentAuthTarget.pin || currentAuthTarget.password || "";
         }
 
         document.getElementById('authModal').style.display = 'flex';
-        toggleManualAuthInputs(); // Ensures fields are visible if option 2 is checked
     }
 
     document.getElementById('btnSaveAuthInfo').addEventListener('click', async () => {
         if(!currentAuthTarget) return;
 
         let type = document.getElementById('authTargetType').value;
-        let uid = document.getElementById('customUid').value.trim();
-        let pass = document.getElementById('customPass').value.trim();
+        let uidInput = document.getElementById('customUid').value.trim();
+        let passInput = document.getElementById('customPass').value.trim();
 
-        if(!uid || !pass) { alert("Please enter both User ID and Password."); return; }
+        if(!uidInput || !passInput) { alert("Please fill both fields."); return; }
 
-        let payload = {
-            portalId: uid,
-            pin: pass,
-            password: pass // Keeping both for backward compatibility in login
-        };
+        let btn = document.getElementById('btnSaveAuthInfo');
+        btn.innerText = "Processing..."; btn.disabled = true;
 
         try {
-            if(type === 'student') {
-                await db.collection("students").doc(currentAuthTarget.docId).set(payload, {merge:true});
+            if(type === 'employee') {
+                if(passInput.length < 6) { alert("Password must be at least 6 characters."); btn.innerText = "💾 Save & Register"; btn.disabled = false; return; }
+                
+                // 1. Create User via Secondary App to prevent logout
+                const userCred = await secondaryApp.auth().createUserWithEmailAndPassword(uidInput, passInput);
+                const newUid = userCred.user.uid;
+                
+                // 2. Create entry in users collection (for RBAC)
+                await db.collection("users").doc(newUid).set({
+                    schoolCode: schoolCode,
+                    empId: currentAuthTarget.empId,
+                    empName: currentAuthTarget.empName,
+                    email: uidInput,
+                    Is_SuperAdmin: currentAuthTarget.Is_SuperAdmin || "No",
+                    Rights_JSON: currentAuthTarget.Rights_JSON || "[]"
+                }, {merge: true});
+
+                // Sign out secondary app
+                await secondaryApp.auth().signOut();
+                alert("Employee Auth Account created successfully in Firebase!");
+                
             } else {
-                await db.collection("employees").doc(currentAuthTarget.docId).set(payload, {merge:true});
+                // STUDENT LOGIC (Custom ID in Firestore)
+                let payload = { portalId: uidInput, pin: passInput, password: passInput };
+                await db.collection("students").doc(currentAuthTarget.docId).set(payload, {merge:true});
+                alert("Student Credentials Updated Successfully!");
             }
-            alert("Login Credentials Saved Successfully!");
+            
             document.getElementById('authModal').style.display = 'none';
             loadAllUsers();
         } catch(e) {
-            alert("Database Error: " + e.message);
+            alert("Error: " + e.message);
+        } finally {
+            btn.innerText = "💾 Save & Register"; btn.disabled = false;
         }
     });
 
-    // Auto-Search functionality
+    // Auto-Search
     document.getElementById('searchEmpUser').addEventListener('keyup', function() {
         let val = this.value.toLowerCase();
-        document.querySelectorAll('#userTableBody tr').forEach(tr => {
-            let txt = tr.innerText.toLowerCase();
-            tr.style.display = txt.includes(val) ? '' : 'none';
-        });
+        document.querySelectorAll('#userTableBody tr').forEach(tr => { tr.style.display = tr.innerText.toLowerCase().includes(val) ? '' : 'none'; });
     });
-
     document.getElementById('searchStudentUser').addEventListener('keyup', function() {
         let val = this.value.toLowerCase();
-        document.querySelectorAll('#studentUserTableBody tr').forEach(tr => {
-            let txt = tr.innerText.toLowerCase();
-            tr.style.display = txt.includes(val) ? '' : 'none';
-        });
+        document.querySelectorAll('#studentUserTableBody tr').forEach(tr => { tr.style.display = tr.innerText.toLowerCase().includes(val) ? '' : 'none'; });
     });
 
     // Initial Load
