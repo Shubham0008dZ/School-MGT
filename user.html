@@ -21,12 +21,12 @@
             appId: "1:222944507292:web:3b80280c1359b9fa6ec459"
         };
         
-        // 1. Primary App (For Admin's normal usage)
+        // Primary App
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // 2. Secondary App (MAGIC TRICK: Used ONLY to create new employee accounts without logging out Admin)
+        // Secondary App for safe account creation
         const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
     </script>
 
@@ -34,7 +34,6 @@
         * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
         body, html { height: 100%; background-color: #f4f4f9; overflow-x: hidden; }
 
-        /* NAVBAR */
         .top-navbar { background-color: #0d284a; color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; height: 50px; }
         .top-left { display: flex; align-items: center; gap: 15px; font-weight: bold; }
         .school-logo { font-size: 24px; cursor: pointer; display: flex; align-items: center; }
@@ -44,7 +43,6 @@
         #btnLogout { background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 3px; cursor: pointer; font-weight: bold; }
         #btnLogout:hover { background: #c0392b; }
 
-        /* LAYOUT */
         .erp-wrapper { display: flex; height: calc(100vh - 50px); }
         .sidebar { width: 250px; display: flex; flex-direction: column; background-color: #f39c12; color: white; }
         .yellow-header { background-color: #d68910; padding: 15px; text-align: center; }
@@ -58,7 +56,6 @@
         .app-module.active-module { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* MODULES & TABLES */
         .profile-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; }
         .profile-header h2 { font-size: 18px; color: #333; margin: 0; text-transform: uppercase;}
         .table-toolbar { padding: 10px; margin-bottom: 15px; border: 1px solid #eee; }
@@ -68,7 +65,6 @@
         .data-table th { background-color: #f1f1f1; color: #333; font-weight: bold; }
         .data-table tr:nth-child(even) { background-color: #fafafa; }
         
-        /* BADGES & BUTTONS */
         .btn-dark { background-color: #333; color: white; border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 13px; }
         .btn-action-rights { background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 12px; margin-right: 5px; transition: 0.3s;}
         .btn-action-rights:hover { background: #2980b9; }
@@ -253,16 +249,23 @@
     const isSA = activeUser.Is_SuperAdmin === "Yes";
     const schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode;
     
-    // UI Setup
+    // RBAC Control
+    let userRights = [];
+    try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
+    if (!isSA && !userRights.some(r => r.startsWith("SUPER_"))) { window.location.href = 'index.html'; }
+
+    // Dynamic Navbar
     try {
         let savedName = localStorage.getItem('erp_school_name');
         if(savedName) document.getElementById('dynamicNavName').innerText = savedName; 
     } catch(error) {}
 
+    // Logout
     document.getElementById('btnLogout').addEventListener('click', () => {
         if(confirm("Log out?")) { auth.signOut().then(() => { localStorage.removeItem('erp_active_user'); window.location.href='login.html'; }); }
     });
 
+    // Navigation Tabs
     document.querySelectorAll('.nav-btn[data-target]').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -329,6 +332,7 @@
             let isAdmin = emp.Is_SuperAdmin === "Yes" ? '<span class="badge-admin">YES</span>' : '<span class="badge-user">NO</span>';
             let emailDisp = emp.registeredEmail ? `<span style="color:#2980b9; font-weight:bold;">${emp.registeredEmail}</span>` : `<span style="color:#e74c3c;">Not Set</span>`;
             
+            // 🔥 FIXED: Global click handler call setup
             let btnHTML = `<button class="btn-action-rights" onclick="openRightsModal('${emp.empId}')">⚙️ Rights</button>`;
             btnHTML += `<button class="btn-action-auth" onclick="openAuthModal('${emp.empId}', 'employee')">📧 Setup Login</button>`;
 
@@ -345,6 +349,7 @@
         });
     }
 
+    // 🔥 FIXED: Make openRightsModal global so HTML onclick can find it
     let selectedEmpForRights = null;
     window.openRightsModal = function(empId) {
         selectedEmpForRights = allEmployees.find(e => e.empId === empId);
@@ -356,7 +361,6 @@
         }
 
         document.getElementById('rightsEmpName').innerText = selectedEmpForRights.empName;
-        document.getElementById('rightsEmpId').innerText = selectedEmpForRights.empId;
 
         document.getElementById('toggleSuperAdmin').checked = (selectedEmpForRights.Is_SuperAdmin === "Yes");
         document.querySelectorAll('.right-chk').forEach(chk => chk.checked = false);
@@ -435,7 +439,7 @@
     }
 
     // ==========================================
-    // AUTH MODAL (SMART FIREBASE INTEGRATION)
+    // AUTH MODAL
     // ==========================================
     let currentAuthTarget = null;
     window.openAuthModal = function(id, type) {
@@ -453,7 +457,7 @@
             
             document.getElementById('pwdLabel').innerText = "Set Password (Min 6 chars) *";
             document.getElementById('customPass').placeholder = "e.g. Pass@123";
-            document.getElementById('customPass').value = ""; // Don't show old password for security
+            document.getElementById('customPass').value = ""; 
         } else {
             currentAuthTarget = allStudents.find(s => s.regNo === id);
             document.getElementById('authUserName').innerText = currentAuthTarget.studentFirstName || currentAuthTarget.studentName;
@@ -487,11 +491,11 @@
             if(type === 'employee') {
                 if(passInput.length < 6) { alert("Password must be at least 6 characters."); btn.innerText = "💾 Save & Register"; btn.disabled = false; return; }
                 
-                // 1. Create User via Secondary App to prevent logout
+                // 1. Create User via Secondary App
                 const userCred = await secondaryApp.auth().createUserWithEmailAndPassword(uidInput, passInput);
                 const newUid = userCred.user.uid;
                 
-                // 2. Create entry in users collection (for RBAC)
+                // 2. Create entry in users collection
                 await db.collection("users").doc(newUid).set({
                     schoolCode: schoolCode,
                     empId: currentAuthTarget.empId,
@@ -501,12 +505,11 @@
                     Rights_JSON: currentAuthTarget.Rights_JSON || "[]"
                 }, {merge: true});
 
-                // Sign out secondary app
                 await secondaryApp.auth().signOut();
                 alert("Employee Auth Account created successfully in Firebase!");
                 
             } else {
-                // STUDENT LOGIC (Custom ID in Firestore)
+                // STUDENT LOGIC
                 let payload = { portalId: uidInput, pin: passInput, password: passInput };
                 await db.collection("students").doc(currentAuthTarget.docId).set(payload, {merge:true});
                 alert("Student Credentials Updated Successfully!");
