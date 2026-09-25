@@ -14,7 +14,7 @@ window.customConfirm = function(message, onConfirm) {
     document.getElementById('cc-ok').addEventListener('click', () => { overlay.remove(); onConfirm(); });
 };
 
-// Global variables declaration outside to ensure accessibility
+// Global Data
 let appData = []; let setupData = null; let feeHeads = []; let feeReceipts = [];  
 let charts = { class: null, blood: null, cat: null, rel: null, house: null, age: null };
 const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
@@ -23,7 +23,7 @@ let schoolCode = "";
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- UI NAVIGATION LOGIC (Must run first so buttons work even if DB fails) ---
+    // --- UI NAVIGATION LOGIC (Fail-safe menu) ---
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('appSidebar');
     if(sidebarToggle && sidebar) {
@@ -128,14 +128,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // AUTO LOAD SYNC (FIRESTORE INTEGRATED - FAIL SAFE)
+    // AUTO LOAD SYNC (FIRESTORE)
     // ==========================================
     window.syncWithDatabase = async function() {
         const tbody = document.getElementById('studentTableBody'); 
         if(tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳<br><span style="font-size:11px; color:#777;">Please wait, fetching records.</span></td></tr>';
         
         try {
-            // Fetch Setup Data (with fallback)
             let setupDoc = await db.collection("setups").doc(schoolCode).get().catch(() => null);
             if (setupDoc && setupDoc.exists) {
                 setupData = setupDoc.data();
@@ -143,21 +142,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 setupData = { classes: [], genders: [], categories: [], bloodGroups: [], houses: [], religions: [], salutations: [] };
             }
 
-            // Fetch Students Data
             let studentSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
             appData = [];
             if(studentSnap.forEach) {
                 studentSnap.forEach(doc => { appData.push(doc.data()); });
             }
 
-            // Fetch Fee Receipts (with fallback)
             let feeSnap = await db.collection("fee_receipts").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
             feeReceipts = [];
             if(feeSnap.forEach) {
                 feeSnap.forEach(doc => feeReceipts.push(doc.data()));
             }
 
-            // Setup UI
             loadSetupDropdowns(); 
             renderTable(appData); 
             renderDashboard(); 
@@ -192,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Assign to a global variable so we can hook it later
+    // Attach to window so it can be hooked or used directly
     window.loadSetupDropdowns = function() {
         if(!setupData) return; 
         function fillSelect(id, array, isObj = false) { const el = document.getElementById(id); if(!el) return; el.innerHTML = '<option value="">Select</option>'; if(array) { array.forEach(item => { let val = isObj ? `${item.name} (${item.section})` : item; el.innerHTML += `<option value="${val}">${val}</option>`; }); } }
@@ -213,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fillSelectWithAll('filterReligion', setupData.religions);
 
         fillSalutations();
-        populateBulkDropdowns(); // Call the bulk population here
+        populateBulkDropdowns(); // Populate the new bulk dropdowns
     }
 
     const fClassDropdown = document.getElementById('filterClass');
@@ -362,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ==========================================
-    // SAVE STUDENT (FIRESTORE)
+    // SAVE STUDENT (FIRESTORE INTEGRATION)
     // ==========================================
     let pendingStudentData = null;
     let pendingIsEdit = false;
@@ -412,6 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             await db.collection("students").doc(docId).set(pendingStudentData, { merge: true });
+            
             customAlert(pendingIsEdit ? "Updated in DB!" : "Added to DB!"); 
             document.getElementById('btn-back-to-profiles').click(); 
             syncWithDatabase();
