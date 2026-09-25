@@ -14,20 +14,55 @@ window.customConfirm = function(message, onConfirm) {
     document.getElementById('cc-ok').addEventListener('click', () => { overlay.remove(); onConfirm(); });
 };
 
+// Global variables declaration outside to ensure accessibility
+let appData = []; let setupData = null; let feeHeads = []; let feeReceipts = [];  
+let charts = { class: null, blood: null, cat: null, rel: null, house: null, age: null };
+const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
+const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/128/3135/3135715.png';
+let schoolCode = "";
+
 document.addEventListener('DOMContentLoaded', () => {
     
-    // SIDEBAR TOGGLE
+    // --- UI NAVIGATION LOGIC (Must run first so buttons work even if DB fails) ---
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('appSidebar');
     if(sidebarToggle && sidebar) {
         sidebarToggle.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
     }
 
+    document.querySelectorAll('.nav-btn').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault(); 
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); 
+            document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
+            
+            this.classList.add('active'); 
+            const targetId = this.getAttribute('data-target');
+            if(targetId) { 
+                document.getElementById(targetId).classList.add('active-module'); 
+                if(targetId === 'module-dashboard') { 
+                    setTimeout(() => { Object.values(charts).forEach(c => { if(c) c.resize(); }); }, 100); 
+                } 
+            }
+        });
+    });
+
+    const formTabs = document.querySelectorAll('.form-tabs .tab');
+    const tabContents = document.querySelectorAll('.form-tab-content');
+    formTabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            e.preventDefault();
+            formTabs.forEach(t => t.classList.remove('active')); tabContents.forEach(c => c.classList.remove('active'));
+            tab.classList.add('active'); document.getElementById(tab.getAttribute('data-target')).classList.add('active');
+        });
+    });
+
+    // --- AUTHENTICATION CHECK ---
     const activeUserStr = localStorage.getItem('erp_active_user');
     if (!activeUserStr) { window.location.href = 'login.html'; return; }
     const activeUser = JSON.parse(activeUserStr);
     const isSA = activeUser.Is_SuperAdmin === "Yes";
-    const schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode;
+    schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode;
     let userRights = [];
     try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
 
@@ -71,21 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }); 
         });
     }
-    
-    let appData = []; let setupData = null; let feeHeads = []; let feeReceipts = [];  
-    let charts = { class: null, blood: null, cat: null, rel: null, house: null, age: null };
-    const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
-    const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/128/3135/3135715.png';
-
-    const formTabs = document.querySelectorAll('.form-tabs .tab');
-    const tabContents = document.querySelectorAll('.form-tab-content');
-    formTabs.forEach(tab => {
-        tab.addEventListener('click', (e) => {
-            e.preventDefault();
-            formTabs.forEach(t => t.classList.remove('active')); tabContents.forEach(c => c.classList.remove('active'));
-            tab.classList.add('active'); document.getElementById(tab.getAttribute('data-target')).classList.add('active');
-        });
-    });
 
     document.getElementById('dob').addEventListener('change', function() {
         let dob = new Date(this.value); let today = new Date();
@@ -108,32 +128,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // AUTO LOAD SYNC (FIRESTORE INTEGRATED)
+    // AUTO LOAD SYNC (FIRESTORE INTEGRATED - FAIL SAFE)
     // ==========================================
     window.syncWithDatabase = async function() {
         const tbody = document.getElementById('studentTableBody'); 
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳<br><span style="font-size:11px; color:#777;">Please wait, fetching records.</span></td></tr>';
+        if(tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳<br><span style="font-size:11px; color:#777;">Please wait, fetching records.</span></td></tr>';
         
         try {
-            // Fetch Setup Data
-            let setupDoc = await db.collection("setups").doc(schoolCode).get();
-            if (setupDoc.exists) {
+            // Fetch Setup Data (with fallback)
+            let setupDoc = await db.collection("setups").doc(schoolCode).get().catch(() => null);
+            if (setupDoc && setupDoc.exists) {
                 setupData = setupDoc.data();
             } else {
                 setupData = { classes: [], genders: [], categories: [], bloodGroups: [], houses: [], religions: [], salutations: [] };
             }
 
             // Fetch Students Data
-            let studentSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get();
+            let studentSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
             appData = [];
-            studentSnap.forEach(doc => {
-                appData.push(doc.data());
-            });
+            if(studentSnap.forEach) {
+                studentSnap.forEach(doc => { appData.push(doc.data()); });
+            }
 
-            // Fetch Fee Receipts
-            let feeSnap = await db.collection("fee_receipts").where("schoolCode", "==", schoolCode).get();
+            // Fetch Fee Receipts (with fallback)
+            let feeSnap = await db.collection("fee_receipts").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
             feeReceipts = [];
-            feeSnap.forEach(doc => feeReceipts.push(doc.data()));
+            if(feeSnap.forEach) {
+                feeSnap.forEach(doc => feeReceipts.push(doc.data()));
+            }
 
             // Setup UI
             loadSetupDropdowns(); 
@@ -144,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error("Firebase Sync Error:", error);
-            tbody.innerHTML = `<tr><td colspan="10" style="color:#c0392b; text-align:center; padding:30px; background:#fdf0ed;"><span style="font-size:20px; font-weight:bold;">⚠️ API Connection Failed</span><br><br><span style="font-size:14px; color:#333;"><b>Reason:</b> ${error.message}</span><br><br><button onclick="syncWithDatabase()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px;">🔄 Retry Connection</button></td></tr>`; 
+            if(tbody) tbody.innerHTML = `<tr><td colspan="10" style="color:#c0392b; text-align:center; padding:30px; background:#fdf0ed;"><span style="font-size:20px; font-weight:bold;">⚠️ Database Connection Interrupted</span><br><br><span style="font-size:14px; color:#333;"><b>Reason:</b> ${error.message}</span><br><br><button onclick="syncWithDatabase()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px;">🔄 Retry Connection</button></td></tr>`; 
         }
     }
 
@@ -170,7 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function loadSetupDropdowns() {
+    // Assign to a global variable so we can hook it later
+    window.loadSetupDropdowns = function() {
         if(!setupData) return; 
         function fillSelect(id, array, isObj = false) { const el = document.getElementById(id); if(!el) return; el.innerHTML = '<option value="">Select</option>'; if(array) { array.forEach(item => { let val = isObj ? `${item.name} (${item.section})` : item; el.innerHTML += `<option value="${val}">${val}</option>`; }); } }
         
@@ -190,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fillSelectWithAll('filterReligion', setupData.religions);
 
         fillSalutations();
+        populateBulkDropdowns(); // Call the bulk population here
     }
 
     const fClassDropdown = document.getElementById('filterClass');
@@ -210,7 +234,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderTable(dataToRender) {
-        const tbody = document.getElementById('studentTableBody'); tbody.innerHTML = '';
+        const tbody = document.getElementById('studentTableBody'); 
+        if(!tbody) return;
+        tbody.innerHTML = '';
         if(dataToRender.length === 0) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">No records found.</td></tr>'; return; }
         
         dataToRender.forEach(student => {
@@ -228,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let photoUrl = student.studentPhotoBase64 || DEFAULT_AVATAR;
 
             tr.innerHTML = `<td style="text-align:center;"><img src="${photoUrl}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ccc;"></td>
-            <td>${student.regNo || '-'}</td><td>${sClass}</td><td>${sSec}</td><td><a href="#" class="student-ledger-link" onclick="openLedger('${student.regNo}')" title="View Fee Ledger">${student.studentFirstName || student.studentName || '-'}</a></td><td>${student.gender || '-'}</td><td>${student.category || '-'}</td><td>${student.bloodGroup || '-'}</td><td>${student.house || '-'}</td><td>${btnHTML}</td>`;
+            <td>${student.rollNo || '-'}</td><td>${student.regNo || '-'}</td><td>${sClass}</td><td>${sSec}</td><td><a href="#" class="student-ledger-link" onclick="openLedger('${student.regNo}')" title="View Fee Ledger">${student.studentFirstName || student.studentName || '-'}</a></td><td>${student.gender || '-'}</td><td>${btnHTML}</td>`;
             tbody.appendChild(tr);
         });
     }
@@ -279,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('click', (e) => { if (filterPanel.style.display === 'block' && !filterPanel.contains(e.target) && !btnToggleFilters.contains(e.target)) { filterPanel.style.display = 'none'; } });
     }
 
-    document.getElementById('btn-refresh-data').addEventListener('click', syncWithDatabase);
+    document.getElementById('btn-refresh-data')?.addEventListener('click', syncWithDatabase);
 
     function calculateAgeForGraph(dobStr) { if(!dobStr) return "N/A"; let diff = new Date() - new Date(dobStr); return Math.floor(diff / 31557600000); }
 
@@ -336,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ==========================================
-    // SAVE STUDENT (FIRESTORE INTEGRATION)
+    // SAVE STUDENT (FIRESTORE)
     // ==========================================
     let pendingStudentData = null;
     let pendingIsEdit = false;
@@ -373,7 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             if(!pendingIsEdit) {
-                // Set default portalId and pin for new student
                 pendingStudentData.portalId = pendingStudentData.regNo.replace(/\//g, '').toLowerCase();
                 pendingStudentData.pin = "123456"; 
                 pendingStudentData.password = "123456";
@@ -387,12 +412,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             await db.collection("students").doc(docId).set(pendingStudentData, { merge: true });
-            
-            // Logic to trigger Cloud Function for Email (Skipped for frontend only setup, backend function needed)
-            if(sendEmailChoice && pendingStudentData.primaryEmail) {
-                console.log("Email trigger required for: ", pendingStudentData.primaryEmail);
-            }
-
             customAlert(pendingIsEdit ? "Updated in DB!" : "Added to DB!"); 
             document.getElementById('btn-back-to-profiles').click(); 
             syncWithDatabase();
@@ -408,20 +427,11 @@ document.addEventListener('DOMContentLoaded', () => {
         btnAddStudent.addEventListener('click', () => {
             document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module')); document.getElementById('module-admission').classList.add('active-module');
             document.getElementById('admissionForm').reset(); document.getElementById('formTitle').innerText = "Student Admission Form"; document.getElementById('saveSubmitBtn').innerText = "Save Record to DB"; document.getElementById('saveSubmitBtn').style.background = "#5cb85c"; document.getElementById('editMode').value = "false"; document.getElementById('regNo').readOnly = false; formTabs[0].click(); updateNextRegNo(); 
-            // Reset photos
             ['studentPhoto', 'fatherPhoto', 'motherPhoto'].forEach(p => { document.getElementById(p+'Base64').value = ''; document.getElementById(p.replace('studentPhoto','photo')+'Preview').src = DEFAULT_AVATAR; document.getElementById('btnRemove_'+p).style.display = 'none'; });
         });
     }
 
-    document.getElementById('btn-back-to-profiles').addEventListener('click', () => { document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module')); document.getElementById('module-profiles').classList.add('active-module'); });
-
-    document.querySelectorAll('.nav-btn').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault(); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
-            this.classList.add('active'); const targetId = this.getAttribute('data-target');
-            if(targetId) { document.getElementById(targetId).classList.add('active-module'); if(targetId === 'module-dashboard') { setTimeout(() => { Object.values(charts).forEach(c => { if(c) c.resize(); }); }, 100); } }
-        });
-    });
+    document.getElementById('btn-back-to-profiles')?.addEventListener('click', () => { document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module')); document.getElementById('module-profiles').classList.add('active-module'); });
 
     // EXPORT DROPDOWN LOGIC
     const exportToggle = document.getElementById('btnExportStudentsToggle');
@@ -431,14 +441,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('click', () => { exportMenu.style.display = 'none'; });
     }
 
-    document.getElementById('exportStudentsPdfBtn').addEventListener('click', () => {
+    document.getElementById('exportStudentsPdfBtn')?.addEventListener('click', () => {
         let element = document.getElementById('studentsExportArea');
         let opt = { margin: 0.3, filename: "Student_Profiles_Export.pdf", image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' } };
         let originalBg = element.style.background; element.style.background = "#fff";
         html2pdf().set(opt).from(element).save().then(() => { element.style.background = originalBg; });
     });
 
-    document.getElementById('exportStudentsExcelBtn').addEventListener('click', () => {
+    document.getElementById('exportStudentsExcelBtn')?.addEventListener('click', () => {
         let exportDiv = document.getElementById('studentsExportArea').cloneNode(true);
         exportDiv.querySelectorAll('th:last-child, td:last-child').forEach(el => el.remove());
         let htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; } th, td { border: 1px solid #ddd; padding: 8px; text-align: left; } th { background-color: #2c3e50; color: white; font-weight: bold; }</style></head><body>${exportDiv.innerHTML}</body></html>`;
@@ -447,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // MASTER SETUP INTEGRATION (FIRESTORE)
+    // MASTER SETUP INTEGRATION
     // ==========================================
     const msCategoryEl = document.getElementById('msCategory');
     if(msCategoryEl) {
@@ -525,10 +535,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('singleEditModal').classList.add('active');
     };
 
-    document.getElementById('closeSingleEditModal').addEventListener('click', () => { document.getElementById('singleEditModal').classList.remove('active'); });
-    document.getElementById('btnCancelSingleEdit').addEventListener('click', () => { document.getElementById('singleEditModal').classList.remove('active'); });
+    document.getElementById('closeSingleEditModal')?.addEventListener('click', () => { document.getElementById('singleEditModal').classList.remove('active'); });
+    document.getElementById('btnCancelSingleEdit')?.addEventListener('click', () => { document.getElementById('singleEditModal').classList.remove('active'); });
 
-    document.getElementById('singleEditForm').addEventListener('submit', function(e) {
+    document.getElementById('singleEditForm')?.addEventListener('submit', function(e) {
         e.preventDefault(); const cat = document.getElementById('seCat').value; const idx = document.getElementById('seIndex').value; const val = document.getElementById('seValue').value.trim();
         if(cat === 'classes') { setupData[cat][idx] = { name: val, section: document.getElementById('seSection').value.trim(), fee: document.getElementById('seFee').value.trim() }; } 
         else if (cat === 'salutations') { const gender = document.querySelector('input[name="seSalGender"]:checked').value; setupData[cat][idx] = `${val} (${gender})`; } 
@@ -560,11 +570,11 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.appendChild(tr);
     }
 
-    document.getElementById('btnAddBulkRow').addEventListener('click', () => { const cat = document.getElementById('bulkCatTitle').dataset.cat; addBulkRow(cat); });
-    document.getElementById('closeBulkModal').addEventListener('click', () => { document.getElementById('bulkManageModal').classList.remove('active'); });
-    document.getElementById('btnCancelBulk').addEventListener('click', () => { document.getElementById('bulkManageModal').classList.remove('active'); });
+    document.getElementById('btnAddBulkRow')?.addEventListener('click', () => { const cat = document.getElementById('bulkCatTitle').dataset.cat; addBulkRow(cat); });
+    document.getElementById('closeBulkModal')?.addEventListener('click', () => { document.getElementById('bulkManageModal').classList.remove('active'); });
+    document.getElementById('btnCancelBulk')?.addEventListener('click', () => { document.getElementById('bulkManageModal').classList.remove('active'); });
 
-    document.getElementById('btnSaveBulk').addEventListener('click', () => {
+    document.getElementById('btnSaveBulk')?.addEventListener('click', () => {
         const cat = document.getElementById('bulkCatTitle').dataset.cat; const rows = document.querySelectorAll('#bulkTableBody tr'); let newData = [];
         rows.forEach(tr => {
             if(cat === 'classes') { let n = tr.querySelector('.blk-val1').value.trim(); let s = tr.querySelector('.blk-val2').value.trim(); let f = tr.querySelector('.blk-val3').value.trim(); if(n && s) newData.push({name: n, section: s, fee: f || 0}); } 
@@ -606,11 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('cropImageTarget').src = e.target.result;
             document.getElementById('cropModalOverlay').classList.add('active');
             if(cropper) { cropper.destroy(); }
-            cropper = new Cropper(document.getElementById('cropImageTarget'), {
-                aspectRatio: NaN, 
-                viewMode: 1,
-                autoCropArea: 1,
-            });
+            cropper = new Cropper(document.getElementById('cropImageTarget'), { aspectRatio: NaN, viewMode: 1, autoCropArea: 1 });
         }
         reader.readAsDataURL(file);
     }
@@ -637,7 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('btnApplyCrop').addEventListener('click', () => {
+    document.getElementById('btnApplyCrop')?.addEventListener('click', () => {
         if(cropper) {
             const canvas = cropper.getCroppedCanvas({ maxWidth: 200, maxHeight: 200 }); 
             if(canvas) {
@@ -653,7 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('btnCancelCrop').addEventListener('click', () => {
+    document.getElementById('btnCancelCrop')?.addEventListener('click', () => {
         document.getElementById('cropModalOverlay').classList.remove('active');
         if(cropper) { cropper.destroy(); cropper = null; }
     });
@@ -729,247 +735,223 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('ledgerModal').classList.add('active');
     }
     
-    document.getElementById('closeLedgerBtn').addEventListener('click', () => { document.getElementById('ledgerModal').classList.remove('active'); });
+    document.getElementById('closeLedgerBtn')?.addEventListener('click', () => { document.getElementById('ledgerModal').classList.remove('active'); });
 
-    setTimeout(() => { syncWithDatabase(); }, 100);
-});
+    // ============================================================================
+    // NEW FEATURES: BULK ACTIONS & PROMOTIONS (FIRESTORE BATCH)
+    // ============================================================================
+    function populateBulkDropdowns() {
+        const fromClass = document.getElementById('bulkFromClass');
+        const toClass = document.getElementById('bulkToClass');
+        const rollClass = document.getElementById('bulkRollClass');
+        const repClass = document.getElementById('reportClassSelect');
 
+        let optionsHtml = '<option value="">-- Select Class & Section --</option>';
+        if(setupData && setupData.classes) {
+            setupData.classes.forEach(c => {
+                let val = `${c.name} (${c.section})`;
+                optionsHtml += `<option value="${val}">${val}</option>`;
+            });
+        }
 
-
-// ============================================================================
-// NEW FEATURES: BULK ACTIONS & PROMOTIONS (FIRESTORE BATCH)
-// ============================================================================
-
-function populateBulkDropdowns() {
-    const fromClass = document.getElementById('bulkFromClass');
-    const toClass = document.getElementById('bulkToClass');
-    const rollClass = document.getElementById('bulkRollClass');
-    const repClass = document.getElementById('reportClassSelect');
-
-    let optionsHtml = '<option value="">-- Select Class & Section --</option>';
-    if(setupData && setupData.classes) {
-        setupData.classes.forEach(c => {
-            let val = `${c.name} (${c.section})`;
-            optionsHtml += `<option value="${val}">${val}</option>`;
-        });
+        if(fromClass) fromClass.innerHTML = optionsHtml;
+        if(toClass) toClass.innerHTML = optionsHtml;
+        if(rollClass) rollClass.innerHTML = optionsHtml;
+        if(repClass) repClass.innerHTML = '<option value="All">All Classes (Entire School)</option>' + optionsHtml;
     }
 
-    if(fromClass) fromClass.innerHTML = optionsHtml;
-    if(toClass) toClass.innerHTML = optionsHtml;
-    if(rollClass) rollClass.innerHTML = optionsHtml;
-    if(repClass) repClass.innerHTML = '<option value="All">All Classes (Entire School)</option>' + optionsHtml;
-}
+    document.getElementById('btnFetchForPromote')?.addEventListener('click', () => {
+        let cls = document.getElementById('bulkFromClass').value;
+        if(!cls) { customAlert("Please select a 'From' class first."); return; }
 
-// 1. Fetch Students for Promotion
-document.getElementById('btnFetchForPromote')?.addEventListener('click', () => {
-    let cls = document.getElementById('bulkFromClass').value;
-    if(!cls) { customAlert("Please select a 'From' class first."); return; }
+        let studentsInClass = appData.filter(s => s.studentClass === cls);
+        let tbody = document.getElementById('promoteTableBody');
+        tbody.innerHTML = '';
 
-    let studentsInClass = appData.filter(s => s.studentClass === cls);
-    let tbody = document.getElementById('promoteTableBody');
-    tbody.innerHTML = '';
-
-    if(studentsInClass.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No students found in ${cls}.</td></tr>`;
-    } else {
-        studentsInClass.forEach(s => {
-            let sName = s.studentFirstName || s.studentName;
-            tbody.innerHTML += `
-                <tr>
-                    <td><input type="checkbox" class="chk-promote" value="${s.regNo}" checked></td>
-                    <td>${s.regNo}</td>
-                    <td>${sName} ${s.studentLastName || ''}</td>
-                    <td><span style="background:#e8f4f8; padding:3px 8px; border-radius:4px; font-size:12px;">Current: ${cls}</span></td>
-                </tr>
-            `;
-        });
-    }
-    document.getElementById('promoteTableArea').style.display = 'block';
-});
-
-// Check/Uncheck All Logic
-document.getElementById('chkAllPromote')?.addEventListener('change', function() {
-    let checkboxes = document.querySelectorAll('.chk-promote');
-    checkboxes.forEach(chk => chk.checked = this.checked);
-});
-
-// Execute Bulk Promotion
-document.getElementById('btnExecutePromote')?.addEventListener('click', async () => {
-    let toCls = document.getElementById('bulkToClass').value;
-    if(!toCls) { customAlert("Please select a destination 'To' class."); return; }
-
-    let checkboxes = document.querySelectorAll('.chk-promote:checked');
-    if(checkboxes.length === 0) { customAlert("Select at least one student."); return; }
-
-    if(!confirm(`Are you sure you want to move ${checkboxes.length} students to ${toCls}?`)) return;
-
-    const btn = document.getElementById('btnExecutePromote');
-    btn.innerText = "Updating Database..."; btn.disabled = true;
-
-    try {
-        let batch = db.batch(); // Firestore Batch Operation for atomicity
-        
-        checkboxes.forEach(chk => {
-            let regNo = chk.value;
-            let safeRegNo = regNo.replace(/\//g, '-');
-            let docRef = db.collection("students").doc(`${schoolCode}_${safeRegNo}`);
-            
-            batch.update(docRef, { studentClass: toCls });
-        });
-
-        await batch.commit();
-        customAlert("Bulk Update Successful!");
-        document.getElementById('promoteTableArea').style.display = 'none';
-        document.getElementById('bulkFromClass').value = "";
-        document.getElementById('bulkToClass').value = "";
-        syncWithDatabase(); // Refresh local array
-    } catch(err) {
-        customAlert("Error during bulk update: " + err.message);
-    } finally {
-        btn.innerText = "Update Selected Students"; btn.disabled = false;
-    }
-});
-
-
-// 2. Bulk Roll Number Generator
-document.getElementById('btnGenerateRolls')?.addEventListener('click', () => {
-    let cls = document.getElementById('bulkRollClass').value;
-    let startNo = parseInt(document.getElementById('bulkRollStart').value) || 1;
-    if(!cls) { customAlert("Select a class to generate roll numbers."); return; }
-
-    // Fetch and sort alphabetically by First Name
-    let studentsInClass = appData.filter(s => s.studentClass === cls);
-    studentsInClass.sort((a, b) => {
-        let nameA = (a.studentFirstName || a.studentName || "").toLowerCase();
-        let nameB = (b.studentFirstName || b.studentName || "").toLowerCase();
-        return nameA.localeCompare(nameB);
+        if(studentsInClass.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No students found in ${cls}.</td></tr>`;
+        } else {
+            studentsInClass.forEach(s => {
+                let sName = s.studentFirstName || s.studentName;
+                tbody.innerHTML += `
+                    <tr>
+                        <td><input type="checkbox" class="chk-promote" value="${s.regNo}" checked></td>
+                        <td>${s.regNo}</td>
+                        <td>${sName} ${s.studentLastName || ''}</td>
+                        <td><span style="background:#e8f4f8; padding:3px 8px; border-radius:4px; font-size:12px;">Current: ${cls}</span></td>
+                    </tr>
+                `;
+            });
+        }
+        document.getElementById('promoteTableArea').style.display = 'block';
     });
 
-    let tbody = document.getElementById('rollTableBody');
-    tbody.innerHTML = '';
+    document.getElementById('chkAllPromote')?.addEventListener('change', function() {
+        let checkboxes = document.querySelectorAll('.chk-promote');
+        checkboxes.forEach(chk => chk.checked = this.checked);
+    });
 
-    if(studentsInClass.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No students found.</td></tr>`;
-    } else {
-        studentsInClass.forEach((s, index) => {
-            let sName = s.studentFirstName || s.studentName;
-            let newRoll = startNo + index;
-            tbody.innerHTML += `
-                <tr data-reg="${s.regNo}" data-newroll="${newRoll}">
-                    <td>${s.regNo}</td>
-                    <td>${sName} ${s.studentLastName || ''}</td>
-                    <td style="color:#7f8c8d;">${s.rollNo || '-'}</td>
-                    <td><strong style="color:#27ae60;">${newRoll}</strong></td>
-                </tr>
-            `;
-        });
-    }
-    document.getElementById('rollTableArea').style.display = 'block';
-});
+    document.getElementById('btnExecutePromote')?.addEventListener('click', async () => {
+        let toCls = document.getElementById('bulkToClass').value;
+        if(!toCls) { customAlert("Please select a destination 'To' class."); return; }
 
-// Execute Roll Number Save
-document.getElementById('btnExecuteRolls')?.addEventListener('click', async () => {
-    let rows = document.querySelectorAll('#rollTableBody tr[data-reg]');
-    if(rows.length === 0) return;
+        let checkboxes = document.querySelectorAll('.chk-promote:checked');
+        if(checkboxes.length === 0) { customAlert("Select at least one student."); return; }
 
-    const btn = document.getElementById('btnExecuteRolls');
-    btn.innerText = "Saving Rolls..."; btn.disabled = true;
+        if(!confirm(`Are you sure you want to move ${checkboxes.length} students to ${toCls}?`)) return;
 
-    try {
-        let batch = db.batch(); 
-        
-        rows.forEach(tr => {
-            let regNo = tr.getAttribute('data-reg');
-            let newRoll = tr.getAttribute('data-newroll');
-            let safeRegNo = regNo.replace(/\//g, '-');
-            let docRef = db.collection("students").doc(`${schoolCode}_${safeRegNo}`);
+        const btn = document.getElementById('btnExecutePromote');
+        btn.innerText = "Updating Database..."; btn.disabled = true;
+
+        try {
+            let batch = db.batch(); 
             
-            batch.update(docRef, { rollNo: newRoll });
+            checkboxes.forEach(chk => {
+                let regNo = chk.value;
+                let safeRegNo = regNo.replace(/\//g, '-');
+                let docRef = db.collection("students").doc(`${schoolCode}_${safeRegNo}`);
+                batch.update(docRef, { studentClass: toCls });
+            });
+
+            await batch.commit();
+            customAlert("Bulk Update Successful!");
+            document.getElementById('promoteTableArea').style.display = 'none';
+            document.getElementById('bulkFromClass').value = "";
+            document.getElementById('bulkToClass').value = "";
+            syncWithDatabase(); 
+        } catch(err) {
+            customAlert("Error during bulk update: " + err.message);
+        } finally {
+            btn.innerText = "Update Selected Students"; btn.disabled = false;
+        }
+    });
+
+    document.getElementById('btnGenerateRolls')?.addEventListener('click', () => {
+        let cls = document.getElementById('bulkRollClass').value;
+        let startNo = parseInt(document.getElementById('bulkRollStart').value) || 1;
+        if(!cls) { customAlert("Select a class to generate roll numbers."); return; }
+
+        let studentsInClass = appData.filter(s => s.studentClass === cls);
+        studentsInClass.sort((a, b) => {
+            let nameA = (a.studentFirstName || a.studentName || "").toLowerCase();
+            let nameB = (b.studentFirstName || b.studentName || "").toLowerCase();
+            return nameA.localeCompare(nameB);
         });
 
-        await batch.commit();
-        customAlert("Roll Numbers Assigned Successfully!");
-        document.getElementById('rollTableArea').style.display = 'none';
-        document.getElementById('bulkRollClass').value = "";
-        syncWithDatabase(); 
-    } catch(err) {
-        customAlert("Error saving roll numbers: " + err.message);
-    } finally {
-        btn.innerText = "Save Roll Numbers"; btn.disabled = false;
-    }
+        let tbody = document.getElementById('rollTableBody');
+        tbody.innerHTML = '';
+
+        if(studentsInClass.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No students found.</td></tr>`;
+        } else {
+            studentsInClass.forEach((s, index) => {
+                let sName = s.studentFirstName || s.studentName;
+                let newRoll = startNo + index;
+                tbody.innerHTML += `
+                    <tr data-reg="${s.regNo}" data-newroll="${newRoll}">
+                        <td>${s.regNo}</td>
+                        <td>${sName} ${s.studentLastName || ''}</td>
+                        <td style="color:#7f8c8d;">${s.rollNo || '-'}</td>
+                        <td><strong style="color:#27ae60;">${newRoll}</strong></td>
+                    </tr>
+                `;
+            });
+        }
+        document.getElementById('rollTableArea').style.display = 'block';
+    });
+
+    document.getElementById('btnExecuteRolls')?.addEventListener('click', async () => {
+        let rows = document.querySelectorAll('#rollTableBody tr[data-reg]');
+        if(rows.length === 0) return;
+
+        const btn = document.getElementById('btnExecuteRolls');
+        btn.innerText = "Saving Rolls..."; btn.disabled = true;
+
+        try {
+            let batch = db.batch(); 
+            
+            rows.forEach(tr => {
+                let regNo = tr.getAttribute('data-reg');
+                let newRoll = tr.getAttribute('data-newroll');
+                let safeRegNo = regNo.replace(/\//g, '-');
+                let docRef = db.collection("students").doc(`${schoolCode}_${safeRegNo}`);
+                batch.update(docRef, { rollNo: newRoll });
+            });
+
+            await batch.commit();
+            customAlert("Roll Numbers Assigned Successfully!");
+            document.getElementById('rollTableArea').style.display = 'none';
+            document.getElementById('bulkRollClass').value = "";
+            syncWithDatabase(); 
+        } catch(err) {
+            customAlert("Error saving roll numbers: " + err.message);
+        } finally {
+            btn.innerText = "Save Roll Numbers"; btn.disabled = false;
+        }
+    });
+
+    // ============================================================================
+    // EXPORT REPORTS ENGINE
+    // ============================================================================
+    window.openReportModal = function(type) {
+        document.getElementById('reportTypeHidden').value = type;
+        let title = "Generate Report";
+        if(type === 'classList') title = "Class-wise Student List";
+        if(type === 'contactList') title = "Contact & Email Directory";
+        if(type === 'demographics') title = "Demographics & Category Report";
+        
+        document.getElementById('reportModalTitle').innerText = title;
+        document.getElementById('reportConfigModal').classList.add('active');
+    };
+
+    document.getElementById('btnDownloadReport')?.addEventListener('click', () => {
+        let type = document.getElementById('reportTypeHidden').value;
+        let cls = document.getElementById('reportClassSelect').value;
+        
+        let reportData = appData;
+        if(cls !== "All") {
+            reportData = appData.filter(s => s.studentClass === cls);
+        }
+
+        if(reportData.length === 0) {
+            customAlert("No students found in the selected class.");
+            return;
+        }
+
+        let htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"><style>table { border-collapse: collapse; font-family: Arial; } th, td { border: 1px solid #000; padding: 5px; text-align: left; } th { background-color: #f2f2f2; font-weight: bold; }</style></head><body>`;
+        htmlContent += `<h2>${document.getElementById('reportModalTitle').innerText} - ${cls}</h2><table>`;
+
+        if(type === 'classList') {
+            htmlContent += `<tr><th>Roll No</th><th>Reg No</th><th>Student Name</th><th>Class</th><th>Gender</th><th>DOB</th></tr>`;
+            reportData.forEach(s => {
+                htmlContent += `<tr><td>${s.rollNo || ''}</td><td>${s.regNo}</td><td>${s.studentFirstName||''} ${s.studentLastName||''}</td><td>${s.studentClass||''}</td><td>${s.gender||''}</td><td>${s.dob||''}</td></tr>`;
+            });
+        } 
+        else if(type === 'contactList') {
+            htmlContent += `<tr><th>Student Name</th><th>Class</th><th>Primary Mobile</th><th>Email</th><th>Father Name</th><th>Father Mobile</th></tr>`;
+            reportData.forEach(s => {
+                htmlContent += `<tr><td>${s.studentFirstName||''} ${s.studentLastName||''}</td><td>${s.studentClass||''}</td><td>${s.mobile||''}</td><td>${s.primaryEmail||''}</td><td>${s.fatherName||''}</td><td>${s.fatherContact||''}</td></tr>`;
+            });
+        }
+        else if(type === 'demographics') {
+            htmlContent += `<tr><th>Reg No</th><th>Student Name</th><th>Class</th><th>Category</th><th>Religion</th><th>Blood Group</th><th>Mother Tongue</th></tr>`;
+            reportData.forEach(s => {
+                htmlContent += `<tr><td>${s.regNo}</td><td>${s.studentFirstName||''} ${s.studentLastName||''}</td><td>${s.studentClass||''}</td><td>${s.category||''}</td><td>${s.religion||''}</td><td>${s.bloodGroup||''}</td><td>${s.motherTongue||''}</td></tr>`;
+            });
+        }
+
+        htmlContent += `</table></body></html>`;
+
+        let blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+        let url = URL.createObjectURL(blob); 
+        let a = document.createElement('a'); 
+        a.href = url; 
+        a.download = `SIS_Report_${type}_${cls.replace(/[^a-zA-Z0-9]/g, '')}.xls`; 
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+
+        document.getElementById('reportConfigModal').classList.remove('active');
+    });
+
+    // Start fetching data
+    setTimeout(() => { syncWithDatabase(); }, 100);
 });
-
-
-// ============================================================================
-// NEW FEATURES: EXPORT REPORTS ENGINE
-// ============================================================================
-
-window.openReportModal = function(type) {
-    document.getElementById('reportTypeHidden').value = type;
-    let title = "Generate Report";
-    if(type === 'classList') title = "Class-wise Student List";
-    if(type === 'contactList') title = "Contact & Email Directory";
-    if(type === 'demographics') title = "Demographics & Category Report";
-    
-    document.getElementById('reportModalTitle').innerText = title;
-    document.getElementById('reportConfigModal').classList.add('active');
-};
-
-document.getElementById('btnDownloadReport')?.addEventListener('click', () => {
-    let type = document.getElementById('reportTypeHidden').value;
-    let cls = document.getElementById('reportClassSelect').value;
-    
-    // Filter data based on class selection
-    let reportData = appData;
-    if(cls !== "All") {
-        reportData = appData.filter(s => s.studentClass === cls);
-    }
-
-    if(reportData.length === 0) {
-        customAlert("No students found in the selected class.");
-        return;
-    }
-
-    // Prepare table HTML for Excel Export
-    let htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"><style>table { border-collapse: collapse; font-family: Arial; } th, td { border: 1px solid #000; padding: 5px; text-align: left; } th { background-color: #f2f2f2; font-weight: bold; }</style></head><body>`;
-    
-    htmlContent += `<h2>${document.getElementById('reportModalTitle').innerText} - ${cls}</h2><table>`;
-
-    if(type === 'classList') {
-        htmlContent += `<tr><th>Roll No</th><th>Reg No</th><th>Student Name</th><th>Class</th><th>Gender</th><th>DOB</th></tr>`;
-        reportData.forEach(s => {
-            htmlContent += `<tr><td>${s.rollNo || ''}</td><td>${s.regNo}</td><td>${s.studentFirstName||''} ${s.studentLastName||''}</td><td>${s.studentClass||''}</td><td>${s.gender||''}</td><td>${s.dob||''}</td></tr>`;
-        });
-    } 
-    else if(type === 'contactList') {
-        htmlContent += `<tr><th>Student Name</th><th>Class</th><th>Primary Mobile</th><th>Email</th><th>Father Name</th><th>Father Mobile</th></tr>`;
-        reportData.forEach(s => {
-            htmlContent += `<tr><td>${s.studentFirstName||''} ${s.studentLastName||''}</td><td>${s.studentClass||''}</td><td>${s.mobile||''}</td><td>${s.primaryEmail||''}</td><td>${s.fatherName||''}</td><td>${s.fatherContact||''}</td></tr>`;
-        });
-    }
-    else if(type === 'demographics') {
-        htmlContent += `<tr><th>Reg No</th><th>Student Name</th><th>Class</th><th>Category</th><th>Religion</th><th>Blood Group</th><th>Mother Tongue</th></tr>`;
-        reportData.forEach(s => {
-            htmlContent += `<tr><td>${s.regNo}</td><td>${s.studentFirstName||''} ${s.studentLastName||''}</td><td>${s.studentClass||''}</td><td>${s.category||''}</td><td>${s.religion||''}</td><td>${s.bloodGroup||''}</td><td>${s.motherTongue||''}</td></tr>`;
-        });
-    }
-
-    htmlContent += `</table></body></html>`;
-
-    // Trigger Excel Download
-    let blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
-    let url = URL.createObjectURL(blob); 
-    let a = document.createElement('a'); 
-    a.href = url; 
-    a.download = `SIS_Report_${type}_${cls.replace(/[^a-zA-Z0-9]/g, '')}.xls`; 
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-
-    document.getElementById('reportConfigModal').classList.remove('active');
-});
-
-// IMPORTANT: Hook the populateBulkDropdowns to your existing loadSetupDropdowns function
-const originalLoadSetup = loadSetupDropdowns;
-loadSetupDropdowns = function() {
-    originalLoadSetup(); // run original
-    populateBulkDropdowns(); // run new dropdown population
-};
