@@ -6,22 +6,39 @@
     <title>Student Portal - Dashboard</title>
     <!-- LINK TO EXTERNAL CSS -->
     <link rel="stylesheet" href="student_dashboard.css">
+
+    <!-- FIREBASE SDKS -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // YOUR REAL FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHS0Xk5o-PZK_bBGtsQqGlS9TLOcnXCsM",
+            authDomain: "school-erp-3bd0a.firebaseapp.com",
+            projectId: "school-erp-3bd0a",
+            storageBucket: "school-erp-3bd0a.firebasestorage.app",
+            messagingSenderId: "222944507292",
+            appId: "1:222944507292:web:3b80280c1359b9fa6ec459"
+        };
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+    </script>
 </head>
 <body>
 
     <!-- TOP NAVBAR -->
     <div class="navbar">
-
-
-
-<div class="logo">
-    <img id="dynamicNavLogo" src="" alt="logo" style="max-height:24px; margin-right:5px; border-radius:4px; display:none; vertical-align:middle;">
-    <span id="defaultNavLogo">🏫</span>
-    <span id="dynamicNavName" style="margin-left: 5px;">SHUBH ERP</span>
-</div>
-        
-
-        
+        <div class="logo">
+            <img id="dynamicNavLogo" src="" alt="logo" style="max-height:24px; margin-right:5px; border-radius:4px; display:none; vertical-align:middle;">
+            <span id="defaultNavLogo">🏫</span>
+            <span id="dynamicNavName" style="margin-left: 5px;">SHUBH ERP</span>
+        </div>
         <button class="btn-logout" id="btnStudentLogout">Log Out</button>
     </div>
 
@@ -89,7 +106,7 @@
                         <p>You're doing great—keep up the hard work.<br>Check your timetable, homework, and upcoming events.</p>
                     </div>
                     <div class="student-badge-info">
-                        <div class="stu-avatar-circle" id="dashAvatarBox">D</div>
+                        <div class="stu-avatar-circle" id="dashAvatarBox">S</div>
                         <div class="stu-details-mini">
                             <h4 id="dashName">Loading Name...</h4>
                             <span><span id="dashRegNo">ID</span> • <span id="dashClass">Class</span></span>
@@ -98,7 +115,7 @@
                 </div>
 
                 <!-- Fee Alert Widget -->
-                <div class="fee-alert" id="feeAlertWidget">
+                <div class="fee-alert" id="feeAlertWidget" style="display: none;">
                     <div class="fee-alert-left">
                         <div class="fee-alert-icon">Fee</div>
                         <div class="fee-alert-text">
@@ -121,7 +138,7 @@
 
                 <!-- Unified Timeline Feed -->
                 <div id="mainFeedContainer" style="margin-top: 15px;">
-                    <p style="text-align:center; padding:30px; color:#94a3b8;">Fetching updates... ⏳</p>
+                    <p style="text-align:center; padding:30px; color:#94a3b8;">Fetching updates from Database... ⏳</p>
                 </div>
             </div>
 
