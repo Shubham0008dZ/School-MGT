@@ -3083,20 +3083,21 @@
     </style>
 
     <!-- ============================================================
-         FINAL SHUBH ERP ATTENDANCE UI
-         CSS only — preserves all existing application logic.
-         ============================================================ -->
+     FINAL SHUBH ERP UI — PRESENTATION ONLY
+     ============================================================ -->
     <style id="shubh-erp-attendance-final-ui">
         /* =====================================================================
-   SHUBH ERP — ATTENDANCE UI CONSISTENCY PASS
+   SHUBH ERP — ATTENDANCE UI ONLY
    ---------------------------------------------------------------------
-   This is a CSS-only presentation layer.
-   Existing attendance HTML structure, element IDs, Firebase setup,
-   API endpoint resolution, attendance save/edit/delete logic, and
-   sidebar toggle JavaScript are deliberately untouched.
+   Same visual language as Student SIS + Employee modules.
+   NAVY + BRASS + PAPER, with matching header/sidebar/forms/tables.
+
+   IMPORTANT:
+   This block changes presentation only. Existing attendance HTML,
+   Firebase setup, API URL resolution, attendance save/edit/delete
+   handlers, session logic, and sidebar JavaScript are untouched.
    ===================================================================== */
 
-        /* ---------------- Design tokens ---------------- */
         :root {
             --ink: #14213D;
             --ink-soft: #253355;
@@ -3112,18 +3113,15 @@
             --good: #1F7A52;
             --good-bg: #E7F3EC;
             --bad: #B23A2E;
-            --warn: #B4791E;
             --info: #2A5C8A;
-            --radius-s: 6px;
             --radius-m: 10px;
             --radius-l: 16px;
             --shadow-1: 0 1px 2px rgba(20, 33, 61, .06), 0 2px 8px rgba(20, 33, 61, .05);
-            --shadow-2: 0 8px 28px rgba(20, 33, 61, .14);
             --sidebar-w: 258px;
             --sidebar-w-collapsed: 68px;
         }
 
-        /* ---------------- Base ---------------- */
+        /* ---------- Base ---------- */
         html,
         body {
             width: 100%;
@@ -3140,31 +3138,30 @@
         h1,
         h2,
         h3,
-        h4 {
+        h4,
+        h5,
+        h6 {
             font-family: 'Fraunces', Georgia, serif !important;
             color: var(--ink) !important;
         }
 
-        * {
+        button,
+        input,
+        select,
+        textarea {
+            font-family: 'Inter', Arial, sans-serif !important;
             box-sizing: border-box;
         }
 
-        /* ---------------- Header ---------------- */
+        /* ---------- Header ---------- */
         .top-navbar {
             height: 58px !important;
             min-height: 58px !important;
             padding: 0 22px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
             background: var(--ink) !important;
-            color: #EFEAD9 !important;
             border-bottom: 1px solid rgba(255, 255, 255, .06) !important;
-            position: relative;
-            z-index: 40;
         }
 
-        /* User requested no header search box. */
         .top-center,
         .global-search {
             display: none !important;
@@ -3174,29 +3171,30 @@
             display: flex !important;
             align-items: center !important;
             gap: 14px !important;
-            font-weight: normal !important;
+            font-weight: 400 !important;
         }
 
         .top-left>a {
-            text-decoration: none !important;
             display: flex !important;
             align-items: center !important;
             gap: 12px !important;
+            text-decoration: none !important;
         }
 
         .hamburger-btn {
             width: 34px !important;
-            height: 34px !important;
             min-width: 34px !important;
+            height: 34px !important;
             padding: 0 !important;
+            margin: 0 !important;
+            border: 1px solid rgba(255, 255, 255, .1) !important;
             border-radius: 8px !important;
-            border: 1px solid rgba(255, 255, 255, .10) !important;
             background: rgba(255, 255, 255, .06) !important;
             color: #EFEAD9 !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            cursor: pointer;
+            cursor: pointer !important;
         }
 
         .hamburger-btn:hover {
@@ -3204,21 +3202,11 @@
             color: var(--brass-soft) !important;
         }
 
-        .school-logo {
-            display: flex !important;
-            align-items: center !important;
-        }
-
-        #defaultNavLogo {
-            font-size: 20px !important;
-        }
-
         .school-name {
+            color: #F7F3E7 !important;
             font-family: 'Fraunces', Georgia, serif !important;
             font-size: 17px !important;
             font-weight: 600 !important;
-            letter-spacing: .01em !important;
-            color: #F7F3E7 !important;
         }
 
         .top-right {
@@ -3230,10 +3218,10 @@
         }
 
         .top-right span {
+            color: #D8D2BF !important;
             display: flex !important;
             align-items: center !important;
             gap: 6px !important;
-            color: #D8D2BF !important;
         }
 
         #btnLogout {
@@ -3244,30 +3232,25 @@
             border-radius: 8px !important;
             font-size: 12px !important;
             font-weight: 600 !important;
-            cursor: pointer !important;
         }
 
-        #btnLogout:hover {
-            background: rgba(178, 58, 46, .25) !important;
-            border-color: #F0B8AE !important;
-        }
-
-        /* ---------------- Main shell ---------------- */
+        /* ---------- Layout ---------- */
         .erp-wrapper {
             display: flex !important;
+            width: 100% !important;
             height: calc(100vh - 58px) !important;
             background: var(--paper) !important;
         }
 
         .main-content {
             flex: 1 !important;
+            min-width: 0 !important;
             overflow-y: auto !important;
-            min-width: 0;
             padding: 26px 30px 60px !important;
             background: var(--paper) !important;
         }
 
-        /* ---------------- Sidebar: same SIS/Employee look ---------------- */
+        /* ---------- Sidebar ---------- */
         .sidebar,
         .red-sidebar {
             width: var(--sidebar-w) !important;
@@ -3283,8 +3266,8 @@
 
         .sidebar-header,
         .red-header {
-            padding: 22px 20px 14px !important;
             background: transparent !important;
+            padding: 22px 20px 14px !important;
             text-align: left !important;
         }
 
@@ -3295,8 +3278,10 @@
             gap: 8px !important;
             margin: 0 !important;
             color: #F7F3E7 !important;
-            font-size: 15px !important;
             font-family: 'Fraunces', Georgia, serif !important;
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            letter-spacing: .03em !important;
         }
 
         .sidebar-header::after {
@@ -3328,7 +3313,6 @@
             text-decoration: none !important;
             font-size: 13.5px !important;
             font-weight: 500 !important;
-            transition: background .15s, color .15s !important;
         }
 
         .nav-links li a:hover {
@@ -3338,20 +3322,16 @@
 
         .nav-links li a.active {
             background: rgba(192, 138, 46, .16) !important;
-            border-left: 3px solid var(--brass) !important;
             color: #F7F3E7 !important;
+            border-left: 3px solid var(--brass) !important;
             font-weight: 600 !important;
         }
 
         .nav-icon {
             width: 18px !important;
             min-width: 18px !important;
-            text-align: center !important;
             font-size: 16px !important;
-        }
-
-        .nav-text {
-            display: inline !important;
+            text-align: center !important;
         }
 
         .sidebar.collapsed {
@@ -3376,7 +3356,7 @@
             background: rgba(192, 138, 46, .20) !important;
         }
 
-        /* ---------------- Module headings ---------------- */
+        /* ---------- Page headings ---------- */
         .profile-header {
             display: flex !important;
             justify-content: space-between !important;
@@ -3388,15 +3368,15 @@
 
         .profile-header h2 {
             margin: 0 !important;
-            color: var(--ink) !important;
             font-family: 'Fraunces', Georgia, serif !important;
             font-size: 23px !important;
             font-weight: 600 !important;
+            color: var(--ink) !important;
             text-transform: none !important;
             letter-spacing: 0 !important;
         }
 
-        /* ---------------- Toolbar ---------------- */
+        /* ---------- Toolbars ---------- */
         .table-toolbar {
             position: relative !important;
             background: var(--white) !important;
@@ -3412,24 +3392,13 @@
             color: var(--text) !important;
         }
 
-        .table-toolbar strong {
-            color: var(--ink) !important;
-        }
-
-        /* ---------------- Buttons ---------------- */
+        /* ---------- Buttons ---------- */
         .btn {
-            border: none !important;
             padding: 9px 16px !important;
+            border: none !important;
             border-radius: 8px !important;
-            font-family: 'Inter', Arial, sans-serif !important;
             font-size: 13px !important;
             font-weight: 600 !important;
-            cursor: pointer !important;
-            transition: transform .05s, background .15s, box-shadow .15s !important;
-        }
-
-        .btn:active {
-            transform: translateY(1px);
         }
 
         .btn-dark {
@@ -3461,23 +3430,21 @@
             background: var(--good-bg) !important;
         }
 
-        .btn-edit {
-            background: var(--brass) !important;
-            color: #2A1C04 !important;
-            border: none !important;
-            border-radius: 7px !important;
-            padding: 6px 10px !important;
-        }
-
         .btn-red {
             background: var(--bad) !important;
             color: #fff !important;
             border: none !important;
             border-radius: 7px !important;
-            padding: 6px 10px !important;
         }
 
-        /* ---------------- Tables ---------------- */
+        .btn-edit {
+            background: var(--brass) !important;
+            color: #2A1C04 !important;
+            border: none !important;
+            border-radius: 7px !important;
+        }
+
+        /* ---------- Tables ---------- */
         .data-table {
             width: 100% !important;
             border-collapse: separate !important;
@@ -3485,28 +3452,26 @@
             background: var(--white) !important;
             border: 1px solid var(--line) !important;
             border-radius: var(--radius-m) !important;
-            overflow: hidden;
+            overflow: hidden !important;
             box-shadow: var(--shadow-1) !important;
-            font-size: 13px !important;
         }
 
         .data-table th {
             background: var(--ink) !important;
             color: #EFEAD9 !important;
-            font-weight: 600 !important;
             padding: 12px 14px !important;
             border: none !important;
             border-bottom: 2px solid var(--brass) !important;
             font-size: 12px !important;
+            font-weight: 600 !important;
         }
 
         .data-table td {
+            background: var(--white) !important;
+            color: var(--text) !important;
             padding: 11px 14px !important;
             border: none !important;
             border-bottom: 1px solid var(--line-soft) !important;
-            background: var(--white) !important;
-            color: var(--text) !important;
-            vertical-align: middle !important;
         }
 
         .data-table tr:nth-child(even) td {
@@ -3517,11 +3482,7 @@
             background: #FBF8F0 !important;
         }
 
-        .data-table tr:last-child td {
-            border-bottom: none !important;
-        }
-
-        /* ---------------- Daily Attendance setup ---------------- */
+        /* ---------- Pre-mark form ---------- */
         .pre-mark-container {
             max-width: 860px !important;
             margin: 20px auto !important;
@@ -3536,7 +3497,6 @@
         .pre-mark-row {
             display: flex !important;
             align-items: center !important;
-            gap: 0 !important;
             margin-bottom: 16px !important;
         }
 
@@ -3554,11 +3514,10 @@
             flex: 1 !important;
             max-width: none !important;
             padding: 9px 11px !important;
-            background: var(--paper-2) !important;
             border: 1px solid #D8D2C0 !important;
             border-radius: 7px !important;
+            background: var(--paper-2) !important;
             color: var(--text) !important;
-            font-family: 'Inter', Arial, sans-serif !important;
             font-size: 13px !important;
         }
 
@@ -3567,7 +3526,6 @@
             outline: none !important;
             border-color: var(--brass) !important;
             background: #fff !important;
-            box-shadow: none !important;
         }
 
         .btn-proceed {
@@ -3579,7 +3537,7 @@
             margin-right: 0 !important;
         }
 
-        /* ---------------- Attendance status ---------------- */
+        /* ---------- Attendance status controls ---------- */
         .status-options {
             display: flex !important;
             gap: 6px !important;
@@ -3645,9 +3603,9 @@
         .remark-input {
             width: 100% !important;
             padding: 9px 11px !important;
-            background: var(--paper-2) !important;
             border: 1px solid #D8D2C0 !important;
             border-radius: 7px !important;
+            background: var(--paper-2) !important;
             color: var(--text) !important;
         }
 
@@ -3657,7 +3615,7 @@
             background: #fff !important;
         }
 
-        /* ---------------- Notification modal ---------------- */
+        /* ---------- Notification modal ---------- */
         .modal-overlay {
             background: rgba(20, 20, 15, .58) !important;
             backdrop-filter: blur(1.5px);
@@ -3681,13 +3639,14 @@
 
         .modal-header h3 {
             color: #F4F1E9 !important;
-            font-family: 'Fraunces', Georgia, serif !important;
             font-size: 16px !important;
+            font-family: 'Fraunces', Georgia, serif !important;
         }
 
         .close-modal {
             color: #C9C4B2 !important;
             font-size: 22px !important;
+            line-height: 1 !important;
         }
 
         .close-modal:hover {
@@ -3695,34 +3654,22 @@
         }
 
         #emailOptionsModal .modal-body {
-            padding: 22px !important;
             background: var(--white) !important;
         }
 
         #emailOptionsModal .modal-body h4 {
             color: var(--ink) !important;
-            font-family: 'Fraunces', Georgia, serif !important;
             border-bottom: 1px solid var(--line) !important;
             padding-bottom: 10px !important;
         }
 
         #emailOptionsModal .modal-footer {
-            padding: 14px 22px !important;
             background: var(--paper-2) !important;
             border-top: 1px solid var(--line) !important;
             border-radius: 0 !important;
         }
 
-        /* ---------------- Existing history/entry spacing ---------------- */
-        .att-entry-table th:nth-child(4) {
-            width: 400px !important;
-        }
-
-        .att-entry-table td:nth-child(4) {
-            vertical-align: middle !important;
-        }
-
-        /* ---------------- Responsive ---------------- */
+        /* ---------- Responsive ---------- */
         @media (max-width:960px) {
             .main-content {
                 padding: 22px 20px 50px !important;
@@ -3793,7 +3740,6 @@
             }
         }
     </style>
-
 </head>
 
 <body>
