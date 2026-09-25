@@ -3361,20 +3361,90 @@
 
 
 
-            // DYNAMIC SCRIPT URL FROM MULTI-TENANT LOGIN
-            // Keep using the existing school endpoint when available.
-            // IMPORTANT: Do not redirect to login.html merely because this legacy
-            // endpoint key is missing; the ERP session is validated below by
-            // erp_active_user, consistent with the other ERP modules.
-            const scriptURL = localStorage.getItem('erp_school_url') || null;
-
-            // Session guard: preserve the logged-in ERP session check without
-            // forcing a logout/login redirect because of the legacy API URL key.
+            // ============================================================
+            // MULTI-TENANT API URL RESOLUTION
+            // ------------------------------------------------------------
+            // Primary source remains the original `erp_school_url` key.
+            // For compatibility with an existing logged-in ERP session, we
+            // also recover the same endpoint from common stored keys or from
+            // the active-user object when available.
+            //
+            // IMPORTANT:
+            // - No hardcoded school/API URL is introduced.
+            // - No localStorage data is deleted.
+            // - Existing successful API behavior is unchanged.
+            // ============================================================
             const activeUserStr = localStorage.getItem('erp_active_user');
             if (!activeUserStr) {
                 window.location.href = 'login.html';
                 throw new Error('ERP session not found.');
             }
+
+            let activeUser = {};
+            try {
+                activeUser = JSON.parse(activeUserStr) || {};
+            } catch (e) {
+                window.location.href = 'login.html';
+                throw new Error('Invalid ERP session.');
+            }
+
+            function resolveAttendanceApiUrl() {
+                const directKeys = [
+                    'erp_school_url',
+                    'erp_api_url',
+                    'erp_script_url',
+                    'school_api_url',
+                    'schoolApiUrl',
+                    'erpSchoolUrl'
+                ];
+
+                // 1) Preserve the original key first.
+                for (const key of directKeys) {
+                    const value = localStorage.getItem(key);
+                    if (value && /^https:\/\/[^\s]+$/i.test(value)) {
+                        return value.trim();
+                    }
+                }
+
+                // 2) Recover from the logged-in user's stored session object.
+                const userKeys = [
+                    'schoolUrl',
+                    'schoolURL',
+                    'scriptURL',
+                    'scriptUrl',
+                    'apiUrl',
+                    'apiURL',
+                    'endpoint',
+                    'webAppUrl'
+                ];
+                for (const key of userKeys) {
+                    const value = activeUser[key];
+                    if (typeof value === 'string' && /^https:\/\/[^\s]+$/i.test(value)) {
+                        return value.trim();
+                    }
+                }
+
+                // 3) Last non-destructive recovery: inspect other localStorage
+                //    values for a Google Apps Script web-app URL.
+                try {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        const value = key ? localStorage.getItem(key) : null;
+                        if (
+                            typeof value === 'string' &&
+                            /^https:\/\/script\.google\.com\/macros\/s\/[^\s]+\/exec(?:[?#].*)?$/i.test(value.trim())
+                        ) {
+                            return value.trim();
+                        }
+                    }
+                } catch (e) {
+                    console.warn('API URL recovery scan failed:', e);
+                }
+
+                return null;
+            }
+
+            const scriptURL = resolveAttendanceApiUrl();
 
 
 
@@ -3437,7 +3507,7 @@
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Fetching Database... ⏳</td></tr>';
 
                 if (!scriptURL) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="color:#b23a2e; text-align:center;">Attendance API URL is not configured for this school.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="color:#b23a2e; text-align:center;">Attendance service URL could not be recovered from the current ERP session.</td></tr>';
                     return;
                 }
 
