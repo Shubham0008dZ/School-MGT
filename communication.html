@@ -571,7 +571,49 @@ button,input,select,textarea{
   }
 }
 
-    </style>
+    
+
+/* ================================================================
+   SIDEBAR COLLAPSED STATE — UI FIX
+   ----------------------------------------------------------------
+   When the sidebar is 68px wide, the original navigation labels
+   were plain text nodes (not wrapped in a .nav-text span), so they
+   remained visible and were clipped. Hide the text via font-size
+   while restoring the icon span size.
+   No navigation/event/function logic is changed.
+   ================================================================ */
+.sidebar.collapsed .nav-links li a{
+  font-size:0 !important;
+  justify-content:center !important;
+  gap:0 !important;
+  padding:12px 0 !important;
+  border-left:none !important;
+}
+.sidebar.collapsed .nav-links li a > span{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:20px !important;
+  min-width:20px !important;
+  font-size:17px !important;
+  line-height:1 !important;
+}
+.sidebar.collapsed .sidebar-header{
+  padding-left:0 !important;
+  padding-right:0 !important;
+  justify-content:center !important;
+}
+.sidebar:not(.collapsed){
+  width:258px !important;
+}
+@media (max-width:680px){
+  .sidebar.collapsed{
+    width:68px !important;
+    min-width:68px !important;
+  }
+}
+
+</style>
 </head>
 
 <body>
