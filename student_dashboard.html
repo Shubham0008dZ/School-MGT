@@ -182,6 +182,618 @@
         .btn-submit-hw { background: #27ae60; color: white; font-weight: 600; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 15px; font-size: 14px; transition: 0.2s;}
         .btn-submit-hw:hover { background: #229954; }
     </style>
+
+    <!-- ============================================================
+         SHUBH ERP — STUDENT PORTAL UI OVERRIDES
+         CSS ONLY. Existing JS/Firebase/session logic preserved.
+         ============================================================ -->
+    <style id="shubh-erp-student-ui">
+
+/* =====================================================================
+   SHUBH ERP — STUDENT PORTAL UI
+   ---------------------------------------------------------------------
+   STUDENT POV:
+   - Student-facing visual hierarchy
+   - Same SHUBH ERP navy + brass design language
+   - Comfortable dashboard spacing and readable cards
+   - Academic/finance widgets retain their existing purpose
+   - No application logic is modified
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --stu-ink:#14213D;
+  --stu-ink-soft:#253355;
+  --stu-brass:#C08A2E;
+  --stu-brass-soft:#E4B563;
+  --stu-paper:#F4F1E9;
+  --stu-paper-2:#FBFAF6;
+  --stu-white:#FFFFFF;
+  --stu-line:#E3DFD2;
+  --stu-line-soft:#ECE8DC;
+  --stu-text:#211D18;
+  --stu-muted:#6D6759;
+  --stu-good:#1F7A52;
+  --stu-bad:#B23A2E;
+  --stu-info:#2A5C8A;
+  --stu-purple:#5B4A8A;
+  --stu-shadow-1:0 1px 2px rgba(20,33,61,.06),0 4px 14px rgba(20,33,61,.06);
+  --stu-shadow-2:0 12px 32px rgba(20,33,61,.12);
+}
+
+/* ---------- Page base ---------- */
+html,body{
+  background:var(--stu-paper) !important;
+  color:var(--stu-text) !important;
+  font-family:'Inter',sans-serif !important;
+}
+body{
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{
+  font-family:'Fraunces',Georgia,serif !important;
+  color:var(--stu-ink) !important;
+}
+
+/* ---------- Top bar ---------- */
+.navbar{
+  position:sticky !important;
+  top:0 !important;
+  z-index:1000 !important;
+  height:60px !important;
+  padding:0 24px !important;
+  background:var(--stu-ink) !important;
+  border-bottom:1px solid rgba(255,255,255,.06) !important;
+  box-shadow:0 2px 12px rgba(20,33,61,.12) !important;
+}
+.logo{
+  color:#F7F3E7 !important;
+  font-family:'Fraunces',Georgia,serif !important;
+  font-size:17px !important;
+  font-weight:600 !important;
+  letter-spacing:.01em !important;
+}
+.logo img{
+  max-height:28px !important;
+  border-radius:6px !important;
+}
+.btn-logout{
+  background:transparent !important;
+  color:#F0B8AE !important;
+  border:1px solid rgba(240,184,174,.35) !important;
+  padding:7px 14px !important;
+  border-radius:8px !important;
+  font-size:12px !important;
+}
+.btn-logout:hover{
+  background:rgba(178,58,46,.25) !important;
+}
+
+/* ---------- 3-column student workspace ---------- */
+.layout{
+  width:calc(100% - 32px) !important;
+  max-width:1580px !important;
+  grid-template-columns:250px minmax(0,1fr) 320px !important;
+  gap:20px !important;
+  margin:18px auto 28px !important;
+  padding:0 !important;
+  align-items:start !important;
+}
+
+/* ---------- Left navigation ---------- */
+.sidebar{
+  position:sticky !important;
+  top:78px !important;
+  height:calc(100vh - 96px) !important;
+  overflow-y:auto !important;
+  background:var(--stu-ink) !important;
+  border:1px solid rgba(255,255,255,.05) !important;
+  border-radius:14px !important;
+  padding:18px 10px !important;
+  box-shadow:var(--stu-shadow-1) !important;
+}
+.sidebar-group{
+  margin-bottom:18px !important;
+}
+.sidebar-title{
+  padding-left:10px !important;
+  margin-bottom:8px !important;
+  color:#AFA997 !important;
+  font-size:10px !important;
+  font-weight:700 !important;
+  letter-spacing:1.2px !important;
+}
+.sidebar-grid{
+  gap:5px !important;
+}
+.nav-btn{
+  min-height:74px !important;
+  padding:10px 6px !important;
+  gap:6px !important;
+  border:1px solid transparent !important;
+  border-radius:9px !important;
+  background:transparent !important;
+  color:#C9C4B2 !important;
+  font-size:10.5px !important;
+  font-weight:600 !important;
+}
+.nav-btn:hover{
+  background:rgba(255,255,255,.06) !important;
+  color:#F7F3E7 !important;
+}
+.nav-btn.active{
+  background:rgba(192,138,46,.16) !important;
+  color:#F7F3E7 !important;
+  box-shadow:inset 0 0 0 1px rgba(192,138,46,.15) !important;
+}
+.nav-icon{
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 0 2px !important;
+  color:inherit !important;
+}
+
+/* ---------- Center content ---------- */
+.center-content{
+  min-width:0 !important;
+  gap:18px !important;
+}
+.app-view{
+  animation:studentFade .25s ease !important;
+}
+@keyframes studentFade{
+  from{opacity:0;transform:translateY(5px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* ---------- Greeting ---------- */
+.greeting-card{
+  min-height:150px !important;
+  padding:24px 26px !important;
+  border-radius:16px !important;
+  border:1px solid var(--stu-line) !important;
+  border-top:3px solid var(--stu-brass) !important;
+  background:
+    radial-gradient(circle at 88% 18%,rgba(192,138,46,.13),transparent 28%),
+    linear-gradient(135deg,#F9F6EE 0%,#FFFFFF 78%) !important;
+  box-shadow:var(--stu-shadow-1) !important;
+}
+.greeting-text{
+  min-width:0;
+}
+.greeting-text h1{
+  margin:0 0 7px !important;
+  color:var(--stu-ink) !important;
+  font-size:27px !important;
+  line-height:1.15 !important;
+}
+.greeting-text p{
+  color:var(--stu-muted) !important;
+  line-height:1.55 !important;
+  font-size:13px !important;
+}
+.student-badge-info{
+  gap:12px !important;
+  padding:9px 14px 9px 10px !important;
+  border:1px solid var(--stu-line) !important;
+  border-radius:12px !important;
+  box-shadow:0 4px 14px rgba(20,33,61,.08) !important;
+}
+.stu-avatar-circle{
+  width:48px !important;
+  height:48px !important;
+  background:var(--stu-ink) !important;
+  border:2px solid rgba(192,138,46,.55) !important;
+}
+.stu-details-mini h4{
+  color:var(--stu-ink) !important;
+  font-size:14px !important;
+}
+.stu-details-mini span{
+  color:var(--stu-muted) !important;
+}
+
+/* ---------- Fee alert ---------- */
+.fee-alert{
+  background:#FCF4E6 !important;
+  border:1px solid #E9D3A5 !important;
+  border-left:4px solid var(--stu-brass) !important;
+  border-radius:11px !important;
+  padding:13px 16px !important;
+}
+.fee-alert-icon{
+  width:38px !important;
+  height:38px !important;
+  background:var(--stu-white) !important;
+  border:1px solid #E9D3A5 !important;
+  color:var(--stu-brass) !important;
+}
+.fee-alert-text h4{
+  color:#76500D !important;
+  font-size:14px !important;
+}
+.fee-alert-text p{
+  color:#8A6A2B !important;
+}
+.btn-pay{
+  background:var(--stu-brass) !important;
+  color:#2A1C04 !important;
+  border-radius:7px !important;
+  padding:8px 17px !important;
+}
+
+/* ---------- Communication filter pills ---------- */
+.comm-pill{
+  background:var(--stu-white) !important;
+  border:1px solid var(--stu-line) !important;
+  color:var(--stu-muted) !important;
+  padding:8px 13px !important;
+  border-radius:8px !important;
+  font-size:11.5px !important;
+}
+.comm-pill:hover{
+  background:var(--stu-paper-2) !important;
+  border-color:#D2C7AD !important;
+}
+.comm-pill.active-pill{
+  background:var(--stu-ink) !important;
+  color:#F4F1E9 !important;
+  border-color:var(--stu-ink) !important;
+}
+
+/* ---------- Feed cards ---------- */
+.feed-card{
+  background:var(--stu-white) !important;
+  border:1px solid var(--stu-line) !important;
+  border-radius:12px !important;
+  box-shadow:var(--stu-shadow-1) !important;
+  padding:18px 20px !important;
+}
+.feed-card:hover{
+  box-shadow:var(--stu-shadow-2) !important;
+  transform:translateY(-1px) !important;
+}
+.f-icon{
+  width:38px !important;
+  height:38px !important;
+  border-radius:9px !important;
+}
+.f-icon.hw{
+  background:#EAF0F7 !important;
+  color:var(--stu-info) !important;
+}
+.f-icon.circ{
+  background:#F8EFCF !important;
+  color:#866017 !important;
+}
+.f-icon.ach{
+  background:#F5EBDD !important;
+  color:#9A6417 !important;
+}
+.f-icon.rem{
+  background:#E7F3EC !important;
+  color:var(--stu-good) !important;
+}
+.f-meta h4{
+  color:var(--stu-ink) !important;
+}
+.f-meta span,
+.f-time{
+  color:var(--stu-muted) !important;
+}
+.f-title{
+  color:var(--stu-ink) !important;
+  font-family:'Fraunces',Georgia,serif !important;
+  font-size:16px !important;
+}
+.f-desc{
+  color:#5D584D !important;
+}
+.btn-attach{
+  background:var(--stu-paper-2) !important;
+  border:1px solid var(--stu-line) !important;
+  color:var(--stu-ink-soft) !important;
+  border-radius:7px !important;
+}
+.btn-eye{
+  background:var(--stu-ink) !important;
+  color:#F4F1E9 !important;
+  border:none !important;
+  border-radius:7px !important;
+}
+.btn-eye:hover{
+  background:var(--stu-ink-soft) !important;
+}
+
+/* ---------- Status badges ---------- */
+.status-badge{
+  border-radius:6px !important;
+}
+.status-badge.pending{
+  background:#FBEAE7 !important;
+  color:var(--stu-bad) !important;
+}
+.status-badge.submitted{
+  background:#EAF0F7 !important;
+  color:var(--stu-info) !important;
+}
+.status-badge.checked{
+  background:#E7F3EC !important;
+  color:var(--stu-good) !important;
+}
+
+/* ---------- Right-side widgets ---------- */
+.right-sidebar{
+  gap:18px !important;
+}
+.widget-card{
+  background:var(--stu-white) !important;
+  border:1px solid var(--stu-line) !important;
+  border-radius:12px !important;
+  padding:18px !important;
+  box-shadow:var(--stu-shadow-1) !important;
+}
+.widget-header{
+  margin-bottom:14px !important;
+  padding-bottom:11px !important;
+  border-bottom:1px solid var(--stu-line-soft) !important;
+}
+.widget-header h3{
+  color:var(--stu-ink) !important;
+  font-family:'Fraunces',Georgia,serif !important;
+  font-size:14px !important;
+}
+.widget-date{
+  color:var(--stu-muted) !important;
+  border:1px solid var(--stu-line) !important;
+  background:var(--stu-paper-2) !important;
+}
+.event-list-item{
+  margin-bottom:12px !important;
+  padding-bottom:11px !important;
+  border-bottom:1px solid var(--stu-line-soft) !important;
+}
+.evt-date-box{
+  background:var(--stu-paper-2) !important;
+  border:1px solid var(--stu-line) !important;
+}
+.evt-date-box strong{
+  color:var(--stu-ink) !important;
+}
+.evt-date-box span{
+  color:var(--stu-muted) !important;
+}
+.evt-details h4{
+  color:var(--stu-ink) !important;
+}
+.evt-details p{
+  color:var(--stu-muted) !important;
+}
+.empty-illustration{
+  opacity:.78 !important;
+}
+.empty-illustration p{
+  color:var(--stu-muted) !important;
+}
+
+/* ---------- Calendars ---------- */
+.cal-grid{
+  gap:3px !important;
+}
+.cal-day-header{
+  color:var(--stu-muted) !important;
+  font-size:10px !important;
+}
+.cal-cell{
+  background:var(--stu-paper-2) !important;
+  border:1px solid var(--stu-line-soft) !important;
+  color:var(--stu-text) !important;
+  border-radius:6px !important;
+}
+.cal-cell:hover{
+  background:#F1EDE2 !important;
+}
+.cal-cell.today{
+  background:var(--stu-ink) !important;
+  border-color:var(--stu-ink) !important;
+  color:#fff !important;
+}
+.dot.p{background:var(--stu-good) !important;}
+.dot.a{background:var(--stu-bad) !important;}
+.dot.l{background:var(--stu-brass) !important;}
+.cal-dot{box-shadow:none !important;}
+.hover-card{
+  background:var(--stu-ink) !important;
+  border-radius:7px !important;
+  box-shadow:0 8px 24px rgba(20,33,61,.24) !important;
+}
+.hover-card::after{
+  border-color:var(--stu-ink) transparent transparent transparent !important;
+}
+
+/* ---------- Attendance summary ---------- */
+.view-header{
+  margin-bottom:20px !important;
+  padding-bottom:15px !important;
+  border-bottom:1px solid var(--stu-line) !important;
+}
+.view-header h2{
+  color:var(--stu-ink) !important;
+  font-size:23px !important;
+}
+.att-summary-grid{
+  gap:14px !important;
+}
+.att-card{
+  background:var(--stu-white) !important;
+  border:1px solid var(--stu-line) !important;
+  border-radius:12px !important;
+  box-shadow:var(--stu-shadow-1) !important;
+  padding:18px !important;
+}
+.att-card p{
+  color:var(--stu-muted) !important;
+  font-size:11px !important;
+}
+.att-card h3{
+  color:var(--stu-ink) !important;
+  font-size:30px !important;
+}
+.att-card:nth-child(1) h3{color:var(--stu-good) !important;}
+.att-card:nth-child(2) h3{color:var(--stu-bad) !important;}
+.att-card:nth-child(3) h3{color:var(--stu-brass) !important;}
+
+/* ---------- Detailed attendance calendar surface ---------- */
+#view-att > div:not(.view-header){
+  background:var(--stu-white) !important;
+  border:1px solid var(--stu-line) !important;
+  border-radius:12px !important;
+  box-shadow:var(--stu-shadow-1) !important;
+}
+
+/* ---------- Fee summary ---------- */
+.fee-summary-grid{
+  gap:14px !important;
+}
+.fee-card{
+  background:var(--stu-white) !important;
+  border:1px solid var(--stu-line) !important;
+  border-radius:12px !important;
+  box-shadow:var(--stu-shadow-1) !important;
+  padding:18px !important;
+}
+.fee-card h4{
+  color:var(--stu-muted) !important;
+}
+.fee-card h2{
+  color:var(--stu-ink) !important;
+}
+
+/* ---------- Fee ledger ---------- */
+.fee-table-container{
+  background:var(--stu-white) !important;
+  border:1px solid var(--stu-line) !important;
+  border-radius:12px !important;
+  box-shadow:var(--stu-shadow-1) !important;
+}
+.full-table th{
+  background:var(--stu-ink) !important;
+  color:#EFEAD9 !important;
+  border-bottom:2px solid var(--stu-brass) !important;
+}
+.full-table td{
+  border-bottom:1px solid var(--stu-line-soft) !important;
+  color:var(--stu-text) !important;
+}
+
+/* ---------- Homework modal ---------- */
+.modal-overlay{
+  background:rgba(20,25,35,.62) !important;
+  backdrop-filter:blur(2px) !important;
+}
+.modal-card{
+  width:min(620px,92vw) !important;
+  background:var(--stu-white) !important;
+  border:1px solid var(--stu-line) !important;
+  border-radius:14px !important;
+  box-shadow:0 22px 70px rgba(20,33,61,.28) !important;
+  overflow:hidden !important;
+}
+.modal-header{
+  background:var(--stu-ink) !important;
+  border-bottom:2px solid var(--stu-brass) !important;
+}
+.modal-header h3{
+  color:#F4F1E9 !important;
+}
+.close-modal{
+  color:#C9C4B2 !important;
+}
+.close-modal:hover{
+  color:#fff !important;
+}
+#modHwSub,
+#modHwDue{
+  color:var(--stu-text) !important;
+}
+.sub-textarea{
+  border:1px solid #D8D2C0 !important;
+  background:var(--stu-paper-2) !important;
+  color:var(--stu-text) !important;
+  border-radius:8px !important;
+}
+.sub-textarea:focus{
+  border-color:var(--stu-brass) !important;
+  box-shadow:0 0 0 2px rgba(192,138,46,.10) !important;
+}
+.btn-submit-hw{
+  background:var(--stu-good) !important;
+  border-radius:8px !important;
+}
+.btn-submit-hw:hover{
+  background:#186640 !important;
+}
+
+/* ---------- Student-facing responsive layout ---------- */
+@media (max-width:1180px){
+  .layout{
+    grid-template-columns:220px minmax(0,1fr) !important;
+  }
+  .right-sidebar{
+    display:none !important;
+  }
+}
+@media (max-width:760px){
+  .navbar{
+    padding:0 14px !important;
+  }
+  .layout{
+    width:100% !important;
+    grid-template-columns:1fr !important;
+    margin:12px 0 22px !important;
+    padding:0 12px !important;
+  }
+  .sidebar{
+    position:static !important;
+    height:auto !important;
+    padding:12px !important;
+  }
+  .sidebar-grid{
+    grid-template-columns:repeat(3,1fr) !important;
+  }
+  .nav-btn{
+    min-height:62px !important;
+  }
+  .greeting-card{
+    flex-direction:column !important;
+    align-items:flex-start !important;
+    gap:16px !important;
+  }
+  .student-badge-info{
+    width:100% !important;
+  }
+  .att-summary-grid{
+    grid-template-columns:1fr !important;
+  }
+  .fee-summary-grid{
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+}
+@media (max-width:480px){
+  .sidebar-grid{
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+  .greeting-text h1{
+    font-size:23px !important;
+  }
+  .fee-summary-grid{
+    grid-template-columns:1fr !important;
+  }
+}
+
+    </style>
 </head>
 <body>
 
