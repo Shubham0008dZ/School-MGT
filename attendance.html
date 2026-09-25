@@ -10,12 +10,12 @@
 
     <title>SHUBH ERP · Student Attendance</title>
 
-    <!-- Firebase SDKs: existing dependencies preserved -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
-    <!-- Existing Firebase configuration preserved -->
+    <!-- Firebase configuration -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAHS0Xk5o-PZK_bBGtsQqGlS9TLOcnXCsM",
@@ -33,11 +33,9 @@
     </script>
 
     <!-- ============================================================
-         ORIGINAL ATTENDANCE CSS — embedded locally
-         This keeps attendance.html completely standalone.
+         ATTENDANCE CSS & THEME
          ============================================================ -->
     <style id="attendance-original-styles">
-        /* Original attendance.css content */
         * {
             box-sizing: border-box;
             font-family: Arial, sans-serif;
@@ -177,12 +175,6 @@
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #eee;
-        }
-
-        .search-small {
-            padding: 6px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
         }
 
         .btn {
@@ -433,25 +425,12 @@
         }
     </style>
 
-    <!-- ============================================================
-         SHUBH ERP THEME
-         Same visual language as Student SIS / Employee / Fee modules.
-         Search box intentionally omitted from the header.
-         ============================================================ -->
     <style id="shubh-erp-attendance-theme">
-        /* ===================================================================
-   SHUBH ERP — Student Information System
-   Design language: "School Ledger" — navy + brass on paper, a nod to
-   the register books this module digitises. Serif display type for
-   headings (Fraunces), a plain grotesque (Inter) for interface text.
-=================================================================== */
-
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap');
 
         :root {
             --ink: #14213D;
             --ink-soft: #253355;
-            --ink-2: #1c2740;
             --brass: #C08A2E;
             --brass-soft: #E4B563;
             --paper: #F4F1E9;
@@ -461,41 +440,22 @@
             --line-soft: #ECE8DC;
             --text: #211D18;
             --text-mute: #6D6759;
-            --text-faint: #948E7D;
             --good: #1F7A52;
-            --good-bg: #E7F3EC;
             --bad: #B23A2E;
-            --bad-bg: #FBEAE7;
             --warn: #B4791E;
-            --warn-bg: #FAF0DE;
             --info: #2A5C8A;
-            --info-bg: #E9F1F8;
             --radius-s: 6px;
             --radius-m: 10px;
             --radius-l: 16px;
             --shadow-1: 0 1px 2px rgba(20, 33, 61, .06), 0 2px 8px rgba(20, 33, 61, .05);
-            --shadow-2: 0 8px 28px rgba(20, 33, 61, .14);
             --sidebar-w: 258px;
             --sidebar-w-collapsed: 68px;
         }
 
-        * {
-            box-sizing: border-box;
-        }
-
-        html,
         body {
-            height: 100%;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
+            font-family: 'Inter', sans-serif;
             background: var(--paper);
             color: var(--text);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-size: 14px;
-            -webkit-font-smoothing: antialiased;
         }
 
         h1,
@@ -503,53 +463,13 @@
         h3,
         h4 {
             font-family: 'Fraunces', Georgia, serif;
-            font-weight: 600;
-            letter-spacing: -.01em;
-            color: var(--ink);
-            margin: 0;
-        }
-
-        a {
-            color: inherit;
-        }
-
-        ::selection {
-            background: var(--brass-soft);
             color: var(--ink);
         }
 
-        ::-webkit-scrollbar {
-            width: 9px;
-            height: 9px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #C9C3B0;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        /* ---------------- Top Navbar ---------------- */
         .top-navbar {
             height: 58px;
-            padding: 0 22px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
             background: var(--ink);
-            color: #EFEAD9;
             border-bottom: 1px solid rgba(255, 255, 255, .06);
-            position: relative;
-            z-index: 40;
-        }
-
-        .top-left {
-            display: flex;
-            align-items: center;
-            gap: 14px;
         }
 
         .hamburger-btn {
@@ -559,83 +479,19 @@
             width: 34px;
             height: 34px;
             border-radius: 8px;
-            font-size: 16px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background .15s;
-        }
-
-        .hamburger-btn:hover {
-            background: rgba(255, 255, 255, .14);
-            color: var(--brass-soft);
-        }
-
-        .top-left a {
-            text-decoration: none;
-        }
-
-        .school-logo {
-            display: flex;
-            align-items: center;
-        }
-
-        #defaultNavLogo {
-            font-size: 20px;
-            filter: grayscale(0) saturate(1.3);
         }
 
         .school-name {
             font-family: 'Fraunces', serif;
             font-weight: 600;
             font-size: 17px;
-            letter-spacing: .01em;
             color: #F7F3E7;
-        }
-
-        .top-center {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            max-width: 640px;
-            margin: 0 auto;
-        }
-
-        .global-search {
-            width: 100%;
-            max-width: 420px;
-            padding: 9px 14px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(255, 255, 255, .07);
-            color: #F7F3E7;
-            font-size: 13px;
-            outline: none;
-            transition: background .15s, border-color .15s;
-        }
-
-        .global-search::placeholder {
-            color: #A9A38E;
-        }
-
-        .global-search:focus {
-            background: rgba(255, 255, 255, .12);
-            border-color: var(--brass-soft);
         }
 
         .top-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            font-size: 13px;
             color: #D8D2BF;
-        }
-
-        .top-right span {
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            font-size: 13px;
         }
 
         #btnLogout {
@@ -645,2103 +501,49 @@
             padding: 7px 14px !important;
             border-radius: 8px !important;
             font-weight: 600 !important;
-            font-size: 12px !important;
             cursor: pointer;
-            transition: .15s;
         }
 
-        #btnLogout:hover {
-            background: rgba(178, 58, 46, .25) !important;
-            border-color: #F0B8AE !important;
-        }
-
-        /* ---------------- Layout Shell ---------------- */
         .erp-wrapper {
-            display: flex;
             height: calc(100vh - 58px);
         }
 
-        /* ---------------- Sidebar ---------------- */
         .sidebar {
             width: var(--sidebar-w);
-            background: var(--ink);
-            display: flex;
-            flex-direction: column;
+            background: var(--ink) !important;
             transition: width .25s ease;
-            overflow-x: hidden;
-            white-space: nowrap;
-            border-right: 1px solid rgba(255, 255, 255, .05);
         }
 
         .sidebar-header {
             padding: 22px 20px 14px;
-        }
-
-        .sidebar-header h2 {
-            color: #F7F3E7;
-            font-size: 15px;
-            margin: 0;
-            letter-spacing: .03em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .sidebar-header::after {
-            content: "";
-            display: block;
-            height: 1px;
-            margin-top: 16px;
-            background: linear-gradient(90deg, var(--brass) 0%, rgba(192, 138, 46, 0) 70%);
-        }
-
-        .nav-links {
-            list-style: none;
-            margin: 10px 0 0;
-            padding: 0 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
+            border-bottom: 1px solid rgba(192, 138, 46, 0.5);
         }
 
         .nav-links li a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #C9C4B2;
-            text-decoration: none;
-            padding: 11px 14px;
-            border-radius: 9px;
-            font-size: 13.5px;
-            font-weight: 500;
+            color: #C9C4B2 !important;
             border-left: 3px solid transparent;
-            transition: background .15s, color .15s;
-        }
-
-        .nav-icon {
-            font-size: 16px;
-            width: 18px;
-            text-align: center;
-            opacity: .9;
-        }
-
-        .nav-links li a:hover {
-            background: rgba(255, 255, 255, .06);
-            color: #F7F3E7;
+            border-radius: 9px;
+            margin: 3px 12px;
         }
 
         .nav-links li a.active {
             background: rgba(192, 138, 46, .16);
-            color: #F7F3E7;
-            border-left: 3px solid var(--brass);
-            font-weight: 600;
-        }
-
-        .sidebar.collapsed {
-            width: var(--sidebar-w-collapsed);
-        }
-
-        .sidebar.collapsed .sidebar-header h2 {
-            display: none;
-        }
-
-        .sidebar.collapsed .nav-text {
-            display: none;
-        }
-
-        .sidebar.collapsed .nav-links li a {
-            justify-content: center;
-            padding: 12px 0;
-            border-left: none;
-        }
-
-        .sidebar.collapsed .nav-links li a.active {
-            border-left: none;
-            background: rgba(192, 138, 46, .2);
-        }
-
-        /* ---------------- Main Content ---------------- */
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 26px 30px 60px;
-            background: var(--paper);
-        }
-
-        .app-module {
-            display: none;
-        }
-
-        .app-module.active-module {
-            display: block;
-            animation: fadeIn .25s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(4px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .profile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding-bottom: 16px;
-            margin-bottom: 22px;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .profile-header h2 {
-            font-size: 23px;
-            text-transform: none;
-            letter-spacing: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* ---------------- Buttons ---------------- */
-        .btn {
-            border: none;
-            padding: 9px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            font-family: 'Inter', sans-serif;
-            transition: transform .05s ease, box-shadow .15s ease, background .15s ease;
-            letter-spacing: .01em;
-        }
-
-        .btn:active {
-            transform: translateY(1px);
-        }
-
-        .btn-dark {
-            background: var(--ink);
-            color: #F4F1E9;
-        }
-
-        .btn-dark:hover {
-            background: var(--ink-soft);
-        }
-
-        .btn-green {
-            background: var(--good);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(31, 122, 82, .25);
-        }
-
-        .btn-green:hover {
-            background: #186640;
-        }
-
-        .btn-green-outline {
-            background: var(--white);
-            color: var(--good);
-            border: 1.5px solid var(--good);
-        }
-
-        .btn-green-outline:hover {
-            background: var(--good-bg);
-        }
-
-        .btn-red {
-            background: var(--bad);
-            color: #fff;
-            padding: 6px 10px;
-            border-radius: 7px;
-        }
-
-        .btn-red:hover {
-            background: #963025;
-        }
-
-        .btn-blue {
-            background: var(--info) !important;
-            color: #fff !important;
-            border-radius: 8px !important;
-        }
-
-        .btn-blue:hover {
-            background: #1f4a70 !important;
-        }
-
-        .btn-purple {
-            background: #5B4A8A;
-            color: #fff;
-            border: none;
-            padding: 7px 13px;
-            border-radius: 7px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-purple:hover {
-            background: #48396e;
-        }
-
-        /* ---------------- Table Toolbar / Filters ---------------- */
-        .table-toolbar {
-            background: var(--white) !important;
-            border: 1px solid var(--line) !important;
-            border-left: 3px solid var(--brass) !important;
-            border-radius: var(--radius-m);
-            padding: 12px 14px !important;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow-1);
-            position: relative;
-        }
-
-        .filters {
-            position: relative;
-        }
-
-        .filter-dropdown-panel {
-            display: none;
-            position: absolute;
-            top: 58px;
-            left: 0;
-            width: 390px;
-            max-width: calc(100vw - 40px);
-            padding: 15px;
-            background: var(--white) !important;
-            border: 1px solid var(--line) !important;
-            border-top: 3px solid var(--brass) !important;
-            border-radius: 12px !important;
-            box-shadow: 0 14px 32px rgba(20, 33, 61, .18) !important;
-            z-index: 99999;
-        }
-
-        .filters>div[style*="border:1px solid #27ae60"] {
-            border: 1px solid var(--line) !important;
-            background: var(--paper-2) !important;
-            border-radius: 8px !important;
-        }
-
-        #searchName {
-            background: transparent;
-        }
-
-        .filter-dropdown-panel .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-
-        .filter-dropdown-panel .filter-group:last-of-type {
-            margin-bottom: 0;
-        }
-
-        .filter-dropdown-panel .filter-group label {
-            flex: 0 0 82px;
-            margin: 0;
-            color: var(--ink);
-            font-size: 11.5px;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .filter-dropdown-panel .filter-group select {
-            flex: 1;
-            width: 100%;
-            min-width: 0;
-            padding: 8px 10px;
-            background: var(--paper-2) !important;
-            color: var(--text) !important;
-            border: 1px solid #cfc9b6 !important;
-            border-radius: 7px !important;
-            font-family: 'Inter', sans-serif;
-            font-size: 12.5px;
-            cursor: pointer;
-        }
-
-        .filter-dropdown-panel .filter-group select:focus {
-            outline: none;
-            border-color: var(--brass) !important;
-            box-shadow: 0 0 0 2px rgba(192, 138, 46, .12);
-        }
-
-        #btn-apply-filter {
-            display: block;
-            margin-top: 13px !important;
-            width: 100% !important;
-            padding: 10px 12px !important;
-            border-radius: 8px !important;
-        }
-
-        @media (max-width:680px) {
-            .filter-dropdown-panel {
-                left: 0;
-                width: min(390px, calc(100vw - 30px));
-            }
-        }
-
-        /* ---------------- Data Table ---------------- */
-        .table-container {
-            background: transparent;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            font-size: 13px;
-            background: var(--white);
-            border-radius: var(--radius-m);
-            overflow: hidden;
-            box-shadow: var(--shadow-1);
-            border: 1px solid var(--line);
-        }
-
-        .data-table th {
-            background: var(--ink);
-            color: #EFEAD9;
-            font-weight: 600;
-            text-align: left;
-            padding: 12px 14px;
-            border-bottom: 2px solid var(--brass);
-            border-right: none;
-            font-size: 12px;
-            letter-spacing: .02em;
-        }
-
-        .data-table td {
-            padding: 11px 14px;
-            border-bottom: 1px solid var(--line-soft);
-            vertical-align: middle;
-            color: var(--text);
-        }
-
-        .data-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .data-table tr:hover td {
-            background: #FBF8F0;
-        }
-
-        .data-table tr:nth-child(even) td {
-            background: var(--paper-2);
-        }
-
-        .data-table tr:nth-child(even):hover td {
-            background: #F5F1E4;
-        }
-
-        .student-ledger-link {
-            color: var(--info);
-            text-decoration: none;
-            font-weight: 600;
-            border-bottom: 1px dashed rgba(42, 92, 138, .4);
-        }
-
-        .student-ledger-link:hover {
-            color: var(--brass);
-            border-color: var(--brass);
-        }
-
-        /* ---------------- Dashboard ---------------- */
-        .dashboard-top-cards {
-            display: flex;
-            gap: 18px;
-            margin-bottom: 22px;
-        }
-
-        .top-card {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            padding: 20px 22px;
-            border-radius: var(--radius-l);
-            color: #fff;
-            box-shadow: var(--shadow-1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .top-card::after {
-            content: "";
-            position: absolute;
-            right: -20px;
-            top: -20px;
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, .08);
-        }
-
-        .card-total {
-            background: linear-gradient(135deg, #14213D, #233457);
-        }
-
-        .card-male {
-            background: linear-gradient(135deg, #B4791E, #8F5E14);
-        }
-
-        .card-female {
-            background: linear-gradient(135deg, #5B4A8A, #3E3162);
-        }
-
-        .card-icon {
-            font-size: 32px;
-            margin-right: 16px;
-            opacity: .95;
-        }
-
-        .card-info h3 {
-            margin: 0;
-            font-size: 26px;
-            color: #fff;
-            font-family: 'Fraunces', serif;
-        }
-
-        .card-info p {
-            margin: 4px 0 0;
-            font-size: 12.5px;
-            opacity: .85;
-            line-height: 1.3;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
-        }
-
-        .dash-chart-box {
-            background: var(--white);
-            border: 1px solid var(--line);
-            border-radius: var(--radius-m);
-            box-shadow: var(--shadow-1);
-            overflow: hidden;
-        }
-
-        .chart-box-header {
-            background: var(--paper-2);
-            padding: 11px 15px;
-            border-bottom: 1px solid var(--line);
-            font-weight: 600;
-            color: var(--ink);
-            font-size: 13px;
-        }
-
-        .chart-box-content {
-            padding: 14px;
-        }
-
-        .view-graph {
-            height: 200px;
-            width: 100%;
-        }
-
-        /* ---------------- Forms / Admission ---------------- */
-        .form-container {
-            background: var(--white);
-            border: 1px solid var(--line);
-            border-radius: var(--radius-l);
-            padding: 26px 28px;
-            box-shadow: var(--shadow-1);
-        }
-
-        .form-header {
-            margin-bottom: 18px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .form-header h2 {
-            font-size: 20px;
-        }
-
-        .form-tabs {
-            display: flex;
-            gap: 4px;
-            border-bottom: 1px solid var(--line);
-            margin-bottom: 22px;
-        }
-
-        .form-tabs .tab {
-            padding: 10px 18px;
-            background: none;
-            border: none;
-            font-size: 13.5px;
-            font-weight: 600;
-            color: var(--text-mute);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .form-tabs .tab.active {
-            color: var(--ink);
-            border-bottom-color: var(--brass);
-        }
-
-        .form-tab-content {
-            display: none;
-            animation: fadeIn .2s;
-        }
-
-        .form-tab-content.active {
-            display: block;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        .top-row {
-            background: var(--paper-2) !important;
-            border: 1px solid var(--line);
-            border-radius: var(--radius-m);
-            padding: 14px 16px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-
-        .input-group label {
-            font-size: 11.5px;
-            font-weight: 600;
-            color: var(--text-mute);
-            margin-bottom: 6px;
-            text-transform: none;
-            letter-spacing: .01em;
-        }
-
-        .input-group input,
-        .input-group select {
-            padding: 9px 11px;
-            border: 1px solid #D8D2C0;
-            border-radius: 7px;
-            font-size: 13px;
-            background: var(--paper-2);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            transition: border-color .15s, background .15s;
-        }
-
-        .input-group input:focus,
-        .input-group select:focus {
-            outline: none;
-            border-color: var(--brass);
-            background: #fff;
-        }
-
-        .input-group input[readonly] {
-            background: #EDEAE0;
-            color: var(--text-mute);
-        }
-
-        .section-title {
-            background: transparent;
-            padding: 0;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--ink);
-            margin: 26px 0 16px;
-            border-left: none;
-            position: relative;
-            padding-left: 14px;
-            font-family: 'Fraunces', serif;
-        }
-
-        .section-title::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 2px;
-            bottom: 2px;
-            width: 4px;
-            background: var(--brass);
-            border-radius: 2px;
-        }
-
-        .main-details {
-            display: flex;
-            gap: 24px;
-        }
-
-        .left-fields {
-            flex: 3;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .right-photo {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-        }
-
-        .photo-fieldset {
-            border: 1.5px dashed #CFC7AE;
-            padding: 16px;
-            text-align: center;
-            border-radius: var(--radius-m);
-            width: 100%;
-            max-width: 200px;
-            background: var(--paper-2);
-        }
-
-        .photo-fieldset legend {
-            padding: 0 6px;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-mute);
-        }
-
-        .photo-preview-box img {
-            width: 107px;
-            height: 150px;
-            border: 1px solid var(--line);
-            margin-bottom: 10px;
-            object-fit: cover;
-            border-radius: 6px;
-            background: #fff;
-        }
-
-        .upload-btn {
-            background: var(--ink);
-            color: #F4F1E9;
-            padding: 7px 14px;
-            border-radius: 7px;
-            cursor: pointer;
-            font-size: 11.5px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .upload-btn:hover {
-            background: var(--ink-soft);
-        }
-
-        .grid-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-        }
-
-        .submit-section {
-            text-align: right;
-            margin-top: 24px;
-            border-top: 1px solid var(--line);
-            padding-top: 18px;
-        }
-
-        .submit-btn {
-            background: var(--good);
-            color: #fff;
-            border: none;
-            padding: 11px 28px;
-            font-size: 14px;
-            font-weight: 700;
-            border-radius: 9px;
-            cursor: pointer;
-            box-shadow: 0 3px 10px rgba(31, 122, 82, .3);
-        }
-
-        .submit-btn:hover {
-            background: #186640;
-        }
-
-        /* ---------------- Modals ---------------- */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(20, 20, 15, .55);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(1.5px);
-        }
-
-        .modal-overlay.active {
-            display: flex;
-            animation: fadeIn .18s;
-        }
-
-        .modal-card {
-            background: var(--white);
-            border-radius: var(--radius-l);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
-            overflow: hidden;
-        }
-
-        .modal-header {
-            padding: 16px 22px;
-            background: var(--ink) !important;
-            color: #F4F1E9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            color: #F4F1E9 !important;
-            font-size: 16px;
-        }
-
-        .close-modal {
-            font-size: 22px;
-            cursor: pointer;
-            color: #C9C4B2;
-            font-weight: 400;
-            line-height: 1;
-        }
-
-        .close-modal:hover {
-            color: #fff;
-        }
-
-        .config-badge {
-            display: inline-flex;
-            align-items: center;
-            background: var(--paper-2);
-            border: 1px solid var(--line);
-            color: var(--text);
-            margin: 4px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-        }
-
-        .bulk-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 13px;
-        }
-
-        .bulk-table th,
-        .bulk-table td {
-            border: 1px solid var(--line);
-            padding: 8px;
-            text-align: left;
-        }
-
-        .bulk-table th {
-            background-color: var(--paper-2);
-            color: var(--ink);
-            font-weight: 700;
-        }
-
-        .bulk-table input {
-            width: 100%;
-            padding: 7px;
-            border: 1px solid #D8D2C0;
-            border-radius: 6px;
-            box-sizing: border-box;
-        }
-
-        .bulk-table input:focus {
-            border-color: var(--brass);
-            outline: none;
-        }
-
-        /* ---------------- Bulk Actions module ---------------- */
-        .bulk-card {
-            background: var(--white);
-            padding: 22px;
-            border-radius: var(--radius-l);
-            border: 1px solid var(--line);
-            box-shadow: var(--shadow-1);
-            margin-bottom: 20px;
-        }
-
-        .bulk-header {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--ink);
-            border-bottom: 1px solid var(--line);
-            padding-bottom: 12px;
-            margin-bottom: 18px;
-            font-family: 'Fraunces', serif;
-        }
-
-        .erp-select,
-        .erp-input {
-            border: 1px solid #D8D2C0 !important;
-            border-radius: 7px !important;
-            background: var(--paper-2) !important;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .erp-select:focus,
-        .erp-input:focus {
-            outline: none;
-            border-color: var(--brass) !important;
-        }
-
-        /* ---------------- Reports module ---------------- */
-        .report-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 18px;
-        }
-
-        .report-card {
-            background: var(--white);
-            border: 1px solid var(--line);
-            border-radius: var(--radius-l);
-            padding: 20px;
-            cursor: pointer;
-            transition: .18s;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: var(--shadow-1);
-        }
-
-        .report-card:hover {
-            border-color: var(--brass);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-2);
-        }
-
-        .report-icon {
-            font-size: 22px;
-            background: var(--paper-2);
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            border: 1px solid var(--line);
-        }
-
-        .report-text h4 {
-            margin: 0 0 4px;
-            color: var(--ink);
-            font-family: 'Fraunces', serif;
-            font-size: 15px;
-        }
-
-        .report-text p {
-            margin: 0;
-            font-size: 12px;
-            color: var(--text-mute);
-        }
-
-        /* ---------------- Master Setup ---------------- */
-        #module-master-setup>div>div {
-            background: var(--white) !important;
-            border: 1px solid var(--line) !important;
-            border-radius: var(--radius-l) !important;
-            box-shadow: var(--shadow-1) !important;
-        }
-
-        #module-master-setup h3 {
-            font-family: 'Fraunces', serif;
-            font-size: 16px;
-            border-bottom: 1px solid var(--line) !important;
-        }
-
-        #module-master-setup input,
-        #module-master-setup select {
-            border: 1px solid #D8D2C0 !important;
-            border-radius: 7px !important;
-            background: var(--paper-2) !important;
-            font-family: 'Inter', sans-serif !important;
-        }
-
-        #module-master-setup input:focus,
-        #module-master-setup select:focus {
-            outline: none;
-            border-color: var(--brass) !important;
-        }
-
-        #msDisplayArea>div {
-            border: 1px solid var(--line) !important;
-            border-radius: var(--radius-m) !important;
-        }
-
-        #msDisplayArea h4 {
-            border-bottom: 2px solid var(--brass) !important;
-            font-family: 'Fraunces', serif;
-            letter-spacing: .02em;
-        }
-
-        #msDisplayArea>div>div>div {
-            background: var(--ink) !important;
-            border-radius: 20px !important;
-        }
-
-        /* ---------------- Ledger Modal polish ---------------- */
-        #ledgerModal .modal-body {
-            background: var(--paper) !important;
-        }
-
-        #ledgerExportArea>div:first-child {
-            border-radius: var(--radius-m) !important;
-            box-shadow: var(--shadow-1);
-        }
-
-        #ledgerExportArea table {
-            border-radius: var(--radius-m);
-            overflow: hidden;
-            box-shadow: var(--shadow-1);
-        }
-
-        /* ---------------- Photo crop & remove ---------------- */
-        .btn-remove-photo {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: var(--bad);
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 10px;
-            padding: 4px 8px;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .3);
-        }
-
-        .btn-remove-photo:hover {
-            background: #8f2c22;
-        }
-
-        .crop-container {
-            width: 100%;
-            max-height: 400px;
-            background: #1c1c1c;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            border-radius: var(--radius-m);
-        }
-
-        /* ---------------- Responsive ---------------- */
-        @media (max-width:960px) {
-            .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .grid-row,
-            .left-fields {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        @media (max-width:680px) {
-            .sidebar {
-                position: fixed;
-                z-index: 60;
-                height: calc(100vh - 58px);
-            }
-
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .grid-row,
-            .left-fields {
-                grid-template-columns: 1fr;
-            }
-
-            .main-details {
-                flex-direction: column;
-            }
-
-            .dashboard-top-cards {
-                flex-direction: column;
-            }
-        }
-
-
-        /* =====================================================================
-   EMPLOYEE INFORMATION — SHUBH ERP THEME
-   UI ONLY: navy + brass + paper design language matching Student SIS.
-   Application logic and DOM IDs used by employee.js are preserved.
-   ===================================================================== */
-
-        /* ---------- Global shell ---------- */
-        html,
-        body {
-            height: 100%;
-            background: var(--paper);
-            overflow: hidden;
-        }
-
-        body {
-            margin: 0;
-            color: var(--text);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-size: 14px;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        h1,
-        h2,
-        h3,
-        h4 {
-            font-family: 'Fraunces', Georgia, serif;
-            color: var(--ink);
-        }
-
-        .app-body {
-            display: flex;
-            height: calc(100vh - 58px);
-            width: 100%;
-            overflow: hidden;
-        }
-
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 26px 30px 60px;
-            background: var(--paper);
-            height: 100%;
-        }
-
-        /* ---------- Header / top navbar: Student SIS match ---------- */
-        .top-navbar {
-            height: 58px;
-            min-height: 58px;
-        }
-
-        .top-navbar .logout-btn {
-            background: transparent !important;
-            color: #F0B8AE !important;
-            border: 1px solid rgba(240, 184, 174, .35) !important;
-            padding: 7px 14px !important;
-            border-radius: 8px !important;
-            font-weight: 600 !important;
-            font-size: 12px !important;
-            box-shadow: none !important;
-        }
-
-        .top-navbar .logout-btn:hover {
-            background: rgba(178, 58, 46, .25) !important;
-            border-color: #F0B8AE !important;
-        }
-
-        .top-navbar .menu-btn,
-        .top-navbar .hamburger-btn {
-            width: 34px;
-            height: 34px;
-            margin: 0;
-        }
-
-        .top-right #topBarModuleName {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #D8D2BF !important;
-            font-size: 13px !important;
-            font-weight: 600 !important;
-            letter-spacing: 0 !important;
-            margin-right: 16px !important;
-        }
-
-        /* ---------- Sidebar: Student SIS match ---------- */
-        .sidebar {
-            width: var(--sidebar-w);
-            background: var(--ink);
-            color: #EFEAD9;
-            transition: width .25s ease;
-            border-right: 1px solid rgba(255, 255, 255, .05);
-            overflow-x: hidden;
-            white-space: nowrap;
-        }
-
-        .sidebar-header {
-            padding: 22px 20px 14px;
-        }
-
-        .sidebar-header h2 {
-            color: #F7F3E7;
-            font-size: 15px;
-            margin: 0;
-            letter-spacing: .03em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .sidebar-header::after {
-            content: "";
-            display: block;
-            height: 1px;
-            margin-top: 16px;
-            background: linear-gradient(90deg, var(--brass) 0%, rgba(192, 138, 46, 0) 70%);
-        }
-
-        .sidebar .nav-links {
-            list-style: none;
-            margin: 10px 0 0;
-            padding: 0 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .sidebar .nav-links li a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #C9C4B2;
-            text-decoration: none;
-            padding: 11px 14px;
-            border-radius: 9px;
-            border-left: 3px solid transparent;
-            border-bottom: none;
-            font-size: 13.5px;
-            font-weight: 500;
-            transition: background .15s, color .15s;
-        }
-
-        .sidebar .nav-links li a:hover {
-            background: rgba(255, 255, 255, .06);
-            color: #F7F3E7;
-        }
-
-        .sidebar .nav-links li a.active {
-            background: rgba(192, 138, 46, .16);
-            color: #F7F3E7;
-            border-left: 3px solid var(--brass);
-            font-weight: 600;
-        }
-
-        .sidebar.collapsed {
-            width: var(--sidebar-w-collapsed);
-        }
-
-        .sidebar.collapsed .sidebar-header h2 {
-            display: none;
-        }
-
-        .sidebar.collapsed .nav-text {
-            display: none;
-        }
-
-        .sidebar.collapsed .nav-links li a {
-            justify-content: center;
-            padding: 12px 0;
-            border-left: none;
-        }
-
-        .sidebar.collapsed .nav-links li a.active {
-            border-left: none;
-            background: rgba(192, 138, 46, .2);
-        }
-
-        .sidebar .nav-icon {
-            font-size: 16px;
-            width: 18px;
-            min-width: 18px;
-            text-align: center;
-            opacity: .9;
-        }
-
-        /* ---------- Employee module section headers ---------- */
-        .section-header {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: flex-end !important;
-            padding-bottom: 16px !important;
-            margin-bottom: 22px !important;
-            border-bottom: 1px solid var(--line) !important;
-        }
-
-        .section-header h2 {
-            font-size: 23px !important;
-            text-transform: none !important;
-            letter-spacing: 0 !important;
-            margin: 0 !important;
-            color: var(--ink) !important;
-        }
-
-        /* ---------- Common buttons ---------- */
-        .btn {
-            border: none;
-            padding: 9px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            font-family: 'Inter', sans-serif;
-            transition: transform .05s ease, box-shadow .15s ease, background .15s ease;
-        }
-
-        .btn-dark {
-            background: var(--ink) !important;
-            color: #F4F1E9 !important;
-        }
-
-        .btn-dark:hover {
-            background: var(--ink-soft) !important;
-        }
-
-        .btn-green {
-            background: var(--good) !important;
-            color: #fff !important;
-            box-shadow: 0 2px 8px rgba(31, 122, 82, .25);
-        }
-
-        .btn-green:hover {
-            background: #186640 !important;
-        }
-
-        .btn-red {
-            background: var(--bad) !important;
-            color: #fff !important;
-            border: none !important;
-            border-radius: 7px !important;
-        }
-
-        .btn-blue {
-            background: var(--info) !important;
-            color: #fff !important;
-            border-radius: 8px !important;
-        }
-
-        .btn-purple {
-            background: #5B4A8A !important;
-            color: #fff !important;
-            border-radius: 7px !important;
-        }
-
-        /* ---------- Dashboard cards/widgets ---------- */
-        .dash-top-cards {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 18px;
-            margin-bottom: 22px;
-        }
-
-        .dash-card {
-            border: 1px solid var(--line) !important;
-            border-radius: var(--radius-l) !important;
-            box-shadow: var(--shadow-1) !important;
-            background: var(--white) !important;
-            padding: 20px 22px !important;
-        }
-
-        .card-blue {
-            background: linear-gradient(135deg, #14213D, #233457) !important;
-        }
-
-        .card-green {
-            background: linear-gradient(135deg, #1F7A52, #286B4E) !important;
-        }
-
-        .card-red {
-            background: linear-gradient(135deg, #B23A2E, #8E2E25) !important;
-        }
-
-        .card-ratio {
-            background: linear-gradient(135deg, #B4791E, #8F5E14) !important;
-        }
-
-        .dash-card .card-info h3,
-        .dash-card .card-info p,
-        .dash-card .card-footer-flex strong,
-        .dash-card .card-footer-flex span {
-            color: #fff !important;
-        }
-
-        .dash-card .card-icon {
-            background: rgba(255, 255, 255, .10) !important;
-            color: #fff !important;
-            box-shadow: none !important;
-            border: 1px solid rgba(255, 255, 255, .12);
-        }
-
-        .dash-card .card-footer-flex {
-            border-top: 1px solid rgba(255, 255, 255, .18) !important;
-        }
-
-        .dash-summary-section,
-        .dash-widget {
-            background: var(--white) !important;
-            border: 1px solid var(--line) !important;
-            border-radius: var(--radius-m) !important;
-            box-shadow: var(--shadow-1) !important;
-        }
-
-        .summary-header,
-        .widget-header {
-            background: var(--paper-2) !important;
-            border-bottom: 1px solid var(--line) !important;
-        }
-
-        .summary-header h3,
-        .widget-header h4 {
-            color: var(--ink) !important;
-            font-family: 'Fraunces', Georgia, serif;
-        }
-
-        .summary-controls {
-            background: var(--white) !important;
-            border-bottom: 1px solid var(--line) !important;
-        }
-
-        .sum-tab {
-            color: var(--text-mute) !important;
-        }
-
-        .sum-tab.active {
-            color: var(--ink) !important;
-            border-bottom-color: var(--brass) !important;
-        }
-
-        .view-toggles {
-            border: 1px solid var(--line) !important;
-            border-radius: 7px !important;
-        }
-
-        .view-btn.active {
-            background: var(--paper-2) !important;
-            color: var(--ink) !important;
-        }
-
-        .dash-table th {
-            background: var(--ink) !important;
-            color: #EFEAD9 !important;
-        }
-
-        .dash-table td {
-            border-bottom: 1px solid var(--line-soft) !important;
-        }
-
-        .dash-table td.male-col {
-            color: var(--info) !important;
-        }
-
-        .dash-table td.female-col {
-            color: var(--bad) !important;
-        }
-
-        .widget-list-item {
-            border-bottom: 1px solid var(--line-soft) !important;
-        }
-
-        .w-details strong {
-            color: var(--text) !important;
-        }
-
-        .w-details span {
-            color: var(--text-mute) !important;
-        }
-
-        .w-date {
-            color: var(--info) !important;
-        }
-
-        /* ---------- Employee list toolbar + floating filters ---------- */
-        .action-bar {
-            position: relative;
-            background: var(--white) !important;
-            padding: 12px 14px !important;
-            border: 1px solid var(--line) !important;
-            border-left: 3px solid var(--brass) !important;
-            border-radius: var(--radius-m) !important;
-            box-shadow: var(--shadow-1) !important;
-        }
-
-        .search-box {
-            height: 38px !important;
-            background: var(--white) !important;
-            border: 1px solid #D8D2C0 !important;
-            border-radius: 7px !important;
-        }
-
-        .search-box input {
-            width: 280px !important;
-            border: none !important;
-            background: transparent !important;
-            color: var(--text) !important;
-        }
-
-        .filter-dropdown {
-            display: none;
-            position: absolute !important;
-            top: 53px !important;
-            left: 0 !important;
-            width: 350px !important;
-            max-width: calc(100vw - 40px) !important;
-            min-width: 0 !important;
-            padding: 15px !important;
-            background: var(--white) !important;
-            border: 1px solid var(--line) !important;
-            border-top: 3px solid var(--brass) !important;
-            border-radius: 12px !important;
-            box-shadow: 0 14px 32px rgba(20, 33, 61, .18) !important;
-            z-index: 99999 !important;
-        }
-
-        .filter-dropdown select {
-            width: 100% !important;
-            padding: 9px 10px !important;
-            margin-bottom: 10px !important;
-            border: 1px solid #cfc9b6 !important;
-            border-radius: 7px !important;
-            color: var(--text) !important;
-            background: var(--paper-2) !important;
-        }
-
-        .filter-actions {
-            border-top: 1px solid var(--line-soft) !important;
-            padding-top: 12px !important;
-        }
-
-        .btn-apply {
-            background: var(--brass) !important;
-            color: #fff !important;
-            border: none !important;
-            border-radius: 7px !important;
-        }
-
-        .btn-cancel {
-            background: var(--white) !important;
-            color: var(--text-mute) !important;
-            border: 1px solid var(--line) !important;
-            border-radius: 7px !important;
-        }
-
-        /* ---------- Tables ---------- */
-        .erp-table,
-        .data-table {
-            background: var(--white) !important;
-            border: 1px solid var(--line) !important;
-            border-radius: var(--radius-m) !important;
-            box-shadow: var(--shadow-1) !important;
-            overflow: hidden;
-        }
-
-        .erp-table th,
-        .data-table th {
-            background: var(--ink) !important;
-            color: #EFEAD9 !important;
-            padding: 12px 14px !important;
-            border: none !important;
-            border-bottom: 2px solid var(--brass) !important;
-            text-transform: none !important;
-        }
-
-        .erp-table td,
-        .data-table td {
-            padding: 11px 14px !important;
-            border: none !important;
-            border-bottom: 1px solid var(--line-soft) !important;
-            color: var(--text) !important;
-            background: var(--white) !important;
-        }
-
-        .erp-table tr:nth-child(even) td,
-        .data-table tr:nth-child(even) td {
-            background: var(--paper-2) !important;
-        }
-
-        .erp-table tr:hover td,
-        .data-table tr:hover td {
-            background: #FBF8F0 !important;
-        }
-
-        .erp-table tr:last-child td,
-        .data-table tr:last-child td {
-            border-bottom: none !important;
-        }
-
-        /* ---------- Employee form ---------- */
-        .photo-box {
-            background: var(--white) !important;
-            border: 1px dashed #CFC7AE !important;
-            border-radius: var(--radius-m) !important;
-            box-shadow: var(--shadow-1);
-        }
-
-        .photo-box img {
-            border: 1px solid var(--line) !important;
-            background: #fff !important;
-        }
-
-        .photo-box p {
-            color: var(--ink) !important;
-            font-family: 'Fraunces', Georgia, serif;
-        }
-
-        .erp-input-group label {
-            color: var(--text-mute) !important;
-        }
-
-        .erp-input-group input,
-        .erp-input-group select {
-            height: 38px !important;
-            padding: 9px 11px !important;
-            border: 1px solid #D8D2C0 !important;
-            border-radius: 7px !important;
-            color: var(--text) !important;
-            background: var(--paper-2) !important;
-        }
-
-        .erp-input-group input:focus,
-        .erp-input-group select:focus {
-            outline: none !important;
-            border-color: var(--brass) !important;
-            box-shadow: none !important;
-            background: #fff !important;
-        }
-
-        .section-header-blue,
-        .section-header-blue-light {
-            background: transparent !important;
-            color: var(--ink) !important;
-            padding: 0 0 0 14px !important;
-            border-left: 4px solid var(--brass);
-            border-radius: 0 !important;
-            font-family: 'Fraunces', Georgia, serif;
-        }
-
-        .erp-tabs-header {
-            border-bottom: 1px solid var(--line) !important;
-        }
-
-        .erp-tab-btn {
-            color: var(--text-mute) !important;
-        }
-
-        .erp-tab-btn:hover {
-            color: var(--ink) !important;
-        }
-
-        .erp-tab-btn.active {
-            color: var(--ink) !important;
-            border-bottom-color: var(--brass) !important;
-        }
-
-        .erp-tab-content {
-            background: var(--white) !important;
-            border: 1px solid var(--line);
-            border-radius: var(--radius-m) !important;
-            box-shadow: var(--shadow-1) !important;
-        }
-
-        .btn-verify {
-            background: var(--paper-2) !important;
-            color: var(--info) !important;
-            border: 1px solid #c7cfda !important;
-            border-radius: 7px !important;
-        }
-
-        /* ---------- Modals ---------- */
-        .crop-modal {
-            background: rgba(20, 20, 15, .60) !important;
-        }
-
-        .crop-container {
-            background: var(--white) !important;
-            border: 1px solid var(--line) !important;
-            border-radius: var(--radius-l) !important;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .35) !important;
-        }
-
-        .img-container {
-            background: #1c1c1c !important;
-            border-radius: var(--radius-m) !important;
-        }
-
-        /* ---------- Responsive ---------- */
-        @media (max-width:960px) {
-            .dash-top-cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .emp-top-split {
-                flex-direction: column;
-            }
-
-            .emp-photo-col,
-            .emp-basic-col {
-                width: 100%;
-            }
-        }
-
-        @media (max-width:680px) {
-            .sidebar {
-                position: fixed;
-                z-index: 60;
-                height: calc(100vh - 58px);
-            }
-
-            .top-center,
-            .top-right #topBarModuleName {
-                display: none;
-            }
-
-            .main-content {
-                padding: 20px 16px 40px;
-            }
-
-            .dash-top-cards {
-                grid-template-columns: 1fr;
-            }
-        }
-
-
-
-        /* =====================================================================
-   BULK MANAGE MODAL — UI FIX
-   ---------------------------------------------------------------------
-   The Student SIS theme uses `.crop-container` for its image cropper.
-   Bulk Manage also uses that class, so the generic flex rule was making
-   the Bulk Manage heading, inputs and buttons appear side-by-side.
-
-   This block is intentionally scoped to #bulkManageModal and changes
-   presentation only. No JavaScript, IDs, Firebase calls or save logic
-   are modified.
-   ===================================================================== */
-
-        #bulkManageModal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(20, 20, 15, .58);
-            backdrop-filter: blur(1.5px);
-            z-index: 99999;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-        }
-
-        #bulkManageModal.active {
-            display: flex;
-        }
-
-        #bulkManageModal .crop-container {
-            display: block !important;
-            width: min(680px, 100%) !important;
-            max-width: 680px !important;
-            max-height: 88vh;
-            overflow: hidden;
-            box-sizing: border-box;
-            padding: 0 !important;
-            margin: 0;
-            text-align: left;
-            background: var(--white) !important;
-            border: 1px solid var(--line) !important;
-            border-radius: 16px !important;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .30) !important;
-        }
-
-        #bulkManageModal .crop-container>h3 {
-            margin: 0 !important;
-            padding: 18px 22px 14px !important;
-            border-bottom: 1px solid var(--line) !important;
-            background: var(--ink) !important;
-            color: #F4F1E9 !important;
-            font-family: 'Fraunces', Georgia, serif !important;
-            font-size: 18px !important;
-            font-weight: 600 !important;
-            line-height: 1.25 !important;
-        }
-
-        #bulkManageModal #bulkCatTitle {
-            color: var(--brass-soft) !important;
-            font-weight: 700 !important;
-        }
-
-        #bulkManageModal .crop-container>p {
-            margin: 0 !important;
-            padding: 14px 22px 4px !important;
-            color: var(--text-mute) !important;
-            font-size: 12px !important;
-            line-height: 1.5 !important;
-        }
-
-        #bulkManageModal .crop-container>div:first-of-type {
-            max-height: 48vh !important;
-            margin: 10px 22px 0 !important;
-            padding: 0 !important;
-            overflow: auto !important;
-            border: 1px solid var(--line) !important;
-            border-radius: 10px !important;
-            background: var(--paper-2) !important;
-        }
-
-        #bulkManageModal #bulkTable {
-            width: 100% !important;
-            border-collapse: separate !important;
-            border-spacing: 0 !important;
-            margin: 0 !important;
-            table-layout: fixed !important;
-            background: var(--white) !important;
-        }
-
-        #bulkManageModal #bulkTable td {
-            padding: 9px 10px !important;
-            border: 0 !important;
-            border-bottom: 1px solid var(--line-soft) !important;
-            vertical-align: middle !important;
-            background: var(--white) !important;
-        }
-
-        #bulkManageModal #bulkTable tr:last-child td {
-            border-bottom: none !important;
-        }
-
-        #bulkManageModal #bulkTable td:last-child {
-            width: 58px !important;
-            text-align: center !important;
-        }
-
-        #bulkManageModal #bulkTable .blk-val {
-            display: block !important;
-            width: 100% !important;
-            height: 38px !important;
-            padding: 9px 11px !important;
-            box-sizing: border-box !important;
-            border: 1px solid #D8D2C0 !important;
-            border-radius: 7px !important;
-            background: var(--paper-2) !important;
-            color: var(--text) !important;
-            font-family: 'Inter', sans-serif !important;
-            font-size: 13px !important;
-            outline: none !important;
-        }
-
-        #bulkManageModal #bulkTable .blk-val:focus {
-            border-color: var(--brass) !important;
-            background: var(--white) !important;
-            box-shadow: 0 0 0 2px rgba(192, 138, 46, .12) !important;
-        }
-
-        #bulkManageModal #bulkTable .btn-red {
-            width: 36px !important;
-            height: 36px !important;
-            padding: 0 !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            background: var(--bad) !important;
-            color: #fff !important;
-            border: 0 !important;
-            border-radius: 7px !important;
-            cursor: pointer !important;
-        }
-
-        #bulkManageModal #btnAddBulkRow {
-            display: block !important;
-            width: calc(100% - 20px) !important;
-            margin: 10px !important;
-            padding: 9px 12px !important;
-            border: 1px dashed #C9C3B0 !important;
-            border-radius: 7px !important;
-            background: var(--paper-2) !important;
-            color: var(--ink) !important;
-            font-family: 'Inter', sans-serif !important;
-            font-size: 12.5px !important;
-            font-weight: 700 !important;
-            cursor: pointer !important;
-        }
-
-        #bulkManageModal #btnAddBulkRow:hover {
-            background: #F5F1E4 !important;
-            border-color: var(--brass) !important;
-        }
-
-        #bulkManageModal .crop-container>div:last-child {
-            display: flex !important;
-            justify-content: flex-end !important;
-            align-items: center !important;
-            gap: 10px !important;
-            padding: 16px 22px 18px !important;
-            margin: 0 !important;
-            text-align: right !important;
-            background: var(--white) !important;
-            border-top: 1px solid var(--line) !important;
-        }
-
-        #bulkManageModal #btnCancelBulk,
-        #bulkManageModal #btnSaveBulk {
-            min-height: 38px !important;
-            padding: 9px 16px !important;
-            border-radius: 8px !important;
-            font-size: 12.5px !important;
-        }
-
-        #bulkManageModal #btnCancelBulk {
-            background: var(--ink) !important;
-            color: #F4F1E9 !important;
-        }
-
-        #bulkManageModal #btnSaveBulk {
-            background: var(--good) !important;
-            color: #fff !important;
-            box-shadow: 0 2px 8px rgba(31, 122, 82, .20);
-        }
-
-        @media (max-width:680px) {
-            #bulkManageModal {
-                padding: 14px;
-            }
-
-            #bulkManageModal .crop-container {
-                width: 100% !important;
-                max-width: 100% !important;
-                max-height: 92vh;
-                border-radius: 12px !important;
-            }
-
-            #bulkManageModal .crop-container>h3 {
-                padding: 15px 16px 12px !important;
-                font-size: 16px !important;
-            }
-
-            #bulkManageModal .crop-container>p {
-                padding: 12px 16px 4px !important;
-            }
-
-            #bulkManageModal .crop-container>div:first-of-type {
-                margin-left: 16px !important;
-                margin-right: 16px !important;
-            }
-
-            #bulkManageModal .crop-container>div:last-child {
-                padding: 12px 16px 15px !important;
-            }
-        }
-
-
-
-        /* ================================================================
-   STUDENT ATTENDANCE — FINAL UI OVERRIDES
-   UI ONLY. Existing attendance IDs, classes and workflows remain.
-   ================================================================ */
-
-        /* ---------- Header: no global search ---------- */
-        .top-navbar {
-            height: 58px !important;
-            min-height: 58px !important;
-        }
-
-        .top-center {
-            display: none !important;
-        }
-
-        /* ---------- Keep attendance shell on the same ERP geometry ---------- */
-        .erp-wrapper {
-            height: calc(100vh - 58px) !important;
-        }
-
-        .main-content {
-            background: var(--paper) !important;
-            padding: 26px 30px 60px !important;
-        }
-
-        /* ---------- Header identity / module label ---------- */
-        .top-left {
-            font-weight: normal !important;
-        }
-
-        .top-right {
-            color: #D8D2BF !important;
-        }
-
-        .top-right span {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #D8D2BF !important;
-            font-size: 13px !important;
-        }
-
-        #btnLogout {
-            background: transparent !important;
-            color: #F0B8AE !important;
-            border: 1px solid rgba(240, 184, 174, .35) !important;
-            padding: 7px 14px !important;
-            border-radius: 8px !important;
-            font-weight: 600 !important;
-            font-size: 12px !important;
-        }
-
-        #btnLogout:hover {
-            background: rgba(178, 58, 46, .25) !important;
-            border-color: #F0B8AE !important;
-        }
-
-        /* ---------- Sidebar: exact Student SIS look ---------- */
-        .sidebar {
-            width: var(--sidebar-w) !important;
-            background: var(--ink) !important;
-            color: #EFEAD9 !important;
-            transition: width .25s ease !important;
-            border-right: 1px solid rgba(255, 255, 255, .05);
-            white-space: nowrap;
-            overflow-x: hidden;
-        }
-
-        .red-sidebar {
-            background: var(--ink) !important;
-        }
-
-        .sidebar-header,
-        .red-header {
-            background: transparent !important;
-            padding: 22px 20px 14px !important;
-            text-align: left !important;
-        }
-
-        .sidebar-header h2,
-        .red-header h2 {
-            color: #F7F3E7 !important;
-            font-size: 15px !important;
-            margin: 0 !important;
-            letter-spacing: .03em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .sidebar-header::after {
-            content: "";
-            display: block;
-            height: 1px;
-            margin-top: 16px;
-            background: linear-gradient(90deg, var(--brass) 0%, rgba(192, 138, 46, 0) 70%);
-        }
-
-        .sidebar .nav-links {
-            list-style: none;
-            margin: 10px 0 0;
-            padding: 0 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .sidebar .nav-links li a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #C9C4B2 !important;
-            text-decoration: none;
-            padding: 11px 14px;
-            border-radius: 9px;
-            border-left: 3px solid transparent;
-            border-bottom: none !important;
-            font-size: 13.5px;
-            font-weight: 500;
-            transition: background .15s, color .15s;
-        }
-
-        .sidebar .nav-links li a:hover {
-            background: rgba(255, 255, 255, .06);
-            color: #F7F3E7 !important;
-        }
-
-        .sidebar .nav-links li a.active {
-            background: rgba(192, 138, 46, .16);
             color: #F7F3E7 !important;
             border-left: 3px solid var(--brass);
-            font-weight: 600;
         }
 
         .sidebar.collapsed {
             width: var(--sidebar-w-collapsed) !important;
         }
 
-        .sidebar.collapsed .sidebar-header,
-        .sidebar.collapsed .red-header {
-            padding: 22px 0 14px !important;
+        .main-content {
+            padding: 26px 30px 60px !important;
+            background: var(--paper) !important;
         }
 
-        .sidebar.collapsed .sidebar-header h2,
-        .sidebar.collapsed .red-header h2 {
-            display: none;
-        }
-
-        .sidebar.collapsed .nav-text {
-            display: none;
-        }
-
-        .sidebar.collapsed .nav-links li a {
-            justify-content: center;
-            padding: 12px 0;
-            border-left: none;
-        }
-
-        .sidebar.collapsed .nav-links li a.active {
-            border-left: none;
-            background: rgba(192, 138, 46, .2);
-        }
-
-        .sidebar .nav-icon {
-            font-size: 16px;
-            width: 18px;
-            min-width: 18px;
-            text-align: center;
-            opacity: .9;
-        }
-
-        /* ---------- Main module headings ---------- */
         .profile-header {
-            padding-bottom: 16px !important;
-            margin-bottom: 22px !important;
             border-bottom: 1px solid var(--line) !important;
-        }
-
-        .profile-header h2 {
-            font-size: 23px !important;
-            color: var(--ink) !important;
-            text-transform: none !important;
-            letter-spacing: 0 !important;
-            font-family: 'Fraunces', Georgia, serif !important;
-        }
-
-        /* ---------- Toolbar / action area ---------- */
-        .table-toolbar {
-            background: var(--white) !important;
-            border: 1px solid var(--line) !important;
-            border-left: 3px solid var(--brass) !important;
-            border-radius: var(--radius-m) !important;
-            padding: 12px 14px !important;
-            margin-bottom: 16px !important;
-            box-shadow: var(--shadow-1) !important;
-        }
-
-        .table-toolbar .filters {
-            color: var(--text);
-        }
-
-        .table-toolbar strong {
-            color: var(--ink);
-        }
-
-        .table-toolbar span {
-            color: var(--text-mute);
-        }
-
-        /* ---------- Common buttons ---------- */
-        .btn {
-            padding: 9px 16px !important;
-            border-radius: 8px !important;
-            font-family: 'Inter', sans-serif !important;
-            font-size: 13px !important;
-            font-weight: 600 !important;
+            margin-bottom: 22px !important;
         }
 
         .btn-dark {
@@ -2749,18 +551,10 @@
             color: #F4F1E9 !important;
         }
 
-        .btn-dark:hover {
-            background: var(--ink-soft) !important;
-        }
-
         .btn-green {
             background: var(--good) !important;
             color: #fff !important;
             box-shadow: 0 2px 8px rgba(31, 122, 82, .25);
-        }
-
-        .btn-green:hover {
-            background: #186640 !important;
         }
 
         .btn-green-outline {
@@ -2769,327 +563,74 @@
             border: 1.5px solid var(--good) !important;
         }
 
-        .btn-green-outline:hover {
-            background: var(--good-bg) !important;
-        }
-
-        .btn-red {
-            background: var(--bad) !important;
-            color: #fff !important;
-            border: none !important;
-            border-radius: 7px !important;
-        }
-
-        .btn-edit {
-            background: var(--brass) !important;
-            color: #2a1c04 !important;
-            border: none !important;
-            border-radius: 7px !important;
-            padding: 6px 10px !important;
-        }
-
-        /* ---------- Data tables ---------- */
         .data-table {
-            width: 100%;
-            border-collapse: separate !important;
-            border-spacing: 0;
-            font-size: 13px;
             background: var(--white) !important;
             border: 1px solid var(--line) !important;
             border-radius: var(--radius-m) !important;
-            overflow: hidden;
             box-shadow: var(--shadow-1) !important;
         }
 
         .data-table th {
             background: var(--ink) !important;
             color: #EFEAD9 !important;
-            font-weight: 600 !important;
-            text-align: left;
-            padding: 12px 14px !important;
-            border: none !important;
             border-bottom: 2px solid var(--brass) !important;
-            text-transform: none !important;
-            font-size: 12px !important;
         }
 
         .data-table td {
-            padding: 11px 14px !important;
-            border: none !important;
             border-bottom: 1px solid var(--line-soft) !important;
-            color: var(--text) !important;
+        }
+
+        .table-toolbar {
             background: var(--white) !important;
-            vertical-align: middle !important;
+            border: 1px solid var(--line) !important;
+            border-left: 3px solid var(--brass) !important;
+            border-radius: var(--radius-m) !important;
+            box-shadow: var(--shadow-1) !important;
         }
 
-        .data-table tr:nth-child(even) td {
-            background: var(--paper-2) !important;
-        }
-
-        .data-table tr:hover td {
-            background: #FBF8F0 !important;
-        }
-
-        /* ---------- Daily attendance setup card ---------- */
         .pre-mark-container {
-            max-width: 860px;
-            margin: 20px auto;
             background: var(--white) !important;
             border: 1px solid var(--line) !important;
             border-top: 3px solid var(--brass) !important;
-            padding: 26px 28px !important;
             border-radius: var(--radius-l) !important;
             box-shadow: var(--shadow-1) !important;
         }
 
-        .pre-mark-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .pre-mark-row label {
-            width: 220px;
-            text-align: left;
-            margin-right: 22px;
-            font-weight: 600;
-            color: var(--text-mute);
-            font-size: 12px;
-        }
-
         .pre-mark-row select,
         .pre-mark-row input {
-            flex: 1;
-            max-width: none;
-            padding: 9px 11px;
             border: 1px solid #D8D2C0;
-            border-radius: 7px;
-            font-size: 13px;
-            color: var(--text);
             background: var(--paper-2);
-            font-family: 'Inter', sans-serif;
-        }
-
-        .pre-mark-row select:focus,
-        .pre-mark-row input:focus {
-            outline: none;
-            border-color: var(--brass);
-            background: #fff;
         }
 
         .btn-proceed {
             background: var(--good) !important;
-            color: #fff !important;
-            padding: 10px 22px !important;
             border-radius: 8px !important;
-            float: right;
-            margin-right: 0;
         }
 
-        /* ---------- Attendance status chips ---------- */
-        .status-options {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .status-label {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            background: var(--paper-2);
-            color: var(--text-mute);
-            border: 1px solid var(--line);
-            font-size: 10.5px;
-        }
-
-        .status-radio:checked+.status-label {
-            color: #fff;
-            border-color: transparent;
-        }
-
-        /* Preserve status meaning while aligning colors to the ERP palette. */
-        input[value="P"]:checked+.status-label {
-            background: var(--good);
-        }
-
-        input[value="AB"]:checked+.status-label {
-            background: var(--bad);
-        }
-
-        input[value="L"]:checked+.status-label {
-            background: var(--brass);
-        }
-
-        input[value="SUS"]:checked+.status-label {
-            background: #5B4A8A;
-        }
-
-        input[value="RS"]:checked+.status-label {
-            background: #5B4A8A;
-        }
-
-        input[value="HD"]:checked+.status-label {
-            background: var(--info);
-        }
-
-        input[value="EG"]:checked+.status-label {
-            background: #8F5E14;
-        }
-
-        input[value="LC"]:checked+.status-label {
-            background: #5C8A53;
-        }
-
-        input[value="NA"]:checked+.status-label {
-            background: #7C7A70;
-        }
-
-        .remark-input {
-            padding: 9px 11px !important;
-            border: 1px solid #D8D2C0 !important;
-            border-radius: 7px !important;
-            background: var(--paper-2) !important;
-            color: var(--text) !important;
-        }
-
-        .remark-input:focus {
-            outline: none;
-            border-color: var(--brass);
-            background: #fff !important;
-        }
-
-        /* ---------- Notification modal ---------- */
-        .modal-overlay {
-            background: rgba(20, 20, 15, .58) !important;
-            backdrop-filter: blur(1.5px);
-            z-index: 10000 !important;
-        }
-
-        .modal-card {
-            background: var(--white) !important;
-            border: 1px solid var(--line);
-            border-radius: var(--radius-l) !important;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .35) !important;
-            overflow: hidden;
-        }
-
-        .modal-header {
-            padding: 16px 22px !important;
-            background: var(--ink) !important;
-            color: #F4F1E9 !important;
-            border-radius: 0 !important;
-        }
-
-        .modal-header h3 {
-            color: #F4F1E9 !important;
-            font-family: 'Fraunces', Georgia, serif;
-            font-size: 16px;
-        }
-
-        .close-modal {
-            color: #C9C4B2 !important;
-            font-size: 22px !important;
-        }
-
-        .close-modal:hover {
-            color: #fff !important;
-        }
-
-        #emailOptionsModal .modal-body {
-            padding: 22px !important;
-            background: var(--white);
-        }
-
-        #emailOptionsModal .modal-body h4 {
-            color: var(--ink) !important;
-            border-bottom: 1px solid var(--line) !important;
-            font-family: 'Fraunces', Georgia, serif;
-            padding-bottom: 10px !important;
-        }
-
-        #emailOptionsModal .modal-footer {
-            padding: 14px 22px !important;
-            background: var(--paper-2) !important;
-            border-top: 1px solid var(--line) !important;
-            border-radius: 0 !important;
-        }
-
-        /* ---------- Attendance table sizing ---------- */
         .att-entry-table th:nth-child(4) {
             width: 400px !important;
         }
 
-        .att-entry-table td:nth-child(4) {
-            vertical-align: middle;
+        .modal-overlay {
+            background: rgba(20, 20, 15, .58) !important;
+            backdrop-filter: blur(1.5px);
         }
 
-        /* ---------- Responsive ---------- */
-        @media (max-width:960px) {
-            .pre-mark-container {
-                max-width: 100%;
-            }
-
-            .pre-mark-row label {
-                width: 180px;
-            }
-
-            .att-entry-table {
-                min-width: 900px;
-            }
-
-            .table-container {
-                overflow-x: auto;
-            }
+        .modal-card {
+            border-radius: var(--radius-l) !important;
+            overflow: hidden;
         }
 
-        @media (max-width:680px) {
-            .sidebar {
-                position: fixed;
-                z-index: 60;
-                height: calc(100vh - 58px);
-            }
-
-            .main-content {
-                padding: 20px 16px 40px !important;
-            }
-
-            .pre-mark-container {
-                padding: 20px !important;
-            }
-
-            .pre-mark-row {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 7px;
-            }
-
-            .pre-mark-row label {
-                width: auto;
-                margin-right: 0;
-            }
-
-            .pre-mark-row select,
-            .pre-mark-row input {
-                width: 100%;
-                max-width: none;
-            }
-
-            .btn-proceed {
-                float: none;
-                width: 100%;
-            }
+        .modal-header {
+            background: var(--ink) !important;
+            color: #F4F1E9 !important;
+            border-radius: 0 !important;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- ============================================================
-     GLOBAL ERP HEADER
-     Same header shell used by Student SIS / Employee / Fee.
-     Search box intentionally removed as requested.
-     ============================================================ -->
     <div class="top-navbar">
         <div class="top-left">
             <button class="hamburger-btn" id="sidebarToggle" title="Toggle Sidebar">☰</button>
@@ -3102,84 +643,46 @@
                 <span class="school-name" id="dynamicNavName">SHUBH ERP</span>
             </a>
         </div>
-
         <div class="top-right">
             <span>⚏&nbsp;Attendance Module&nbsp;&nbsp;🔔</span>
             <button id="btnLogout">🚪 Logout</button>
         </div>
     </div>
 
-    <!-- ============================================================
-     ERP BODY
-     ============================================================ -->
     <div class="erp-wrapper">
-
-        <!-- ============================================================
-         SIDEBAR
-         Existing attendance navigation labels/IDs preserved.
-         ============================================================ -->
         <div class="sidebar red-sidebar" id="appSidebar">
             <div class="sidebar-header red-header">
                 <h2>📚 SHUBH ERP</h2>
             </div>
-
             <ul class="nav-links">
-                <li>
-                    <a href="index.html" class="nav-btn">
-                        <span class="nav-icon">🏠</span>
-                        <span class="nav-text">Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-btn">
-                        <span class="nav-icon">📊</span>
-                        <span class="nav-text">Attendance Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-btn active" id="sideMarkAtt">
-                        <span class="nav-icon">📅</span>
-                        <span class="nav-text">Mark Attendance</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-btn">
-                        <span class="nav-icon">📝</span>
-                        <span class="nav-text">Attendance Register</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-btn">
-                        <span class="nav-icon">✅</span>
-                        <span class="nav-text">Approve Leave</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-btn">
-                        <span class="nav-icon">✉️</span>
-                        <span class="nav-text">Send SMS/Email</span>
-                    </a>
-                </li>
+                <li><a href="index.html" class="nav-btn"><span class="nav-icon">🏠</span><span
+                            class="nav-text">Dashboard</span></a></li>
+                <li><a href="#" class="nav-btn"><span class="nav-icon">📊</span><span class="nav-text">Attendance
+                            Dashboard</span></a></li>
+                <li><a href="#" class="nav-btn active" id="sideMarkAtt"><span class="nav-icon">📅</span><span
+                            class="nav-text">Mark Attendance</span></a></li>
+                <li><a href="#" class="nav-btn"><span class="nav-icon">📝</span><span class="nav-text">Attendance
+                            Register</span></a></li>
+                <li><a href="#" class="nav-btn"><span class="nav-icon">✅</span><span class="nav-text">Approve
+                            Leave</span></a></li>
+                <li><a href="#" class="nav-btn"><span class="nav-icon">✉️</span><span class="nav-text">Send
+                            SMS/Email</span></a></li>
             </ul>
         </div>
 
         <div class="main-content">
 
-            <!-- ======================================================
-             MODULE 1: ATTENDANCE HISTORY
-             ====================================================== -->
+            <!-- MODULE 1: ATTENDANCE HISTORY -->
             <div id="view-history" class="app-module active-module">
                 <div class="profile-header">
                     <h2>Mark Attendance ℹ️</h2>
                 </div>
-
                 <div class="table-container">
                     <div class="table-toolbar">
                         <div class="filters"
                             style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                             <div>
-                                <strong>Filters:</strong>
-                                <span id="currentDateFilter"></span>
+                                <strong>Filters:</strong> <span id="currentDateFilter"></span>
                                 <button class="btn btn-dark" style="margin-left:10px;">▼ Filters</button>
                             </div>
                             <div style="display:flex; gap:10px;">
@@ -3188,7 +691,6 @@
                             </div>
                         </div>
                     </div>
-
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -3209,14 +711,11 @@
                 </div>
             </div>
 
-            <!-- ======================================================
-             MODULE 2: PRE-MARK ATTENDANCE
-             ====================================================== -->
+            <!-- MODULE 2: PRE-MARK ATTENDANCE -->
             <div id="view-pre-mark" class="app-module">
                 <div class="profile-header">
                     <h2>Daily Attendance Information ℹ️</h2>
                 </div>
-
                 <div class="pre-mark-container">
                     <div class="pre-mark-row">
                         <label>Academic Year</label>
@@ -3224,14 +723,12 @@
                             <option>2026-2027</option>
                         </select>
                     </div>
-
                     <div class="pre-mark-row">
                         <label>Class-Section</label>
                         <select id="preAttClass">
                             <option value="">--Select Class-Section--</option>
                         </select>
                     </div>
-
                     <div class="pre-mark-row">
                         <label>Default Status</label>
                         <select id="preAttStatus">
@@ -3240,43 +737,33 @@
                             <option value="L">Leave</option>
                         </select>
                     </div>
-
                     <div class="pre-mark-row">
                         <label>Date</label>
                         <input type="date" id="preAttDate">
                     </div>
-
                     <div style="clear:both; overflow:hidden; padding-top:20px;">
                         <button class="btn-proceed" id="btn-proceed-mark">💾 Proceed</button>
                     </div>
                 </div>
             </div>
 
-            <!-- ======================================================
-             MODULE 3: MARK ATTENDANCE
-             ====================================================== -->
+            <!-- MODULE 3: MARK ATTENDANCE -->
             <div id="view-mark" class="app-module">
                 <div class="profile-header">
                     <h2>Enter Attendance ℹ️</h2>
                 </div>
-
                 <div class="table-container">
                     <div class="table-toolbar">
                         <div class="filters"
                             style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                             <div style="display:flex; gap:15px; align-items:center;">
                                 <strong style="font-size:16px;">
-                                    Class:
-                                    <span id="displayClass" style="color:var(--brass);">-</span>
-                                    |
-                                    Date:
-                                    <span id="displayDate" style="color:var(--brass);">-</span>
+                                    Class: <span id="displayClass" style="color:var(--brass);">-</span> |
+                                    Date: <span id="displayDate" style="color:var(--brass);">-</span>
                                 </strong>
-
                                 <input type="date" id="attDateSelect" style="display:none;">
                                 <select id="attClassSelect" style="display:none;"></select>
                             </div>
-
                             <div style="display:flex; gap:5px; flex-wrap:wrap;">
                                 <button class="btn btn-green-outline">Export To Excel</button>
                                 <button class="btn btn-green" id="btnSaveAttendance">⊕ Save</button>
@@ -3285,7 +772,6 @@
                             </div>
                         </div>
                     </div>
-
                     <table class="data-table att-entry-table">
                         <thead>
                             <tr>
@@ -3304,46 +790,32 @@
                     </table>
                 </div>
             </div>
+
         </div>
     </div>
 
-    <!-- ==============================================================
-     EMAIL OPTIONS MODAL
-     Existing IDs and action flow preserved.
-     ============================================================== -->
+    <!-- EMAIL OPTIONS MODAL -->
     <div id="emailOptionsModal" class="modal-overlay">
         <div class="modal-card" style="width:500px;">
             <div class="modal-header">
                 <h3 style="color:white; margin:0;">Save &amp; Send Notifications</h3>
                 <span class="close-modal" id="closeEmailModalBtn">&times;</span>
             </div>
-
             <div class="modal-body" style="padding:25px;">
-                <h4 style="color:#333; margin-bottom:15px; border-bottom:2px solid #eee; padding-bottom:5px;">
-                    Email Communication Options
-                </h4>
-
+                <h4 style="color:#333; margin-bottom:15px; border-bottom:2px solid #eee; padding-bottom:5px;">Email
+                    Communication Options</h4>
                 <div style="display:flex; flex-direction:column; gap:15px;">
-                    <label style="cursor:pointer; font-size:14px;">
-                        <input type="radio" name="modalMailOpt" value="absent"> Send mail to <b>Absent</b> students
-                    </label>
-
-                    <label style="cursor:pointer; font-size:14px;">
-                        <input type="radio" name="modalMailOpt" value="present"> Send mail to <b>Present</b> students
-                    </label>
-
-                    <label style="cursor:pointer; font-size:14px;">
-                        <input type="radio" name="modalMailOpt" value="both"> <b>Both</b> (Present &amp; Absent)
-                    </label>
-
-                    <label style="cursor:pointer; font-size:14px;">
-                        <input type="radio" name="modalMailOpt" value="none" checked> <b>None</b> (Save without Email)
-                    </label>
+                    <label style="cursor:pointer; font-size:14px;"><input type="radio" name="modalMailOpt"
+                            value="absent"> Send mail to <b>Absent</b> students</label>
+                    <label style="cursor:pointer; font-size:14px;"><input type="radio" name="modalMailOpt"
+                            value="present"> Send mail to <b>Present</b> students</label>
+                    <label style="cursor:pointer; font-size:14px;"><input type="radio" name="modalMailOpt" value="both">
+                        <b>Both</b> (Present &amp; Absent)</label>
+                    <label style="cursor:pointer; font-size:14px;"><input type="radio" name="modalMailOpt" value="none"
+                            checked> <b>None</b> (Save without Email)</label>
                 </div>
-
                 <input type="hidden" id="pendingSaveAction" value="">
             </div>
-
             <div class="modal-footer">
                 <button class="btn btn-dark" id="btnCancelEmailModal">Cancel</button>
                 <button class="btn btn-green" id="btnConfirmSave">Confirm &amp; Save</button>
@@ -3352,142 +824,79 @@
     </div>
 
     <!-- ==============================================================
-     INLINE ATTENDANCE LOGIC
-     Original attendance.js source embedded without logic changes.
-     ============================================================== -->
-    <script id="attendance-inline-logic">
+         FIRESTORE JAVASCRIPT LOGIC
+         ============================================================== -->
+    <script>
+        // Custom Alerts
+        window.customAlert = function (message) {
+            let overlay = document.createElement('div');
+            overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+            overlay.innerHTML = `<div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;"><p style="color:#333;margin-bottom:20px;font-size:15px;font-weight:bold;">${message}</p><button onclick="this.parentElement.parentElement.remove()" style="padding:8px 25px;background:#3498db;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">OK</button></div>`;
+            document.body.appendChild(overlay);
+        };
+
+        window.customConfirm = function (message, onConfirm) {
+            let overlay = document.createElement('div');
+            overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+            overlay.innerHTML = `<div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;"><p style="color:#555;margin-bottom:20px;">${message}</p><div style="display:flex;justify-content:center;gap:10px;"><button id="cc-cancel" style="padding:8px 20px;background:#95a5a6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Cancel</button><button id="cc-ok" style="padding:8px 20px;background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Confirm</button></div></div>`;
+            document.body.appendChild(overlay);
+            document.getElementById('cc-cancel').addEventListener('click', () => overlay.remove());
+            document.getElementById('cc-ok').addEventListener('click', () => { overlay.remove(); onConfirm(); });
+        };
+
+        // Global Arrays
+        let allStudents = [];
+        let setupClasses = [];
+        let rawAttendanceData = [];
+        let currentRoster = [];
+        let schoolCode = "";
+
         document.addEventListener('DOMContentLoaded', () => {
-            // API URL - REPLACE THIS WITH YOUR *NEW DEPLOYMENT* URL!
 
+            // UI Toggle
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('appSidebar');
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
+            }
 
+            document.querySelectorAll('.nav-btn').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    if (this.getAttribute('href') !== '#') return; e.preventDefault();
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
 
-            // ============================================================
-            // MULTI-TENANT API URL RESOLUTION
-            // ------------------------------------------------------------
-            // Primary source remains the original `erp_school_url` key.
-            // For compatibility with an existing logged-in ERP session, we
-            // also recover the same endpoint from common stored keys or from
-            // the active-user object when available.
-            //
-            // IMPORTANT:
-            // - No hardcoded school/API URL is introduced.
-            // - No localStorage data is deleted.
-            // - Existing successful API behavior is unchanged.
-            // ============================================================
+            // Authentication Validation
             const activeUserStr = localStorage.getItem('erp_active_user');
-            if (!activeUserStr) {
-                window.location.href = 'login.html';
-                throw new Error('ERP session not found.');
-            }
+            if (!activeUserStr) { window.location.href = 'login.html'; return; }
+            const activeUser = JSON.parse(activeUserStr);
+            schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode || "VIS"; // Default to VIS if empty
 
-            let activeUser = {};
-            try {
-                activeUser = JSON.parse(activeUserStr) || {};
-            } catch (e) {
-                window.location.href = 'login.html';
-                throw new Error('Invalid ERP session.');
-            }
-
-            function resolveAttendanceApiUrl() {
-                const directKeys = [
-                    'erp_school_url',
-                    'erp_api_url',
-                    'erp_script_url',
-                    'school_api_url',
-                    'schoolApiUrl',
-                    'erpSchoolUrl'
-                ];
-
-                // 1) Preserve the original key first.
-                for (const key of directKeys) {
-                    const value = localStorage.getItem(key);
-                    if (value && /^https:\/\/[^\s]+$/i.test(value)) {
-                        return value.trim();
-                    }
-                }
-
-                // 2) Recover from the logged-in user's stored session object.
-                const userKeys = [
-                    'schoolUrl',
-                    'schoolURL',
-                    'scriptURL',
-                    'scriptUrl',
-                    'apiUrl',
-                    'apiURL',
-                    'endpoint',
-                    'webAppUrl'
-                ];
-                for (const key of userKeys) {
-                    const value = activeUser[key];
-                    if (typeof value === 'string' && /^https:\/\/[^\s]+$/i.test(value)) {
-                        return value.trim();
-                    }
-                }
-
-                // 3) Last non-destructive recovery: inspect other localStorage
-                //    values for a Google Apps Script web-app URL.
-                try {
-                    for (let i = 0; i < localStorage.length; i++) {
-                        const key = localStorage.key(i);
-                        const value = key ? localStorage.getItem(key) : null;
-                        if (
-                            typeof value === 'string' &&
-                            /^https:\/\/script\.google\.com\/macros\/s\/[^\s]+\/exec(?:[?#].*)?$/i.test(value.trim())
-                        ) {
-                            return value.trim();
-                        }
-                    }
-                } catch (e) {
-                    console.warn('API URL recovery scan failed:', e);
-                }
-
-                return null;
-            }
-
-            const scriptURL = resolveAttendanceApiUrl();
-
-
-
-
-
-
-
-
-            // DYNAMIC NAVBAR UPDATE LOGIC (Immediate Execution Fix)
+            // Navbar UI Updates
             try {
                 let savedName = localStorage.getItem('erp_school_name');
                 let savedLogo = localStorage.getItem('erp_school_logo');
-
                 let navNameEl = document.getElementById('dynamicNavName');
                 let navLogoImg = document.getElementById('dynamicNavLogo');
                 let navLogoDefault = document.getElementById('defaultNavLogo');
 
-                // School Name Update
-                if (savedName && navNameEl) {
-                    navNameEl.innerText = savedName;
-                }
-
-                // School Logo Update
+                if (savedName && navNameEl) navNameEl.innerText = savedName;
                 if (savedLogo && savedLogo.startsWith('http') && navLogoImg) {
-                    navLogoImg.src = savedLogo;
-                    navLogoImg.style.display = 'inline-block';
+                    navLogoImg.src = savedLogo; navLogoImg.style.display = 'inline-block';
                     if (navLogoDefault) navLogoDefault.style.display = 'none';
                 }
-            } catch (error) {
-                console.error("Navbar logic failed:", error);
+            } catch (error) { }
+
+            const btnLogout = document.getElementById('btnLogout');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', () => {
+                    customConfirm("Are you sure you want to logout?", () => {
+                        auth.signOut().then(() => { localStorage.removeItem('erp_active_user'); window.location.href = 'login.html'; });
+                    });
+                });
             }
-
-
-
-
-
-
-
-
-            let allStudents = [];
-            let setupClasses = [];
-            let rawAttendanceData = [];
-            let currentRoster = [];
 
             function formatToDDMMYYYY(dateString) {
                 if (!dateString) return "";
@@ -3499,29 +908,42 @@
                 return `${day}-${month}-${year}`;
             }
 
-            const today = new Date();
-            document.getElementById('currentDateFilter').innerText = formatToDDMMYYYY(today);
+            document.getElementById('currentDateFilter').innerText = formatToDDMMYYYY(new Date());
 
-            function initData() {
+            // ==========================================
+            // FIREBASE DATA FETCH (Replaces scriptURL)
+            // ==========================================
+            window.initData = async function () {
                 const tbody = document.getElementById('historyTableBody');
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Fetching Database... ⏳</td></tr>';
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Fetching Database... ⏳</td></tr>';
 
-                if (!scriptURL) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="color:#b23a2e; text-align:center;">Attendance service URL could not be recovered from the current ERP session.</td></tr>';
-                    return;
+                try {
+                    // Fetch Classes
+                    let setupDoc = await db.collection("setups").doc(schoolCode).get();
+                    if (setupDoc.exists && setupDoc.data().classes) {
+                        setupClasses = setupDoc.data().classes;
+                        populateClassDropdown();
+                    }
+
+                    // Fetch Students
+                    let studentSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get();
+                    allStudents = [];
+                    studentSnap.forEach(doc => { allStudents.push(doc.data()); });
+
+                    // Fetch Attendance History
+                    let attSnap = await db.collection("attendance").where("schoolCode", "==", schoolCode).get();
+                    rawAttendanceData = [];
+                    attSnap.forEach(doc => { rawAttendanceData.push(doc.data()); });
+
+                    renderHistory();
+
+                } catch (error) {
+                    console.error("Firebase Sync Error:", error);
+                    if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="color:#c0392b; text-align:center;"><b>Database Connection Failed:</b> ${error.message} <button class="btn btn-dark" onclick="initData()">Retry</button></td></tr>`;
                 }
-
-                fetch(scriptURL)
-                    .then(res => res.json())
-                    .then(res => {
-                        if (res.status === "Success") {
-                            allStudents = res.data;
-                            if (res.setup && res.setup.classes) { setupClasses = res.setup.classes; populateClassDropdown(); }
-                            rawAttendanceData = res.attendance || [];
-                            renderHistory();
-                        }
-                    });
             }
+
+            document.getElementById('btnSyncAtt')?.addEventListener('click', initData);
 
             function populateClassDropdown() {
                 const selOld = document.getElementById('attClassSelect');
@@ -3572,65 +994,67 @@
             function renderHistory() {
                 const tbody = document.getElementById('historyTableBody');
                 tbody.innerHTML = '';
+
+                rawAttendanceData.sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
+
                 if (rawAttendanceData.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No attendance history found.</td></tr>';
                     return;
                 }
 
-                let sessions = {};
-                rawAttendanceData.forEach(rec => {
-                    if (!sessions[rec.Session_ID]) {
-                        sessions[rec.Session_ID] = { sessionID: rec.Session_ID, date: rec.Date, classSec: rec.Class_Section, timestamp: rec.Timestamp };
-                    }
-                });
-
-                let historyArray = Object.values(sessions);
-                historyArray.forEach((record, index) => {
+                rawAttendanceData.forEach((record, index) => {
                     tbody.innerHTML += `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${record.classSec}</td>
-                    <td>${record.date}</td>
-                    <td>Attendance Marked</td>
-                    <td>${new Date(record.timestamp).toLocaleString()}</td>
-                    <td>
-                        <button class="btn-edit" onclick="editAttendance('${record.sessionID}')">✏️</button>
-                        <button class="btn-red" onclick="deleteAttendance('${record.sessionID}')">🗑️</button>
-                    </td>
-                </tr>
-            `;
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td><b>${record.Class_Section}</b></td>
+                            <td>${record.Date}</td>
+                            <td><span style="background:#d4edda; color:#155724; padding:3px 8px; border-radius:4px;">Marked</span></td>
+                            <td>${record.Timestamp ? new Date(record.Timestamp).toLocaleString() : '-'}</td>
+                            <td>
+                                <button class="btn-edit" onclick="editAttendance('${record.Session_ID}')">✏️</button>
+                                <button class="btn-red" style="padding:6px 10px;" onclick="deleteAttendance('${record.Session_ID}')">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
                 });
             }
 
-            window.deleteAttendance = function (sessionID) {
-                if (confirm("Are you sure you want to DELETE attendance for this class?")) {
-                    fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "deleteAttendance", sessionID: sessionID }) })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.status === "Success") {
-                                alert(data.message || "Attendance Deleted!");
-                                initData();
-                            }
-                        });
+            window.deleteAttendance = async function (sessionID) {
+                if (confirm("Are you sure you want to DELETE attendance for this class session?")) {
+                    try {
+                        await db.collection("attendance").doc(sessionID).delete();
+                        customAlert("Attendance Deleted Successfully!");
+                        initData();
+                    } catch (error) {
+                        customAlert("Error deleting: " + error.message);
+                    }
                 }
             }
 
             window.editAttendance = function (sessionID) {
-                let existingRecords = rawAttendanceData.filter(r => r.Session_ID === sessionID);
-                if (existingRecords.length === 0) return;
+                let sessionRec = rawAttendanceData.find(r => r.Session_ID === sessionID);
+                if (!sessionRec) return;
 
-                let cls = existingRecords[0].Class_Section;
-                let dateRaw = existingRecords[0].Date;
+                let cls = sessionRec.Class_Section;
+                let dateRaw = sessionRec.Date;
 
-                document.getElementById('attClassSelect').value = cls; document.getElementById('attDateSelect').value = dateRaw;
-                document.getElementById('displayClass').innerText = cls; document.getElementById('displayDate').innerText = dateRaw;
+                let dateParts = dateRaw.split('-');
+                let htmlFormatDate = dateRaw;
+                if (dateParts.length === 3 && dateParts[2].length === 4) {
+                    htmlFormatDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+                }
+
+                document.getElementById('attClassSelect').value = cls;
+                document.getElementById('attDateSelect').value = htmlFormatDate;
+                document.getElementById('displayClass').innerText = cls;
+                document.getElementById('displayDate').innerText = dateRaw;
 
                 currentRoster = allStudents.filter(s => s.studentClass === cls);
-                renderAttendanceRoster(existingRecords);
+                renderAttendanceRoster(sessionRec.Records);
                 showView(viewMark);
             }
 
-            function renderAttendanceRoster(existingRecords = null) {
+            function renderAttendanceRoster(existingRecordsArray = null) {
                 const tbody = document.getElementById('studentAttList');
                 tbody.innerHTML = '';
 
@@ -3649,9 +1073,9 @@
 
                     let stVal = defaultStatus;
                     let rmVal = "";
-                    if (existingRecords) {
-                        let found = existingRecords.find(r => r.Reg_No == sReg);
-                        if (found) { stVal = found.Status; rmVal = found.Remarks || ""; }
+                    if (existingRecordsArray) {
+                        let found = existingRecordsArray.find(r => r.regNo == sReg);
+                        if (found) { stVal = found.status; rmVal = found.remarks || ""; }
                     }
 
                     let statusHTML = '<div class="status-options">';
@@ -3659,21 +1083,21 @@
                         let checked = (st === stVal) ? 'checked' : '';
                         let rId = `st_${index}_${st}`;
                         statusHTML += `
-                    <input type="radio" id="${rId}" name="status_${index}" value="${st}" class="status-radio" ${checked}>
-                    <label for="${rId}" class="status-label">${st}</label>
-                `;
+                            <input type="radio" id="${rId}" name="status_${index}" value="${st}" class="status-radio" ${checked}>
+                            <label for="${rId}" class="status-label">${st}</label>
+                        `;
                     });
                     statusHTML += '</div>';
 
                     tbody.innerHTML += `
-                <tr class="att-row" data-reg="${sReg}" data-name="${sName}" data-email="${studentEmail}">
-                    <td>${index + 1}</td>
-                    <td>${sReg}</td>
-                    <td><b>${sName}</b></td>
-                    <td>${statusHTML}</td>
-                    <td><input type="text" class="remark-input" value="${rmVal}" placeholder="Remarks..."></td>
-                </tr>
-            `;
+                        <tr class="att-row" data-reg="${sReg}" data-name="${sName}" data-email="${studentEmail}">
+                            <td>${index + 1}</td>
+                            <td>${sReg}</td>
+                            <td><b>${sName}</b></td>
+                            <td>${statusHTML}</td>
+                            <td><input type="text" class="remark-input" value="${rmVal}" placeholder="Remarks..."></td>
+                        </tr>
+                    `;
                 });
             }
 
@@ -3684,6 +1108,21 @@
             document.getElementById('btnSaveAndClose').addEventListener('click', () => triggerSaveModal('saveclose'));
 
             function triggerSaveModal(actionType) {
+                // Bug fix check for blank variables
+                let classDropdown = document.getElementById('attClassSelect');
+                let dateInput = document.getElementById('attDateSelect');
+                if ((!classDropdown || !classDropdown.value) || (!dateInput || !dateInput.value)) {
+                    let headerText = document.body.innerText;
+                    let classMatch = headerText.match(/Class:\s*(.*)\s*\|/);
+                    let dateMatch = headerText.match(/Date:\s*(\d{2}-\d{2}-\d{4})/);
+
+                    if (classMatch && classDropdown) classDropdown.value = classMatch[1].trim();
+                    if (dateMatch && dateInput) {
+                        let parts = dateMatch[1].trim().split('-');
+                        dateInput.value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                    }
+                }
+
                 document.getElementById('pendingSaveAction').value = actionType;
                 emailModal.classList.add('active');
             }
@@ -3697,7 +1136,7 @@
                 executeFinalSave(actionType);
             });
 
-            function executeFinalSave(actionType) {
+            async function executeFinalSave(actionType) {
                 const cls = document.getElementById('attClassSelect').value;
                 const rawDate = document.getElementById('attDateSelect').value;
 
@@ -3718,51 +1157,45 @@
                     });
                 });
 
-                const payload = { action: "saveAttendance", date: formattedDate, classSec: cls, mailOpt: mailOpt, records: records };
-
                 document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '0.5');
 
-                fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
-                    .then(res => res.json())
-                    .then(data => {
-                        document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '1');
-                        if (data.status === "Success") {
-                            alert(data.message || "Attendance Saved Successfully!");
+                let sessionID = `${schoolCode}_${formattedDate.replace(/\//g, '-')}_${cls.replace(/[^a-zA-Z0-9]/g, '')}`;
 
-                            if (actionType === 'savenew') {
-                                showView(viewPreMark);
-                                document.getElementById('preAttDate').value = new Date().toISOString().split('T')[0];
-                            } else if (actionType === 'saveclose') {
-                                showView(viewHistory); initData();
-                            }
-                        } else {
-                            alert("Error: " + data.message);
-                        }
-                    });
+                let payload = {
+                    schoolCode: schoolCode,
+                    Session_ID: sessionID,
+                    Date: formattedDate,
+                    Class_Section: cls,
+                    Timestamp: new Date().toISOString(),
+                    Records: records
+                };
+
+                try {
+                    await db.collection("attendance").doc(sessionID).set(payload, { merge: true });
+                    document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '1');
+
+                    if (mailOpt !== 'none') { console.log(`Triggering emails for ${mailOpt} students...`); }
+
+                    customAlert("Attendance Saved Successfully!");
+
+                    if (actionType === 'savenew') {
+                        showView(viewPreMark);
+                        document.getElementById('preAttDate').value = new Date().toISOString().split('T')[0];
+                    } else if (actionType === 'saveclose' || actionType === 'save') {
+                        showView(viewHistory);
+                        initData();
+                    }
+
+                } catch (error) {
+                    document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '1');
+                    customAlert("Error saving attendance: " + error.message);
+                }
             }
 
-            initData();
+            // Initialization
+            setTimeout(() => { initData(); }, 100);
         });
     </script>
-
-    <!-- ==============================================================
-     UI-ONLY SIDEBAR TOGGLE
-     This only reproduces the common ERP sidebar collapse behavior.
-     It does not alter attendance data/API logic.
-     ============================================================== -->
-    <script id="attendance-ui-shell">
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.getElementById('appSidebar');
-
-            if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', () => {
-                    sidebar.classList.toggle('collapsed');
-                });
-            }
-        });
-    </script>
-
 </body>
 
 </html>
