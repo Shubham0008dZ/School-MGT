@@ -3362,8 +3362,19 @@
 
 
             // DYNAMIC SCRIPT URL FROM MULTI-TENANT LOGIN
-            const scriptURL = localStorage.getItem('erp_school_url');
-            if (!scriptURL) { window.location.href = 'login.html'; }
+            // Keep using the existing school endpoint when available.
+            // IMPORTANT: Do not redirect to login.html merely because this legacy
+            // endpoint key is missing; the ERP session is validated below by
+            // erp_active_user, consistent with the other ERP modules.
+            const scriptURL = localStorage.getItem('erp_school_url') || null;
+
+            // Session guard: preserve the logged-in ERP session check without
+            // forcing a logout/login redirect because of the legacy API URL key.
+            const activeUserStr = localStorage.getItem('erp_active_user');
+            if (!activeUserStr) {
+                window.location.href = 'login.html';
+                throw new Error('ERP session not found.');
+            }
 
 
 
@@ -3424,6 +3435,11 @@
             function initData() {
                 const tbody = document.getElementById('historyTableBody');
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Fetching Database... ⏳</td></tr>';
+
+                if (!scriptURL) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="color:#b23a2e; text-align:center;">Attendance API URL is not configured for this school.</td></tr>';
+                    return;
+                }
 
                 fetch(scriptURL)
                     .then(res => res.json())
