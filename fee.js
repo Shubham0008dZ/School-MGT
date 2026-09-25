@@ -1,90 +1,80 @@
+window.customAlert = function(message) {
+    let overlay = document.createElement('div');
+    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+    overlay.innerHTML = `<div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;"><p style="color:#333;margin-bottom:20px;font-size:15px;font-weight:bold;">${message}</p><button onclick="this.parentElement.parentElement.remove()" style="padding:8px 25px;background:#3498db;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">OK</button></div>`;
+    document.body.appendChild(overlay);
+};
+
+window.customConfirm = function(message, onConfirm) {
+    let overlay = document.createElement('div');
+    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+    overlay.innerHTML = `<div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;"><p style="color:#555;margin-bottom:20px;">${message}</p><div style="display:flex;justify-content:center;gap:10px;"><button id="cc-cancel" style="padding:8px 20px;background:#95a5a6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Cancel</button><button id="cc-ok" style="padding:8px 20px;background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Confirm</button></div></div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('cc-cancel').addEventListener('click', () => overlay.remove());
+    document.getElementById('cc-ok').addEventListener('click', () => { overlay.remove(); onConfirm(); });
+};
+
+// Global Arrays
+let allStudents = []; let setupClasses = []; let feeHeads = []; let feeReceipts = [];
+const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
+let schoolCode = "";
+
 document.addEventListener('DOMContentLoaded', () => {
-    // ==========================================
-    // 0. SECURITY & RBAC
-    // ==========================================
-    const activeUserStr = localStorage.getItem('erp_active_user');
     
-    if (!activeUserStr) { 
-        window.location.href = 'login.html'; 
-        return; 
+    // UI Setup (Safe from fetch errors)
+    document.querySelectorAll('.nav-btn').forEach(link => {
+        link.addEventListener('click', function(e) {
+            if(this.getAttribute('href') !== '#') return; e.preventDefault();
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active'); 
+            const targetId = this.getAttribute('data-target'); 
+            if(targetId) {
+                document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
+                document.getElementById(targetId).classList.add('active-module');
+            }
+        });
+    });
+
+    const addReceiptTrigger = document.getElementById('btn-open-add-receipt');
+    if(addReceiptTrigger) {
+        addReceiptTrigger.addEventListener('click', () => {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('sideAddReceipt').classList.add('active'); 
+            document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
+            document.getElementById('module-add-receipt').classList.add('active-module');
+        });
     }
-    
+
+    const activeUserStr = localStorage.getItem('erp_active_user');
+    if (!activeUserStr) { window.location.href = 'login.html'; return; }
     const activeUser = JSON.parse(activeUserStr);
     const isSA = activeUser.Is_SuperAdmin === "Yes";
+    schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode;
     let userRights = [];
-    
-    try { 
-        userRights = JSON.parse(activeUser.Rights_JSON || "[]"); 
-    } catch(e) {
-        console.error("Rights parsing error:", e);
-    }
+    try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
 
+    // DYNAMIC NAVBAR UPDATE
+    try {
+        let savedName = localStorage.getItem('erp_school_name');
+        let savedLogo = localStorage.getItem('erp_school_logo');
+        let navNameEl = document.getElementById('dynamicNavName');
+        let navLogoImg = document.getElementById('dynamicNavLogo');
+        let navLogoDefault = document.getElementById('defaultNavLogo');
+        if(savedName && navNameEl) navNameEl.innerText = savedName; 
+        if(savedLogo && savedLogo.startsWith('http') && navLogoImg) {
+            navLogoImg.src = savedLogo; navLogoImg.style.display = 'inline-block';
+            if(navLogoDefault) navLogoDefault.style.display = 'none';
+        }
+    } catch(error) {}
 
-
-// DYNAMIC SCRIPT URL FROM MULTI-TENANT LOGIN
-const scriptURL = localStorage.getItem('erp_school_url');
-if(!scriptURL) { window.location.href = 'login.html'; }
-
-
-
-
-
-
-// DYNAMIC NAVBAR UPDATE LOGIC (Immediate Execution Fix)
-try {
-    let savedName = localStorage.getItem('erp_school_name');
-    let savedLogo = localStorage.getItem('erp_school_logo');
-    
-    let navNameEl = document.getElementById('dynamicNavName');
-    let navLogoImg = document.getElementById('dynamicNavLogo');
-    let navLogoDefault = document.getElementById('defaultNavLogo');
-    
-    // School Name Update
-    if(savedName && navNameEl) {
-        navNameEl.innerText = savedName; 
-    }
-    
-    // School Logo Update
-    if(savedLogo && savedLogo.startsWith('http') && navLogoImg) {
-        navLogoImg.src = savedLogo;
-        navLogoImg.style.display = 'inline-block';
-        if(navLogoDefault) navLogoDefault.style.display = 'none';
-    }
-} catch(error) {
-    console.error("Navbar logic failed:", error);
-}
-
-
-
-
-    
-
-
-    
-
-    // REAL-TIME SESSION VERIFICATION
-    fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }) })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === "Invalid") {
-            alert("Session Invalid: Your account was deleted or marked inactive.");
-            localStorage.removeItem('erp_active_user'); window.location.href = 'login.html';
-        } else if (data.status === "Valid" && data.user) { localStorage.setItem('erp_active_user', JSON.stringify(data.user)); }
-    }).catch(err => console.log("Background sync paused."));
-
-    // USER NAME INJECTION
     const topRightSpans = document.querySelectorAll('.top-right span');
     if(topRightSpans.length > 0) { topRightSpans[0].innerHTML = `👤 Welcome, <b>${activeUser.empName}</b>`; }
 
     if (!isSA && !userRights.some(r => r.startsWith("FEE_"))) { window.location.href = 'index.html'; return; }
-
-    // AGGRESSIVE DOM REMOVAL
     if (!isSA) {
         if(!userRights.includes("FEE_Add")) {
-            let addBtn1 = document.getElementById('btn-open-add-receipt');
-            let addBtn2 = document.getElementById('sideAddReceipt');
-            if(addBtn1) addBtn1.remove();
-            if(addBtn2) addBtn2.remove();
+            let addBtn1 = document.getElementById('btn-open-add-receipt'); let addBtn2 = document.getElementById('sideAddReceipt');
+            if(addBtn1) addBtn1.remove(); if(addBtn2) addBtn2.remove();
         }
         if(!userRights.includes("FEE_Setup")) {
             let setupNav = document.querySelector('.nav-btn[data-target="module-fee-setup"]');
@@ -95,78 +85,80 @@ try {
     const btnLogout = document.getElementById('btnLogout');
     if(btnLogout) {
         btnLogout.addEventListener('click', () => {
-            if(confirm("Are you sure you want to logout?")) { localStorage.removeItem('erp_active_user'); window.location.href = 'login.html'; }
+            customConfirm("Are you sure you want to logout?", () => { 
+                auth.signOut().then(() => { localStorage.removeItem('erp_active_user'); window.location.href = 'login.html'; });
+            });
         });
     }
-
-    let allStudents = []; let setupClasses = []; let feeHeads = []; let feeReceipts = [];
-    const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
 
     function formatToDDMMYYYY(dateString) {
         if(!dateString) return ""; const d = new Date(dateString); if(isNaN(d.getTime())) return dateString;
         return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
     }
 
-    document.getElementById('feeDate').value = new Date().toISOString().split('T')[0];
+    let feeDateElem = document.getElementById('feeDate');
+    if(feeDateElem) feeDateElem.value = new Date().toISOString().split('T')[0];
 
-    // ==========================================
-    // CUSTOM PRINT EXECUTION (RENAMES PDF FILE)
-    // ==========================================
     function executePrint(studentName, receiptNo) {
         let originalTitle = document.title;
         let safeName = studentName ? studentName.replace(/[^a-zA-Z0-9]/g, "_") : "Student";
         let safeReceipt = receiptNo ? String(receiptNo).replace(/[^a-zA-Z0-9]/g, "_") : "Receipt";
-        
-        // This forces the browser to use this name when saving as PDF
         document.title = `${safeName}_Receipt_${safeReceipt}`;
-        
         window.print();
-        
-        // Restore title after print dialog closes
         document.title = originalTitle;
     }
 
-    function initData() {
-        document.getElementById('receiptsTableBody').innerHTML = '<tr><td colspan="11" style="text-align: center;">Fetching Database... ⏳</td></tr>';
-        fetch(scriptURL).then(res => res.json()).then(res => {
-            if(res.status === "Success") {
-                allStudents = res.data; feeHeads = res.feeHeads || []; feeReceipts = res.receipts || [];
-                if(res.setup && res.setup.classes) { setupClasses = res.setup.classes; }
-                populateStudentsDropdown(); renderFeeHeadsSetupList(); renderReceiptsTable(); updateNextReceiptNo();
+    // ==========================================
+    // AUTO LOAD SYNC (FIRESTORE)
+    // ==========================================
+    window.initData = async function() {
+        const tbody = document.getElementById('receiptsTableBody'); 
+        if(tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">Fetching Database... ⏳</td></tr>';
+        
+        try {
+            // Fetch Setup Data
+            let setupDoc = await db.collection("setups").doc(schoolCode).get().catch(() => null);
+            if (setupDoc && setupDoc.exists) {
+                let setup = setupDoc.data();
+                setupClasses = setup.classes || [];
+                feeHeads = setup.feeHeads || []; 
             }
-        });
+
+            // Fetch Students Data
+            let studentSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
+            allStudents = [];
+            if(studentSnap.forEach) { studentSnap.forEach(doc => { allStudents.push(doc.data()); }); }
+
+            // Fetch Fee Receipts
+            let feeSnap = await db.collection("fee_receipts").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
+            feeReceipts = [];
+            if(feeSnap.forEach) { feeSnap.forEach(doc => feeReceipts.push(doc.data())); }
+
+            populateStudentsDropdown(); 
+            renderFeeHeadsSetupList(); 
+            renderReceiptsTable(); 
+            updateNextReceiptNo();
+
+        } catch (error) {
+            console.error("Firebase Sync Error:", error);
+            if(tbody) tbody.innerHTML = `<tr><td colspan="11" style="color:#c0392b; text-align:center;"><b>Connection Failed:</b> ${error.message} <button onclick="initData()">Retry</button></td></tr>`; 
+        }
     }
 
-    function showView(targetId) {
-        document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
-        document.getElementById(targetId).classList.add('active-module');
-    }
-
-    document.querySelectorAll('.nav-btn').forEach(link => {
-        link.addEventListener('click', function(e) {
-            if(this.getAttribute('href') !== '#') return; e.preventDefault();
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active'); const targetId = this.getAttribute('data-target'); if(targetId) showView(targetId);
-        });
-    });
-
-    const addReceiptTrigger = document.getElementById('btn-open-add-receipt');
-    if(addReceiptTrigger) {
-        addReceiptTrigger.addEventListener('click', () => {
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('sideAddReceipt').classList.add('active'); showView('module-add-receipt');
-        });
-    }
-
-    document.getElementById('btnSyncFees').addEventListener('click', initData);
+    document.getElementById('btnSyncFees')?.addEventListener('click', initData);
 
     function populateStudentsDropdown() {
-        const sel = document.getElementById('feeStudentSelect'); sel.innerHTML = '<option value="">-- Search and Select Student --</option>';
-        allStudents.forEach(s => { let val = `${s.regNo} - ${s.studentFirstName || s.studentName} (${s.studentClass}) - ${s.fatherName}`; sel.innerHTML += `<option value="${s.regNo}">${val}</option>`; });
+        const sel = document.getElementById('feeStudentSelect'); 
+        if(!sel) return;
+        sel.innerHTML = '<option value="">-- Search and Select Student --</option>';
+        allStudents.forEach(s => { 
+            let val = `${s.regNo} - ${s.studentFirstName || s.studentName} (${s.studentClass}) - ${s.fatherName}`; 
+            sel.innerHTML += `<option value="${s.regNo}">${val}</option>`; 
+        });
     }
 
-    document.getElementById('feeStudentSelect').addEventListener('change', triggerTableGeneration);
-    document.getElementById('feeMonthSelect').addEventListener('change', triggerTableGeneration);
+    document.getElementById('feeStudentSelect')?.addEventListener('change', triggerTableGeneration);
+    document.getElementById('feeMonthSelect')?.addEventListener('change', triggerTableGeneration);
 
     function triggerTableGeneration() {
         const regNo = document.getElementById('feeStudentSelect').value; const selectedMonth = document.getElementById('feeMonthSelect').value;
@@ -181,14 +173,20 @@ try {
     }
 
     function clearProfilePanel() {
-        ['profName','profReg','profClass','profFather','profMother'].forEach(id => document.getElementById(id).innerText = "-");
-        document.getElementById('feeHeadsTbody').innerHTML = '<tr><td colspan="9" style="text-align:center;">Select a student to view fee heads</td></tr>'; resetTotals();
+        ['profName','profReg','profClass','profFather','profMother'].forEach(id => {
+            let el = document.getElementById(id);
+            if(el) el.innerText = "-";
+        });
+        let tbody = document.getElementById('feeHeadsTbody');
+        if(tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Select a student to view fee heads</td></tr>'; 
+        resetTotals();
     }
 
     function generateFeeTable(student, selectedMonthVal) {
         const tbody = document.getElementById('feeHeadsTbody'); tbody.innerHTML = '';
         let classFeeAmount = 0;
         if(student.studentClass) { let cSetup = setupClasses.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass); if(cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); } }
+        
         let paidMap = {};
         feeReceipts.forEach(r => {
             if(String(r.Reg_No).trim() === String(student.regNo).trim()) {
@@ -235,7 +233,7 @@ try {
                 calculateTotals();
             });
         });
-        document.getElementById('finalAdvance').addEventListener('input', calculateTotals);
+        document.getElementById('finalAdvance')?.addEventListener('input', calculateTotals);
     }
 
     function updateRowNetAndPaid(row) {
@@ -267,55 +265,109 @@ try {
     }
 
     function resetTotals() {
-        ['totActual', 'totConcession', 'totWaiver', 'totNet', 'totPaid', 'totBal'].forEach(id => document.getElementById(id).innerText = "0.00");
-        document.getElementById('finalPayable').value = "0.00"; document.getElementById('finalAdvance').value = "0.00"; document.getElementById('finalTotalPaid').value = "0.00"; document.getElementById('payAmount').value = "";
+        ['totActual', 'totConcession', 'totWaiver', 'totNet', 'totPaid', 'totBal'].forEach(id => {
+            let el = document.getElementById(id);
+            if(el) el.innerText = "0.00";
+        });
+        if(document.getElementById('finalPayable')) document.getElementById('finalPayable').value = "0.00"; 
+        if(document.getElementById('finalAdvance')) document.getElementById('finalAdvance').value = "0.00"; 
+        if(document.getElementById('finalTotalPaid')) document.getElementById('finalTotalPaid').value = "0.00"; 
+        if(document.getElementById('payAmount')) document.getElementById('payAmount').value = "";
     }
 
     function updateNextReceiptNo() {
-        let maxNo = 0; feeReceipts.forEach(r => { let parts = String(r.Receipt_No).replace("'", "").split('/'); let num = parseInt(parts[parts.length - 1], 10); if(!isNaN(num) && num > maxNo) maxNo = num; });
-        document.getElementById('feeReceiptNo').value = `2026-27/${maxNo + 1}`;
+        let maxNo = 0; 
+        feeReceipts.forEach(r => { 
+            let parts = String(r.Receipt_No).replace("'", "").split('/'); 
+            let num = parseInt(parts[parts.length - 1], 10); 
+            if(!isNaN(num) && num > maxNo) maxNo = num; 
+        });
+        let rNoElem = document.getElementById('feeReceiptNo');
+        if(rNoElem) rNoElem.value = `2026-27/${maxNo + 1}`;
     }
 
-    function saveReceipt(onSuccessAction) {
+    async function saveReceipt(onSuccessAction) {
         const regNo = document.getElementById('feeStudentSelect').value; if(!regNo) { alert("Please select a student first."); return; }
         const month = document.getElementById('feeMonthSelect').value; if(!month) { alert("Please select Fee Installment Month."); return; }
         let paidDetails = [];
         document.querySelectorAll('.f-row').forEach(row => {
             if(!row.querySelector('.f-chk').checked) { 
-                paidDetails.push({ head: row.getAttribute('data-head'), period: row.getAttribute('data-period'), actual: row.querySelector('.f-actual').value, adj: (parseFloat(row.querySelector('.f-conc').value) || 0) + (parseFloat(row.querySelector('.f-waiver').value) || 0), payable: row.querySelector('.f-net').value, paid: row.querySelector('.f-paid').value, bal: row.querySelector('.f-bal').value });
+                paidDetails.push({ 
+                    head: row.getAttribute('data-head'), 
+                    period: row.getAttribute('data-period'), 
+                    actual: row.querySelector('.f-actual').value, 
+                    adj: (parseFloat(row.querySelector('.f-conc').value) || 0) + (parseFloat(row.querySelector('.f-waiver').value) || 0), 
+                    payable: row.querySelector('.f-net').value, 
+                    paid: row.querySelector('.f-paid').value, 
+                    bal: row.querySelector('.f-bal').value 
+                });
             }
         });
         if(paidDetails.length === 0) { alert("No fees selected to pay."); return; }
-        const payload = { action: "saveReceipt", data: { receiptNo: document.getElementById('feeReceiptNo').value, regNo: regNo, studentName: document.getElementById('profName').innerText, classSec: document.getElementById('profClass').innerText, installment: month, totalAmount: document.getElementById('finalTotalPaid').value, paymentMode: document.getElementById('payType').value, date: formatToDDMMYYYY(document.getElementById('feeDate').value), bankName: document.getElementById('payBank').value || '-', refNo: document.getElementById('payRef').value || '-', paidHeads: paidDetails } };
+        
+        let safeRegNo = regNo.replace(/\//g, '-');
+        let rNoStr = document.getElementById('feeReceiptNo').value.replace(/\//g, '-');
+        let docId = `${schoolCode}_${rNoStr}`;
+
+        const receiptData = {
+            schoolCode: schoolCode,
+            Receipt_No: document.getElementById('feeReceiptNo').value,
+            Reg_No: regNo,
+            Student_Name: document.getElementById('profName').innerText,
+            Class_Section: document.getElementById('profClass').innerText,
+            Installment: month,
+            Amount: document.getElementById('finalTotalPaid').value,
+            Payment_Mode: document.getElementById('payType').value,
+            Date: formatToDDMMYYYY(document.getElementById('feeDate').value),
+            Bank_Name: document.getElementById('payBank').value || '-',
+            Ref_No: document.getElementById('payRef').value || '-',
+            Paid_Heads: JSON.stringify(paidDetails),
+            Timestamp: new Date().toISOString()
+        };
         
         if(onSuccessAction === 'print') { 
-            populatePrintTemplate(payload.data, paidDetails, document.getElementById('profFather').innerText, document.getElementById('profMother').innerText); 
+            populatePrintTemplate(receiptData, paidDetails, document.getElementById('profFather').innerText, document.getElementById('profMother').innerText); 
         }
         
         document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '0.5');
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) }).then(res => res.json()).then(data => {
+
+        try {
+            await db.collection("fee_receipts").doc(docId).set(receiptData);
             document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '1');
-            if(data.status === "Success") {
-                if(onSuccessAction === 'print') { 
-                    executePrint(document.getElementById('profName').innerText, payload.data.receiptNo); 
+            
+            if(onSuccessAction === 'print') { 
+                executePrint(document.getElementById('profName').innerText, receiptData.Receipt_No); 
+                initData(); 
+            } else { 
+                alert("Receipt Saved Successfully!"); 
+                if(onSuccessAction === 'close') { 
+                    document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
+                    document.getElementById('module-receipts-list').classList.add('active-module'); 
                     initData(); 
-                } else { 
-                    alert(data.message); 
-                    if(onSuccessAction === 'close') { showView('module-receipts-list'); initData(); } 
-                    if(onSuccessAction === 'new') { document.getElementById('feeStudentSelect').value = ""; clearProfilePanel(); initData(); } 
-                }
+                } 
+                if(onSuccessAction === 'new') { 
+                    document.getElementById('feeStudentSelect').value = ""; 
+                    clearProfilePanel(); 
+                    initData(); 
+                } 
             }
-        });
+        } catch (error) {
+            document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '1');
+            alert("Error saving receipt: " + error.message);
+        }
     }
 
-    document.getElementById('btnSaveReceiptClose').addEventListener('click', () => saveReceipt('close')); document.getElementById('btnSaveReceiptNew').addEventListener('click', () => saveReceipt('new')); document.getElementById('btnSaveReceiptPrint').addEventListener('click', () => saveReceipt('print'));
+    document.getElementById('btnSaveReceiptClose')?.addEventListener('click', () => saveReceipt('close')); 
+    document.getElementById('btnSaveReceiptNew')?.addEventListener('click', () => saveReceipt('new')); 
+    document.getElementById('btnSaveReceiptPrint')?.addEventListener('click', () => saveReceipt('print'));
 
     function renderReceiptsTable() {
-        const tbody = document.getElementById('receiptsTableBody'); tbody.innerHTML = '';
+        const tbody = document.getElementById('receiptsTableBody'); 
+        if(!tbody) return;
+        tbody.innerHTML = '';
         if(feeReceipts.length === 0) { tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">No receipts generated yet.</td></tr>'; return; }
         
         [...feeReceipts].reverse().forEach((r, idx) => {
-            
             let particularsStr = "";
             try { 
                 let rawHeads = String(r.Paid_Heads || "").trim();
@@ -357,7 +409,7 @@ try {
                     <td>${r.Class_Section}</td>
                     <td style="text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td>
                     <td>${r.Payment_Mode}</td><td style="color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td>
-                    <td>${rDate}</td><td>${new Date(r.Timestamp).toLocaleString()}</td>
+                    <td>${rDate}</td><td>${r.Timestamp ? new Date(r.Timestamp).toLocaleString() : '-'}</td>
                     <td>${btnHTML}</td>
                 </tr>
             `;
@@ -400,36 +452,63 @@ try {
 
     window.deleteReceipt = function(receiptNo) {
         if(confirm(`Are you sure you want to Delete Receipt No: ${receiptNo}?\nThis will revert the fee ledger.`)) {
-            fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "deleteReceipt", receiptNo: receiptNo }) })
-            .then(res => res.json())
-            .then(data => { if(data.status === "Success") { alert(data.message); initData(); } });
+            let rNoStr = receiptNo.replace(/\//g, '-');
+            let docId = `${schoolCode}_${rNoStr}`;
+            db.collection("fee_receipts").doc(docId).delete().then(() => {
+                alert("Receipt Deleted Successfully.");
+                initData();
+            }).catch(err => {
+                alert("Error deleting receipt: " + err.message);
+            });
         }
     }
 
     function renderFeeHeadsSetupList() {
-        const tbody = document.getElementById('feeHeadsListBody'); tbody.innerHTML = '';
+        const tbody = document.getElementById('feeHeadsListBody'); 
+        if(!tbody) return;
+        tbody.innerHTML = '';
         if(feeHeads.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No Fee Heads Configured.</td></tr>'; return; }
         feeHeads.forEach((f, idx) => {
             tbody.innerHTML += `<tr><td>${idx + 1}</td><td><b>${f.Head_Name}</b></td><td>${f.Frequency}</td><td>₹${f.Amount}</td><td><button class="btn-red" onclick="deleteFeeHead('${f.Head_Name}')">🗑️</button></td></tr>`;
         });
     }
 
-    document.getElementById('feeSetupForm').addEventListener('submit', function(e) {
+    document.getElementById('feeSetupForm')?.addEventListener('submit', async function(e) {
         e.preventDefault(); const btnSubmit = document.getElementById('btnSubmitFeeHead'); btnSubmit.disabled = true; btnSubmit.innerText = "Adding Fee Head..."; btnSubmit.style.opacity = '0.6';
-        const payload = { action: "saveFeeHead", data: { headName: document.getElementById('headName').value.trim(), frequency: document.getElementById('headFreq').value, amount: document.getElementById('headAmount').value || 0 } };
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
-        .then(res => res.json())
-        .then(data => { 
+        
+        let newHead = {
+            Head_Name: document.getElementById('headName').value.trim(),
+            Frequency: document.getElementById('headFreq').value,
+            Amount: document.getElementById('headAmount').value || 0
+        };
+
+        let updatedHeads = [...feeHeads];
+        let exists = updatedHeads.findIndex(h => h.Head_Name === newHead.Head_Name);
+        if(exists !== -1) {
+            alert("Fee head already exists.");
             btnSubmit.disabled = false; btnSubmit.innerText = "Add Fee Head"; btnSubmit.style.opacity = '1';
-            if(data.status === "Success") { alert(data.message); this.reset(); initData(); } else { alert("Error: " + data.message); }
-        }).catch(err => { btnSubmit.disabled = false; btnSubmit.innerText = "Add Fee Head"; btnSubmit.style.opacity = '1'; alert("Connection error."); });
+            return;
+        }
+        updatedHeads.push(newHead);
+
+        try {
+            await db.collection("setups").doc(schoolCode).set({ feeHeads: updatedHeads }, { merge: true });
+            alert("Fee Head Added Successfully!");
+            document.getElementById('feeSetupForm').reset();
+            initData();
+        } catch(error) {
+            alert("Error adding fee head: " + error.message);
+        } finally {
+            btnSubmit.disabled = false; btnSubmit.innerText = "Add Fee Head"; btnSubmit.style.opacity = '1';
+        }
     });
 
     window.deleteFeeHead = function(headName) {
         if(confirm(`Delete Fee Head: ${headName}?`)) { 
-            fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "deleteFeeHead", headName: headName }) })
-            .then(res => res.json())
-            .then(data => { if(data.status === "Success") initData(); }); 
+            let updatedHeads = feeHeads.filter(h => h.Head_Name !== headName);
+            db.collection("setups").doc(schoolCode).set({ feeHeads: updatedHeads }, { merge: true }).then(() => {
+                initData();
+            });
         }
     }
 
@@ -452,7 +531,7 @@ try {
     // ==========================================
     // EXPORT TO PDF LOGIC (html2pdf)
     // ==========================================
-    document.getElementById('exportLedgerPdfBtn').addEventListener('click', () => {
+    document.getElementById('exportLedgerPdfBtn')?.addEventListener('click', () => {
         let sName = document.getElementById('l-name').innerText.replace(/[^a-zA-Z0-9]/g, "_");
         let sReg = document.getElementById('l-reg').innerText.replace(/[^a-zA-Z0-9]/g, "_");
         let sClass = document.getElementById('l-class').innerText.replace(/[^a-zA-Z0-9]/g, "_");
@@ -468,7 +547,6 @@ try {
             jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
         };
         
-        // Temporarily change background to white for clean PDF
         let originalBg = element.style.background;
         element.style.background = "#fff";
         
@@ -480,7 +558,7 @@ try {
     // ==========================================
     // EXPORT TO EXCEL LOGIC (Raw HTML wrapper)
     // ==========================================
-    document.getElementById('exportLedgerExcelBtn').addEventListener('click', () => {
+    document.getElementById('exportLedgerExcelBtn')?.addEventListener('click', () => {
         let sName = document.getElementById('l-name').innerText.replace(/[^a-zA-Z0-9]/g, "_");
         let sReg = document.getElementById('l-reg').innerText.replace(/[^a-zA-Z0-9]/g, "_");
         let sClass = document.getElementById('l-class').innerText.replace(/[^a-zA-Z0-9]/g, "_");
@@ -515,7 +593,7 @@ try {
     });
 
     // ==========================================
-    // 8. THE "KUNDLI" - STUDENT FEE LEDGER 
+    // THE "KUNDLI" - STUDENT FEE LEDGER 
     // ==========================================
     window.openLedger = function(regNo) {
         let student = allStudents ? allStudents.find(s => String(s.regNo) === String(regNo)) : null;
@@ -610,7 +688,6 @@ try {
             totalDue += tAmt; 
             totalPaid += tPaid;
             
-            // HIGHLIGHT FULLY PAID ROWS
             let rowBg = (tAmt > 0 && tBal <= 0) ? 'background-color:#e8f5e9;' : '';
             let tStyle = tBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
             
@@ -654,7 +731,7 @@ try {
         document.getElementById('ledgerModal').classList.add('active');
     }
     
-    document.getElementById('closeLedgerBtn').addEventListener('click', () => { 
+    document.getElementById('closeLedgerBtn')?.addEventListener('click', () => { 
         document.getElementById('ledgerModal').classList.remove('active'); 
     });
 
