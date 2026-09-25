@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apps Dashboard - School ERP</title>
-    <link rel="stylesheet" href="index.css">
 
     <!-- FIREBASE SDKS -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -12,105 +11,365 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
     <script>
-        // FIREBASE INITIALIZATION
-        // Yahan console se mili apni API keys paste karein
+        // YOUR FIREBASE CONFIGURATION
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyAHS0Xk5o-PZK_bBGtsQqGlS9TLOcnXCsM",
+            authDomain: "school-erp-3bd0a.firebaseapp.com",
+            projectId: "school-erp-3bd0a",
+            storageBucket: "school-erp-3bd0a.firebasestorage.app",
+            messagingSenderId: "222944507292",
+            appId: "1:222944507292:web:3b80280c1359b9fa6ec459"
         };
         
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        // Initialize Firebase securely
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.firestore();
         const auth = firebase.auth();
     </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
+        body { background: #f4f7fa; color: #333; overflow-x: hidden; }
+
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-bottom: 1px solid #e1e8ed; }
+        .dashboard-header h1 { margin: 0; color: #2c3e50; font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px;}
+        
+        .name-badge { color: white; font-size: 14px; font-weight: bold; background: #e67e22; padding: 6px 15px; border-radius: 4px; box-shadow: 0 2px 5px rgba(230,126,34,0.3); margin-left: auto; margin-right: 20px;}
+
+        #btnLogout { background: #e74c3c; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; }
+        #btnLogout:hover { background: #c0392b; }
+
+        .dev-tool-bar { padding: 15px 30px; background: #fdfbf7; border-bottom: 1px dashed #d1c8b3; }
+        #btnSetupDatabase { background: #8e44ad; color: white; border: none; padding: 8px 20px; font-weight: bold; cursor: pointer; border-radius: 4px; box-shadow: 0 2px 5px rgba(142,68,173,0.3); font-size: 13px; transition: 0.2s;}
+        #btnSetupDatabase:hover { background: #732d91; }
+
+        .dashboard-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        
+        .section-title { display: flex; align-items: center; padding: 15px 25px; background: white; border: 1px solid #e1e8ed; border-bottom: none; border-radius: 8px 8px 0 0; }
+        .section-title span { font-size: 16px; font-weight: 600; color: #2c3e50; }
+
+        .modules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 30px; background: white; border: 1px solid #e1e8ed; border-radius: 0 0 8px 8px; padding: 40px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+
+        .module-card { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #2c3e50; transition: 0.3s; padding: 15px; border-radius: 12px; }
+        .module-card:hover { transform: translateY(-5px); background: #f8f9fa; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .module-card p { margin-top: 15px; font-weight: 600; font-size: 14px; text-align: center; line-height: 1.3; }
+
+        .icon-circle { width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: 0.3s; }
+        .module-card:hover .icon-circle { transform: scale(1.05); }
+
+        .orange-bg { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .yellow-bg { background: linear-gradient(135deg, #f1c40f, #f39c12); }
+        .red-bg { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .blue-bg { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .purple-bg { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+
+        /* MODAL CSS */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s; }
+        .modal-box { background: #fff; padding: 25px; border-radius: 8px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); min-width: 300px; animation: slideUp 0.3s; }
+        .modal-box h3 { margin-top: 0; color: #2c3e50; font-size: 18px; margin-bottom: 10px;}
+        .modal-box p { color: #555; margin-bottom: 20px; font-size: 14px;}
+        .modal-btns { display: flex; justify-content: center; gap: 10px; }
+        .modal-btn { padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s;}
+        .btn-cancel { background: #95a5a6; color: white; }
+        .btn-cancel:hover { background: #7f8c8d; }
+        .btn-confirm { background: #e74c3c; color: white; }
+        .btn-confirm:hover { background: #c0392b; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
 <body>
 
-    <div class="dashboard-header" style="display:flex; justify-content:space-between; align-items:center; padding: 20px;">
-        <h1 style="margin:0; color: #2c3e50; font-size: 24px; font-weight: 700;">APPS DASHBOARD</h1>
-        <button id="btnLogout" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.2); transition: background 0.2s;">🚪 Logout</button>
+    <!-- HEADER -->
+    <div class="dashboard-header">
+        <h1>
+            <span style="font-size: 28px;">🏫</span> APPS DASHBOARD
+        </h1>
+        <div class="name-badge" id="userNameBadge">👤 Welcome, Admin</div>
+        <button id="btnLogout">🚪 Logout</button>
     </div>
 
+    <!-- DEV TOOLS (TEMPORARY) -->
+    <div class="dev-tool-bar">
+        <button id="btnSetupDatabase">🚀 CLICK TO SETUP FULL FIREBASE DATABASE</button>
+        <span style="font-size: 12px; color: #7f8c8d; margin-left: 10px;">(Use this only once to generate dummy data)</span>
+    </div>
 
-
-
-
-
-<!-- DUMMY DATA SETUP BUTTON (Temporary) -->
-<button id="btnSetupDatabase" style="background:#8e44ad; color:white; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; margin-left: 20px;">
-    🚀 CLICK TO SETUP FULL FIREBASE DATABASE
-</button>
-    
-
-
-
-    
+    <!-- MODULES AREA -->
     <div class="dashboard-container">
-        <div class="section-title" style="display: flex; align-items: center; padding: 15px 25px; background: #f8f9fa; border-bottom: 1px solid #e1e8ed; border-radius: 8px 8px 0 0;">
-            <span style="font-size: 16px; font-weight: 600; color: #2c3e50;">📄 Assigned Modules</span>
-            </div>
+        <div class="section-title">
+            <span>📄 Assigned Modules</span>
+        </div>
 
-        <div class="modules-grid" id="mainModulesGrid" style="background: white; border: 1px solid #e1e8ed; border-top: none; border-radius: 0 0 8px 8px; padding: 40px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <div class="modules-grid" id="mainModulesGrid">
             
             <a href="employee.html" class="module-card" data-req-module="HR">
-                <div class="icon-circle orange-bg" style="display: flex; justify-content: center; align-items: center;">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <div class="icon-circle orange-bg">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                 </div>
                 <p>Employee Information</p>
             </a>
 
             <a href="user.html" class="module-card" data-req-module="SUPER">
-                <div class="icon-circle yellow-bg" style="display: flex; justify-content: center; align-items: center;">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                <div class="icon-circle yellow-bg">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="white"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                 </div>
                 <p>User Management</p>
             </a>
 
             <a href="fee.html" class="module-card" data-req-module="FEE">
-                <div class="icon-circle red-bg" style="display: flex; justify-content: center; align-items: center;">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+                <div class="icon-circle red-bg">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="white"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
                 </div>
                 <p>Fee Management</p>
             </a>
 
             <a href="sis.html" class="module-card" data-req-module="SIS">
-                <div class="icon-circle blue-bg" style="display: flex; justify-content: center; align-items: center;">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72l5 2.73 5-2.73v3.72z"/></svg>
+                <div class="icon-circle blue-bg">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="white"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72l5 2.73 5-2.73v3.72z"/></svg>
                 </div>
                 <p>Student Information System</p>
             </a>
 
             <a href="attendance.html" class="module-card" data-req-module="ATT">
-                <div class="icon-circle" style="background: linear-gradient(to bottom, #f1c40f, #f39c12); display: flex; justify-content: center; align-items: center;">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+                <div class="icon-circle" style="background: linear-gradient(135deg, #f1c40f, #f39c12);">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="white"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
                 </div>
                 <p>Student Attendance</p>
             </a>
 
-          <a href="assignment.html" class="module-card" data-req-module="HW">
-                <div class="icon-circle" style="background: linear-gradient(to bottom, #9b59b6, #8e44ad); color:white; display: flex; justify-content: center; align-items: center;">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+            <a href="communication.html" class="module-card" data-req-module="COMM">
+                <div class="icon-circle purple-bg">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
                 </div>
                 <p>Communication</p>
             </a>
-
-            <div id="vault-library" style="display: none !important; opacity: 0; width: 0; height: 0; position: absolute; z-index: -9999;" aria-hidden="true" data-status="dead">
-                <span class="ghost-text">L</span>
-                <p>Library Management (N) has been structurally removed.</p>
-            </div>
-
-            <div id="vault-emp-attendance" style="display: none !important; opacity: 0; width: 0; height: 0; position: absolute; z-index: -9999;" aria-hidden="true" data-status="dead">
-                <span class="ghost-text">E</span>
-                <p>Employee Attendance has been structurally removed.</p>
-            </div>
+            
         </div>
     </div>
 
-    <script src="index.js"></script>
+    <!-- ==========================================
+         INTERNAL JAVASCRIPT
+         ========================================== -->
+    <script>
+        // Custom Confirm Modal
+        function customConfirm(message, onConfirm) {
+            let overlay = document.createElement('div');
+            overlay.className = "overlay";
+            overlay.innerHTML = `
+                <div class="modal-box">
+                    <h3>Confirm Action</h3>
+                    <p>${message}</p>
+                    <div class="modal-btns">
+                        <button id="cc-cancel" class="modal-btn btn-cancel">Cancel</button>
+                        <button id="cc-ok" class="modal-btn btn-confirm">Yes, Logout</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            document.getElementById('cc-cancel').addEventListener('click', () => overlay.remove());
+            document.getElementById('cc-ok').addEventListener('click', () => {
+                overlay.remove();
+                onConfirm();
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. SECURITY CHECK: Verify Session
+            const activeUserStr = localStorage.getItem('erp_active_user');
+            if (!activeUserStr) {
+                window.location.href = 'login.html';
+                return; 
+            }
+
+            const activeUser = JSON.parse(activeUserStr);
+            const isSA = activeUser.Is_SuperAdmin === "Yes";
+            let userRights = [];
+            
+            try { 
+                userRights = JSON.parse(activeUser.Rights_JSON || "[]"); 
+            } catch(e) {
+                console.error("Error parsing user rights:", e);
+            }
+
+            // 2. SET USER NAME
+            const nameBadge = document.getElementById('userNameBadge');
+            if(nameBadge) {
+                nameBadge.innerText = `👤 Welcome, ${activeUser.empName || "User"}`;
+            }
+
+            // 3. ENFORCE RBAC ON MODULE CARDS
+            if (!isSA) {
+                document.querySelectorAll('.module-card').forEach(card => {
+                    const reqMod = card.getAttribute('data-req-module');
+                    if (reqMod) {
+                        if (reqMod === "SUPER") {
+                            card.style.display = 'none';
+                        } else {
+                            // Example: Check if right starts with FEE_, SIS_, etc.
+                            const hasAccess = userRights.some(r => r.startsWith(reqMod + "_"));
+                            if(!hasAccess) {
+                                card.style.display = 'none';
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 4. FIREBASE SECURE LOGOUT
+            const btnLogout = document.getElementById('btnLogout');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', () => {
+                    customConfirm("Are you sure you want to log out securely?", () => {
+                        auth.signOut().then(() => {
+                            localStorage.removeItem('erp_active_user');
+                            window.location.href = 'login.html';
+                        }).catch((error) => {
+                            console.error("Logout error: ", error);
+                            localStorage.removeItem('erp_active_user');
+                            window.location.href = 'login.html';
+                        });
+                    });
+                });
+            }
+        });
+
+        // =======================================================
+        // FIREBASE DATABASE AUTO-SETUP (DEV TOOL)
+        // =======================================================
+        document.getElementById('btnSetupDatabase')?.addEventListener('click', async () => {
+            
+            if (typeof db === 'undefined') {
+                alert("Firebase is not initialized yet.");
+                return;
+            }
+
+            const btn = document.getElementById('btnSetupDatabase');
+            btn.innerText = "⏳ Creating Database... Please Wait!";
+            btn.disabled = true;
+            
+            const schoolCode = localStorage.getItem('erp_school_code') || "VIS"; 
+
+            try {
+                // 1. SETUP
+                await db.collection("setups").doc(schoolCode).set({
+                    classes: [
+                        { name: "Class 10", section: "A", fee: "2500" },
+                        { name: "Class 10", section: "B", fee: "2500" },
+                        { name: "Class 12", section: "Sci", fee: "3500" }
+                    ],
+                    bloodGroups: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"],
+                    categories: ["General", "OBC", "SC", "ST"],
+                    genders: ["Male", "Female", "Other"],
+                    houses: ["Red House", "Blue House", "Green House", "Yellow House"],
+                    religions: ["Hindu", "Muslim", "Sikh", "Christian", "Other"],
+                    salutations: ["Mr. (Male)", "Mrs. (Female)", "Ms. (Female)", "Dr. (Male)"],
+                    feeHeads: [
+                        { Head_Name: "Monthly Tuition Fee", Frequency: "Monthly", Amount: "2500" },
+                        { Head_Name: "Annual Charges", Frequency: "Annually", Amount: "5000" },
+                        { Head_Name: "Computer Fee", Frequency: "Monthly", Amount: "300" }
+                    ]
+                }, { merge: true });
+
+                // 2. STUDENT
+                await db.collection("students").doc(`${schoolCode}_VIS-STU-001`).set({
+                    schoolCode: schoolCode,
+                    regNo: "VIS/STU/001",
+                    rollNo: "1",
+                    portalId: "visstu001",
+                    password: "password123",
+                    pin: "1234",
+                    studentFirstName: "Rahul",
+                    studentLastName: "Sharma",
+                    studentClass: "Class 10 (A)",
+                    gender: "Male",
+                    bloodGroup: "B+",
+                    category: "General",
+                    fatherName: "Rajesh Sharma",
+                    motherName: "Sita Sharma",
+                    mobile: "9876543210",
+                    primaryEmail: "rahul@test.com",
+                    Status: "Active"
+                }, { merge: true });
+
+                // 3. EMPLOYEE
+                await db.collection("employees").doc(`${schoolCode}_VIS-EMP-001`).set({
+                    schoolCode: schoolCode,
+                    empId: "VIS/EMP/001",
+                    empName: "Amit Kumar",
+                    empDept: "Teaching",
+                    empDesig: "TGT Math",
+                    empMobile: "9988776655",
+                    empType: "Permanent",
+                    Status: "Active"
+                }, { merge: true });
+
+                // 4. FEE RECEIPT
+                let dummyPaidHeads = [
+                    { head: "Monthly Tuition Fee", period: "Apr, 26", paid: "2500" },
+                    { head: "Annual Charges", period: "Annually", paid: "5000" }
+                ];
+                
+                await db.collection("fee_receipts").doc(`${schoolCode}_2026-27-1`).set({
+                    schoolCode: schoolCode,
+                    Receipt_No: "2026-27/1",
+                    Reg_No: "VIS/STU/001",
+                    Student_Name: "Rahul Sharma",
+                    Class_Section: "Class 10 (A)",
+                    Installment: "Apr, 26",
+                    Amount: "7500",
+                    Payment_Mode: "Cash",
+                    Date: "05-04-2026",
+                    Bank_Name: "-",
+                    Ref_No: "-",
+                    Paid_Heads: JSON.stringify(dummyPaidHeads),
+                    Timestamp: new Date().toISOString()
+                }, { merge: true });
+
+                // 5. ASSIGNMENT (HW)
+                await db.collection("assignments").doc(`${schoolCode}_HW-001`).set({
+                    schoolCode: schoolCode,
+                    Type: "Homework",
+                    Name: "Maths Trigonometry Setup",
+                    Subject: "Maths",
+                    Description: "Complete exercise 8.1 and 8.2 from NCERT.",
+                    Class: "Class 10 (A)",
+                    Target_Students: '["All"]',
+                    Date: "10-04-2026",
+                    Submission_Required: "Yes",
+                    Timestamp: new Date().toISOString()
+                }, { merge: true });
+
+                // 6. EVENT (Notice)
+                await db.collection("events").doc(`${schoolCode}_EVT-001`).set({
+                    schoolCode: schoolCode,
+                    Title: "Welcome to New Session",
+                    Description: "Welcome all students to the academic year 2026-27. Please check your timetable.",
+                    Date: "01-04-2026",
+                    Is_Holiday: "No",
+                    Audience: "Students",
+                    Target_Class: "All",
+                    Timestamp: new Date().toISOString()
+                }, { merge: true });
+
+                btn.innerText = "✅ DATABASE CREATED SUCCESSFULLY!";
+                btn.style.background = "#27ae60";
+                alert("Boom! All Collections & Dummy Data created perfectly in Firebase!");
+
+            } catch (error) {
+                console.error("Firebase Setup Error:", error);
+                btn.innerText = "❌ ERROR (Check Console)";
+                btn.style.background = "#e74c3c";
+                alert("Error occurred: " + error.message);
+            }
+        });
+    </script>
 </body>
 </html>
