@@ -1,13 +1,11 @@
-// DYNAMIC SCRIPT URL FROM MULTI-TENANT LOGIN
-const scriptURL = localStorage.getItem('erp_school_url');
-if(!scriptURL) { window.location.href = 'login.html'; }
+// ============================================================================
+// STUDENT DASHBOARD SYSTEM (100% FIREBASE POWERED)
+// ============================================================================
 
+const schoolCode = localStorage.getItem('erp_school_code');
+if(!schoolCode) { window.location.href = 'login.html'; }
 
-
-
-
-
-// DYNAMIC NAVBAR UPDATE LOGIC (Immediate Execution Fix)
+// DYNAMIC NAVBAR UPDATE LOGIC
 try {
     let savedName = localStorage.getItem('erp_school_name');
     let savedLogo = localStorage.getItem('erp_school_logo');
@@ -16,12 +14,8 @@ try {
     let navLogoImg = document.getElementById('dynamicNavLogo');
     let navLogoDefault = document.getElementById('defaultNavLogo');
     
-    // School Name Update
-    if(savedName && navNameEl) {
-        navNameEl.innerText = savedName; 
-    }
+    if(savedName && navNameEl) navNameEl.innerText = savedName; 
     
-    // School Logo Update
     if(savedLogo && savedLogo.startsWith('http') && navLogoImg) {
         navLogoImg.src = savedLogo;
         navLogoImg.style.display = 'inline-block';
@@ -31,19 +25,8 @@ try {
     console.error("Navbar logic failed:", error);
 }
 
-
-
-
-
-
-
-
-
-
-
-
 let studentData = null;
-let globalDbData = null;
+let globalDbData = { assignments: [], submissions: [], attendance: [], receipts: [], events: [], feeHeads: [] };
 let currentFeedFilter = "All";
 
 let currDate = new Date();
@@ -52,7 +35,6 @@ let eventMap = {};
 
 window.switchView = function(viewId) {
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    
     document.querySelectorAll('.app-view').forEach(p => p.classList.remove('active'));
     let target = document.getElementById(viewId);
     if(target) target.classList.add('active');
@@ -74,11 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if(elGreet) elGreet.innerText = greet;
 
     // Populate Top Banner Profile Details
-    let fullName = (studentData.studentFirstName || "") + " " + (studentData.studentLastName || "");
+    let fullName = (studentData.studentFirstName || studentData.studentName || "Student") + " " + (studentData.studentLastName || "");
     if(document.getElementById('dashName')) document.getElementById('dashName').innerText = fullName;
-    if(document.getElementById('dashRegNo')) document.getElementById('dashRegNo').innerText = studentData.regNo || "N/A";
+    if(document.getElementById('dashRegNo')) document.getElementById('dashRegNo').innerText = studentData.portalId || studentData.regNo || "N/A";
     
-    // Set Initial Avatar Placeholder Letter
     if(document.getElementById('dashAvatarBox')) {
         document.getElementById('dashAvatarBox').innerText = fullName.charAt(0).toUpperCase() || "S";
     }
@@ -91,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if(document.getElementById('dashClass')) document.getElementById('dashClass').innerText = sClass;
     
-    // If real photo exists, replace initial letter with img element
     if(document.getElementById('dashAvatarBox') && studentData.studentPhotoBase64 && studentData.studentPhotoBase64.startsWith('data:image')) {
         document.getElementById('dashAvatarBox').innerHTML = `<img src="${studentData.studentPhotoBase64}" alt="Profile" style="width:100%;height:100%;object-fit:cover;">`;
     }
@@ -101,11 +81,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(document.getElementById('btnStudentLogout')) {
         document.getElementById('btnStudentLogout').addEventListener('click', () => {
-            if(confirm("Are you sure you want to log out?")) { localStorage.removeItem('erp_active_student'); window.location.href = 'login.html'; }
+            if(confirm("Are you sure you want to log out?")) { 
+                localStorage.removeItem('erp_active_student'); 
+                window.location.href = 'login.html'; 
+            }
         });
     }
 
-    // Sidebar navigation interactive highlighting
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -113,30 +95,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // MASTER DATA RETRIEVAL VIA FETCH API
-    fetch(scriptURL, { redirect: "follow" }).then(res => res.json()).then(data => {
-        if(data.status === "Success") {
-            globalDbData = data;
-            
-            try { processEvents(data.events); } catch(e) { console.error("Event parsing module error:", e); }
-            try { processFeeLedger(data.receipts, data.setup, data.feeHeads); } catch(e) { console.error("Fee calculation module error:", e); }
-            try { renderFeed(data.assignments, data.submissions); } catch(e) { console.error("Timeline feed rendering error:", e); }
-            try { processAttendance(data.attendance); } catch(e) { console.error("Attendance processing module error:", e); }
-            
-        } else {
-            console.error("Server API internal rejection error status:", data.message);
-            let feedCont = document.getElementById('mainFeedContainer');
-            if(feedCont) feedCont.innerHTML = `<p style="color:red; text-align:center;">Failed to sync server records: ${data.message}</p>`;
-        }
-    }).catch(err => {
-        console.error("Critical communications fetch endpoint failure:", err);
-    });
+    // ==========================================
+    // DATA FETCHING FROM FIRESTORE (Replacing API)
+    // ==========================================
+    fetchAllStudentData();
 
     document.getElementById('calPrevMonth')?.addEventListener('click', () => { currDate.setMonth(currDate.getMonth() - 1); renderCalendar(); });
     document.getElementById('calNextMonth')?.addEventListener('click', () => { currDate.setMonth(currDate.getMonth() + 1); renderCalendar(); });
     document.getElementById('bigCalPrevMonth')?.addEventListener('click', () => { currDate.setMonth(currDate.getMonth() - 1); renderCalendar(); });
     document.getElementById('bigCalNextMonth')?.addEventListener('click', () => { currDate.setMonth(currDate.getMonth() + 1); renderCalendar(); });
 });
+
+async function fetchAllStudentData() {
+    try {
+        let stuId = studentData.portalId || studentData.regNo;
+        
+        // Parallel queries to Firestore for faster loading
+        const [evtSnap, asgSnap, subSnap, attSnap, feeSnap] = await Promise.all([
+            db.collection("events").where("schoolCode", "==", schoolCode).get(),
+            db.collection("assignments").where("schoolCode", "==", schoolCode).get(),
+            db.collection("submissions").where("schoolCode", "==", schoolCode).where("Reg_No", "==", stuId).get(),
+            db.collection("attendance").where("schoolCode", "==", schoolCode).where("Reg_No", "==", stuId).get(),
+            db.collection("fee_receipts").where("schoolCode", "==", schoolCode).where("Reg_No", "==", stuId).get()
+        ]);
+
+        globalDbData.events = evtSnap.docs.map(d => d.data());
+        globalDbData.assignments = asgSnap.docs.map(d => { let obj = d.data(); obj.Assignment_ID = d.id; return obj; });
+        globalDbData.submissions = subSnap.docs.map(d => d.data());
+        globalDbData.attendance = attSnap.docs.map(d => d.data());
+        globalDbData.receipts = feeSnap.docs.map(d => d.data());
+
+        // Process fetched data
+        processEvents(globalDbData.events); 
+        renderFeed(globalDbData.assignments, globalDbData.submissions); 
+        processAttendance(globalDbData.attendance); 
+        processFeeLedger(globalDbData.receipts, null, []); // Pass fee setup later when ready
+
+    } catch(err) {
+        console.error("Firestore data fetch error:", err);
+        let feedCont = document.getElementById('mainFeedContainer');
+        if(feedCont) feedCont.innerHTML = `<p style="color:red; text-align:center;">Failed to connect to database. Please check your internet connection.</p>`;
+    }
+}
 
 // ============================================================================
 // EVENTS AND HOLIDAYS DISPATCH MODULE
@@ -150,7 +150,7 @@ function processEvents(events) {
     
     let validEvents = events.filter(e => {
         if(e.Audience === "Employees") return false;
-        if(e.Target_Class !== "All" && String(e.Target_Class) !== String(sClassRaw)) return false;
+        if(e.Target_Class && e.Target_Class !== "All" && String(e.Target_Class) !== String(sClassRaw)) return false;
         return true;
     });
 
@@ -194,9 +194,7 @@ window.filterFeed = function(filterVal) {
     }
 
     currentFeedFilter = filterVal;
-    if(globalDbData) {
-        renderFeed(globalDbData.assignments, globalDbData.submissions);
-    }
+    renderFeed(globalDbData.assignments, globalDbData.submissions);
 }
 
 function renderFeed(assignments, submissions) {
@@ -216,7 +214,8 @@ function renderFeed(assignments, submissions) {
         
         let targets = ["All"];
         try { if(a.Target_Students && a.Target_Students.trim() !== "") targets = JSON.parse(a.Target_Students); } catch(e){}
-        let matchTarget = targets.includes("All") || targets.includes(String(studentData.regNo));
+        let myId = studentData.portalId || studentData.regNo;
+        let matchTarget = targets.includes("All") || targets.includes(String(myId));
 
         // Sub Tab Filtering
         let typeMatch = true;
@@ -227,7 +226,7 @@ function renderFeed(assignments, submissions) {
         if(currentFeedFilter === "PTM") typeMatch = ["PTM"].includes(a.Type);
 
         return matchClass && matchTarget && typeMatch;
-    }).reverse();
+    }).sort((a, b) => new Date(b.Timestamp || 0) - new Date(a.Timestamp || 0));
 
     if(myItems.length === 0) {
         feedCont.innerHTML = '<div class="empty-illustration"><span>📭</span><p>No recent updates in this category.</p></div>';
@@ -236,7 +235,7 @@ function renderFeed(assignments, submissions) {
 
     myItems.forEach(a => {
         let type = a.Type || "General";
-        let dateFormatted = new Date(a.Timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        let dateFormatted = a.Timestamp ? new Date(a.Timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : "-";
         
         let iconHtml = "📢"; let themeClass = "circ";
         if(["Homework", "Classwork", "Assignment", "Project"].includes(type)) { iconHtml = "📚"; themeClass = "hw"; }
@@ -244,12 +243,10 @@ function renderFeed(assignments, submissions) {
         else if(["Remarks", "Feedback"].includes(type)) { iconHtml = "📝"; themeClass = "rem"; }
         else if(type === "PTM") { iconHtml = "🤝"; themeClass = "ach"; }
 
-        // Core dynamic text structures
         let subjectHtml = a.Subject ? `<span style="font-size:11px; font-weight:bold; color:#64748b; text-transform:uppercase;">${a.Subject}</span>` : '';
         let titleHtml = `<h3 class="f-title">${a.Name}</h3>`;
         let descHtml = `<p class="f-desc">${a.Description || ''}</p>`;
         
-        // Metadata validation processing
         let metaHtml = "";
         try {
             if(a.Metadata_JSON && a.Metadata_JSON.trim() !== "") {
@@ -271,10 +268,7 @@ function renderFeed(assignments, submissions) {
             attachHtml = `<a href="${a.Attachment_Base64}" download class="btn-attach">📎 View Attachment</a>`;
         }
 
-        // Dedicated school news and timetable routing
-        if(type === "Circular" || type === "Notice" || type === "News" || type === "School News" || type === "PTM") {
-            // Intentionally processes structural attachments or links if needed inside normal card flow
-        } else if(type === "Time Table") {
+        if(type === "Time Table") {
             let ttWidget = document.querySelectorAll('.widget-card')[0];
             if(ttWidget) {
                 let ttAttachBtn = a.Attachment_Base64 ? `<br><a href="${a.Attachment_Base64}" download class="btn-attach" style="margin-top:10px; display:inline-flex;">📎 Download Timetable</a>` : '';
@@ -284,17 +278,16 @@ function renderFeed(assignments, submissions) {
                         <span class="widget-date">${dateFormatted}</span>
                     </div>
                     <div style="font-size:13px; color:#475569;">
-                        <b>${a.Name}</b><br>${a.Description}
-                        ${ttAttachBtn}
+                        <b>${a.Name}</b><br>${a.Description}${ttAttachBtn}
                     </div>
                 `;
             }
         }
 
-        // Homework dynamic block generation
         let hwActionHtml = "";
         if(themeClass === "hw") {
-            let mySub = (submissions || []).find(s => String(s.Assignment_ID) === String(a.Assignment_ID) && String(s.Reg_No) === String(studentData.regNo));
+            let myId = studentData.portalId || studentData.regNo;
+            let mySub = (submissions || []).find(s => String(s.Assignment_ID) === String(a.Assignment_ID) && String(s.Reg_No) === String(myId));
             let statusLabel = "Pending"; let statusClass = "pending";
             if(mySub) {
                 if(mySub.Marks && String(mySub.Marks).trim() !== "") { statusLabel = "Evaluated"; statusClass = "checked"; } 
@@ -307,7 +300,7 @@ function renderFeed(assignments, submissions) {
             hwActionHtml = `
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-top:15px; border-top:1px dashed #e2e8f0; padding-top:10px;">
                     <div><span style="font-size:12px; font-weight:600; color:#475569;">Due: ${a.Date || '-'}</span> <span class="status-badge ${statusClass}">${statusLabel}</span></div>
-                    <button class="btn-eye" onclick='openHwModal(${aDataStr}, ${subDataStr})'>👁️ Open Task</button>
+                    <button class="btn-eye" onclick='openHwModal(${aDataStr},${subDataStr})'>👁️ Open Task</button>
                 </div>
             `;
         } else {
@@ -328,12 +321,9 @@ function renderFeed(assignments, submissions) {
                     <div class="f-time">${dateFormatted}</div>
                 </div>
                 <div class="f-body">
-                    ${subjectHtml}
-                    ${titleHtml}
-                    ${metaHtml}
-                    ${descHtml}
-                    ${attachHtml}
-                    ${hwActionHtml}
+                    ${subjectHtml}${titleHtml}
+                    ${metaHtml}${descHtml}
+                    ${attachHtml}${hwActionHtml}
                 </div>
             </div>
         `;
@@ -341,7 +331,7 @@ function renderFeed(assignments, submissions) {
 }
 
 // ============================================================================
-// TASK VISUALIZER & HOMEWORK SUBMISSION OVERLAY
+// HOMEWORK SUBMISSION OVERLAY (FIRESTORE PUSH)
 // ============================================================================
 let currentHwSelection = null;
 window.openHwModal = function(hwData, subData) {
@@ -361,9 +351,8 @@ window.openHwModal = function(hwData, subData) {
         subArea.innerHTML = '';
         if(hwData.Submission_Required === "Yes") {
             
-            // STRICT DEADLINE TRACKER BLOCKING LOGIC
             let isPastDue = false;
-            let formattedDueDate = hwData.Submission_Due_Date || "";
+            let formattedDueDate = hwData.Date || "";
             if(formattedDueDate) {
                 let parts = formattedDueDate.split('-'); 
                 if(parts.length === 3) {
@@ -385,7 +374,7 @@ window.openHwModal = function(hwData, subData) {
                     if(fileInp) {
                         fileInp.addEventListener('change', function() { 
                             if(this.files[0]) { 
-                                const r = new FileReader(); r.onload = function(e) { document.getElementById('stuAnsBase64').value = e.target.result; }; r.readAsDataURL(file); 
+                                const r = new FileReader(); r.onload = function(e) { document.getElementById('stuAnsBase64').value = e.target.result; }; r.readAsDataURL(this.files[0]); 
                             } 
                         }); 
                     }
@@ -394,10 +383,6 @@ window.openHwModal = function(hwData, subData) {
                 subArea.innerHTML = `<div style="background:#f0f9ff; border:1px solid #bae6fd; padding:15px; border-radius:8px; text-align:center;"><h3 style="color:#0284c7; margin:0 0 5px 0; font-size:15px;">Status: Submitted</h3><p style="font-size:13px; color:#475569; margin:0;">Waiting for teacher's review.</p></div>`;
             } else if (subData && subData.Marks) {
                 let displayMarks = String(subData.Marks);
-                if(displayMarks.startsWith("'")) displayMarks = displayMarks.substring(1);
-                if(displayMarks.includes('T00:00:00') || displayMarks.includes('T18:30:00')) {
-                    let d = new Date(displayMarks); displayMarks = d.getDate() + "/" + (d.getMonth() + 1);
-                }
                 subArea.innerHTML = `<div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; border-radius:8px;"><h3 style="color:#15803d; margin:0 0 10px 0; font-size:15px;">Status: Evaluated ✅</h3><div style="display:flex; justify-content:space-between; font-size:14px;"><div><b style="color:#334155;">Marks Awarded:</b> <span style="font-size:18px; color:#b91c1c; font-weight:bold; margin-left:5px;">${displayMarks}</span></div></div><div style="margin-top:10px; font-size:13px; color:#475569;"><b>Teacher Remarks:</b> ${subData.Teacher_Remarks || 'Good work.'}</div></div>`;
             }
         } else {
@@ -410,76 +395,72 @@ window.openHwModal = function(hwData, subData) {
 
 window.submitHwToDb = function() {
     if(!currentHwSelection) return;
-    const btn = document.getElementById('btnActualSubmit'); btn.innerText = "Submitting..."; btn.disabled = true;
+    const btn = document.getElementById('btnActualSubmit'); 
+    btn.innerText = "Submitting..."; 
+    btn.disabled = true;
 
-    const payload = { action: "submitHomework", data: { assignmentId: currentHwSelection.Assignment_ID, regNo: studentData.regNo, studentName: studentData.studentFirstName || studentData.studentName, answerText: document.getElementById('stuAnsText') ? document.getElementById('stuAnsText').value : "", attachmentBase64: document.getElementById('stuAnsBase64') ? document.getElementById('stuAnsBase64').value : "" } };
-    fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
-    .then(res => res.json()).then(data => {
-        if(data.status === "Success") { 
-            alert(data.message); 
-            let modal = document.getElementById('hwModal'); if(modal) modal.classList.remove('active'); 
-            window.location.reload(); 
-        } else { alert("Error: " + data.message); }
-    }).finally(() => { btn.innerText = "Submit Homework"; btn.disabled = false; });
+    let myId = studentData.portalId || studentData.regNo;
+    let docId = `${schoolCode}_${currentHwSelection.Assignment_ID}_${myId}`;
+
+    const submissionData = {
+        schoolCode: schoolCode,
+        Assignment_ID: currentHwSelection.Assignment_ID,
+        Reg_No: myId,
+        Student_Name: studentData.studentFirstName || studentData.studentName,
+        Answer: document.getElementById('stuAnsText') ? document.getElementById('stuAnsText').value : "",
+        Attachment_Base64: document.getElementById('stuAnsBase64') ? document.getElementById('stuAnsBase64').value : "",
+        Status: "Submitted",
+        Timestamp: new Date().toISOString()
+    };
+
+    db.collection("submissions").doc(docId).set(submissionData)
+    .then(() => {
+        alert("Homework Submitted Successfully!");
+        let modal = document.getElementById('hwModal'); 
+        if(modal) modal.classList.remove('active'); 
+        // Update local array to show immediate change without full reload
+        globalDbData.submissions.push(submissionData);
+        renderFeed(globalDbData.assignments, globalDbData.submissions);
+    })
+    .catch(err => {
+        alert("Error saving submission: " + err.message);
+    })
+    .finally(() => {
+        btn.innerText = "Submit Homework"; 
+        btn.disabled = false;
+    });
 };
 
 // ============================================================================
 // FINANCIAL LEDGER SYSTEM
 // ============================================================================
 function processFeeLedger(receipts, setupData, feeHeads) {
-    let classFeeAmount = 0;
-    if(studentData.studentClass && setupData && setupData.classes) { let cSetup = setupData.classes.find(c => `${c.name} (${c.section})` === studentData.studentClass || c.name === studentData.studentClass); if(cSetup && cSetup.fee) classFeeAmount = parseFloat(cSetup.fee); }
-    let paidMap = {}; let myReceipts = (receipts||[]).filter(r => String(r.Reg_No) === String(studentData.regNo));
-    myReceipts.forEach(r => { try { let rawHeads = String(r.Paid_Heads || "").trim(); if(rawHeads !== "" && rawHeads.startsWith("[")) { JSON.parse(rawHeads).forEach(d => { paidMap[d.head + "_" + d.period] = (paidMap[d.head + "_" + d.period] || 0) + parseFloat(d.paid || 0); }); } } catch(e) { } });
-
-    let tbody = document.getElementById('feeStatementBody'); if(tbody) tbody.innerHTML = ''; 
-    let totalDue = 0; let totalPaid = 0;
-    const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
-
-    academicMonths.forEach(month => {
-        let tAmt = classFeeAmount; let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0; let tBal = tAmt - tPaid; totalDue += tAmt; totalPaid += tPaid;
-        let tStatus = tBal <= 0 ? `<span style="color:#15803d; font-weight:bold;">Paid</span>` : `<span style="color:#b91c1c; font-weight:bold;">Due</span>`;
-        if(tbody) tbody.innerHTML += `<tr><td><b>Monthly Tuition Fee (${month})</b></td><td>₹${tAmt.toFixed(2)}</td><td>₹${tPaid.toFixed(2)}</td><td>${tStatus}</td></tr>`;
-        
-        (feeHeads||[]).forEach(fh => {
-            if(fh.Frequency === "Monthly") {
-                let fhAmt = parseFloat(fh.Amount) || 0; let fhPaid = paidMap[fh.Head_Name + "_" + month] || 0; let fhBal = fhAmt - fhPaid; totalDue += fhAmt; totalPaid += fhPaid;
-                let fhStatus = fhBal <= 0 ? `<span style="color:#15803d; font-weight:bold;">Paid</span>` : `<span style="color:#b91c1c; font-weight:bold;">Due</span>`;
-                if(tbody) tbody.innerHTML += `<tr><td><b>${fh.Head_Name} (${month})</b></td><td>₹${fhAmt.toFixed(2)}</td><td>₹${fhPaid.toFixed(2)}</td><td>${fhStatus}</td></tr>`;
-            }
-        });
-    });
-    
-    (feeHeads||[]).forEach(fh => {
-        if(fh.Frequency === "Annually" || fh.Frequency === "One Time (Annually)") {
-            let amt = parseFloat(fh.Amount) || 0; let pd = paidMap[fh.Head_Name + "_" + fh.Frequency] || paidMap[fh.Head_Name + "_Annually"] || 0; let bal = amt - pd; totalDue += amt; totalPaid += pd;
-            let anStatus = bal <= 0 ? `<span style="color:#15803d; font-weight:bold;">Paid</span>` : `<span style="color:#b91c1c; font-weight:bold;">Due</span>`;
-            if(tbody) tbody.innerHTML += `<tr><td><b>${fh.Head_Name} (Annual)</b></td><td>₹${amt.toFixed(2)}</td><td>₹${pd.toFixed(2)}</td><td>${anStatus}</td></tr>`;
-        }
-    });
-
-    let netDue = (totalDue - totalPaid);
-    if(document.getElementById('feeTotApplicable')) document.getElementById('feeTotApplicable').innerText = "₹" + totalDue.toFixed(2); 
-    if(document.getElementById('feeTotPaid')) document.getElementById('feeTotPaid').innerText = "₹" + totalPaid.toFixed(2); 
-    if(document.getElementById('feeTotDue')) document.getElementById('feeTotDue').innerText = "₹" + netDue.toFixed(2);
-
-    let feeWidget = document.getElementById('feeAlertWidget');
-    let feeAlertAmt = document.getElementById('feeAlertAmount');
-    if(feeWidget && feeAlertAmt) {
-        if(netDue > 0) { feeAlertAmt.innerText = "Fee: ₹" + netDue.toFixed(2); feeWidget.style.display = 'flex'; } 
-        else { feeWidget.style.display = 'none'; }
+    let tbody = document.getElementById('feeStatementBody'); 
+    if(!receipts || receipts.length === 0) {
+        if(tbody) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No fee records found.</td></tr>';
+        return;
     }
+    // Advance fee calculation logic will be added here once we have full fee structure on Firebase
+    if(tbody) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Ledger will be visible after fee master setup.</td></tr>';
 }
 
 // ============================================================================
-// ATTENDANCE CALENDAR ENGINE WITH INTEGRATED EVENT TOOLTIPS
+// ATTENDANCE CALENDAR ENGINE WITH EVENT TOOLTIPS
 // ============================================================================
 function processAttendance(records) {
     if(!records) return; let totP = 0; let totA = 0; let totL = 0;
+    let myId = studentData.portalId || studentData.regNo;
+    
     records.forEach(r => {
-        if(String(r.Reg_No) === String(studentData.regNo)) {
+        if(String(r.Reg_No) === String(myId)) {
             let parts = String(r.Date).split('-');
-            if(parts.length === 3) { let isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`; attMap[isoDate] = r.Status; if(r.Status === 'P') totP++; else if(r.Status === 'AB') totA++; else if(r.Status === 'LC') totL++; }
+            if(parts.length === 3) { 
+                let isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`; 
+                attMap[isoDate] = r.Status; 
+                if(r.Status === 'P') totP++; 
+                else if(r.Status === 'A') totA++; 
+                else if(r.Status === 'L') totL++; 
+            }
         }
     });
     if(document.getElementById('attTotalP')) document.getElementById('attTotalP').innerText = totP; 
@@ -523,11 +504,11 @@ function renderCalendar() {
             dotHtml = `<div class="dot p"></div>`; smallDot = `<div class="cal-dot" style="background:#27ae60;"></div>`;
             hoverCardContent = `<strong>Present</strong>`;
         } 
-        else if(status === 'AB') { 
+        else if(status === 'A') { 
             dotHtml = `<div class="dot a"></div>`; smallDot = `<div class="cal-dot" style="background:#ef4444;"></div>`;
             hoverCardContent = `<strong style="color:#ef4444;">Absent</strong>`;
         } 
-        else if(status === 'LC') { 
+        else if(status === 'L') { 
             dotHtml = `<div class="dot l"></div>`; smallDot = `<div class="cal-dot" style="background:#f59e0b;"></div>`;
             hoverCardContent = `<strong style="color:#f59e0b;">Leave / Late</strong>`;
         }
