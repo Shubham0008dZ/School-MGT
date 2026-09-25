@@ -5,182 +5,325 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ERP - Secure Login</title>
     
-    <!-- FIREBASE SDKS (Compat version for plain HTML/JS) -->
+    <!-- FIREBASE SDKS -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // YOUR REAL FIREBASE CONFIGURATION
+        // YOUR FIREBASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyAHS0Xk5o-PZK_bBGtsQqGlS9TLOcnXCsM",
             authDomain: "school-erp-3bd0a.firebaseapp.com",
             projectId: "school-erp-3bd0a",
             storageBucket: "school-erp-3bd0a.firebasestorage.app",
             messagingSenderId: "222944507292",
-            appId: "1:222944507292:web:3b80280c1359b9fa6ec459",
-            measurementId: "G-DW790DMME9"
+            appId: "1:222944507292:web:3b80280c1359b9fa6ec459"
         };
-        
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const analytics = firebase.analytics();
-        const db = firebase.firestore();
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const auth = firebase.auth();
+        const db = firebase.firestore();
     </script>
-    
+
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-        body { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); overflow: hidden; }
-        
-        /* Main Box Setup */
-        .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; position: relative; overflow: hidden;}
-        
-        /* Branding Elements */
-        .logo { font-size: 40px; margin-bottom: 10px; }
-        .dynamic-logo { max-height: 60px; margin-bottom: 10px; display: none; margin-left: auto; margin-right: auto; }
-        h2 { color: #2c3e50; margin-bottom: 5px; }
-        p.subtitle { color: #7f8c8d; font-size: 13px; margin-bottom: 25px; }
-        
-        /* Role Tabs */
-        .role-tabs { display:flex; margin-bottom:20px; border-bottom:2px solid #ecf0f1;}
-        .role-tabs button { flex:1; background:none; border:none; padding:10px; font-weight:bold; color:#7f8c8d; cursor:pointer; font-size:15px; transition:0.3s; border-bottom:3px solid transparent;}
-        .role-tabs button.active { color:#2980b9; border-bottom-color:#2980b9; }
-
-        /* Form Inputs */
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { display: block; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 8px; }
-        .input-group input[type="text"], .input-group input[type="password"], .input-group input[type="email"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; outline: none; transition: border-color 0.3s; }
-        .input-group input:focus { border-color: #2980b9; }
-        
-        /* Buttons */
-        .btn-login { width: 100%; padding: 12px; background: #2980b9; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-login:hover { background: #1c5980; }
-        .btn-verify { width: 100%; padding: 12px; background: #e67e22; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-verify:hover { background: #d35400; }
-        .btn-back-link { font-size: 12px; color: #7f8c8d; text-decoration: underline; cursor: pointer; margin-top: 15px; display: inline-block; background: none; border: none;}
-
-        /* Views & Animations */
-        .form-view { display: none; animation: fadeIn 0.4s;}
-        .form-view.active { display: block; }
-        .step-view { display: none; animation: fadeIn 0.4s;}
-        .step-view.active { display: block; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
-
-        /* STUDENT SPECIFIC UI */
-        .student-pin-box { display:none; background:#f9f9f9; border:1px solid #e1e1e1; padding:15px; border-radius:4px; margin-bottom:20px; text-align:left;}
-        .checkbox-container { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px;}
-        .checkbox-container input { margin-top:3px; cursor:pointer;}
-        .checkbox-container label { font-size:13px; color:#333; cursor:pointer; font-weight:bold; line-height:1.4;}
-        .forgot-link { color:#e74c3c; font-size:12px; font-weight:bold; text-decoration:none; cursor:pointer; display:block; text-align:right;}
-        .forgot-link:hover { text-decoration:underline; }
-
-        /* SLIDING PANELS */
-        .slide-panel { position:absolute; top:0; left:100%; width:100%; height:100%; background:white; padding:40px; transition:0.3s ease-in-out; text-align:left; z-index: 10;}
-        .slide-panel.active { left:0; }
-        .back-btn { color:#7f8c8d; font-size:13px; cursor:pointer; font-weight:bold; margin-bottom:20px; display:inline-block; border: none; background: none;}
+        body { background: linear-gradient(135deg, #1c2331, #3f51b5); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; }
+        .school-display { position: absolute; top: 30px; left: 0; right: 0; display: none; flex-direction: column; align-items: center; z-index: 10; animation: fadeInDown 0.6s ease; }
+        .school-display img { width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 3px solid #fff; background: white; object-fit: contain; }
+        .school-display h2 { color: white; margin-top: 10px; font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .school-display p { color: #ddd; font-size: 14px; margin-top: 5px; }
+        .login-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.3); width: 100%; max-width: 400px; z-index: 20; position: relative; }
+        .login-box h2 { text-align: center; color: #333; margin-bottom: 5px; font-size: 22px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .login-box h2 img { width: 50px; height: 50px; }
+        .login-box p.subtitle { text-align: center; color: #777; font-size: 13px; margin-bottom: 25px; }
+        .tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 25px; }
+        .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-weight: bold; color: #777; transition: 0.3s; border-bottom: 3px solid transparent; }
+        .tab.active { color: #3f51b5; border-bottom: 3px solid #3f51b5; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 13px; color: #555; margin-bottom: 8px; font-weight: bold; }
+        .input-group input { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; background: #f9f9f9; transition: 0.3s; }
+        .input-group input:focus { outline: none; border-color: #3f51b5; background: #fff; box-shadow: 0 0 0 3px rgba(63,81,181,0.1); }
+        .btn-login { width: 100%; padding: 14px; background: #27ae60; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-login:hover { background: #219a52; }
+        .btn-login:disabled { background: #95a5a6; cursor: not-allowed; }
+        .forgot-link { display: block; text-align: right; font-size: 12px; color: #e74c3c; margin-top: -10px; margin-bottom: 20px; text-decoration: none; cursor: pointer; }
+        .forgot-link:hover { text-decoration: underline; }
+        .school-code-step { display: none; }
+        .change-school { display: block; text-align: center; font-size: 12px; color: #888; margin-top: 15px; text-decoration: none; cursor: pointer; }
+        .change-school:hover { color: #333; text-decoration: underline; }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="login-box">
-    
-    <!-- PHASE 1: SCHOOL CODE -->
-    <div id="step-school-code" class="step-view active">
-        <div class="logo">🏢</div>
-        <h2>SHUBH ERP</h2>
-        <p class="subtitle">Enter your School Code to proceed</p>
-        
-        <div class="input-group">
-            <label>School Code</label>
-            <input type="text" id="schoolCodeInp" placeholder="e.g. VPS" autocomplete="off">
-        </div>
-        <button class="btn-verify" id="btnVerifyCode">Verify School</button>
+    <div class="school-display" id="schoolDisplay">
+        <img id="topSchoolLogo" src="" alt="School Logo">
+        <h2 id="topSchoolName">School Name</h2>
+        <p id="topSchoolAddress">Address</p>
     </div>
 
-    <!-- PHASE 2: LOGIN -->
-    <div id="step-credentials" class="step-view">
+    <div class="login-box">
         
-        <img id="dynSchoolLogo" class="dynamic-logo" src="" alt="School Logo">
-        <div id="defaultLogo" class="logo">🏫</div>
-        <h2 id="dynSchoolName">Welcome Back</h2>
-        <p class="subtitle" id="dynSchoolSub">ERP Access Portal</p>
-        
-        <div class="role-tabs">
-            <button class="tab-btn active" data-target="staffForm">Staff / Admin</button>
-            <button class="tab-btn" data-target="studentForm">Student</button>
+        <!-- STEP 1: SCHOOL CODE ENTRY -->
+        <div id="stepSchoolCode" class="school-code-step" style="display: block;">
+            <h2><img src="https://cdn-icons-png.flaticon.com/128/2941/2941658.png" alt="Icon"> ERP Secure Access</h2>
+            <p class="subtitle">Enter your School Code to continue</p>
+            <div class="input-group">
+                <label>School ID / Code</label>
+                <input type="text" id="schoolCodeInput" placeholder="e.g. VIS" autocomplete="off" style="text-transform: uppercase;">
+            </div>
+            <button class="btn-login" id="btnVerifySchool">Verify School</button>
         </div>
 
-        <div id="staffForm" class="form-view active">
-            <div class="input-group">
-                <label>Employee Email</label>
-                <input type="email" id="staffId" placeholder="Enter Email">
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" id="staffPass" placeholder="Enter Password">
-            </div>
-            <button class="btn-login" id="btnStaffLogin">Login Securely</button>
-        </div>
-
-        <div id="studentForm" class="form-view">
-            <div class="input-group">
-                <label>Portal User ID</label>
-                <input type="text" id="studentId" placeholder="e.g. shubham7">
-            </div>
-            <div class="input-group">
-                <label>Security PIN / Password</label>
-                <input type="password" id="studentPass" placeholder="8-Digit PIN or Password">
-                <button type="button" class="forgot-link" style="background:none; border:none; width:100%; text-align:right;" onclick="openPanel('forgotPanel')">Forgot PIN/Password?</button>
+        <!-- STEP 2: LOGIN ENTRY -->
+        <div id="stepLogin" style="display: none;">
+            <h2 id="formSchoolName">School Name</h2>
+            <p class="subtitle">ERP Access Portal</p>
+            
+            <div class="tabs">
+                <div class="tab active" id="tabStaff">Staff / Admin</div>
+                <div class="tab" id="tabStudent">Student</div>
             </div>
 
-            <div class="student-pin-box" id="setupCheckboxPanel">
-                <div class="checkbox-container">
-                    <input type="checkbox" id="chkNewPassword">
-                    <label for="chkNewPassword">I want to create a new custom password (Recommended).</label>
+            <!-- STAFF LOGIN FORM -->
+            <div id="formStaff">
+                <div class="input-group">
+                    <label>Registered Email</label>
+                    <input type="email" id="staffEmail" placeholder="admin@school.com">
                 </div>
-                <p style="font-size:11px; color:#777; margin-left:23px;">If left unchecked, your current PIN will permanently become your password.</p>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="staffPassword" placeholder="••••••••">
+                </div>
+                <a class="forgot-link" onclick="alert('Please contact your ERP Administrator to reset your password.')">Forgot Password?</a>
+                <button class="btn-login" id="btnStaffLogin">Secure Login</button>
             </div>
 
-            <button class="btn-login" id="btnStudentLogin" style="background:#27ae60;">Student Login</button>
-        </div>
-        
-        <button class="btn-back-link" id="btnBackToCode">← Change School Code</button>
-    </div>
+            <!-- STUDENT LOGIN FORM -->
+            <div id="formStudent" style="display: none;">
+                <div class="input-group">
+                    <label>Portal User ID</label>
+                    <input type="text" id="studentUserId" placeholder="e.g. 1">
+                </div>
+                <div class="input-group">
+                    <label>Security PIN / Password</label>
+                    <input type="password" id="studentPin" placeholder="••••••">
+                </div>
+                <a class="forgot-link" onclick="alert('Please contact the School Front Desk to recover your PIN.')">Forgot PIN/Password?</a>
+                <button class="btn-login" id="btnStudentLogin">Student Login</button>
+            </div>
 
-    <!-- PHASE 3: SET PASSWORD & OTP PANELS -->
-    <div id="setPassPanel" class="slide-panel">
-        <button class="back-btn" onclick="closePanels()">← Back to Login</button>
-        <h3 style="margin-bottom:10px; color:#2c3e50;">Set Custom Password</h3>
-        <p style="font-size:13px; color:#555; margin-bottom:20px;">Please create a secure password you can remember easily.</p>
-        
-        <div class="input-group"><label>New Password</label><input type="password" id="newPass1"></div>
-        <div class="input-group"><label>Confirm Password</label><input type="password" id="newPass2"></div>
-        <button class="btn-login" id="btnConfirmNewPass" style="background:#8e44ad;">Update & Login</button>
-    </div>
-
-    <div id="forgotPanel" class="slide-panel">
-        <button class="back-btn" onclick="closePanels()">← Back to Login</button>
-        <h3 style="margin-bottom:10px; color:#c0392b;">Reset via OTP</h3>
-        <p style="font-size:13px; color:#555; margin-bottom:20px;">Enter your Portal User ID to receive a 6-digit OTP on your registered email.</p>
-        
-        <div id="otpStep1">
-            <div class="input-group"><label>Portal User ID</label><input type="text" id="forgotStudentId" placeholder="e.g. shubham7"></div>
-            <button class="btn-login" id="btnSendOtp" style="background:#e67e22;">Send OTP to Email</button>
+            <a class="change-school" id="btnChangeSchool">← Change School Code</a>
         </div>
 
-        <div id="otpStep2" style="display:none; margin-top:20px;">
-            <p style="font-size:13px; color:#27ae60; font-weight:bold; margin-bottom:15px;">OTP sent successfully!</p>
-            <div class="input-group"><label>Enter 6-Digit OTP</label><input type="text" id="resetOtp" maxlength="6"></div>
-            <div class="input-group"><label>New Password</label><input type="password" id="resetNewPass"></div>
-            <button class="btn-login" id="btnVerifyOtp" style="background:#27ae60;">Reset Password</button>
-        </div>
     </div>
 
-</div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // UI Logic
+            const stepSchoolCode = document.getElementById('stepSchoolCode');
+            const stepLogin = document.getElementById('stepLogin');
+            const schoolDisplay = document.getElementById('schoolDisplay');
+            
+            const tabStaff = document.getElementById('tabStaff');
+            const tabStudent = document.getElementById('tabStudent');
+            const formStaff = document.getElementById('formStaff');
+            const formStudent = document.getElementById('formStudent');
 
-<!-- Make sure to use the 100% Firebase powered login.js I provided in the previous step -->
-<script src="login.js"></script>
+            let currentSchoolCode = localStorage.getItem('erp_school_code');
+            
+            // Check if school is already set
+            if(currentSchoolCode) {
+                loadSchoolData(currentSchoolCode);
+            }
+
+            // Tab Switching
+            tabStaff.addEventListener('click', () => {
+                tabStaff.classList.add('active'); tabStudent.classList.remove('active');
+                formStaff.style.display = 'block'; formStudent.style.display = 'none';
+            });
+            tabStudent.addEventListener('click', () => {
+                tabStudent.classList.add('active'); tabStaff.classList.remove('active');
+                formStudent.style.display = 'block'; formStaff.style.display = 'none';
+            });
+
+            // Change School
+            document.getElementById('btnChangeSchool').addEventListener('click', () => {
+                localStorage.removeItem('erp_school_code');
+                localStorage.removeItem('erp_school_name');
+                localStorage.removeItem('erp_school_logo');
+                schoolDisplay.style.display = 'none';
+                stepLogin.style.display = 'none';
+                stepSchoolCode.style.display = 'block';
+                document.getElementById('schoolCodeInput').value = '';
+            });
+
+            // Verify School
+            document.getElementById('btnVerifySchool').addEventListener('click', async () => {
+                const code = document.getElementById('schoolCodeInput').value.trim().toUpperCase();
+                const btn = document.getElementById('btnVerifySchool');
+                
+                if(!code) { alert("Please enter a valid School Code."); return; }
+                
+                btn.innerText = "Verifying..."; btn.disabled = true;
+
+                try {
+                    // Fetch school details from 'schools' collection in Firebase
+                    const schoolDoc = await db.collection("schools").doc(code).get();
+                    
+                    if (schoolDoc.exists) {
+                        const schoolData = schoolDoc.data();
+                        localStorage.setItem('erp_school_code', code);
+                        localStorage.setItem('erp_school_name', schoolData.name || code);
+                        localStorage.setItem('erp_school_logo', schoolData.logoUrl || "https://cdn-icons-png.flaticon.com/128/2941/2941658.png");
+                        
+                        loadSchoolData(code);
+                    } else {
+                        // Fallback logic for when 'schools' collection doesn't exist yet but user wants to proceed
+                        if(code === "VIS") {
+                            localStorage.setItem('erp_school_code', "VIS");
+                            localStorage.setItem('erp_school_name', "Vinayak International");
+                            localStorage.setItem('erp_school_logo', "https://cdn-icons-png.flaticon.com/128/2941/2941658.png");
+                            loadSchoolData("VIS");
+                        } else {
+                            alert("Invalid School Code. Not found in Database.");
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching school:", error);
+                    alert("Database connection error. Try again.");
+                } finally {
+                    btn.innerText = "Verify School"; btn.disabled = false;
+                }
+            });
+
+            function loadSchoolData(code) {
+                const sName = localStorage.getItem('erp_school_name') || code;
+                const sLogo = localStorage.getItem('erp_school_logo') || "https://cdn-icons-png.flaticon.com/128/2941/2941658.png";
+                
+                document.getElementById('topSchoolName').innerText = sName;
+                document.getElementById('formSchoolName').innerText = sName;
+                document.getElementById('topSchoolLogo').src = sLogo;
+                document.getElementById('topSchoolAddress').innerText = `Authorized Access - ${code}`;
+                
+                stepSchoolCode.style.display = 'none';
+                schoolDisplay.style.display = 'flex';
+                stepLogin.style.display = 'block';
+            }
+
+            // ===============================================
+            // 1. STAFF / ADMIN LOGIN (FIREBASE AUTH)
+            // ===============================================
+            document.getElementById('btnStaffLogin').addEventListener('click', async () => {
+                const email = document.getElementById('staffEmail').value.trim();
+                const pwd = document.getElementById('staffPassword').value;
+                const btn = document.getElementById('btnStaffLogin');
+
+                if(!email || !pwd) { alert("Please enter Email and Password."); return; }
+
+                btn.innerText = "Authenticating..."; btn.disabled = true;
+
+                try {
+                    // Firebase Auth Login
+                    const userCredential = await auth.signInWithEmailAndPassword(email, pwd);
+                    const user = userCredential.user;
+
+                    // Fetch employee details from 'users' collection
+                    const userDoc = await db.collection("users").doc(user.uid).get();
+
+                    if(userDoc.exists) {
+                        const userData = userDoc.data();
+                        
+                        // Check if the user belongs to the selected school
+                        if(userData.schoolCode !== localStorage.getItem('erp_school_code') && userData.Is_SuperAdmin !== "Yes") {
+                            await auth.signOut();
+                            alert("Access Denied: You are not authorized for this school.");
+                            return;
+                        }
+
+                        // Save session
+                        localStorage.setItem('erp_active_user', JSON.stringify(userData));
+                        window.location.href = 'index.html'; // Go to Admin Dashboard
+                    } else {
+                        await auth.signOut();
+                        alert("Account verified, but profile data missing in Database.");
+                    }
+                } catch (error) {
+                    console.error("Login Error:", error);
+                    alert("Invalid Credentials or Account Disabled.");
+                } finally {
+                    btn.innerText = "Secure Login"; btn.disabled = false;
+                }
+            });
+
+            // ===============================================
+            // 2. STUDENT LOGIN (FIRESTORE QUERY)
+            // ===============================================
+            document.getElementById('btnStudentLogin').addEventListener('click', async () => {
+                const portalId = document.getElementById('studentUserId').value.trim();
+                const pin = document.getElementById('studentPin').value;
+                const btn = document.getElementById('btnStudentLogin');
+                const schoolCode = localStorage.getItem('erp_school_code');
+
+                if(!portalId || !pin) { alert("Please enter User ID and Password/PIN."); return; }
+
+                btn.innerText = "Checking Credentials..."; btn.disabled = true;
+
+                try {
+                    // Search for student in Firebase where portalId or regNo matches
+                    let studentQuery = await db.collection("students")
+                        .where("schoolCode", "==", schoolCode)
+                        .where("portalId", "==", portalId.toLowerCase())
+                        .get();
+
+                    // If not found by portalId, try to find by Roll No (Since user created roll no 1 and 2)
+                    if (studentQuery.empty) {
+                        studentQuery = await db.collection("students")
+                            .where("schoolCode", "==", schoolCode)
+                            .where("rollNo", "==", portalId)
+                            .get();
+                    }
+                    
+                    // If still not found, try regNo exactly
+                    if (studentQuery.empty) {
+                        studentQuery = await db.collection("students")
+                            .where("schoolCode", "==", schoolCode)
+                            .where("regNo", "==", portalId)
+                            .get();
+                    }
+
+                    if (!studentQuery.empty) {
+                        let studentData = null;
+                        
+                        studentQuery.forEach(doc => {
+                            const data = doc.data();
+                            // Check password/pin match
+                            if (data.password === pin || data.pin === pin) {
+                                studentData = data;
+                            }
+                        });
+
+                        if (studentData) {
+                            // Student verified successfully!
+                            localStorage.setItem('student_active_session', JSON.stringify(studentData));
+                            window.location.href = 'student_dashboard.html'; // Go to Student Portal
+                        } else {
+                            alert("Invalid PIN or Password.");
+                        }
+                    } else {
+                        alert("No student found with this User ID in " + schoolCode);
+                    }
+                } catch (error) {
+                    console.error("Student Login Error:", error);
+                    alert("Database Error. Check your connection.");
+                } finally {
+                    btn.innerText = "Student Login"; btn.disabled = false;
+                }
+            });
+
+        });
+    </script>
 </body>
 </html>
