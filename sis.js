@@ -14,12 +14,6 @@ window.customConfirm = function(message, onConfirm) {
     document.getElementById('cc-ok').addEventListener('click', () => { overlay.remove(); onConfirm(); });
 };
 
-function runNetworkDiagnostics(currentUrl) {
-    let diagnostics = { isDummyUrl: false, isBrowserOnline: navigator.onLine, timestamp: new Date().toISOString() };
-    if(currentUrl.includes("YOUR_NEW_DEPLOYMENT_ID_HERE")) { diagnostics.isDummyUrl = true; console.error("CRITICAL ERROR: Dummy URL detected."); }
-    console.log("Network Diagnostics Run: ", diagnostics); return diagnostics;
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     
     // SIDEBAR TOGGLE
@@ -33,60 +27,28 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!activeUserStr) { window.location.href = 'login.html'; return; }
     const activeUser = JSON.parse(activeUserStr);
     const isSA = activeUser.Is_SuperAdmin === "Yes";
+    const schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode;
     let userRights = [];
     try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
 
-
-
-
-    
-    // DYNAMIC SCRIPT URL FROM MULTI-TENANT LOGIN
-const scriptURL = localStorage.getItem('erp_school_url');
-if(!scriptURL) { window.location.href = 'login.html'; }
-
-
-
-// DYNAMIC NAVBAR UPDATE LOGIC (Immediate Execution Fix)
-try {
-    let savedName = localStorage.getItem('erp_school_name');
-    let savedLogo = localStorage.getItem('erp_school_logo');
-    
-    let navNameEl = document.getElementById('dynamicNavName');
-    let navLogoImg = document.getElementById('dynamicNavLogo');
-    let navLogoDefault = document.getElementById('defaultNavLogo');
-    
-    // School Name Update
-    if(savedName && navNameEl) {
-        navNameEl.innerText = savedName; 
+    // DYNAMIC NAVBAR UPDATE LOGIC
+    try {
+        let savedName = localStorage.getItem('erp_school_name');
+        let savedLogo = localStorage.getItem('erp_school_logo');
+        
+        let navNameEl = document.getElementById('dynamicNavName');
+        let navLogoImg = document.getElementById('dynamicNavLogo');
+        let navLogoDefault = document.getElementById('defaultNavLogo');
+        
+        if(savedName && navNameEl) navNameEl.innerText = savedName; 
+        if(savedLogo && savedLogo.startsWith('http') && navLogoImg) {
+            navLogoImg.src = savedLogo;
+            navLogoImg.style.display = 'inline-block';
+            if(navLogoDefault) navLogoDefault.style.display = 'none';
+        }
+    } catch(error) {
+        console.error("Navbar logic failed:", error);
     }
-    
-    // School Logo Update
-    if(savedLogo && savedLogo.startsWith('http') && navLogoImg) {
-        navLogoImg.src = savedLogo;
-        navLogoImg.style.display = 'inline-block';
-        if(navLogoDefault) navLogoDefault.style.display = 'none';
-    }
-} catch(error) {
-    console.error("Navbar logic failed:", error);
-}
-
-
-
-
-
-
-    
-    const networkHealth = runNetworkDiagnostics(scriptURL);
-
-    fetch(scriptURL, { 
-        method: 'POST', body: JSON.stringify({ action: "verifySession", empId: activeUser.empId }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" }
-    })
-    .then(res => res.json()).then(data => {
-        if (data.status === "Invalid") {
-            alert("Session Invalid: Your account was deleted or marked inactive.");
-            localStorage.removeItem('erp_active_user'); window.location.href = 'login.html';
-        } else if (data.status === "Valid" && data.user) { localStorage.setItem('erp_active_user', JSON.stringify(data.user)); }
-    }).catch(err => { console.log("Background sync paused due to network/cors block.", err); });
 
     const topRightSpans = document.querySelectorAll('.top-right span');
     if(topRightSpans.length > 0) { topRightSpans[0].innerHTML = `👤 Welcome, <b>${activeUser.empName}</b>`; }
@@ -100,35 +62,20 @@ try {
 
     const btnLogout = document.getElementById('btnLogout');
     if(btnLogout) {
-        btnLogout.addEventListener('click', () => { customConfirm("Are you sure you want to logout?", () => { localStorage.removeItem('erp_active_user'); window.location.href = 'login.html'; }); });
+        btnLogout.addEventListener('click', () => { 
+            customConfirm("Are you sure you want to logout?", () => { 
+                auth.signOut().then(() => {
+                    localStorage.removeItem('erp_active_user'); 
+                    window.location.href = 'login.html'; 
+                });
+            }); 
+        });
     }
     
     let appData = []; let setupData = null; let feeHeads = []; let feeReceipts = [];  
     let charts = { class: null, blood: null, cat: null, rel: null, house: null, age: null };
     const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
     const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/128/3135/3135715.png';
-
-    // ==========================================
-    // OLD IMAGE PREVIEW LOGIC (KEPT INTACT AS REQUESTED BUT BYPASSED IN UI)
-    // ==========================================
-    function handleImagePreview(inputId, imgId) {
-        const input = document.getElementById(inputId);
-        const img = document.getElementById(imgId);
-        if(input && img) {
-            input.addEventListener('change', function() {
-                const file = this.files[0];
-                if(file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) { img.src = e.target.result; }
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
-    }
-    // These IDs don't exist anymore to prevent conflicts, keeping logic intact.
-    handleImagePreview('photoUpload', 'photoPreview');
-    handleImagePreview('fatherPhotoUpload', 'fatherPhotoPreview');
-    handleImagePreview('motherPhotoUpload', 'motherPhotoPreview');
 
     const formTabs = document.querySelectorAll('.form-tabs .tab');
     const tabContents = document.querySelectorAll('.form-tab-content');
@@ -160,25 +107,45 @@ try {
         if(document.getElementById('editMode').value === "false") document.getElementById('regNo').value = maxReg + 1;
     }
 
-    // AUTO LOAD SYNC
-    window.syncWithDatabase = function() {
+    // ==========================================
+    // AUTO LOAD SYNC (FIRESTORE INTEGRATED)
+    // ==========================================
+    window.syncWithDatabase = async function() {
         const tbody = document.getElementById('studentTableBody'); 
         tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳<br><span style="font-size:11px; color:#777;">Please wait, fetching records.</span></td></tr>';
         
-        fetch(scriptURL, { redirect: "follow" })
-        .then(res => { if(!res.ok) throw new Error("HTTP Status: " + res.status); return res.json(); })
-        .then(res => {
-            if(res.status === "Success") { 
-                appData = res.data; setupData = res.setup; feeHeads = res.feeHeads || []; feeReceipts = res.receipts || []; 
-                loadSetupDropdowns(); renderTable(appData); renderDashboard(); updateNextRegNo(); renderMasterSetup(); 
-            } else { 
-                tbody.innerHTML = `<tr><td colspan="10" style="color:red; text-align:center; padding:20px;"><b>Error:</b> ${res.message}</td></tr>`; 
+        try {
+            // Fetch Setup Data
+            let setupDoc = await db.collection("setups").doc(schoolCode).get();
+            if (setupDoc.exists) {
+                setupData = setupDoc.data();
+            } else {
+                setupData = { classes: [], genders: [], categories: [], bloodGroups: [], houses: [], religions: [], salutations: [] };
             }
-        }).catch(e => { 
-            let detailedError = e.message || e.toString();
-            let extraWarning = networkHealth.isDummyUrl ? `<div style="background:#f39c12; color:white; padding:10px; border-radius:4px; margin-bottom:15px; font-weight:bold;">🚨 DUMMY URL DETECTED.</div>` : "";
-            tbody.innerHTML = `<tr><td colspan="10" style="color:#c0392b; text-align:center; padding:30px; background:#fdf0ed;">${extraWarning}<span style="font-size:20px; font-weight:bold;">⚠️ API Connection Failed</span><br><br><span style="font-size:14px; color:#333;"><b>Reason:</b> ERR_CONNECTION_CLOSED / ${detailedError}</span><br><br><div style="background:white; border:1px solid #e74c3c; border-radius:5px; padding:15px; display:inline-block; text-align:left; color:#555; font-size:13px;"><b style="color:#e74c3c;">Troubleshooting Steps:</b><br><br>1. Ensure access is "Anyone".<br>2. Disable <b>AdBlocker/Antivirus</b>.<br>3. Change network.</div><br><br><button onclick="syncWithDatabase()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px;">🔄 Retry Connection</button></td></tr>`; 
-        });
+
+            // Fetch Students Data
+            let studentSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get();
+            appData = [];
+            studentSnap.forEach(doc => {
+                appData.push(doc.data());
+            });
+
+            // Fetch Fee Receipts
+            let feeSnap = await db.collection("fee_receipts").where("schoolCode", "==", schoolCode).get();
+            feeReceipts = [];
+            feeSnap.forEach(doc => feeReceipts.push(doc.data()));
+
+            // Setup UI
+            loadSetupDropdowns(); 
+            renderTable(appData); 
+            renderDashboard(); 
+            updateNextRegNo(); 
+            renderMasterSetup(); 
+
+        } catch (error) {
+            console.error("Firebase Sync Error:", error);
+            tbody.innerHTML = `<tr><td colspan="10" style="color:#c0392b; text-align:center; padding:30px; background:#fdf0ed;"><span style="font-size:20px; font-weight:bold;">⚠️ API Connection Failed</span><br><br><span style="font-size:14px; color:#333;"><b>Reason:</b> ${error.message}</span><br><br><button onclick="syncWithDatabase()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px;">🔄 Retry Connection</button></td></tr>`; 
+        }
     }
 
     function fillSelectWithAll(id, array, isObj = false) { 
@@ -242,9 +209,6 @@ try {
         });
     }
 
-    // ==========================================
-    // RENDER TABLE WITH IMAGES
-    // ==========================================
     function renderTable(dataToRender) {
         const tbody = document.getElementById('studentTableBody'); tbody.innerHTML = '';
         if(dataToRender.length === 0) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">No records found.</td></tr>'; return; }
@@ -338,9 +302,6 @@ try {
     function getVal(id) { return document.getElementById(id) ? document.getElementById(id).value : ''; }
     function setVal(id, val) { if(document.getElementById(id)) document.getElementById(id).value = val || ''; }
 
-    // ==========================================
-    // POPULATE BASE64 IMAGES IN EDIT
-    // ==========================================
     window.editStudent = function(s) {
         document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module')); document.getElementById('module-admission').classList.add('active-module');
         document.getElementById('formTitle').innerText = "Edit Student Profile"; document.getElementById('saveSubmitBtn').innerText = "Update Record in DB"; document.getElementById('saveSubmitBtn').style.background = "#f39c12"; document.getElementById('editMode').value = "true"; formTabs[0].click(); 
@@ -351,7 +312,6 @@ try {
         setVal('motherName', s.motherName); setVal('motherSalutation', s.motherSalutation); setVal('motherContact', s.motherContact); setVal('motherWhatsapp', s.motherWhatsapp); setVal('motherProfession', s.motherProfession); setVal('motherQualification', s.motherQualification); setVal('motherDesignation', s.motherDesignation); setVal('motherIncome', s.motherIncome); setVal('motherOfficeName', s.motherOfficeName); setVal('motherOfficeContact', s.motherOfficeContact); setVal('motherOfficeAddress', s.motherOfficeAddress); setVal('motherAadhaar', s.motherAadhaar);
         setVal('corrAddress', s.corrAddress); setVal('corrCity', s.corrCity); setVal('corrState', s.corrState); setVal('corrCountry', s.corrCountry); setVal('corrPincode', s.corrPincode); setVal('permAddress', s.permAddress); setVal('permCity', s.permCity); setVal('permState', s.permState); setVal('permCountry', s.permCountry); setVal('permPincode', s.permPincode);
         
-        // Image populator
         setVal('studentPhotoBase64', s.studentPhotoBase64); document.getElementById('photoPreview').src = s.studentPhotoBase64 || DEFAULT_AVATAR;
         if(s.studentPhotoBase64) document.getElementById('btnRemove_studentPhoto').style.display = 'inline-block'; else document.getElementById('btnRemove_studentPhoto').style.display = 'none';
 
@@ -364,16 +324,19 @@ try {
 
     window.deleteStudent = function(regNo) {
         customConfirm(`Are you sure you want to delete Reg No: ${regNo} from Database?`, () => {
-            fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "delete", regNo: regNo }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
-            .then(res => res.json()).then(data => { if(data.status === "Success") { customAlert(data.message || "Deleted from DB!"); syncWithDatabase(); } });
+            let safeRegNo = regNo.replace(/\//g, '-');
+            let docId = `${schoolCode}_${safeRegNo}`;
+            db.collection("students").doc(docId).delete().then(() => {
+                customAlert("Deleted from DB!"); 
+                syncWithDatabase();
+            }).catch(err => {
+                alert("Error deleting: " + err.message);
+            });
         });
     };
 
     // ==========================================
-    // SAVE FORM (NOW INCLUDES BASE64 IMAGES)
-    // ==========================================
-  // ==========================================
-    // INTERCEPT SAVE FOR EMAIL CONFIRMATION MODAL
+    // SAVE STUDENT (FIRESTORE INTEGRATION)
     // ==========================================
     let pendingStudentData = null;
     let pendingIsEdit = false;
@@ -384,14 +347,13 @@ try {
         
         pendingStudentData = {
             regNo: getVal('regNo'), adminDate: getVal('adminDate'), studentFirstName: getVal('studentFirstName'), studentLastName: getVal('studentLastName'), primaryEmail: getVal('primaryEmail'), dob: getVal('dob'), mobile: getVal('mobile'), placeOfBirth: getVal('placeOfBirth'), motherTongue: getVal('motherTongue'), studentClass: getVal('studentClass'), gender: getVal('gender'), bloodGroup: getVal('bloodGroup'), category: getVal('category'), house: getVal('house'), religion: getVal('religion'), udiseNo: getVal('udiseNo'), apaarId: getVal('apaarId'), aadhaarNo: getVal('aadhaarNo'), prevSchool: getVal('prevSchool'), fatherName: getVal('fatherName'), fatherSalutation: getVal('fatherSalutation'), fatherContact: getVal('fatherContact'), fatherWhatsapp: getVal('fatherWhatsapp'), fatherProfession: getVal('fatherProfession'), fatherQualification: getVal('fatherQualification'), fatherDesignation: getVal('fatherDesignation'), fatherIncome: getVal('fatherIncome'), fatherOfficeName: getVal('fatherOfficeName'), fatherOfficeContact: getVal('fatherOfficeContact'), fatherOfficeAddress: getVal('fatherOfficeAddress'), fatherAadhaar: getVal('fatherAadhaar'), motherName: getVal('motherName'), motherSalutation: getVal('motherSalutation'), motherContact: getVal('motherContact'), motherWhatsapp: getVal('motherWhatsapp'), motherProfession: getVal('motherProfession'), motherQualification: getVal('motherQualification'), motherDesignation: getVal('motherDesignation'), motherIncome: getVal('motherIncome'), motherOfficeName: getVal('motherOfficeName'), motherOfficeContact: getVal('motherOfficeContact'), motherOfficeAddress: getVal('motherOfficeAddress'), motherAadhaar: getVal('motherAadhaar'), corrAddress: getVal('corrAddress'), corrCity: getVal('corrCity'), corrState: getVal('corrState'), corrCountry: getVal('corrCountry'), corrPincode: getVal('corrPincode'), permAddress: getVal('permAddress'), permCity: getVal('permCity'), permState: getVal('permState'), permCountry: getVal('permCountry'), permPincode: getVal('permPincode'),
-            studentPhotoBase64: getVal('studentPhotoBase64'), fatherPhotoBase64: getVal('fatherPhotoBase64'), motherPhotoBase64: getVal('motherPhotoBase64')
+            studentPhotoBase64: getVal('studentPhotoBase64'), fatherPhotoBase64: getVal('fatherPhotoBase64'), motherPhotoBase64: getVal('motherPhotoBase64'),
+            schoolCode: schoolCode
         };
 
         if(pendingIsEdit) {
-            // Edit me mail prompt nahi chahiye, direct save
             executeStudentSave(false);
         } else {
-            // Add new student pe modal show hoga
             document.getElementById('studentEmailConfirmModal').classList.add('active');
         }
     });
@@ -402,16 +364,43 @@ try {
         executeStudentSave(sendEmailChoice);
     });
 
-    function executeStudentSave(sendEmailChoice) {
+    async function executeStudentSave(sendEmailChoice) {
         const submitBtn = document.getElementById('saveSubmitBtn'); 
         submitBtn.textContent = 'Syncing...'; submitBtn.disabled = true;
         
-        pendingStudentData.sendEmailOpt = sendEmailChoice; // Attach the toggle choice
+        let safeRegNo = pendingStudentData.regNo.replace(/\//g, '-');
+        let docId = `${schoolCode}_${safeRegNo}`;
 
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: pendingIsEdit ? "update" : "add", data: pendingStudentData }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
-        .then(res => res.json()).then(data => {
-            if(data.status === "Success") { customAlert(data.message || (pendingIsEdit ? "Updated in DB!" : "Added to DB!")); document.getElementById('btn-back-to-profiles').click(); syncWithDatabase(); } else { customAlert("Error: " + data.message); }
-        }).finally(() => { submitBtn.textContent = 'Save Record to DB'; submitBtn.disabled = false; });
+        try {
+            if(!pendingIsEdit) {
+                // Set default portalId and pin for new student
+                pendingStudentData.portalId = pendingStudentData.regNo.replace(/\//g, '').toLowerCase();
+                pendingStudentData.pin = "123456"; 
+                pendingStudentData.password = "123456";
+                
+                let checkDoc = await db.collection("students").doc(docId).get();
+                if(checkDoc.exists) {
+                    alert("A Student with this Registration No already exists!");
+                    submitBtn.textContent = 'Save Record to DB'; submitBtn.disabled = false;
+                    return;
+                }
+            }
+
+            await db.collection("students").doc(docId).set(pendingStudentData, { merge: true });
+            
+            // Logic to trigger Cloud Function for Email (Skipped for frontend only setup, backend function needed)
+            if(sendEmailChoice && pendingStudentData.primaryEmail) {
+                console.log("Email trigger required for: ", pendingStudentData.primaryEmail);
+            }
+
+            customAlert(pendingIsEdit ? "Updated in DB!" : "Added to DB!"); 
+            document.getElementById('btn-back-to-profiles').click(); 
+            syncWithDatabase();
+        } catch (err) {
+            customAlert("Error saving data: " + err.message);
+        } finally {
+            submitBtn.textContent = 'Save Record to DB'; submitBtn.disabled = false;
+        }
     }
 
     const btnAddStudent = document.getElementById('btn-add-student');
@@ -458,7 +447,7 @@ try {
     });
 
     // ==========================================
-    // MASTER SETUP INTEGRATION
+    // MASTER SETUP INTEGRATION (FIRESTORE)
     // ==========================================
     const msCategoryEl = document.getElementById('msCategory');
     if(msCategoryEl) {
@@ -510,11 +499,20 @@ try {
     }
 
     function saveMasterSetupToDB() {
-        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "saveSetup", data: setupData }), redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" } })
-        .then(res => res.json()).then(data => {
-            if(data.status === "Success") {
-                customAlert("Master Setup Synced Successfully!"); document.getElementById('masterSetupForm').reset(); document.getElementById('msEditIndex').value = "-1"; document.getElementById('btnSaveMasterSetup').innerText = "Save Entry"; document.getElementById('btnSaveMasterSetup').style.background = "#27ae60"; document.getElementById('btnCancelEdit').style.display = "none"; document.getElementById('msCategory').dispatchEvent(new Event('change')); renderMasterSetup(); loadSetupDropdowns(); 
-            }
+        db.collection("setups").doc(schoolCode).set(setupData, { merge: true })
+        .then(() => {
+            customAlert("Master Setup Synced Successfully!"); 
+            document.getElementById('masterSetupForm').reset(); 
+            document.getElementById('msEditIndex').value = "-1"; 
+            document.getElementById('btnSaveMasterSetup').innerText = "Save Entry"; 
+            document.getElementById('btnSaveMasterSetup').style.background = "#27ae60"; 
+            document.getElementById('btnCancelEdit').style.display = "none"; 
+            document.getElementById('msCategory').dispatchEvent(new Event('change')); 
+            renderMasterSetup(); 
+            loadSetupDropdowns(); 
+        })
+        .catch(err => {
+            alert("Error saving setup: " + err.message);
         });
     }
 
@@ -596,7 +594,7 @@ try {
     }
 
     // ==========================================
-    // CROPPER JS LOGIC & REMOVE HANDLERS (NEW)
+    // CROPPER JS LOGIC 
     // ==========================================
     let currentCropTarget = '';
     let cropper = null;
@@ -609,7 +607,7 @@ try {
             document.getElementById('cropModalOverlay').classList.add('active');
             if(cropper) { cropper.destroy(); }
             cropper = new Cropper(document.getElementById('cropImageTarget'), {
-                aspectRatio: NaN, // Free crop as requested
+                aspectRatio: NaN, 
                 viewMode: 1,
                 autoCropArea: 1,
             });
@@ -641,7 +639,7 @@ try {
 
     document.getElementById('btnApplyCrop').addEventListener('click', () => {
         if(cropper) {
-            const canvas = cropper.getCroppedCanvas({ maxWidth: 200, maxHeight: 200 }); // Compression for Google Sheet limits
+            const canvas = cropper.getCroppedCanvas({ maxWidth: 200, maxHeight: 200 }); 
             if(canvas) {
                 const base64 = canvas.toDataURL('image/jpeg', 0.8);
                 let previewId = currentCropTarget.replace('studentPhoto', 'photo') + 'Preview';
@@ -661,7 +659,7 @@ try {
     });
 
     // ==========================================
-    // 8. THE "KUNDLI" - STUDENT FEE LEDGER
+    // THE "KUNDLI" - STUDENT FEE LEDGER
     // ==========================================
     window.openLedger = function(regNo) {
         let student = appData ? appData.find(s => String(s.regNo) === String(regNo)) : null;
