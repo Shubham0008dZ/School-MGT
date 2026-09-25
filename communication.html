@@ -614,6 +614,108 @@ button,input,select,textarea{
 }
 
 </style>
+
+    <!-- ============================================================
+         COMMUNICATION SIDEBAR COLLAPSE — UI ONLY
+         ============================================================ -->
+    <style id="communication-sidebar-collapse-fix">
+
+/* =====================================================================
+   COMMUNICATION SIDEBAR — SMOOTH COLLAPSE FIX
+   ---------------------------------------------------------------------
+   The communication menu uses icon <span> elements followed by plain
+   text nodes. When the sidebar collapses, the plain text nodes therefore
+   remained visible and got clipped.
+
+   CSS-only fix:
+   • collapsed state shows icons only
+   • expanded state shows icons + labels
+   • width / padding / text visibility transition stays smooth
+   • existing inline toggle logic remains untouched
+   ===================================================================== */
+
+#sidebar{
+  will-change:width;
+  transition:width .25s ease, min-width .25s ease !important;
+}
+
+#sidebar .nav-links li a{
+  transition:
+    background .15s ease,
+    color .15s ease,
+    padding .25s ease,
+    gap .25s ease,
+    border-color .15s ease !important;
+}
+
+#sidebar .nav-links li a span{
+  flex:0 0 auto;
+  transition:font-size .2s ease, opacity .2s ease, transform .2s ease !important;
+}
+
+#sidebar.collapsed{
+  width:68px !important;
+  min-width:68px !important;
+}
+
+#sidebar.collapsed .sidebar-header{
+  padding-left:0 !important;
+  padding-right:0 !important;
+  justify-content:center !important;
+}
+
+#sidebar.collapsed .sidebar-header h2{
+  display:none !important;
+}
+
+#sidebar.collapsed .nav-links{
+  padding-left:10px !important;
+  padding-right:10px !important;
+}
+
+#sidebar.collapsed .nav-links li a{
+  justify-content:center !important;
+  gap:0 !important;
+  padding:12px 0 !important;
+  border-left:0 !important;
+  font-size:0 !important; /* hides the label text nodes */
+  line-height:1 !important;
+  overflow:hidden !important;
+}
+
+#sidebar.collapsed .nav-links li a span{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-size:17px !important;
+  line-height:1 !important;
+  opacity:1 !important;
+}
+
+#sidebar.collapsed .nav-links li a:hover{
+  transform:none !important;
+}
+
+#sidebar.collapsed .nav-links li a.active{
+  background:rgba(192,138,46,.20) !important;
+  box-shadow:inset 3px 0 0 var(--c-brass) !important;
+}
+
+/* Expanded state */
+#sidebar:not(.collapsed) .nav-links li a{
+  font-size:13.5px !important;
+  gap:12px !important;
+}
+
+@media (prefers-reduced-motion: reduce){
+  #sidebar,
+  #sidebar .nav-links li a,
+  #sidebar .nav-links li a span{
+    transition:none !important;
+  }
+}
+
+    </style>
 </head>
 
 <body>
