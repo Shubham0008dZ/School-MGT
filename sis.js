@@ -733,3 +733,243 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setTimeout(() => { syncWithDatabase(); }, 100);
 });
+
+
+
+// ============================================================================
+// NEW FEATURES: BULK ACTIONS & PROMOTIONS (FIRESTORE BATCH)
+// ============================================================================
+
+function populateBulkDropdowns() {
+    const fromClass = document.getElementById('bulkFromClass');
+    const toClass = document.getElementById('bulkToClass');
+    const rollClass = document.getElementById('bulkRollClass');
+    const repClass = document.getElementById('reportClassSelect');
+
+    let optionsHtml = '<option value="">-- Select Class & Section --</option>';
+    if(setupData && setupData.classes) {
+        setupData.classes.forEach(c => {
+            let val = `${c.name} (${c.section})`;
+            optionsHtml += `<option value="${val}">${val}</option>`;
+        });
+    }
+
+    if(fromClass) fromClass.innerHTML = optionsHtml;
+    if(toClass) toClass.innerHTML = optionsHtml;
+    if(rollClass) rollClass.innerHTML = optionsHtml;
+    if(repClass) repClass.innerHTML = '<option value="All">All Classes (Entire School)</option>' + optionsHtml;
+}
+
+// 1. Fetch Students for Promotion
+document.getElementById('btnFetchForPromote')?.addEventListener('click', () => {
+    let cls = document.getElementById('bulkFromClass').value;
+    if(!cls) { customAlert("Please select a 'From' class first."); return; }
+
+    let studentsInClass = appData.filter(s => s.studentClass === cls);
+    let tbody = document.getElementById('promoteTableBody');
+    tbody.innerHTML = '';
+
+    if(studentsInClass.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No students found in ${cls}.</td></tr>`;
+    } else {
+        studentsInClass.forEach(s => {
+            let sName = s.studentFirstName || s.studentName;
+            tbody.innerHTML += `
+                <tr>
+                    <td><input type="checkbox" class="chk-promote" value="${s.regNo}" checked></td>
+                    <td>${s.regNo}</td>
+                    <td>${sName} ${s.studentLastName || ''}</td>
+                    <td><span style="background:#e8f4f8; padding:3px 8px; border-radius:4px; font-size:12px;">Current: ${cls}</span></td>
+                </tr>
+            `;
+        });
+    }
+    document.getElementById('promoteTableArea').style.display = 'block';
+});
+
+// Check/Uncheck All Logic
+document.getElementById('chkAllPromote')?.addEventListener('change', function() {
+    let checkboxes = document.querySelectorAll('.chk-promote');
+    checkboxes.forEach(chk => chk.checked = this.checked);
+});
+
+// Execute Bulk Promotion
+document.getElementById('btnExecutePromote')?.addEventListener('click', async () => {
+    let toCls = document.getElementById('bulkToClass').value;
+    if(!toCls) { customAlert("Please select a destination 'To' class."); return; }
+
+    let checkboxes = document.querySelectorAll('.chk-promote:checked');
+    if(checkboxes.length === 0) { customAlert("Select at least one student."); return; }
+
+    if(!confirm(`Are you sure you want to move ${checkboxes.length} students to ${toCls}?`)) return;
+
+    const btn = document.getElementById('btnExecutePromote');
+    btn.innerText = "Updating Database..."; btn.disabled = true;
+
+    try {
+        let batch = db.batch(); // Firestore Batch Operation for atomicity
+        
+        checkboxes.forEach(chk => {
+            let regNo = chk.value;
+            let safeRegNo = regNo.replace(/\//g, '-');
+            let docRef = db.collection("students").doc(`${schoolCode}_${safeRegNo}`);
+            
+            batch.update(docRef, { studentClass: toCls });
+        });
+
+        await batch.commit();
+        customAlert("Bulk Update Successful!");
+        document.getElementById('promoteTableArea').style.display = 'none';
+        document.getElementById('bulkFromClass').value = "";
+        document.getElementById('bulkToClass').value = "";
+        syncWithDatabase(); // Refresh local array
+    } catch(err) {
+        customAlert("Error during bulk update: " + err.message);
+    } finally {
+        btn.innerText = "Update Selected Students"; btn.disabled = false;
+    }
+});
+
+
+// 2. Bulk Roll Number Generator
+document.getElementById('btnGenerateRolls')?.addEventListener('click', () => {
+    let cls = document.getElementById('bulkRollClass').value;
+    let startNo = parseInt(document.getElementById('bulkRollStart').value) || 1;
+    if(!cls) { customAlert("Select a class to generate roll numbers."); return; }
+
+    // Fetch and sort alphabetically by First Name
+    let studentsInClass = appData.filter(s => s.studentClass === cls);
+    studentsInClass.sort((a, b) => {
+        let nameA = (a.studentFirstName || a.studentName || "").toLowerCase();
+        let nameB = (b.studentFirstName || b.studentName || "").toLowerCase();
+        return nameA.localeCompare(nameB);
+    });
+
+    let tbody = document.getElementById('rollTableBody');
+    tbody.innerHTML = '';
+
+    if(studentsInClass.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No students found.</td></tr>`;
+    } else {
+        studentsInClass.forEach((s, index) => {
+            let sName = s.studentFirstName || s.studentName;
+            let newRoll = startNo + index;
+            tbody.innerHTML += `
+                <tr data-reg="${s.regNo}" data-newroll="${newRoll}">
+                    <td>${s.regNo}</td>
+                    <td>${sName} ${s.studentLastName || ''}</td>
+                    <td style="color:#7f8c8d;">${s.rollNo || '-'}</td>
+                    <td><strong style="color:#27ae60;">${newRoll}</strong></td>
+                </tr>
+            `;
+        });
+    }
+    document.getElementById('rollTableArea').style.display = 'block';
+});
+
+// Execute Roll Number Save
+document.getElementById('btnExecuteRolls')?.addEventListener('click', async () => {
+    let rows = document.querySelectorAll('#rollTableBody tr[data-reg]');
+    if(rows.length === 0) return;
+
+    const btn = document.getElementById('btnExecuteRolls');
+    btn.innerText = "Saving Rolls..."; btn.disabled = true;
+
+    try {
+        let batch = db.batch(); 
+        
+        rows.forEach(tr => {
+            let regNo = tr.getAttribute('data-reg');
+            let newRoll = tr.getAttribute('data-newroll');
+            let safeRegNo = regNo.replace(/\//g, '-');
+            let docRef = db.collection("students").doc(`${schoolCode}_${safeRegNo}`);
+            
+            batch.update(docRef, { rollNo: newRoll });
+        });
+
+        await batch.commit();
+        customAlert("Roll Numbers Assigned Successfully!");
+        document.getElementById('rollTableArea').style.display = 'none';
+        document.getElementById('bulkRollClass').value = "";
+        syncWithDatabase(); 
+    } catch(err) {
+        customAlert("Error saving roll numbers: " + err.message);
+    } finally {
+        btn.innerText = "Save Roll Numbers"; btn.disabled = false;
+    }
+});
+
+
+// ============================================================================
+// NEW FEATURES: EXPORT REPORTS ENGINE
+// ============================================================================
+
+window.openReportModal = function(type) {
+    document.getElementById('reportTypeHidden').value = type;
+    let title = "Generate Report";
+    if(type === 'classList') title = "Class-wise Student List";
+    if(type === 'contactList') title = "Contact & Email Directory";
+    if(type === 'demographics') title = "Demographics & Category Report";
+    
+    document.getElementById('reportModalTitle').innerText = title;
+    document.getElementById('reportConfigModal').classList.add('active');
+};
+
+document.getElementById('btnDownloadReport')?.addEventListener('click', () => {
+    let type = document.getElementById('reportTypeHidden').value;
+    let cls = document.getElementById('reportClassSelect').value;
+    
+    // Filter data based on class selection
+    let reportData = appData;
+    if(cls !== "All") {
+        reportData = appData.filter(s => s.studentClass === cls);
+    }
+
+    if(reportData.length === 0) {
+        customAlert("No students found in the selected class.");
+        return;
+    }
+
+    // Prepare table HTML for Excel Export
+    let htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"><style>table { border-collapse: collapse; font-family: Arial; } th, td { border: 1px solid #000; padding: 5px; text-align: left; } th { background-color: #f2f2f2; font-weight: bold; }</style></head><body>`;
+    
+    htmlContent += `<h2>${document.getElementById('reportModalTitle').innerText} - ${cls}</h2><table>`;
+
+    if(type === 'classList') {
+        htmlContent += `<tr><th>Roll No</th><th>Reg No</th><th>Student Name</th><th>Class</th><th>Gender</th><th>DOB</th></tr>`;
+        reportData.forEach(s => {
+            htmlContent += `<tr><td>${s.rollNo || ''}</td><td>${s.regNo}</td><td>${s.studentFirstName||''} ${s.studentLastName||''}</td><td>${s.studentClass||''}</td><td>${s.gender||''}</td><td>${s.dob||''}</td></tr>`;
+        });
+    } 
+    else if(type === 'contactList') {
+        htmlContent += `<tr><th>Student Name</th><th>Class</th><th>Primary Mobile</th><th>Email</th><th>Father Name</th><th>Father Mobile</th></tr>`;
+        reportData.forEach(s => {
+            htmlContent += `<tr><td>${s.studentFirstName||''} ${s.studentLastName||''}</td><td>${s.studentClass||''}</td><td>${s.mobile||''}</td><td>${s.primaryEmail||''}</td><td>${s.fatherName||''}</td><td>${s.fatherContact||''}</td></tr>`;
+        });
+    }
+    else if(type === 'demographics') {
+        htmlContent += `<tr><th>Reg No</th><th>Student Name</th><th>Class</th><th>Category</th><th>Religion</th><th>Blood Group</th><th>Mother Tongue</th></tr>`;
+        reportData.forEach(s => {
+            htmlContent += `<tr><td>${s.regNo}</td><td>${s.studentFirstName||''} ${s.studentLastName||''}</td><td>${s.studentClass||''}</td><td>${s.category||''}</td><td>${s.religion||''}</td><td>${s.bloodGroup||''}</td><td>${s.motherTongue||''}</td></tr>`;
+        });
+    }
+
+    htmlContent += `</table></body></html>`;
+
+    // Trigger Excel Download
+    let blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+    let url = URL.createObjectURL(blob); 
+    let a = document.createElement('a'); 
+    a.href = url; 
+    a.download = `SIS_Report_${type}_${cls.replace(/[^a-zA-Z0-9]/g, '')}.xls`; 
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+
+    document.getElementById('reportConfigModal').classList.remove('active');
+});
+
+// IMPORTANT: Hook the populateBulkDropdowns to your existing loadSetupDropdowns function
+const originalLoadSetup = loadSetupDropdowns;
+loadSetupDropdowns = function() {
+    originalLoadSetup(); // run original
+    populateBulkDropdowns(); // run new dropdown population
+};
