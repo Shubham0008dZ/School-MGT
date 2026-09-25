@@ -3042,6 +3042,230 @@
                 grid-template-columns: 1fr;
             }
         }
+
+
+
+        /* =====================================================================
+   BULK MANAGE MODAL — UI FIX
+   ---------------------------------------------------------------------
+   The Student SIS theme uses `.crop-container` for its image cropper.
+   Bulk Manage also uses that class, so the generic flex rule was making
+   the Bulk Manage heading, inputs and buttons appear side-by-side.
+
+   This block is intentionally scoped to #bulkManageModal and changes
+   presentation only. No JavaScript, IDs, Firebase calls or save logic
+   are modified.
+   ===================================================================== */
+
+        #bulkManageModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 20, 15, .58);
+            backdrop-filter: blur(1.5px);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        #bulkManageModal.active {
+            display: flex;
+        }
+
+        #bulkManageModal .crop-container {
+            display: block !important;
+            width: min(680px, 100%) !important;
+            max-width: 680px !important;
+            max-height: 88vh;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 0 !important;
+            margin: 0;
+            text-align: left;
+            background: var(--white) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .30) !important;
+        }
+
+        #bulkManageModal .crop-container>h3 {
+            margin: 0 !important;
+            padding: 18px 22px 14px !important;
+            border-bottom: 1px solid var(--line) !important;
+            background: var(--ink) !important;
+            color: #F4F1E9 !important;
+            font-family: 'Fraunces', Georgia, serif !important;
+            font-size: 18px !important;
+            font-weight: 600 !important;
+            line-height: 1.25 !important;
+        }
+
+        #bulkManageModal #bulkCatTitle {
+            color: var(--brass-soft) !important;
+            font-weight: 700 !important;
+        }
+
+        #bulkManageModal .crop-container>p {
+            margin: 0 !important;
+            padding: 14px 22px 4px !important;
+            color: var(--text-mute) !important;
+            font-size: 12px !important;
+            line-height: 1.5 !important;
+        }
+
+        #bulkManageModal .crop-container>div:first-of-type {
+            max-height: 48vh !important;
+            margin: 10px 22px 0 !important;
+            padding: 0 !important;
+            overflow: auto !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 10px !important;
+            background: var(--paper-2) !important;
+        }
+
+        #bulkManageModal #bulkTable {
+            width: 100% !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            margin: 0 !important;
+            table-layout: fixed !important;
+            background: var(--white) !important;
+        }
+
+        #bulkManageModal #bulkTable td {
+            padding: 9px 10px !important;
+            border: 0 !important;
+            border-bottom: 1px solid var(--line-soft) !important;
+            vertical-align: middle !important;
+            background: var(--white) !important;
+        }
+
+        #bulkManageModal #bulkTable tr:last-child td {
+            border-bottom: none !important;
+        }
+
+        #bulkManageModal #bulkTable td:last-child {
+            width: 58px !important;
+            text-align: center !important;
+        }
+
+        #bulkManageModal #bulkTable .blk-val {
+            display: block !important;
+            width: 100% !important;
+            height: 38px !important;
+            padding: 9px 11px !important;
+            box-sizing: border-box !important;
+            border: 1px solid #D8D2C0 !important;
+            border-radius: 7px !important;
+            background: var(--paper-2) !important;
+            color: var(--text) !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 13px !important;
+            outline: none !important;
+        }
+
+        #bulkManageModal #bulkTable .blk-val:focus {
+            border-color: var(--brass) !important;
+            background: var(--white) !important;
+            box-shadow: 0 0 0 2px rgba(192, 138, 46, .12) !important;
+        }
+
+        #bulkManageModal #bulkTable .btn-red {
+            width: 36px !important;
+            height: 36px !important;
+            padding: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: var(--bad) !important;
+            color: #fff !important;
+            border: 0 !important;
+            border-radius: 7px !important;
+            cursor: pointer !important;
+        }
+
+        #bulkManageModal #btnAddBulkRow {
+            display: block !important;
+            width: calc(100% - 20px) !important;
+            margin: 10px !important;
+            padding: 9px 12px !important;
+            border: 1px dashed #C9C3B0 !important;
+            border-radius: 7px !important;
+            background: var(--paper-2) !important;
+            color: var(--ink) !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 12.5px !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+        }
+
+        #bulkManageModal #btnAddBulkRow:hover {
+            background: #F5F1E4 !important;
+            border-color: var(--brass) !important;
+        }
+
+        #bulkManageModal .crop-container>div:last-child {
+            display: flex !important;
+            justify-content: flex-end !important;
+            align-items: center !important;
+            gap: 10px !important;
+            padding: 16px 22px 18px !important;
+            margin: 0 !important;
+            text-align: right !important;
+            background: var(--white) !important;
+            border-top: 1px solid var(--line) !important;
+        }
+
+        #bulkManageModal #btnCancelBulk,
+        #bulkManageModal #btnSaveBulk {
+            min-height: 38px !important;
+            padding: 9px 16px !important;
+            border-radius: 8px !important;
+            font-size: 12.5px !important;
+        }
+
+        #bulkManageModal #btnCancelBulk {
+            background: var(--ink) !important;
+            color: #F4F1E9 !important;
+        }
+
+        #bulkManageModal #btnSaveBulk {
+            background: var(--good) !important;
+            color: #fff !important;
+            box-shadow: 0 2px 8px rgba(31, 122, 82, .20);
+        }
+
+        @media (max-width:680px) {
+            #bulkManageModal {
+                padding: 14px;
+            }
+
+            #bulkManageModal .crop-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                max-height: 92vh;
+                border-radius: 12px !important;
+            }
+
+            #bulkManageModal .crop-container>h3 {
+                padding: 15px 16px 12px !important;
+                font-size: 16px !important;
+            }
+
+            #bulkManageModal .crop-container>p {
+                padding: 12px 16px 4px !important;
+            }
+
+            #bulkManageModal .crop-container>div:first-of-type {
+                margin-left: 16px !important;
+                margin-right: 16px !important;
+            }
+
+            #bulkManageModal .crop-container>div:last-child {
+                padding: 12px 16px 15px !important;
+            }
+        }
     </style>
 
 </head>
