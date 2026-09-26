@@ -717,125 +717,35 @@ button,input,select,textarea{
 
     </style>
 
-    <!-- ============================================================
-         COMMUNICATION OVERFLOW FIX — CSS ONLY
-         ============================================================ -->
-    <style id="communication-overflow-fix">
-
-/* =====================================================================
-   COMMUNICATION — HORIZONTAL OVERFLOW FIX
-   UI ONLY
-   ---------------------------------------------------------------------
-   Fixes long unbroken notice text forcing the CSS grid wider than the
-   viewport. This keeps the collapsed sidebar and content area inside
-   the screen without changing any application logic.
-   ===================================================================== */
-
-html,
-body{
-  width:100% !important;
-  max-width:100% !important;
-  overflow-x:hidden !important;
-}
-
-.erp-wrapper,
-.main-content{
-  min-width:0 !important;
-  max-width:100% !important;
-}
-
-.main-content{
-  overflow-x:hidden !important;
-}
-
-/* Communication two-column layout must have shrinkable tracks. */
-.main-content > div[style*="grid-template-columns"]{
-  display:grid !important;
-  grid-template-columns:minmax(300px,350px) minmax(0,1fr) !important;
-  width:100% !important;
-  max-width:100% !important;
-  min-width:0 !important;
-}
-
-.main-content > div[style*="grid-template-columns"] > *{
-  min-width:0 !important;
-  max-width:100% !important;
-}
-
-/* Recent Publications feed cannot establish a larger min-content width. */
-#feedContainer{
-  width:100% !important;
-  max-width:100% !important;
-  min-width:0 !important;
-  overflow-x:hidden !important;
-}
-
-.feed-item{
-  width:100% !important;
-  max-width:100% !important;
-  min-width:0 !important;
-  overflow:hidden !important;
-}
-
-.feed-info{
-  max-width:100% !important;
-  min-width:0 !important;
-  overflow:hidden !important;
-}
-
-.feed-info h4,
-.feed-info p{
-  max-width:100% !important;
-  min-width:0 !important;
-  white-space:normal !important;
-  overflow-wrap:anywhere !important;
-  word-break:break-word !important;
-}
-
-.feed-meta{
-  max-width:100% !important;
-  min-width:0 !important;
-  flex-wrap:wrap !important;
-}
-
-.badge{
-  white-space:normal !important;
-  overflow-wrap:anywhere !important;
-  word-break:break-word !important;
-}
-
-/* Keep delete action inside the card. */
-.feed-item .btn-red{
-  flex:0 0 36px !important;
-}
-
-/* Preserve the smooth sidebar behavior. */
-#sidebar{
-  transition:width .25s ease, min-width .25s ease !important;
-}
-
-#sidebar:not(.collapsed){
-  width:258px !important;
-  min-width:258px !important;
-}
-
-#sidebar.collapsed{
-  width:68px !important;
-  min-width:68px !important;
-}
-
-@media (max-width:900px){
-  .main-content > div[style*="grid-template-columns"]{
-    grid-template-columns:minmax(280px,330px) minmax(0,1fr) !important;
-  }
-}
-
-@media (max-width:760px){
-  .main-content > div[style*="grid-template-columns"]{
-    grid-template-columns:1fr !important;
-  }
-}
-
+    <style id="communication-individual-targeting-ui">
+        .school-logo{
+            display:flex !important;
+            align-items:center !important;
+            justify-content:center !important;
+            line-height:1 !important;
+        }
+        #dynamicNavLogo{
+            object-fit:contain;
+        }
+        #defaultNavLogo{
+            font-size:20px;
+            line-height:1;
+        }
+        .field-help{
+            display:block;
+            margin-top:5px;
+            color:var(--c-faint,#9A9382);
+            font-size:10px;
+            line-height:1.4;
+        }
+        #targetScopeGroup,
+        #classSelectGroup,
+        #studentSelectGroup{
+            transition:opacity .15s ease,transform .15s ease;
+        }
+        #postStudent option{
+            padding:6px;
+        }
     </style>
 </head>
 
@@ -843,7 +753,14 @@ body{
     <div class="top-navbar">
         <div class="top-left">
             <button class="hamburger-btn" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">☰</button>
-            <a href="index.html" class="school-name" id="dynamicNavName">SHUBH ERP</a>
+            <a href="index.html" style="color:white; text-decoration:none; display:flex; align-items:center; gap:12px;">
+                <span class="school-logo">
+                    <img id="dynamicNavLogo" src="" alt="School logo"
+                         style="max-height:28px; max-width:34px; margin-right:2px; border-radius:6px; display:none; vertical-align:middle;">
+                    <span id="defaultNavLogo">🏫</span>
+                </span>
+                <span class="school-name" id="dynamicNavName">VIS</span>
+            </a>
         </div>
         <div class="top-right">
             <span>⚏ Communication Module 🔔</span>
@@ -903,11 +820,37 @@ body{
                         </select>
                     </div>
 
+                    <!-- ====================================================
+                         DELIVERY TARGET
+                         Entire School / Specific Class / Individual Student
+                         ==================================================== -->
+                    <div class="input-group" id="targetScopeGroup">
+                        <label>Delivery Scope</label>
+                        <select id="targetScope">
+                            <option value="school">Entire School</option>
+                            <option value="class">Specific Class</option>
+                            <option value="student">Individual Student</option>
+                        </select>
+                        <small class="field-help" id="targetScopeHelp">
+                            Everyone in the selected audience will receive this post.
+                        </small>
+                    </div>
+
                     <div class="input-group" id="classSelectGroup">
-                        <label>Specific Class (Optional)</label>
+                        <label id="classSelectLabel">Specific Class</label>
                         <select id="postClass">
                             <option value="All">Entire School</option>
                         </select>
+                    </div>
+
+                    <div class="input-group" id="studentSelectGroup" style="display:none;">
+                        <label>Individual Student</label>
+                        <select id="postStudent" disabled>
+                            <option value="">-- Select class first --</option>
+                        </select>
+                        <small class="field-help">
+                            Only this student will see the post in the Student Portal.
+                        </small>
                     </div>
 
                     <div class="input-group">
@@ -935,7 +878,26 @@ body{
         const activeUserStr = localStorage.getItem('erp_active_user');
         if (!activeUserStr) { window.location.href = 'login.html'; }
         const activeUser = JSON.parse(activeUserStr);
-        const schoolCode = localStorage.getItem('erp_school_code') || "VIS";
+        const schoolCode = activeUser.schoolCode || localStorage.getItem('erp_school_code') || "VIS";
+
+        // School branding — same logo + school code treatment as other ERP modules.
+        try {
+            const savedName = localStorage.getItem('erp_school_name');
+            const savedLogo = localStorage.getItem('erp_school_logo');
+            const navName = document.getElementById('dynamicNavName');
+            const navLogo = document.getElementById('dynamicNavLogo');
+            const navDefault = document.getElementById('defaultNavLogo');
+
+            if (navName) navName.innerText = savedName || schoolCode;
+
+            if (savedLogo && /^https?:\/\//i.test(savedLogo) && navLogo) {
+                navLogo.src = savedLogo;
+                navLogo.style.display = 'inline-block';
+                if (navDefault) navDefault.style.display = 'none';
+            }
+        } catch (brandingError) {
+            console.warn('School branding load failed:', brandingError);
+        }
 
         document.getElementById('btnLogout').addEventListener('click', () => {
             if(confirm("Log out?")) { auth.signOut().then(() => { localStorage.removeItem('erp_active_user'); window.location.href='login.html'; }); }
@@ -943,6 +905,7 @@ body{
 
         // Initialize Data
         let setupClasses = [];
+        let allStudents = [];
         let globalEvents = [];
 
         async function initData() {
@@ -960,6 +923,17 @@ body{
                     });
                 }
 
+                // Fetch Students for individual-student targeting.
+                let studentSnap = await db.collection("students")
+                    .where("schoolCode", "==", schoolCode)
+                    .get();
+
+                allStudents = [];
+                studentSnap.forEach(doc => {
+                    allStudents.push({ ...doc.data(), _docId: doc.id });
+                });
+                populateStudentSelector();
+
                 // Fetch Events
                 let evtSnap = await db.collection("events").where("schoolCode", "==", schoolCode).get();
                 globalEvents = [];
@@ -972,7 +946,110 @@ body{
             }
         }
 
-        document.getElementById('btnSync').addEventListener('click', initData);
+        // ============================================================
+        // INDIVIDUAL STUDENT TARGETING
+        // ============================================================
+
+        function getStudentId(student) {
+            return String(student.portalId || student.regNo || student._docId || '').trim();
+        }
+
+        function getStudentName(student) {
+            const first = student.studentFirstName || student.studentName || student.firstName || '';
+            const last = student.studentLastName || student.lastName || '';
+            return `${first} ${last}`.trim() || getStudentId(student) || 'Unnamed Student';
+        }
+
+        function populateStudentSelector() {
+            const scope = document.getElementById('targetScope');
+            const cls = document.getElementById('postClass');
+            const studentSel = document.getElementById('postStudent');
+
+            if (!scope || !cls || !studentSel) return;
+
+            const selectedClass = cls.value;
+            const previousValue = studentSel.value;
+
+            studentSel.innerHTML = '<option value="">-- Select Student --</option>';
+
+            const filteredStudents = allStudents
+                .filter(student => {
+                    if (selectedClass === 'All') return true;
+                    return String(student.studentClass || '') === String(selectedClass);
+                })
+                .sort((a,b) => getStudentName(a).localeCompare(getStudentName(b)));
+
+            filteredStudents.forEach(student => {
+                const id = getStudentId(student);
+                if (!id) return;
+
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = `${getStudentName(student)} — ${id}`;
+                studentSel.appendChild(option);
+            });
+
+            if ([...studentSel.options].some(o => o.value === previousValue)) {
+                studentSel.value = previousValue;
+            }
+
+            studentSel.disabled = scope.value !== 'student' || filteredStudents.length === 0;
+
+            if (scope.value === 'student' && filteredStudents.length === 0) {
+                studentSel.innerHTML = '<option value="">-- No students found --</option>';
+                studentSel.disabled = true;
+            }
+        }
+
+        function syncTargetingUI() {
+            const audience = document.getElementById('postAudience');
+            const scope = document.getElementById('targetScope');
+            const classGroup = document.getElementById('classSelectGroup');
+            const classLabel = document.getElementById('classSelectLabel');
+            const studentGroup = document.getElementById('studentSelectGroup');
+            const studentSel = document.getElementById('postStudent');
+            const help = document.getElementById('targetScopeHelp');
+
+            if (!audience || !scope || !classGroup || !studentGroup) return;
+
+            if (audience.value === 'Employees') {
+                scope.value = 'school';
+                scope.disabled = true;
+                classGroup.style.display = 'none';
+                studentGroup.style.display = 'none';
+                if (help) help.textContent = 'Staff-only posts are sent to employees.';
+                return;
+            }
+
+            scope.disabled = false;
+
+            if (scope.value === 'school') {
+                classGroup.style.display = 'none';
+                studentGroup.style.display = 'none';
+                if (help) help.textContent = 'Everyone in the selected audience will receive this post.';
+            } else if (scope.value === 'class') {
+                classGroup.style.display = 'block';
+                classLabel.textContent = 'Specific Class';
+                studentGroup.style.display = 'none';
+                if (help) help.textContent = 'Students in the selected class will receive this post.';
+            } else {
+                audience.value = 'Students';
+                classGroup.style.display = 'block';
+                classLabel.textContent = 'Student Class';
+                studentGroup.style.display = 'block';
+                if (help) help.textContent = 'Only one selected student will receive this post.';
+            }
+
+            populateStudentSelector();
+
+            if (studentSel) {
+                studentSel.disabled = scope.value !== 'student' || studentSel.options.length <= 1;
+            }
+        }
+
+        document.getElementById('targetScope')?.addEventListener('change', syncTargetingUI);
+        document.getElementById('postAudience')?.addEventListener('change', syncTargetingUI);
+        document.getElementById('postClass')?.addEventListener('change', populateStudentSelector);
 
         // Render Feed
         function renderFeed() {
@@ -998,6 +1075,7 @@ body{
                                 <span class="badge" style="background:#E9F1F8; color:#2A5C8A;">${evt.Type || 'Notice'}</span>
                                 <span class="badge">Audience: ${evt.Audience || 'All'}</span>
                                 <span class="badge">Class: ${evt.Target_Class || 'All'}</span>
+                                ${evt.Target_Students ? '<span class="badge" style="background:#F7ECD7; color:#8A6218;">🎯 Individual Student</span>' : ''}
                                 <span class="badge" style="border:none;">Published: ${d}</span>
                             </div>
                         </div>
@@ -1017,14 +1095,47 @@ body{
             let btn = document.getElementById('btnPublish');
             btn.innerText = "Publishing..."; btn.disabled = true;
 
+            const audienceEl = document.getElementById('postAudience');
+            const scopeEl = document.getElementById('targetScope');
+            const classEl = document.getElementById('postClass');
+            const studentEl = document.getElementById('postStudent');
+
+            let targetAudience = audienceEl.value;
+            let targetScope = scopeEl ? scopeEl.value : 'school';
+            let targetClass = classEl ? classEl.value : 'All';
+            let targetStudents = "";
+
+            if (targetAudience === 'Employees') {
+                targetScope = 'school';
+                targetClass = 'All';
+            } else if (targetScope === 'student') {
+                targetAudience = 'Students';
+
+                const selectedStudentId = studentEl ? studentEl.value : "";
+                if (!selectedStudentId) {
+                    alert("Please select an individual student.");
+                    btn.innerText = "📢 Publish to Portal";
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Student Portal expects Target_Students as a JSON string
+                // and matches the student's portalId/regNo.
+                targetStudents = JSON.stringify([selectedStudentId]);
+            } else if (targetScope === 'school') {
+                targetClass = 'All';
+            }
+
             let docId = `${schoolCode}_EVT-${Date.now()}`;
             let payload = {
                 schoolCode: schoolCode,
                 Type: document.getElementById('postType').value,
                 Title: title,
                 Description: desc,
-                Audience: document.getElementById('postAudience').value,
-                Target_Class: document.getElementById('postClass').value,
+                Audience: targetAudience,
+                Target_Class: targetClass,
+                Target_Students: targetStudents,
+                Target_Scope: targetScope,
                 Date: document.getElementById('postDate').value || new Date().toISOString().split('T')[0],
                 Is_Holiday: "No",
                 Timestamp: new Date().toISOString()
@@ -1035,6 +1146,13 @@ body{
                 alert("Published Successfully! Students will see this on their dashboard.");
                 document.getElementById('postTitle').value = '';
                 document.getElementById('postDesc').value = '';
+                if (document.getElementById('targetScope')) {
+                    document.getElementById('targetScope').value = 'school';
+                }
+                if (document.getElementById('postStudent')) {
+                    document.getElementById('postStudent').value = '';
+                }
+                syncTargetingUI();
                 initData();
             } catch(e) {
                 alert("Error publishing: " + e.message);
@@ -1053,11 +1171,8 @@ body{
             }
         }
 
-        // Hide class selector if audience is Employees
-        document.getElementById('postAudience').addEventListener('change', function() {
-            if(this.value === "Employees") document.getElementById('classSelectGroup').style.display = 'none';
-            else document.getElementById('classSelectGroup').style.display = 'block';
-        });
+        // Initialize targeting controls
+        syncTargetingUI();
 
         setTimeout(initData, 200);
     </script>
