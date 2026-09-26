@@ -104,6 +104,8 @@
         .input-group input, .input-group select, .input-group textarea { width:100%; padding:10px 11px; border:1px solid #D7D0BF; border-radius:8px; font-family:'Inter', sans-serif; font-size:13px; background:var(--paper-2); color:var(--text); outline:none; transition:.15s; }
         .input-group input::placeholder, .input-group textarea::placeholder { color:var(--text-faint); }
         .input-group input:focus, .input-group select:focus, .input-group textarea:focus { border-color:var(--brass); background:var(--white); box-shadow:0 0 0 3px rgba(192,138,46,.1); }
+        .input-group select:disabled { opacity:.55; cursor:not-allowed; }
+        .field-help { display:block; margin-top:5px; color:var(--text-faint); font-size:10px; line-height:1.4; }
 
         /* HOLIDAY CHECKBOX AREA */
         .holiday-settings { display:none; background:var(--paper-2); border:1px solid var(--line); border-left:3px solid var(--brass); border-radius:8px; padding:15px; margin-bottom:16px; animation:fadeIn .25s ease; }
@@ -128,6 +130,7 @@
         .feed-meta { font-size:11px; font-weight:600; display:flex; flex-wrap:wrap; align-items:center; gap:7px; }
         .badge { background:var(--paper); padding:4px 8px; border-radius:6px; border:1px solid var(--line); color:var(--text-mute); white-space:nowrap; }
         .badge-holiday { background:#fef2f2; color:#c0392b; border-color:#fecaca; }
+        .badge-target { background:#F7ECD7; color:#8A6218; border-color:#EBD9AE; }
         .feed-item .btn-red { width:36px; min-width:36px; height:36px; padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0; opacity:.92; }
         .feed-item .btn-red:hover { opacity:1; }
 
@@ -217,20 +220,48 @@
                         <textarea id="postDesc" rows="4" placeholder="Type your message here..."></textarea>
                     </div>
 
-                    <div class="input-group" id="audienceGroup">
-                        <label>Target Audience</label>
-                        <select id="postAudience">
-                            <option value="Both">Everyone</option>
-                            <option value="Students">All Students</option>
-                            <option value="Employees">Staff Only</option>
+                    <!-- ====================================================
+                         DELIVERY TARGET
+                         One single control decides both WHO (students /
+                         staff) and HOW NARROW (everyone / a class / one
+                         person) the post goes to.
+                         ==================================================== -->
+                    <div class="input-group" id="targetScopeGroup">
+                        <label>Send To</label>
+                        <select id="targetScope">
+                            <option value="school_all">Entire School (Students + Staff)</option>
+                            <option value="school_students">All Students</option>
+                            <option value="school_staff">All Staff</option>
+                            <option value="class">Specific Class (Students)</option>
+                            <option value="student">Individual Student</option>
+                            <option value="staff">Individual Staff Member</option>
+                        </select>
+                        <small class="field-help" id="targetScopeHelp">
+                            Sent to every student and staff member.
+                        </small>
+                    </div>
+
+                    <div class="input-group" id="classSelectGroup" style="display:none;">
+                        <label id="classSelectLabel">Specific Class</label>
+                        <select id="postClass">
+                            <option value="">-- Select a Class --</option>
                         </select>
                     </div>
 
-                    <div class="input-group" id="classSelectGroup">
-                        <label>Specific Class (Optional)</label>
-                        <select id="postClass">
-                            <option value="All">Entire School</option>
+                    <div class="input-group" id="studentSelectGroup" style="display:none;">
+                        <label>Individual Student</label>
+                        <select id="postStudent" disabled>
+                            <option value="">-- Select class first --</option>
                         </select>
+                        <small class="field-help">Only this student will see the post in the Student Portal.</small>
+                    </div>
+
+                    <div class="input-group" id="staffSelectGroup" style="display:none;">
+                        <label>Individual Staff Member</label>
+                        <select id="postStaff" disabled>
+                            <option value="">-- Select staff member --</option>
+                        </select>
+                        <small class="field-help">Only this staff member will see the post in the Staff Portal.</small>
                     </div>
 
                     <div class="input-group">
@@ -275,10 +306,12 @@
         const activeUser = JSON.parse(activeUserStr);
         const schoolCode = activeUser.schoolCode || localStorage.getItem('erp_school_code') || "VIS";
 
+        // Firestore collection that stores staff/employee records.
+        // Change this in one place if your employees are stored under a
+        // different collection name.
+        const EMPLOYEE_COLLECTION = "employees";
+
         // School branding — same logo + school name treatment as the other ERP modules.
-        // (This was missing in the previous version of this file, which is why the
-        // navbar always showed the hardcoded "SHUBH ERP" text instead of the real
-        // school name/logo.)
         try {
             const savedName = localStorage.getItem('erp_school_name');
             const savedLogo = localStorage.getItem('erp_school_logo');
@@ -313,22 +346,13 @@
             }
         });
 
-        // Hide class selector if audience is Employees, and reset its value so a
-        // stale class selection never gets saved against a staff-only post.
-        document.getElementById('postAudience').addEventListener('change', function () {
-            const classGroup = document.getElementById('classSelectGroup');
-            const classSel = document.getElementById('postClass');
-            if (this.value === "Employees") {
-                classGroup.style.display = 'none';
-                if (classSel) classSel.value = 'All';
-            } else {
-                classGroup.style.display = 'block';
-            }
-        });
-
         // Initialize Data
         let setupClasses = [];
+        let allStudents = [];
+        let allEmployees = [];
         let globalEvents = [];
+
+        document.getElementById('btnSync').addEventListener('click', initData);
 
         async function initData() {
             document.getElementById('feedContainer').innerHTML = '<p style="text-align:center;">Fetching...</p>';
@@ -338,12 +362,40 @@
                 if (setupDoc.exists && setupDoc.data().classes) {
                     setupClasses = setupDoc.data().classes;
                     let sel = document.getElementById('postClass');
-                    sel.innerHTML = '<option value="All">Entire School</option>';
+                    sel.innerHTML = '<option value="">-- Select a Class --</option>';
                     setupClasses.forEach(c => {
                         let val = `${c.name} (${c.section})`;
                         sel.innerHTML += `<option value="${val}">${val}</option>`;
                     });
                 }
+
+                // Fetch Students for individual-student targeting.
+                let studentSnap = await db.collection("students")
+                    .where("schoolCode", "==", schoolCode)
+                    .get();
+
+                allStudents = [];
+                studentSnap.forEach(doc => {
+                    allStudents.push({ ...doc.data(), _docId: doc.id });
+                });
+
+                // Fetch Employees for individual-staff / all-staff targeting.
+                // Wrapped separately so a missing/renamed collection never
+                // breaks the rest of the module (students + feed still load).
+                allEmployees = [];
+                try {
+                    let empSnap = await db.collection(EMPLOYEE_COLLECTION)
+                        .where("schoolCode", "==", schoolCode)
+                        .get();
+                    empSnap.forEach(doc => {
+                        allEmployees.push({ ...doc.data(), _docId: doc.id });
+                    });
+                } catch (empErr) {
+                    console.warn('Employee fetch failed:', empErr.message);
+                }
+
+                populateStudentSelector();
+                populateStaffSelector();
 
                 // Fetch Events
                 let evtSnap = await db.collection("events").where("schoolCode", "==", schoolCode).get();
@@ -357,7 +409,174 @@
             }
         }
 
-        document.getElementById('btnSync').addEventListener('click', initData);
+        // ============================================================
+        // INDIVIDUAL STUDENT TARGETING
+        // ============================================================
+
+        function getStudentId(student) {
+            return String(student.portalId || student.regNo || student._docId || '').trim();
+        }
+
+        function getStudentName(student) {
+            const first = student.studentFirstName || student.studentName || student.firstName || '';
+            const last = student.studentLastName || student.lastName || '';
+            return `${first} ${last}`.trim() || getStudentId(student) || 'Unnamed Student';
+        }
+
+        function populateStudentSelector() {
+            const cls = document.getElementById('postClass');
+            const studentSel = document.getElementById('postStudent');
+            const scope = document.getElementById('targetScope');
+
+            if (!cls || !studentSel) return;
+
+            const selectedClass = cls.value;
+            const previousValue = studentSel.value;
+
+            studentSel.innerHTML = '<option value="">-- Select Student --</option>';
+
+            const filteredStudents = allStudents
+                .filter(student => {
+                    if (!selectedClass) return false;
+                    return String(student.studentClass || '') === String(selectedClass);
+                })
+                .sort((a, b) => getStudentName(a).localeCompare(getStudentName(b)));
+
+            filteredStudents.forEach(student => {
+                const id = getStudentId(student);
+                if (!id) return;
+
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = `${getStudentName(student)} — ${id}`;
+                studentSel.appendChild(option);
+            });
+
+            if ([...studentSel.options].some(o => o.value === previousValue)) {
+                studentSel.value = previousValue;
+            }
+
+            const isStudentScope = scope && scope.value === 'student';
+
+            if (isStudentScope && !selectedClass) {
+                studentSel.innerHTML = '<option value="">-- Select class first --</option>';
+                studentSel.disabled = true;
+            } else if (isStudentScope && filteredStudents.length === 0) {
+                studentSel.innerHTML = '<option value="">-- No students found --</option>';
+                studentSel.disabled = true;
+            } else {
+                studentSel.disabled = !isStudentScope;
+            }
+        }
+
+        // ============================================================
+        // INDIVIDUAL STAFF TARGETING
+        // ============================================================
+
+        function getEmployeeId(emp) {
+            return String(emp.portalId || emp.employeeId || emp.empId || emp.Employee_Id || emp._docId || '').trim();
+        }
+
+        function getEmployeeName(emp) {
+            const name = emp.empName || emp.employeeName || emp.name || emp.fullName || '';
+            return String(name).trim() || getEmployeeId(emp) || 'Unnamed Staff';
+        }
+
+        function getEmployeeDesignation(emp) {
+            return emp.designation || emp.Designation || emp.role || emp.department || '';
+        }
+
+        function populateStaffSelector() {
+            const staffSel = document.getElementById('postStaff');
+            if (!staffSel) return;
+
+            const previousValue = staffSel.value;
+            staffSel.innerHTML = '<option value="">-- Select Staff Member --</option>';
+
+            const sortedStaff = [...allEmployees].sort((a, b) => getEmployeeName(a).localeCompare(getEmployeeName(b)));
+
+            sortedStaff.forEach(emp => {
+                const id = getEmployeeId(emp);
+                if (!id) return;
+
+                const designation = getEmployeeDesignation(emp);
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = designation ? `${getEmployeeName(emp)} — ${designation}` : getEmployeeName(emp);
+                staffSel.appendChild(option);
+            });
+
+            if ([...staffSel.options].some(o => o.value === previousValue)) {
+                staffSel.value = previousValue;
+            }
+
+            const scope = document.getElementById('targetScope');
+            const isStaffScope = scope && scope.value === 'staff';
+
+            if (isStaffScope && sortedStaff.length === 0) {
+                staffSel.innerHTML = '<option value="">-- No staff found --</option>';
+                staffSel.disabled = true;
+            } else {
+                staffSel.disabled = !isStaffScope;
+            }
+        }
+
+        // ============================================================
+        // SINGLE "SEND TO" CONTROL — SHOW/HIDE DEPENDENT FIELDS
+        // ============================================================
+
+        function syncTargetingUI() {
+            const scope = document.getElementById('targetScope');
+            const classGroup = document.getElementById('classSelectGroup');
+            const classLabel = document.getElementById('classSelectLabel');
+            const studentGroup = document.getElementById('studentSelectGroup');
+            const staffGroup = document.getElementById('staffSelectGroup');
+            const help = document.getElementById('targetScopeHelp');
+
+            if (!scope || !classGroup || !studentGroup || !staffGroup) return;
+
+            classGroup.style.display = 'none';
+            studentGroup.style.display = 'none';
+            staffGroup.style.display = 'none';
+
+            switch (scope.value) {
+                case 'school_all':
+                    if (help) help.textContent = 'Sent to every student and staff member.';
+                    break;
+
+                case 'school_students':
+                    if (help) help.textContent = 'Sent to all students, across every class.';
+                    break;
+
+                case 'school_staff':
+                    if (help) help.textContent = 'Sent to all staff members.';
+                    break;
+
+                case 'class':
+                    classGroup.style.display = 'block';
+                    classLabel.textContent = 'Specific Class';
+                    if (help) help.textContent = 'Students in the selected class will receive this post.';
+                    break;
+
+                case 'student':
+                    classGroup.style.display = 'block';
+                    classLabel.textContent = 'Student Class';
+                    studentGroup.style.display = 'block';
+                    if (help) help.textContent = 'Only one selected student will receive this post.';
+                    break;
+
+                case 'staff':
+                    staffGroup.style.display = 'block';
+                    if (help) help.textContent = 'Only one selected staff member will receive this post.';
+                    break;
+            }
+
+            populateStudentSelector();
+            populateStaffSelector();
+        }
+
+        document.getElementById('targetScope')?.addEventListener('change', syncTargetingUI);
+        document.getElementById('postClass')?.addEventListener('change', populateStudentSelector);
 
         // Render Feed
         function renderFeed() {
@@ -388,6 +607,10 @@
                     ? `<span class="badge">Class: ${evt.Target_Class}</span>`
                     : '';
 
+                let targetTags = '';
+                if (evt.Target_Students) targetTags += `<span class="badge badge-target">🎯 Individual Student</span>`;
+                if (evt.Target_Employees) targetTags += `<span class="badge badge-target">🎯 Individual Staff</span>`;
+
                 container.innerHTML += `
                     <div class="feed-item">
                         <div class="feed-info">
@@ -397,6 +620,7 @@
                                 ${typeBadge}
                                 <span class="badge">Audience: ${evt.Audience || 'All'}</span>
                                 ${classBadge}
+                                ${targetTags}
                                 <span class="badge" style="border:none; padding:4px 0;">Date: ${evt.Date || 'N/A'}</span>
                                 ${holTags}
                             </div>
@@ -422,6 +646,55 @@
                 return;
             }
 
+            const scopeEl = document.getElementById('targetScope');
+            const classEl = document.getElementById('postClass');
+            const studentEl = document.getElementById('postStudent');
+            const staffEl = document.getElementById('postStaff');
+
+            const scope = scopeEl ? scopeEl.value : 'school_all';
+
+            let targetAudience = 'Both';
+            let targetClass = 'All';
+            let targetStudents = "";
+            let targetEmployees = "";
+
+            if (scope === 'school_all') {
+                targetAudience = 'Both';
+                targetClass = 'All';
+
+            } else if (scope === 'school_students') {
+                targetAudience = 'Students';
+                targetClass = 'All';
+
+            } else if (scope === 'school_staff') {
+                targetAudience = 'Employees';
+                targetClass = 'All';
+
+            } else if (scope === 'class') {
+                targetAudience = 'Students';
+                targetClass = classEl ? classEl.value : '';
+                if (!targetClass) { alert("Please select a class."); return; }
+
+            } else if (scope === 'student') {
+                targetAudience = 'Students';
+                targetClass = classEl ? classEl.value : '';
+                if (!targetClass) { alert("Please select the student's class first."); return; }
+
+                const selectedStudentId = studentEl ? studentEl.value : "";
+                if (!selectedStudentId) { alert("Please select an individual student."); return; }
+
+                targetStudents = JSON.stringify([selectedStudentId]);
+
+            } else if (scope === 'staff') {
+                targetAudience = 'Employees';
+                targetClass = 'All';
+
+                const selectedStaffId = staffEl ? staffEl.value : "";
+                if (!selectedStaffId) { alert("Please select an individual staff member."); return; }
+
+                targetEmployees = JSON.stringify([selectedStaffId]);
+            }
+
             let btn = document.getElementById('btnPublish');
             btn.innerText = "Publishing..."; btn.disabled = true;
 
@@ -435,15 +708,17 @@
                 Type: type,
                 Title: title,
                 Description: desc,
-                Audience: document.getElementById('postAudience').value,
-                Target_Class: document.getElementById('postClass').value,
+                Audience: targetAudience,
+                Target_Class: targetClass,
+                Target_Students: targetStudents,
+                Target_Employees: targetEmployees,
+                Target_Scope: scope,
                 Date: date || new Date().toISOString().split('T')[0],
                 // Separate flags for precise frontend logic later
                 Is_Holiday_Student: isEventType ? isHolStu : "No",
                 Is_Holiday_Employee: isEventType ? isHolEmp : "No",
                 // Backward-compatible single flag: "Yes" if EITHER student or
-                // employee holiday is set (previously this only ever mirrored
-                // the student checkbox, so an employee-only holiday was lost).
+                // employee holiday is set.
                 Is_Holiday: (isEventType && (isHolStu === "Yes" || isHolEmp === "Yes")) ? "Yes" : "No",
                 Timestamp: new Date().toISOString()
             };
@@ -457,6 +732,10 @@
                 document.getElementById('postDesc').value = '';
                 document.getElementById('chkHolStudent').checked = false;
                 document.getElementById('chkHolEmployee').checked = false;
+                if (scopeEl) scopeEl.value = 'school_all';
+                if (studentEl) studentEl.value = '';
+                if (staffEl) staffEl.value = '';
+                syncTargetingUI();
 
                 initData();
             } catch (e) {
@@ -475,6 +754,9 @@
                 } catch (e) { alert("Error deleting: " + e.message); }
             }
         }
+
+        // Initialize targeting controls
+        syncTargetingUI();
 
         setTimeout(initData, 200);
     </script>
