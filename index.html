@@ -65,7 +65,7 @@
         .bg-fee { background: linear-gradient(135deg, #e74c3c, #c0392b); }
         .bg-sis { background: linear-gradient(135deg, #3498db, #2980b9); }
         .bg-att { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-        .bg-cal { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        .bg-comm { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
 
         /* 2. SPLIT PANELS (FEEDS) */
         .panels-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: start;}
@@ -76,7 +76,6 @@
         .ph-blue { background: #3498db; }
         .ph-red { background: #e74c3c; }
         .ph-green { background: #27ae60; }
-        .ph-purple { background: #8e44ad; }
         
         .panel-body { padding: 0; overflow-y: auto; flex: 1;}
         
@@ -85,19 +84,9 @@
         .panel-table th { background: #f8f9fa; color: #475569; font-weight: 600; text-align: left; padding: 10px 15px; border-bottom: 1px solid #e1e8ed; position: sticky; top: 0;}
         .panel-table td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle;}
         .panel-table tr:hover td { background: #f8fafc; }
-        
-        .btn-panel-action { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; text-decoration: none;}
-        .btn-panel-action:hover { background: #e2e8f0; }
 
         .btn-del-sm { background: transparent; color: #ef4444; border: none; cursor: pointer; font-size: 14px; padding: 5px; opacity: 0.7;}
         .btn-del-sm:hover { opacity: 1; }
-
-        /* Quick Compose Area */
-        .quick-compose { padding: 15px; background: #fafbfc; border-bottom: 1px solid #e1e8ed;}
-        .qc-inputs { display: flex; gap: 10px; margin-bottom: 10px;}
-        .qc-inputs input, .qc-inputs select { flex: 1; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none;}
-        .qc-inputs input:focus, .qc-inputs select:focus { border-color: #3498db; }
-        .btn-qc { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: 600; font-size: 12px; cursor: pointer;}
         
         /* Notice Items */
         .notice-item { display: flex; padding: 15px; border-bottom: 1px solid #f1f5f9; gap: 15px; align-items: flex-start;}
@@ -150,7 +139,7 @@
         <!-- 1. MODULES GRID -->
         <div class="modules-section">
             <div class="section-title">
-                <span>📁 Recently Accessed Modules</span>
+                <span>📁 Assigned Modules</span>
             </div>
             <div class="modules-grid" id="mainModulesGrid">
                 <a href="employee.html" class="module-card" data-req-module="HR">
@@ -183,31 +172,24 @@
                     </div>
                     <p>Student Attendance</p>
                 </a>
-                <!-- The purple Communication icon has been removed as per request -->
+                <!-- RESTORED COMMUNICATION MODULE ICON -->
+                <a href="communication.html" class="module-card" data-req-module="HW">
+                    <div class="icon-circle bg-comm">
+                        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+                    </div>
+                    <p>Communication</p>
+                </a>
             </div>
         </div>
 
-        <!-- 2. SPLIT PANELS (FEEDS) -->
+        <!-- 2. SPLIT PANELS (ONLY FOR DISPLAYING FEEDS) -->
         <div class="panels-wrapper">
             
             <!-- Homework Panel -->
             <div class="panel">
                 <div class="panel-header ph-blue">
-                    <span>📚 Homework / Assignments</span>
+                    <span>📚 Homework / Assignments (View Only)</span>
                     <span style="font-size: 11px; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;" id="hwCount">0</span>
-                </div>
-                <!-- Quick Compose Homework -->
-                <div class="quick-compose" id="qcHomework" style="display: none;">
-                    <div class="qc-inputs">
-                        <select id="hwClass"><option value="All">All Classes</option></select>
-                        <input type="text" id="hwSubject" placeholder="Subject">
-                        <input type="text" id="hwTitle" placeholder="Topic / Title">
-                        <input type="date" id="hwDate">
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="hwDesc" placeholder="Description/Instructions..." style="flex:1; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none;">
-                        <button class="btn-qc" style="background: #3498db;" onclick="publishHomework()">Send HW</button>
-                    </div>
                 </div>
                 <div class="panel-body">
                     <table class="panel-table">
@@ -220,32 +202,8 @@
             <!-- Communication & Alerts Panel -->
             <div class="panel">
                 <div class="panel-header ph-red">
-                    <span>📢 Communication & Circulars</span>
+                    <span>📢 Communication & Circulars (View Only)</span>
                     <span style="font-size: 11px; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;" id="circCount">0</span>
-                </div>
-                <!-- Quick Compose Circular -->
-                <div class="quick-compose" id="qcCircular" style="display: none;">
-                    <div class="qc-inputs">
-                        <select id="circType">
-                            <option value="Notice">Notice</option>
-                            <option value="Circular">Circular</option>
-                            <option value="PTM">PTM</option>
-                            <option value="School News">School News</option>
-                        </select>
-                        <select id="circAudience">
-                            <option value="Students">Students</option>
-                            <option value="Employees">Staff</option>
-                            <option value="Both">Both</option>
-                        </select>
-                        <select id="circClass"><option value="All">All Classes</option></select>
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <input type="text" id="circTitle" placeholder="Title/Subject" style="flex:1; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none;">
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="circDesc" placeholder="Message content..." style="flex:1; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none;">
-                        <button class="btn-qc" onclick="publishNotice()">Publish</button>
-                    </div>
                 </div>
                 <div class="panel-body" id="circFeedBody">
                     <p style="text-align:center; padding: 20px; color: #94a3b8;">Fetching...</p>
@@ -255,15 +213,7 @@
             <!-- Calendar / Upcoming Events Panel -->
             <div class="panel" style="max-height: none;">
                 <div class="panel-header ph-green">
-                    <span>📅 Upcoming School Calendar</span>
-                </div>
-                <!-- Quick Compose Calendar Event -->
-                <div class="quick-compose" id="qcEvent" style="display: none;">
-                    <div style="display: flex; gap: 10px;">
-                        <input type="date" id="evtDate">
-                        <input type="text" id="evtTitle" placeholder="Event Name / Holiday Name" style="flex:1;">
-                        <button class="btn-qc" style="background: #27ae60;" onclick="publishEvent()">Add Event</button>
-                    </div>
+                    <span>📅 Upcoming School Calendar (View Only)</span>
                 </div>
                 <div class="panel-body">
                     <table class="panel-table">
@@ -310,8 +260,6 @@
         try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
         const schoolCode = localStorage.getItem('erp_school_code') || "VIS";
 
-        let setupClasses = [];
-
         document.addEventListener('DOMContentLoaded', () => {
             
             // UI Setups
@@ -331,6 +279,7 @@
                     if (reqMod) {
                         if (reqMod === "SUPER") { card.style.display = 'none'; } 
                         else {
+                            // "HW" is used for the Communication module data-req-module
                             const hasAccess = userRights.some(r => r.startsWith(reqMod + "_"));
                             if(!hasAccess) { card.style.display = 'none'; }
                         }
@@ -338,32 +287,12 @@
                 });
             }
 
-            // RBAC ENFORCEMENT ON FEEDS (Show Quick Compose only if they have rights)
-            if (isSA || userRights.includes("HW_Upload")) {
-                document.getElementById('qcHomework').style.display = 'block';
-                document.getElementById('qcCircular').style.display = 'block';
-                document.getElementById('qcEvent').style.display = 'block';
-            }
-
-            // Fetch Data
+            // Fetch Data for Dashboard feeds
             fetchDashboardData();
         });
 
         async function fetchDashboardData() {
             try {
-                // Fetch Master Setup for Classes
-                let setupDoc = await db.collection("setups").doc(schoolCode).get();
-                if(setupDoc.exists && setupDoc.data().classes) {
-                    setupClasses = setupDoc.data().classes;
-                    let hwSel = document.getElementById('hwClass');
-                    let circSel = document.getElementById('circClass');
-                    setupClasses.forEach(c => {
-                        let v = `${c.name} (${c.section})`;
-                        if(hwSel) hwSel.innerHTML += `<option value="${v}">${v}</option>`;
-                        if(circSel) circSel.innerHTML += `<option value="${v}">${v}</option>`;
-                    });
-                }
-
                 // Fetch Assignments (Homework)
                 let asgSnap = await db.collection("assignments").where("schoolCode", "==", schoolCode).get();
                 let assignments = asgSnap.docs.map(d => { let obj=d.data(); obj.id=d.id; return obj; }).sort((a,b) => new Date(b.Timestamp || 0) - new Date(a.Timestamp || 0));
@@ -386,7 +315,7 @@
         }
 
         // =====================================
-        // RENDERING FUNCTIONS
+        // RENDERING FUNCTIONS (VIEW ONLY)
         // =====================================
         
         function renderHomeworkTable(data) {
@@ -396,7 +325,8 @@
             
             tbody.innerHTML = '';
             data.slice(0, 10).forEach(d => { // Show last 10
-                let delBtn = (isSA || userRights.includes("HW_Upload")) ? `<button class="btn-del-sm" onclick="deleteDoc('assignments', '${d.id}')">🗑️</button>` : '';
+                // Delete button is retained for quick management by admins, but no creation forms
+                let delBtn = (isSA || userRights.includes("HW_Upload")) ? `<button class="btn-del-sm" onclick="deleteDoc('assignments', '${d.id}')" title="Delete">🗑️</button>` : '';
                 tbody.innerHTML += `<tr><td><b>${d.Class || 'All'}</b></td><td>${d.Subject || '-'}</td><td>${d.Name || d.Title}</td><td>${d.Date || '-'}</td><td>${delBtn}</td></tr>`;
             });
         }
@@ -409,7 +339,7 @@
             container.innerHTML = '';
             data.forEach(d => {
                 let dateStr = d.Timestamp ? new Date(d.Timestamp).toLocaleDateString('en-GB') : '-';
-                let delBtn = (isSA || userRights.includes("HW_Upload")) ? `<button class="btn-del-sm" onclick="deleteDoc('events', '${d.id}')">🗑️</button>` : '';
+                let delBtn = (isSA || userRights.includes("HW_Upload")) ? `<button class="btn-del-sm" onclick="deleteDoc('events', '${d.id}')" title="Delete">🗑️</button>` : '';
                 
                 container.innerHTML += `
                     <div class="notice-item">
@@ -434,63 +364,14 @@
                 let dateObj = d.Date ? new Date(d.Date) : new Date();
                 let dStr = dateObj.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
                 let dayStr = dateObj.toLocaleDateString('en-GB', { weekday:'long' });
-                let delBtn = (isSA || userRights.includes("HW_Upload")) ? `<button class="btn-del-sm" onclick="deleteDoc('events', '${d.id}')">🗑️</button>` : '';
+                let delBtn = (isSA || userRights.includes("HW_Upload")) ? `<button class="btn-del-sm" onclick="deleteDoc('events', '${d.id}')" title="Delete">🗑️</button>` : '';
                 
                 tbody.innerHTML += `<tr><td><b>${dStr}</b></td><td>${dayStr}</td><td>${d.Title || d.Name}</td><td>${delBtn}</td></tr>`;
             });
         }
 
         // =====================================
-        // PUBLISH FUNCTIONS
-        // =====================================
-
-        window.publishHomework = async function() {
-            let cls = document.getElementById('hwClass').value;
-            let sub = document.getElementById('hwSubject').value.trim();
-            let title = document.getElementById('hwTitle').value.trim();
-            let desc = document.getElementById('hwDesc').value.trim();
-            let due = document.getElementById('hwDate').value;
-            
-            if(!title || !sub) { alert("Title and Subject are required."); return; }
-            
-            let docId = `${schoolCode}_HW-${Date.now()}`;
-            let payload = { schoolCode: schoolCode, Type: "Homework", Class: cls, Subject: sub, Name: title, Description: desc, Date: due, Target_Students: '["All"]', Submission_Required: "Yes", Timestamp: new Date().toISOString() };
-            
-            try { await db.collection("assignments").doc(docId).set(payload, { merge: true }); alert("Homework published."); fetchDashboardData(); } 
-            catch(e) { alert("Error: " + e.message); }
-        }
-
-        window.publishNotice = async function() {
-            let type = document.getElementById('circType').value;
-            let aud = document.getElementById('circAudience').value;
-            let cls = document.getElementById('circClass').value;
-            let title = document.getElementById('circTitle').value.trim();
-            let desc = document.getElementById('circDesc').value.trim();
-            
-            if(!title || !desc) { alert("Title and message are required."); return; }
-            
-            let docId = `${schoolCode}_EVT-${Date.now()}`;
-            let payload = { schoolCode: schoolCode, Type: type, Audience: aud, Target_Class: cls, Title: title, Description: desc, Is_Holiday: "No", Timestamp: new Date().toISOString() };
-            
-            try { await db.collection("events").doc(docId).set(payload, { merge: true }); alert("Notice published."); fetchDashboardData(); } 
-            catch(e) { alert("Error: " + e.message); }
-        }
-
-        window.publishEvent = async function() {
-            let date = document.getElementById('evtDate').value;
-            let title = document.getElementById('evtTitle').value.trim();
-            
-            if(!date || !title) { alert("Date and Event Name are required."); return; }
-            
-            let docId = `${schoolCode}_CAL-${Date.now()}`;
-            let payload = { schoolCode: schoolCode, Type: "Event", Title: title, Date: date, Is_Holiday: "Yes", Audience: "Both", Target_Class: "All", Timestamp: new Date().toISOString() };
-            
-            try { await db.collection("events").doc(docId).set(payload, { merge: true }); alert("Event added to calendar."); fetchDashboardData(); } 
-            catch(e) { alert("Error: " + e.message); }
-        }
-
-        // =====================================
-        // DELETE FUNCTION
+        // DELETE FUNCTION (If needed from dashboard)
         // =====================================
         window.deleteDoc = async function(collection, id) {
             if(confirm("Are you sure you want to delete this item? It will be removed from all student portals.")) {
