@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,7 +21,7 @@
             messagingSenderId: "222944507292",
             appId: "1:222944507292:web:3b80280c1359b9fa6ec459"
         };
-        
+
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
         const auth = firebase.auth();
@@ -29,94 +30,430 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
-        body { background: #eef2f6; color: #333; overflow-x: hidden; }
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #eef2f6;
+            color: #333;
+            overflow-x: hidden;
+        }
 
         /* HEADER */
-        .dashboard-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #e1e8ed; }
-        .logo-area { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: #2c3e50; text-transform: uppercase;}
-        
-        .right-header { display: flex; align-items: center; gap: 20px; }
-        .name-badge { color: #555; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;}
-        .name-badge img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #ddd;}
-        
-        #btnLogout { background: transparent; color: #e74c3c; border: 1px solid #e74c3c; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; transition: 0.2s; }
-        #btnLogout:hover { background: #e74c3c; color: white; }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            text-transform: uppercase;
+        }
+
+        .right-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .name-badge {
+            color: #555;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .name-badge img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #ddd;
+        }
+
+        #btnLogout {
+            background: transparent;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+            padding: 6px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        #btnLogout:hover {
+            background: #e74c3c;
+            color: white;
+        }
 
         /* MAIN LAYOUT */
-        .dashboard-container { padding: 25px; max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px;}
-        
+        .dashboard-container {
+            padding: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
         /* 1. TOP CARDS (MODULES) */
-        .modules-section { background: white; border: 1px solid #e1e8ed; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
-        .section-title { padding: 12px 20px; background: #f8f9fa; border-bottom: 1px solid #e1e8ed; font-size: 14px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 8px;}
-        
-        .modules-grid { display: flex; flex-wrap: wrap; gap: 20px; padding: 25px 20px; justify-content: flex-start;}
-        
-        .module-card { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #475569; transition: 0.2s; width: 140px; cursor: pointer;}
-        .module-card:hover { transform: translateY(-3px); }
-        .module-card p { margin-top: 10px; font-weight: 600; font-size: 12px; text-align: center; line-height: 1.3; }
+        .modules-section {
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
 
-        .icon-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.3s; color: white;}
-        .icon-circle svg { width: 30px; height: 30px; fill: white;}
-        .module-card:hover .icon-circle { box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+        .section-title {
+            padding: 12px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e1e8ed;
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-        .bg-hr { background: linear-gradient(135deg, #f39c12, #e67e22); }
-        .bg-user { background: linear-gradient(135deg, #f1c40f, #f39c12); }
-        .bg-fee { background: linear-gradient(135deg, #e74c3c, #c0392b); }
-        .bg-sis { background: linear-gradient(135deg, #3498db, #2980b9); }
-        .bg-att { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-        .bg-comm { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        .modules-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 25px 20px;
+            justify-content: flex-start;
+        }
+
+        .module-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #475569;
+            transition: 0.2s;
+            width: 140px;
+            cursor: pointer;
+        }
+
+        .module-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .module-card p {
+            margin-top: 10px;
+            font-weight: 600;
+            font-size: 12px;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: 0.3s;
+            color: white;
+        }
+
+        .icon-circle svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+        }
+
+        .module-card:hover .icon-circle {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .bg-hr {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .bg-user {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+        }
+
+        .bg-fee {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .bg-sis {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .bg-att {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .bg-comm {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
 
         /* 2. SPLIT PANELS (FEEDS) */
-        .panels-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: start;}
-        
-        .panel { background: white; border: 1px solid #e1e8ed; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; flex-direction: column; max-height: 500px;}
-        .panel-header { padding: 12px 20px; color: white; font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: center;}
-        
-        .ph-blue { background: #3498db; }
-        .ph-red { background: #e74c3c; }
-        .ph-green { background: #27ae60; }
-        
-        .panel-body { padding: 0; overflow-y: auto; flex: 1;}
-        
-        /* Table Styles for Panels */
-        .panel-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .panel-table th { background: #f8f9fa; color: #475569; font-weight: 600; text-align: left; padding: 10px 15px; border-bottom: 1px solid #e1e8ed; position: sticky; top: 0;}
-        .panel-table td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle;}
-        .panel-table tr:hover td { background: #f8fafc; }
+        .panels-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            align-items: start;
+        }
 
-        .btn-del-sm { background: transparent; color: #ef4444; border: none; cursor: pointer; font-size: 14px; padding: 5px; opacity: 0.7;}
-        .btn-del-sm:hover { opacity: 1; }
-        
-        /* Notice Items */
-        .notice-item { display: flex; padding: 15px; border-bottom: 1px solid #f1f5f9; gap: 15px; align-items: flex-start;}
-        .notice-icon { background: #e0f2fe; color: #0284c7; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 16px; flex-shrink: 0;}
-        .notice-content { flex: 1; }
-        .notice-header { display: flex; justify-content: space-between; margin-bottom: 5px;}
-        .notice-title { font-weight: 600; color: #0f172a; font-size: 13px; margin:0;}
-        .notice-date { font-size: 11px; color: #94a3b8; }
-        .notice-desc { font-size: 12px; color: #475569; line-height: 1.4; margin-bottom: 5px;}
-        .notice-meta span { font-size: 10px; background: #f1f5f9; color: #64748b; padding: 2px 6px; border-radius: 4px; margin-right: 5px; font-weight: 500;}
+        .panel {
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            display: flex;
+            flex-direction: column;
+            max-height: 550px;
+        }
+
+        .panel-header {
+            padding: 12px 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ph-blue {
+            background: #3498db;
+        }
+
+        .ph-red {
+            background: #e74c3c;
+        }
+
+        .ph-green {
+            background: #27ae60;
+        }
+
+        .panel-body {
+            padding: 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* FEED CARDS (Fixes Overflow & Replaces Tables) */
+        .card-feed-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .card-feed-item:last-child {
+            border-bottom: none;
+        }
+
+        .card-feed-item:hover {
+            background: #f8fafc;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .card-feed-item h4 {
+            font-size: 14px;
+            color: #0f172a;
+            margin: 0;
+            word-wrap: break-word;
+            font-weight: 700;
+        }
+
+        .meta-text {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .desc {
+            font-size: 12px;
+            color: #475569;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .bg-hw {
+            background: #4f46e5;
+        }
+
+        .bg-notice {
+            background: #3498db;
+        }
+
+        .bg-circ {
+            background: #e67e22;
+        }
+
+        .bg-ptm {
+            background: #27ae60;
+        }
+
+        .bg-news {
+            background: #e74c3c;
+        }
+
+        .bg-ach {
+            background: #f1c40f;
+            color: #333;
+        }
+
+        .bg-cal {
+            background: #8e44ad;
+        }
+
+        .date-text {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .btn-read-more {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 11px;
+            margin-left: 5px;
+            transition: 0.2s;
+        }
+
+        .btn-read-more:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
 
         /* MODALS */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; }
-        .modal-box { background: #fff; padding: 25px; border-radius: 8px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); min-width: 300px; animation: slideUp 0.3s; }
-        .modal-box h3 { margin-top: 0; color: #2c3e50; font-size: 18px; margin-bottom: 10px;}
-        .modal-box p { color: #555; margin-bottom: 20px; font-size: 14px;}
-        .modal-btns { display: flex; justify-content: center; gap: 10px; }
-        .modal-btn { padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s;}
-        .btn-cancel { background: #95a5a6; color: white; }
-        .btn-cancel:hover { background: #7f8c8d; }
-        .btn-confirm { background: #e74c3c; color: white; }
-        .btn-confirm:hover { background: #c0392b; }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-box {
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            min-width: 300px;
+            animation: slideUp 0.3s;
+        }
+
+        .modal-box h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .modal-box p {
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .modal-btns {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        .btn-confirm {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background: #c0392b;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         @media (max-width: 1024px) {
-            .panels-wrapper { grid-template-columns: 1fr; }
+            .panels-wrapper {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <!-- HEADER -->
@@ -135,7 +472,7 @@
 
     <!-- MAIN CONTAINER -->
     <div class="dashboard-container">
-        
+
         <!-- 1. MODULES GRID -->
         <div class="modules-section">
             <div class="section-title">
@@ -144,66 +481,83 @@
             <div class="modules-grid" id="mainModulesGrid">
                 <a href="employee.html" class="module-card" data-req-module="HR">
                     <div class="icon-circle bg-hr">
-                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
                     </div>
                     <p>Employee Info</p>
                 </a>
                 <a href="user.html" class="module-card" data-req-module="SUPER">
                     <div class="icon-circle bg-user">
-                        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                        </svg>
                     </div>
                     <p>User Management</p>
                 </a>
                 <a href="fee.html" class="module-card" data-req-module="FEE">
                     <div class="icon-circle bg-fee">
-                        <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
+                        </svg>
                     </div>
                     <p>Fee Management</p>
                 </a>
                 <a href="sis.html" class="module-card" data-req-module="SIS">
                     <div class="icon-circle bg-sis">
-                        <svg viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72l5 2.73 5-2.73v3.72z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72l5 2.73 5-2.73v3.72z" />
+                        </svg>
                     </div>
                     <p>Student Info System</p>
                 </a>
                 <a href="attendance.html" class="module-card" data-req-module="ATT">
                     <div class="icon-circle bg-att">
-                        <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
+                        </svg>
                     </div>
                     <p>Student Attendance</p>
                 </a>
-                <!-- RESTORED COMMUNICATION MODULE ICON -->
+                <!-- Communication Module Redirects to proper module -->
                 <a href="communication.html" class="module-card" data-req-module="HW">
                     <div class="icon-circle bg-comm">
-                        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+                        </svg>
                     </div>
                     <p>Communication</p>
                 </a>
             </div>
         </div>
 
-        <!-- 2. SPLIT PANELS (ONLY FOR DISPLAYING FEEDS) -->
+        <!-- 2. SPLIT PANELS (VIEW ONLY FEEDS WITH READ MORE) -->
         <div class="panels-wrapper">
-            
+
             <!-- Homework Panel -->
             <div class="panel">
                 <div class="panel-header ph-blue">
-                    <span>📚 Homework / Assignments (View Only)</span>
-                    <span style="font-size: 11px; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;" id="hwCount">0</span>
+                    <span>📚 Homework / Assignments</span>
+                    <span style="font-size: 11px; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;"
+                        id="hwCount">0</span>
                 </div>
-                <div class="panel-body">
-                    <table class="panel-table">
-                        <thead><tr><th>Class</th><th>Subject</th><th>Assignment Name</th><th>Due Date</th><th>Action</th></tr></thead>
-                        <tbody id="hwTableBody"><tr><td colspan="5" style="text-align:center; padding: 20px;">Fetching...</td></tr></tbody>
-                    </table>
+                <div class="panel-body" id="hwFeedBody">
+                    <p style="text-align:center; padding: 20px; color: #94a3b8;">Fetching...</p>
                 </div>
             </div>
 
             <!-- Communication & Alerts Panel -->
             <div class="panel">
                 <div class="panel-header ph-red">
-                    <span>📢 Communication & Circulars (View Only)</span>
-                    <span style="font-size: 11px; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;" id="circCount">0</span>
+                    <span>📢 Communication & Circulars</span>
+                    <span style="font-size: 11px; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;"
+                        id="circCount">0</span>
                 </div>
                 <div class="panel-body" id="circFeedBody">
                     <p style="text-align:center; padding: 20px; color: #94a3b8;">Fetching...</p>
@@ -213,13 +567,10 @@
             <!-- Calendar / Upcoming Events Panel -->
             <div class="panel" style="max-height: none;">
                 <div class="panel-header ph-green">
-                    <span>📅 Upcoming School Calendar (View Only)</span>
+                    <span>📅 Upcoming School Calendar</span>
                 </div>
-                <div class="panel-body">
-                    <table class="panel-table">
-                        <thead><tr><th>Date</th><th>Day</th><th>Event / Description</th><th>Action</th></tr></thead>
-                        <tbody id="calTableBody"><tr><td colspan="4" style="text-align:center; padding: 20px;">Fetching...</td></tr></tbody>
-                    </table>
+                <div class="panel-body" id="calFeedBody">
+                    <p style="text-align:center; padding: 20px; color: #94a3b8;">Fetching...</p>
                 </div>
             </div>
 
@@ -253,19 +604,19 @@
         // Authentication & Context
         const activeUserStr = localStorage.getItem('erp_active_user');
         if (!activeUserStr) { window.location.href = 'login.html'; }
-        
+
         const activeUser = JSON.parse(activeUserStr);
         const isSA = activeUser.Is_SuperAdmin === "Yes";
         let userRights = [];
-        try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch(e) {}
+        try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch (e) { }
         const schoolCode = localStorage.getItem('erp_school_code') || "VIS";
 
         document.addEventListener('DOMContentLoaded', () => {
-            
+
             // UI Setups
             document.getElementById('userNameText').innerText = activeUser.empName || "Admin";
             document.getElementById('userAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeUser.empName || "Admin")}&background=random`;
-            
+
             document.getElementById('btnLogout').addEventListener('click', () => {
                 customConfirm("Are you sure you want to log out?", () => {
                     auth.signOut().then(() => { localStorage.removeItem('erp_active_user'); window.location.href = 'login.html'; });
@@ -277,112 +628,156 @@
                 document.querySelectorAll('.module-card').forEach(card => {
                     const reqMod = card.getAttribute('data-req-module');
                     if (reqMod) {
-                        if (reqMod === "SUPER") { card.style.display = 'none'; } 
+                        if (reqMod === "SUPER") { card.style.display = 'none'; }
                         else {
-                            // "HW" is used for the Communication module data-req-module
                             const hasAccess = userRights.some(r => r.startsWith(reqMod + "_"));
-                            if(!hasAccess) { card.style.display = 'none'; }
+                            if (!hasAccess) { card.style.display = 'none'; }
                         }
                     }
                 });
             }
 
-            // Fetch Data for Dashboard feeds
+            // Fetch Data
             fetchDashboardData();
         });
 
+        // =====================================
+        // TRUNCATE TEXT & READ MORE LOGIC
+        // =====================================
+        function truncateText(text, id) {
+            if (!text) return '';
+            const limit = 100; // Character limit before truncation
+            if (text.length <= limit) return text;
+
+            const shortText = text.substring(0, limit) + '...';
+            return `
+                <span id="short-${id}">${shortText}</span>
+                <span id="full-${id}" style="display:none;">${text}</span>
+                <a href="javascript:void(0)" onclick="toggleReadMore('${id}')" id="btn-${id}" class="btn-read-more">Read More</a>
+            `;
+        }
+
+        window.toggleReadMore = function (id) {
+            let shortText = document.getElementById(`short-${id}`);
+            let fullText = document.getElementById(`full-${id}`);
+            let btn = document.getElementById(`btn-${id}`);
+
+            if (shortText.style.display === "none") {
+                shortText.style.display = "inline";
+                fullText.style.display = "none";
+                btn.innerText = "Read More";
+            } else {
+                shortText.style.display = "none";
+                fullText.style.display = "inline";
+                btn.innerText = "Show Less";
+            }
+        };
+
+        // =====================================
+        // FETCH AND RENDER DATA
+        // =====================================
         async function fetchDashboardData() {
             try {
                 // Fetch Assignments (Homework)
                 let asgSnap = await db.collection("assignments").where("schoolCode", "==", schoolCode).get();
-                let assignments = asgSnap.docs.map(d => { let obj=d.data(); obj.id=d.id; return obj; }).sort((a,b) => new Date(b.Timestamp || 0) - new Date(a.Timestamp || 0));
-                renderHomeworkTable(assignments);
+                let assignments = asgSnap.docs.map(d => { let obj = d.data(); obj.id = d.id; return obj; }).sort((a, b) => new Date(b.Timestamp || 0) - new Date(a.Timestamp || 0));
+                renderHomeworkFeed(assignments);
 
                 // Fetch Events (Notices, Circulars, PTM, Calendar)
                 let evtSnap = await db.collection("events").where("schoolCode", "==", schoolCode).get();
-                let events = evtSnap.docs.map(d => { let obj=d.data(); obj.id=d.id; return obj; });
-                
-                // Split events into Circulars and Calendar
-                let circulars = events.filter(e => ["Notice", "Circular", "PTM", "School News"].includes(e.Type)).sort((a,b) => new Date(b.Timestamp || 0) - new Date(a.Timestamp || 0));
-                let calendarEvents = events.filter(e => e.Is_Holiday === "Yes" || e.Type === "Event").sort((a,b) => new Date(a.Date || 0) - new Date(b.Date || 0));
-                
-                renderCircularsFeed(circulars);
-                renderCalendarTable(calendarEvents);
+                let events = evtSnap.docs.map(d => { let obj = d.data(); obj.id = d.id; return obj; });
 
-            } catch(e) {
+                // Split events into Circulars and Calendar
+                let circulars = events.filter(e => ["Notice", "Circular", "PTM", "School News", "Achievement"].includes(e.Type)).sort((a, b) => new Date(b.Timestamp || 0) - new Date(a.Timestamp || 0));
+                let calendarEvents = events.filter(e => e.Is_Holiday === "Yes" || e.Type === "Event").sort((a, b) => new Date(a.Date || 0) - new Date(b.Date || 0));
+
+                renderCircularsFeed(circulars);
+                renderCalendarFeed(calendarEvents);
+
+            } catch (e) {
                 console.error("Data fetch error:", e);
             }
         }
 
-        // =====================================
-        // RENDERING FUNCTIONS (VIEW ONLY)
-        // =====================================
-        
-        function renderHomeworkTable(data) {
-            let tbody = document.getElementById('hwTableBody');
+        // 1. HOMEWORK CARDS
+        function renderHomeworkFeed(data) {
+            let container = document.getElementById('hwFeedBody');
             document.getElementById('hwCount').innerText = data.length;
-            if(data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No recent homework.</td></tr>'; return; }
-            
-            tbody.innerHTML = '';
-            data.slice(0, 10).forEach(d => { // Show last 10
-                // Delete button is retained for quick management by admins, but no creation forms
-                let delBtn = (isSA || userRights.includes("HW_Upload")) ? `<button class="btn-del-sm" onclick="deleteDoc('assignments', '${d.id}')" title="Delete">🗑️</button>` : '';
-                tbody.innerHTML += `<tr><td><b>${d.Class || 'All'}</b></td><td>${d.Subject || '-'}</td><td>${d.Name || d.Title}</td><td>${d.Date || '-'}</td><td>${delBtn}</td></tr>`;
-            });
-        }
+            if (data.length === 0) { container.innerHTML = '<p style="text-align:center; padding:20px; color:#94a3b8;">No recent homework.</p>'; return; }
 
-        function renderCircularsFeed(data) {
-            let container = document.getElementById('circFeedBody');
-            document.getElementById('circCount').innerText = data.length;
-            if(data.length === 0) { container.innerHTML = '<p style="text-align:center; padding:20px; color:#94a3b8;">No recent circulars.</p>'; return; }
-            
             container.innerHTML = '';
-            data.forEach(d => {
-                let dateStr = d.Timestamp ? new Date(d.Timestamp).toLocaleDateString('en-GB') : '-';
-                let delBtn = (isSA || userRights.includes("HW_Upload")) ? `<button class="btn-del-sm" onclick="deleteDoc('events', '${d.id}')" title="Delete">🗑️</button>` : '';
-                
+            data.slice(0, 10).forEach(d => {
                 container.innerHTML += `
-                    <div class="notice-item">
-                        <div class="notice-icon">📢</div>
-                        <div class="notice-content">
-                            <div class="notice-header"><h4 class="notice-title">${d.Title}</h4><span class="notice-date">${dateStr}</span></div>
-                            <p class="notice-desc">${d.Description}</p>
-                            <div class="notice-meta"><span>${d.Type}</span><span>To: ${d.Audience}</span><span>Class: ${d.Target_Class}</span></div>
+                    <div class="card-feed-item">
+                        <div class="card-header">
+                            <span class="badge bg-hw">📚 Homework</span>
+                            <span class="date-text">${d.Date || '-'} (Due)</span>
                         </div>
-                        <div>${delBtn}</div>
+                        <h4>${d.Name || d.Title}</h4>
+                        <p class="meta-text">Subject: ${d.Subject || '-'} | Class: ${d.Class || 'All'}</p>
+                        <div class="desc">${truncateText(d.Description, d.id)}</div>
                     </div>
                 `;
             });
         }
 
-        function renderCalendarTable(data) {
-            let tbody = document.getElementById('calTableBody');
-            if(data.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No upcoming events.</td></tr>'; return; }
-            
-            tbody.innerHTML = '';
+        // 2. COMMUNICATION CARDS (5 TYPES)
+        function renderCircularsFeed(data) {
+            let container = document.getElementById('circFeedBody');
+            document.getElementById('circCount').innerText = data.length;
+            if (data.length === 0) { container.innerHTML = '<p style="text-align:center; padding:20px; color:#94a3b8;">No recent circulars.</p>'; return; }
+
+            let typeColors = {
+                "Notice": "bg-notice",
+                "Circular": "bg-circ",
+                "PTM": "bg-ptm",
+                "School News": "bg-news",
+                "Achievement": "bg-ach"
+            };
+
+            container.innerHTML = '';
             data.forEach(d => {
-                let dateObj = d.Date ? new Date(d.Date) : new Date();
-                let dStr = dateObj.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-                let dayStr = dateObj.toLocaleDateString('en-GB', { weekday:'long' });
-                let delBtn = (isSA || userRights.includes("HW_Upload")) ? `<button class="btn-del-sm" onclick="deleteDoc('events', '${d.id}')" title="Delete">🗑️</button>` : '';
-                
-                tbody.innerHTML += `<tr><td><b>${dStr}</b></td><td>${dayStr}</td><td>${d.Title || d.Name}</td><td>${delBtn}</td></tr>`;
+                let dateStr = d.Timestamp ? new Date(d.Timestamp).toLocaleDateString('en-GB') : '-';
+                let badgeClass = typeColors[d.Type] || "bg-notice";
+
+                container.innerHTML += `
+                    <div class="card-feed-item">
+                        <div class="card-header">
+                            <span class="badge ${badgeClass}">${d.Type}</span>
+                            <span class="date-text">${dateStr}</span>
+                        </div>
+                        <h4>${d.Title}</h4>
+                        <p class="meta-text">To: ${d.Audience || 'All'} | Class: ${d.Target_Class || 'All'}</p>
+                        <div class="desc">${truncateText(d.Description, d.id)}</div>
+                    </div>
+                `;
             });
         }
 
-        // =====================================
-        // DELETE FUNCTION (If needed from dashboard)
-        // =====================================
-        window.deleteDoc = async function(collection, id) {
-            if(confirm("Are you sure you want to delete this item? It will be removed from all student portals.")) {
-                try {
-                    await db.collection(collection).doc(id).delete();
-                    fetchDashboardData();
-                } catch(e) {
-                    alert("Error deleting: " + e.message);
-                }
-            }
+        // 3. CALENDAR CARDS
+        function renderCalendarFeed(data) {
+            let container = document.getElementById('calFeedBody');
+            if (data.length === 0) { container.innerHTML = '<p style="text-align:center; padding:20px; color:#94a3b8;">No upcoming events.</p>'; return; }
+
+            container.innerHTML = '';
+            data.forEach(d => {
+                let dateObj = d.Date ? new Date(d.Date) : new Date();
+                let dStr = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                let dayStr = dateObj.toLocaleDateString('en-GB', { weekday: 'long' });
+
+                container.innerHTML += `
+                    <div class="card-feed-item">
+                        <div class="card-header">
+                            <span class="badge bg-cal">📅 Event</span>
+                            <span class="date-text">${dStr}</span>
+                        </div>
+                        <h4>${d.Title || d.Name}</h4>
+                        <div class="desc">${dayStr} ${d.Description ? '- ' + truncateText(d.Description, d.id) : ''}</div>
+                    </div>
+                `;
+            });
         }
     </script>
 </body>
+
 </html>
