@@ -30,69 +30,127 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap');
 
-        :root { --ink:#14213D; --ink-soft:#253355; --brass:#C08A2E; --paper:#F4F1E9; --paper-2:#FBFAF6; --white:#FFFFFF; --line:#E3DFD2; --line-soft:#ECE8DC; --text:#211D18; --text-mute:#6D6759; --good:#1F7A52; --bad:#B23A2E; --info:#2A5C8A; --radius-m:10px; --radius-l:16px; --shadow-1:0 1px 2px rgba(20,33,61,.06), 0 2px 8px rgba(20,33,61,.05); --sidebar-w:258px; --sidebar-w-collapsed:68px; }
+        :root { --ink:#14213D; --ink-soft:#253355; --brass:#C08A2E; --brass-soft:#E4B563; --paper:#F4F1E9; --paper-2:#FBFAF6; --white:#FFFFFF; --line:#E3DFD2; --line-soft:#ECE8DC; --text:#211D18; --text-mute:#6D6759; --text-faint:#9A9382; --good:#1F7A52; --bad:#B23A2E; --info:#2A5C8A; --info-soft:#EAF0F7; --radius-m:10px; --radius-l:16px; --shadow-1:0 1px 2px rgba(20,33,61,.06), 0 2px 8px rgba(20,33,61,.05); --shadow-2:0 10px 30px rgba(20,33,61,.12); --sidebar-w:258px; --sidebar-w-collapsed:68px; }
 
         * { box-sizing:border-box; margin:0; padding:0; font-family:'Inter', sans-serif; }
-        body { background:var(--paper); color:var(--text); overflow:hidden; }
-        ::-webkit-scrollbar { width:6px; height:6px; }
-        ::-webkit-scrollbar-thumb { background:#C9C3B0; border-radius:4px; }
-        
-        h1, h2, h3 { font-family:'Fraunces', serif; color:var(--ink); font-weight:600; }
-        
+        html, body { height:100%; }
+        body {
+            background:
+                radial-gradient(circle at top right, rgba(192,138,46,.06), transparent 30%),
+                var(--paper);
+            color:var(--text);
+            overflow:hidden;
+            -webkit-font-smoothing:antialiased;
+        }
+        ::-webkit-scrollbar { width:7px; height:7px; }
+        ::-webkit-scrollbar-thumb { background:#C9C3B0; border-radius:999px; }
+
+        h1, h2, h3, h4 { font-family:'Fraunces', Georgia, serif; color:var(--ink); font-weight:600; }
+
         /* NAVBAR */
-        .top-navbar { height:58px; padding:0 22px; display:flex; align-items:center; justify-content:space-between; background:var(--ink); color:#EFEAD9; }
+        .top-navbar { height:58px; padding:0 22px; display:flex; align-items:center; justify-content:space-between; background:var(--ink); color:#EFEAD9; box-shadow:0 3px 16px rgba(20,33,61,.14); position:relative; z-index:50; }
         .top-left { display:flex; align-items:center; gap:14px; }
         .hamburger-btn { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); color:#EFEAD9; width:34px; height:34px; border-radius:8px; cursor:pointer; }
-        .school-name { font-family:'Fraunces', serif; font-size:17px; color:#F7F3E7; text-decoration:none; }
-        .top-right { display:flex; align-items:center; gap:16px; font-size:13px; font-weight:600; }
-        #btnLogout { background:transparent; color:#F0B8AE; border:1px solid rgba(240,184,174,.35); padding:7px 14px; border-radius:8px; cursor:pointer; font-weight:600; }
-        
+        .hamburger-btn:hover { background:rgba(255,255,255,.13); color:var(--brass-soft); }
+        .top-left a { color:#F7F3E7; text-decoration:none; display:flex; align-items:center; gap:12px; }
+        .school-logo { display:flex; align-items:center; justify-content:center; line-height:1; }
+        #defaultNavLogo { font-size:20px; line-height:1; }
+        #dynamicNavLogo { object-fit:contain; }
+        .school-name { font-family:'Fraunces', Georgia, serif; font-size:17px; color:#F7F3E7; font-weight:600; }
+        .top-right { display:flex; align-items:center; gap:16px; font-size:13px; font-weight:600; color:#D8D2BF; }
+        #btnLogout { background:transparent; color:#F0B8AE; border:1px solid rgba(240,184,174,.35); padding:7px 14px; border-radius:8px; cursor:pointer; font-weight:600; transition:.15s; }
+        #btnLogout:hover { background:rgba(178,58,46,.25); border-color:#F0B8AE; }
+
         /* LAYOUT */
-        .erp-wrapper { display:flex; height:calc(100vh - 58px); }
-        .sidebar { width:var(--sidebar-w); background:var(--ink); display:flex; flex-direction:column; transition:width .2s; overflow-x:hidden; }
-        .sidebar-header { padding:22px 20px 14px; border-bottom:1px solid rgba(192,138,46,.3); }
+        .erp-wrapper { display:flex; height:calc(100vh - 58px); background:var(--paper); }
+        .sidebar { width:var(--sidebar-w); min-width:var(--sidebar-w); flex-shrink:0; background:linear-gradient(180deg,#14213D 0%,#111C33 100%); display:flex; flex-direction:column; transition:width .25s ease, min-width .25s ease; overflow-x:hidden; box-shadow:10px 0 30px rgba(20,33,61,.09); }
+        .sidebar-header { padding:22px 20px 14px; position:relative; border-bottom:1px solid rgba(255,255,255,.05); }
+        .sidebar-header::after { content:""; position:absolute; left:20px; right:20px; bottom:-1px; height:1px; background:linear-gradient(90deg,var(--brass),transparent); }
+        .sidebar-header h2 { color:#F7F3E7; font-size:15px; white-space:nowrap; }
         .nav-links { list-style:none; padding:10px 12px; display:flex; flex-direction:column; gap:3px; }
-        .nav-links li a { display:flex; align-items:center; gap:12px; color:#C9C4B2; text-decoration:none; padding:11px 14px; border-radius:9px; font-size:13.5px; font-weight:500; border-left:3px solid transparent; }
+        .nav-links li a { display:flex; align-items:center; gap:12px; color:#C9C4B2; text-decoration:none; padding:11px 14px; border-radius:9px; font-size:13.5px; font-weight:500; border-left:3px solid transparent; white-space:nowrap; transition:background .15s, color .15s; }
         .nav-links li a:hover { background:rgba(255,255,255,.06); color:#F7F3E7; }
-        .nav-links li a.active { background:rgba(192,138,46,.16); color:#F7F3E7; border-left-color:var(--brass); }
-        
-        .main-content { flex:1; overflow-y:auto; padding:26px 30px; }
-        
+        .nav-links li a.active { background:rgba(192,138,46,.16); color:#F7F3E7; border-left-color:var(--brass); font-weight:600; }
+        .sidebar.collapsed { width:var(--sidebar-w-collapsed); min-width:var(--sidebar-w-collapsed); }
+        .sidebar.collapsed .sidebar-header h2 { display:none; }
+        .sidebar.collapsed .sidebar-header { justify-content:center; padding-left:0; padding-right:0; }
+        .sidebar.collapsed .nav-links li a { justify-content:center; gap:0; padding:12px 0; border-left:none; font-size:0; }
+        .sidebar.collapsed .nav-links li a span { display:inline-flex; align-items:center; justify-content:center; width:20px; min-width:20px; font-size:17px; line-height:1; }
+        .sidebar.collapsed .nav-links li a.active { background:rgba(192,138,46,.20); }
+
+        .main-content { flex:1; min-width:0; overflow-y:auto; padding:26px 30px 50px; }
+
         /* MODULE HEADERS */
-        .profile-header { display:flex; justify-content:space-between; align-items:center; padding-bottom:16px; margin-bottom:22px; border-bottom:1px solid var(--line); }
-        
+        .profile-header { display:flex; justify-content:space-between; align-items:flex-end; padding-bottom:16px; margin-bottom:22px; border-bottom:1px solid var(--line); flex-wrap:wrap; gap:12px; }
+        .profile-header h2 { font-size:24px; }
+
         /* BUTTONS */
-        .btn { padding:9px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; border:none; transition: 0.2s;}
-        .btn-dark { background:var(--ink); color:var(--white); }
+        .btn { padding:9px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; border:none; transition:.15s; }
+        .btn:active { transform:translateY(1px); }
+        .btn-dark { background:var(--ink); color:var(--white); box-shadow:var(--shadow-1); }
         .btn-dark:hover { background:var(--ink-soft); }
-        .btn-green { background:var(--good); color:var(--white); }
+        .btn-green { background:var(--good); color:var(--white); box-shadow:0 3px 10px rgba(31,122,82,.2); }
         .btn-green:hover { background:#186640; }
-        .btn-red { background:var(--bad); color:var(--white); padding:6px 12px; border-radius:6px; cursor: pointer; border: none;}
+        .btn-green:disabled { opacity:.6; cursor:not-allowed; }
+        .btn-red { background:var(--bad); color:var(--white); padding:6px 12px; border-radius:6px; cursor:pointer; border:none; }
         .btn-red:hover { background:#963025; }
 
         /* FORM & CARDS */
-        .card { background:var(--white); border:1px solid var(--line); border-radius:var(--radius-l); padding:24px; box-shadow:var(--shadow-1); margin-bottom:20px; }
-        .input-group { margin-bottom:16px; }
-        .input-group label { display:block; font-size:12px; color:var(--text-mute); font-weight:600; margin-bottom:6px; }
-        .input-group input, .input-group select, .input-group textarea { width:100%; padding:10px; border:1px solid var(--line); border-radius:8px; font-family:'Inter', sans-serif; font-size:13px; background:var(--paper-2); outline:none; transition: 0.2s;}
-        .input-group input:focus, .input-group select:focus, .input-group textarea:focus { border-color:var(--brass); background:var(--white); box-shadow: 0 0 0 3px rgba(192,138,46,0.1);}
-        
+        .card { background:rgba(255,255,255,.98); border:1px solid var(--line); border-radius:var(--radius-l); padding:23px; box-shadow:var(--shadow-1); margin-bottom:20px; min-width:0; transition:box-shadow .15s; }
+        .card:hover { box-shadow:var(--shadow-2); }
+        .card h3 { font-size:17px; display:flex; align-items:center; gap:8px; }
+        .input-group { margin-bottom:15px; }
+        .input-group label { display:block; font-size:11.5px; color:var(--text-mute); font-weight:700; margin-bottom:6px; }
+        .input-group input, .input-group select, .input-group textarea { width:100%; padding:10px 11px; border:1px solid #D7D0BF; border-radius:8px; font-family:'Inter', sans-serif; font-size:13px; background:var(--paper-2); color:var(--text); outline:none; transition:.15s; }
+        .input-group input::placeholder, .input-group textarea::placeholder { color:var(--text-faint); }
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus { border-color:var(--brass); background:var(--white); box-shadow:0 0 0 3px rgba(192,138,46,.1); }
+
         /* HOLIDAY CHECKBOX AREA */
-        .holiday-settings { display:none; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:15px; margin-bottom:16px; animation: fadeIn 0.3s ease;}
-        .holiday-settings label.title { display:block; font-size:12px; color:var(--ink); font-weight:700; margin-bottom:10px; }
-        .holiday-settings .chk-row { display:flex; align-items:center; gap:8px; font-size:13px; color:#475569; margin-bottom:8px; cursor:pointer; }
-        .holiday-settings .chk-row input { width:auto; transform: scale(1.2); cursor:pointer;}
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        .holiday-settings { display:none; background:var(--paper-2); border:1px solid var(--line); border-left:3px solid var(--brass); border-radius:8px; padding:15px; margin-bottom:16px; animation:fadeIn .25s ease; }
+        .holiday-settings label.title { display:block; font-size:12px; color:var(--ink); font-weight:700; margin-bottom:10px; font-family:'Fraunces', serif; }
+        .holiday-settings .chk-row { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text); margin-bottom:8px; cursor:pointer; }
+        .holiday-settings .chk-row:last-child { margin-bottom:0; }
+        .holiday-settings .chk-row input { width:auto; transform:scale(1.15); cursor:pointer; accent-color:var(--brass); }
+
+        @keyframes fadeIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
+
+        /* COMPOSER LAYOUT */
+        .composer-grid { display:grid; grid-template-columns:350px 1fr; gap:20px; align-items:start; }
+        .composer-grid > .card:first-child { position:sticky; top:0; }
 
         /* FEED LIST */
-        .feed-item { background:var(--white); border:1px solid var(--line); border-radius:var(--radius-m); padding:16px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; transition: 0.2s;}
-        .feed-item:hover { box-shadow: var(--shadow-1); border-color: #cbd5e1;}
-        .feed-info h4 { margin-bottom:4px; font-size:15px; color:var(--ink); }
-        .feed-info p { font-size:12px; color:var(--text-mute); margin-bottom:6px; }
-        .feed-meta { font-size:11px; font-weight:600; display:flex; flex-wrap:wrap; gap:10px; }
-        .badge { background:var(--paper); padding:4px 8px; border-radius:4px; border:1px solid var(--line); }
-        .badge-holiday { background:#fef2f2; color:#ef4444; border-color:#fecaca; }
+        #feedContainer { display:flex; flex-direction:column; gap:11px; }
+        .feed-item { background:var(--white); border:1px solid var(--line); border-radius:11px; padding:16px 17px; margin-bottom:0; display:flex; justify-content:space-between; align-items:center; gap:14px; transition:.15s; }
+        .feed-item:hover { box-shadow:var(--shadow-1); border-color:#D8D0BC; transform:translateY(-1px); }
+        .feed-info { min-width:0; flex:1; overflow-wrap:anywhere; word-break:break-word; }
+        .feed-info h4 { margin-bottom:4px; font-size:15px; color:var(--ink); overflow-wrap:anywhere; word-break:break-word; }
+        .feed-info p { font-size:12px; color:var(--text-mute); margin-bottom:6px; line-height:1.55; overflow-wrap:anywhere; word-break:break-word; white-space:pre-wrap; }
+        .feed-meta { font-size:11px; font-weight:600; display:flex; flex-wrap:wrap; align-items:center; gap:7px; }
+        .badge { background:var(--paper); padding:4px 8px; border-radius:6px; border:1px solid var(--line); color:var(--text-mute); white-space:nowrap; }
+        .badge-holiday { background:#fef2f2; color:#c0392b; border-color:#fecaca; }
+        .feed-item .btn-red { width:36px; min-width:36px; height:36px; padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0; opacity:.92; }
+        .feed-item .btn-red:hover { opacity:1; }
+
+        /* RESPONSIVE */
+        @media (max-width:1100px) {
+            .composer-grid { grid-template-columns:300px minmax(0,1fr); }
+        }
+        @media (max-width:850px) {
+            .main-content { padding:22px 20px 40px; }
+            .composer-grid { grid-template-columns:1fr; }
+            .composer-grid > .card:first-child { position:relative; top:auto; }
+        }
+        @media (max-width:680px) {
+            .top-navbar { padding:0 14px; }
+            .top-right span { display:none; }
+            .sidebar { width:68px; min-width:68px; }
+            .sidebar .sidebar-header h2 { display:none; }
+            .sidebar .nav-links li a { justify-content:center; padding:12px 0; border-left:none; font-size:0; }
+            .sidebar .nav-links li a span { font-size:17px; }
+            .main-content { padding:18px 14px 35px; }
+            .profile-header { align-items:flex-start; flex-direction:column; }
+            .profile-header > .btn-dark { width:100%; }
+        }
     </style>
 </head>
 
@@ -100,7 +158,14 @@
     <div class="top-navbar">
         <div class="top-left">
             <button class="hamburger-btn" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">☰</button>
-            <a href="index.html" class="school-name" id="dynamicNavName">SHUBH ERP</a>
+            <a href="index.html">
+                <span class="school-logo">
+                    <img id="dynamicNavLogo" src="" alt="School logo"
+                         style="max-height:28px; max-width:34px; margin-right:2px; border-radius:6px; display:none; vertical-align:middle;">
+                    <span id="defaultNavLogo">🏫</span>
+                </span>
+                <span class="school-name" id="dynamicNavName">SHUBH ERP</span>
+            </a>
         </div>
         <div class="top-right">
             <span>⚏ Communication Module 🔔</span>
@@ -120,16 +185,16 @@
 
         <main class="main-content">
             <div class="profile-header">
-                <h2>Communication & Notices ℹ️</h2>
+                <h2>Communication & Notices</h2>
                 <button class="btn btn-dark" id="btnSync">🔄 Sync Feed</button>
             </div>
 
-            <div style="display:grid; grid-template-columns:350px 1fr; gap:20px;">
-                
+            <div class="composer-grid">
+
                 <!-- COMPOSER CARD -->
                 <div class="card">
-                    <h3 style="margin-bottom:15px; border-bottom:1px solid var(--line); padding-bottom:10px;">Compose New</h3>
-                    
+                    <h3 style="margin-bottom:15px; border-bottom:1px solid var(--line); padding-bottom:10px;">✦ Compose New</h3>
+
                     <div class="input-group">
                         <label>Post Type</label>
                         <select id="postType">
@@ -173,17 +238,17 @@
                         <input type="date" id="postDate">
                     </div>
 
-                    <!-- NEW HOLIDAY SETTINGS (Appears only for School Calendar) -->
+                    <!-- HOLIDAY SETTINGS (only for School Calendar) -->
                     <div class="holiday-settings" id="holidaySettingsGroup">
                         <label class="title">📅 Holiday Configuration</label>
-                        
+
                         <label class="chk-row">
-                            <input type="checkbox" id="chkHolStudent"> 
+                            <input type="checkbox" id="chkHolStudent">
                             Mark as Holiday for Students
                         </label>
-                        
+
                         <label class="chk-row">
-                            <input type="checkbox" id="chkHolEmployee"> 
+                            <input type="checkbox" id="chkHolEmployee">
                             Mark as Holiday for Employees
                         </label>
                     </div>
@@ -192,7 +257,7 @@
                 </div>
 
                 <!-- PUBLISHED FEED CARD -->
-                <div class="card" style="background:var(--paper-2); border-left: 3px solid var(--brass);">
+                <div class="card" style="background:var(--paper-2); border-left:3px solid var(--brass);">
                     <h3 style="margin-bottom:15px;">Recent Publications & Events</h3>
                     <div id="feedContainer">
                         <p style="text-align:center; padding:20px; color:var(--text-mute);">Loading active notices...</p>
@@ -208,16 +273,38 @@
         const activeUserStr = localStorage.getItem('erp_active_user');
         if (!activeUserStr) { window.location.href = 'login.html'; }
         const activeUser = JSON.parse(activeUserStr);
-        const schoolCode = localStorage.getItem('erp_school_code') || "VIS";
+        const schoolCode = activeUser.schoolCode || localStorage.getItem('erp_school_code') || "VIS";
+
+        // School branding — same logo + school name treatment as the other ERP modules.
+        // (This was missing in the previous version of this file, which is why the
+        // navbar always showed the hardcoded "SHUBH ERP" text instead of the real
+        // school name/logo.)
+        try {
+            const savedName = localStorage.getItem('erp_school_name');
+            const savedLogo = localStorage.getItem('erp_school_logo');
+            const navName = document.getElementById('dynamicNavName');
+            const navLogo = document.getElementById('dynamicNavLogo');
+            const navDefault = document.getElementById('defaultNavLogo');
+
+            if (navName) navName.innerText = savedName || schoolCode;
+
+            if (savedLogo && /^https?:\/\//i.test(savedLogo) && navLogo) {
+                navLogo.src = savedLogo;
+                navLogo.style.display = 'inline-block';
+                if (navDefault) navDefault.style.display = 'none';
+            }
+        } catch (brandingError) {
+            console.warn('School branding load failed:', brandingError);
+        }
 
         document.getElementById('btnLogout').addEventListener('click', () => {
-            if(confirm("Log out?")) { auth.signOut().then(() => { localStorage.removeItem('erp_active_user'); window.location.href='login.html'; }); }
+            if (confirm("Log out?")) { auth.signOut().then(() => { localStorage.removeItem('erp_active_user'); window.location.href = 'login.html'; }); }
         });
 
         // Toggle Holiday Settings based on Post Type
-        document.getElementById('postType').addEventListener('change', function() {
+        document.getElementById('postType').addEventListener('change', function () {
             let holGroup = document.getElementById('holidaySettingsGroup');
-            if(this.value === "Event") {
+            if (this.value === "Event") {
                 holGroup.style.display = "block";
             } else {
                 holGroup.style.display = "none";
@@ -226,10 +313,17 @@
             }
         });
 
-        // Hide class selector if audience is Employees
-        document.getElementById('postAudience').addEventListener('change', function() {
-            if(this.value === "Employees") document.getElementById('classSelectGroup').style.display = 'none';
-            else document.getElementById('classSelectGroup').style.display = 'block';
+        // Hide class selector if audience is Employees, and reset its value so a
+        // stale class selection never gets saved against a staff-only post.
+        document.getElementById('postAudience').addEventListener('change', function () {
+            const classGroup = document.getElementById('classSelectGroup');
+            const classSel = document.getElementById('postClass');
+            if (this.value === "Employees") {
+                classGroup.style.display = 'none';
+                if (classSel) classSel.value = 'All';
+            } else {
+                classGroup.style.display = 'block';
+            }
         });
 
         // Initialize Data
@@ -255,10 +349,10 @@
                 let evtSnap = await db.collection("events").where("schoolCode", "==", schoolCode).get();
                 globalEvents = [];
                 evtSnap.forEach(doc => { let d = doc.data(); d.id = doc.id; globalEvents.push(d); });
-                
+
                 renderFeed();
 
-            } catch(e) {
+            } catch (e) {
                 document.getElementById('feedContainer').innerHTML = `<p style="color:red; text-align:center;">Error: ${e.message}</p>`;
             }
         }
@@ -269,22 +363,30 @@
         function renderFeed() {
             let container = document.getElementById('feedContainer');
             container.innerHTML = '';
-            
-            if(globalEvents.length === 0) {
+
+            if (globalEvents.length === 0) {
                 container.innerHTML = '<p style="text-align:center; padding:20px; color:#6D6759;">No active notices or events found.</p>';
                 return;
             }
 
             // Sort newest first
-            globalEvents.sort((a,b) => new Date(b.Timestamp || 0) - new Date(a.Timestamp || 0));
+            globalEvents.sort((a, b) => new Date(b.Timestamp || 0) - new Date(a.Timestamp || 0));
 
             globalEvents.forEach(evt => {
                 let d = evt.Timestamp ? new Date(evt.Timestamp).toLocaleDateString('en-GB') : 'N/A';
-                let typeBadge = evt.Type === 'Event' ? `<span class="badge" style="background:#8e44ad; color:white;">School Calendar</span>` : `<span class="badge" style="background:#E9F1F8; color:#2A5C8A;">${evt.Type || 'Notice'}</span>`;
-                
+                let typeBadge = evt.Type === 'Event'
+                    ? `<span class="badge" style="background:#8e44ad; color:white; border-color:#8e44ad;">School Calendar</span>`
+                    : `<span class="badge" style="background:#E9F1F8; color:#2A5C8A; border-color:#D1DCE8;">${evt.Type || 'Notice'}</span>`;
+
                 let holTags = '';
-                if(evt.Is_Holiday_Student === "Yes") holTags += `<span class="badge badge-holiday">Student Holiday</span> `;
-                if(evt.Is_Holiday_Employee === "Yes") holTags += `<span class="badge badge-holiday">Employee Holiday</span>`;
+                if (evt.Is_Holiday_Student === "Yes") holTags += `<span class="badge badge-holiday">Student Holiday</span>`;
+                if (evt.Is_Holiday_Employee === "Yes") holTags += `<span class="badge badge-holiday">Employee Holiday</span>`;
+
+                // Only show the class badge when a specific class was actually chosen —
+                // showing "Class: All" on every post (including staff-only ones) was noise.
+                let classBadge = (evt.Target_Class && evt.Target_Class !== 'All')
+                    ? `<span class="badge">Class: ${evt.Target_Class}</span>`
+                    : '';
 
                 container.innerHTML += `
                     <div class="feed-item">
@@ -294,7 +396,7 @@
                             <div class="feed-meta">
                                 ${typeBadge}
                                 <span class="badge">Audience: ${evt.Audience || 'All'}</span>
-                                <span class="badge">Class: ${evt.Target_Class || 'All'}</span>
+                                ${classBadge}
                                 <span class="badge" style="border:none; padding:4px 0;">Date: ${evt.Date || 'N/A'}</span>
                                 ${holTags}
                             </div>
@@ -311,11 +413,11 @@
             let title = document.getElementById('postTitle').value.trim();
             let desc = document.getElementById('postDesc').value.trim();
             let date = document.getElementById('postDate').value;
-            
-            if(!title || !desc) { alert("Title and Description are required!"); return; }
-            
+
+            if (!title || !desc) { alert("Title and Description are required!"); return; }
+
             // Mandatory date check for Calendar Event
-            if(type === "Event" && !date) {
+            if (type === "Event" && !date) {
                 alert("Please select an Event Date for the School Calendar.");
                 return;
             }
@@ -325,6 +427,7 @@
 
             let isHolStu = document.getElementById('chkHolStudent').checked ? "Yes" : "No";
             let isHolEmp = document.getElementById('chkHolEmployee').checked ? "Yes" : "No";
+            let isEventType = type === "Event";
 
             let docId = `${schoolCode}_EVT-${Date.now()}`;
             let payload = {
@@ -335,25 +438,28 @@
                 Audience: document.getElementById('postAudience').value,
                 Target_Class: document.getElementById('postClass').value,
                 Date: date || new Date().toISOString().split('T')[0],
-                // Saving separate flags for precise frontend logic later
-                Is_Holiday_Student: type === "Event" ? isHolStu : "No",
-                Is_Holiday_Employee: type === "Event" ? isHolEmp : "No",
-                Is_Holiday: isHolStu, // Maintained for backward compatibility if needed
+                // Separate flags for precise frontend logic later
+                Is_Holiday_Student: isEventType ? isHolStu : "No",
+                Is_Holiday_Employee: isEventType ? isHolEmp : "No",
+                // Backward-compatible single flag: "Yes" if EITHER student or
+                // employee holiday is set (previously this only ever mirrored
+                // the student checkbox, so an employee-only holiday was lost).
+                Is_Holiday: (isEventType && (isHolStu === "Yes" || isHolEmp === "Yes")) ? "Yes" : "No",
                 Timestamp: new Date().toISOString()
             };
 
             try {
                 await db.collection("events").doc(docId).set(payload, { merge: true });
                 alert("Published Successfully! Target users will see this on their dashboard/calendar.");
-                
+
                 // Reset form
                 document.getElementById('postTitle').value = '';
                 document.getElementById('postDesc').value = '';
                 document.getElementById('chkHolStudent').checked = false;
                 document.getElementById('chkHolEmployee').checked = false;
-                
+
                 initData();
-            } catch(e) {
+            } catch (e) {
                 alert("Error publishing: " + e.message);
             } finally {
                 btn.innerText = "📢 Publish to Portal"; btn.disabled = false;
@@ -361,12 +467,12 @@
         });
 
         // Delete Notice
-        window.deleteNotice = async function(id) {
-            if(confirm("Are you sure you want to permanently delete this post?")) {
+        window.deleteNotice = async function (id) {
+            if (confirm("Are you sure you want to permanently delete this post?")) {
                 try {
                     await db.collection("events").doc(id).delete();
                     initData();
-                } catch(e) { alert("Error deleting: " + e.message); }
+                } catch (e) { alert("Error deleting: " + e.message); }
             }
         }
 
