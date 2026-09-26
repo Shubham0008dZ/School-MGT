@@ -716,6 +716,127 @@ button,input,select,textarea{
 }
 
     </style>
+
+    <!-- ============================================================
+         COMMUNICATION OVERFLOW FIX — CSS ONLY
+         ============================================================ -->
+    <style id="communication-overflow-fix">
+
+/* =====================================================================
+   COMMUNICATION — HORIZONTAL OVERFLOW FIX
+   UI ONLY
+   ---------------------------------------------------------------------
+   Fixes long unbroken notice text forcing the CSS grid wider than the
+   viewport. This keeps the collapsed sidebar and content area inside
+   the screen without changing any application logic.
+   ===================================================================== */
+
+html,
+body{
+  width:100% !important;
+  max-width:100% !important;
+  overflow-x:hidden !important;
+}
+
+.erp-wrapper,
+.main-content{
+  min-width:0 !important;
+  max-width:100% !important;
+}
+
+.main-content{
+  overflow-x:hidden !important;
+}
+
+/* Communication two-column layout must have shrinkable tracks. */
+.main-content > div[style*="grid-template-columns"]{
+  display:grid !important;
+  grid-template-columns:minmax(300px,350px) minmax(0,1fr) !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+}
+
+.main-content > div[style*="grid-template-columns"] > *{
+  min-width:0 !important;
+  max-width:100% !important;
+}
+
+/* Recent Publications feed cannot establish a larger min-content width. */
+#feedContainer{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  overflow-x:hidden !important;
+}
+
+.feed-item{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+}
+
+.feed-info{
+  max-width:100% !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+}
+
+.feed-info h4,
+.feed-info p{
+  max-width:100% !important;
+  min-width:0 !important;
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+  word-break:break-word !important;
+}
+
+.feed-meta{
+  max-width:100% !important;
+  min-width:0 !important;
+  flex-wrap:wrap !important;
+}
+
+.badge{
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+  word-break:break-word !important;
+}
+
+/* Keep delete action inside the card. */
+.feed-item .btn-red{
+  flex:0 0 36px !important;
+}
+
+/* Preserve the smooth sidebar behavior. */
+#sidebar{
+  transition:width .25s ease, min-width .25s ease !important;
+}
+
+#sidebar:not(.collapsed){
+  width:258px !important;
+  min-width:258px !important;
+}
+
+#sidebar.collapsed{
+  width:68px !important;
+  min-width:68px !important;
+}
+
+@media (max-width:900px){
+  .main-content > div[style*="grid-template-columns"]{
+    grid-template-columns:minmax(280px,330px) minmax(0,1fr) !important;
+  }
+}
+
+@media (max-width:760px){
+  .main-content > div[style*="grid-template-columns"]{
+    grid-template-columns:1fr !important;
+  }
+}
+
+    </style>
 </head>
 
 <body>
