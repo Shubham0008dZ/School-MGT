@@ -649,13 +649,6 @@
          SHUBH ERP BASE THEME — same visual system as Student SIS
          ============================================================ -->
     <style id="shubh-erp-base-theme">
-        /* ===================================================================
-   SHUBH ERP — Student Information System
-   Design language: "School Ledger" — navy + brass on paper, a nod to
-   the register books this module digitises. Serif display type for
-   headings (Fraunces), a plain grotesque (Inter) for interface text.
-=================================================================== */
-
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap');
 
         :root {
@@ -1074,31 +1067,6 @@
             background: #963025;
         }
 
-        .btn-blue {
-            background: var(--info) !important;
-            color: #fff !important;
-            border-radius: 8px !important;
-        }
-
-        .btn-blue:hover {
-            background: #1f4a70 !important;
-        }
-
-        .btn-purple {
-            background: #5B4A8A;
-            color: #fff;
-            border: none;
-            padding: 7px 13px;
-            border-radius: 7px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-purple:hover {
-            background: #48396e;
-        }
-
         /* ---------------- Table Toolbar / Filters ---------------- */
         .table-toolbar {
             background: var(--white) !important;
@@ -1109,91 +1077,6 @@
             margin-bottom: 16px;
             box-shadow: var(--shadow-1);
             position: relative;
-        }
-
-        .filters {
-            position: relative;
-        }
-
-        .filter-dropdown-panel {
-            display: none;
-            position: absolute;
-            top: 58px;
-            left: 0;
-            width: 390px;
-            max-width: calc(100vw - 40px);
-            padding: 15px;
-            background: var(--white) !important;
-            border: 1px solid var(--line) !important;
-            border-top: 3px solid var(--brass) !important;
-            border-radius: 12px !important;
-            box-shadow: 0 14px 32px rgba(20, 33, 61, .18) !important;
-            z-index: 99999;
-        }
-
-        .filters>div[style*="border:1px solid #27ae60"] {
-            border: 1px solid var(--line) !important;
-            background: var(--paper-2) !important;
-            border-radius: 8px !important;
-        }
-
-        #searchName {
-            background: transparent;
-        }
-
-        .filter-dropdown-panel .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-
-        .filter-dropdown-panel .filter-group:last-of-type {
-            margin-bottom: 0;
-        }
-
-        .filter-dropdown-panel .filter-group label {
-            flex: 0 0 82px;
-            margin: 0;
-            color: var(--ink);
-            font-size: 11.5px;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .filter-dropdown-panel .filter-group select {
-            flex: 1;
-            width: 100%;
-            min-width: 0;
-            padding: 8px 10px;
-            background: var(--paper-2) !important;
-            color: var(--text) !important;
-            border: 1px solid #cfc9b6 !important;
-            border-radius: 7px !important;
-            font-family: 'Inter', sans-serif;
-            font-size: 12.5px;
-            cursor: pointer;
-        }
-
-        .filter-dropdown-panel .filter-group select:focus {
-            outline: none;
-            border-color: var(--brass) !important;
-            box-shadow: 0 0 0 2px rgba(192, 138, 46, .12);
-        }
-
-        #btn-apply-filter {
-            display: block;
-            margin-top: 13px !important;
-            width: 100% !important;
-            padding: 10px 12px !important;
-            border-radius: 8px !important;
-        }
-
-        @media (max-width:680px) {
-            .filter-dropdown-panel {
-                left: 0;
-                width: min(390px, calc(100vw - 30px));
-            }
         }
 
         /* ---------------- Data Table ---------------- */
@@ -1259,640 +1142,12 @@
             color: var(--brass);
             border-color: var(--brass);
         }
-
-        /* ---------------- Dashboard ---------------- */
-        .dashboard-top-cards {
-            display: flex;
-            gap: 18px;
-            margin-bottom: 22px;
-        }
-
-        .top-card {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            padding: 20px 22px;
-            border-radius: var(--radius-l);
-            color: #fff;
-            box-shadow: var(--shadow-1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .top-card::after {
-            content: "";
-            position: absolute;
-            right: -20px;
-            top: -20px;
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, .08);
-        }
-
-        .card-total {
-            background: linear-gradient(135deg, #14213D, #233457);
-        }
-
-        .card-male {
-            background: linear-gradient(135deg, #B4791E, #8F5E14);
-        }
-
-        .card-female {
-            background: linear-gradient(135deg, #5B4A8A, #3E3162);
-        }
-
-        .card-icon {
-            font-size: 32px;
-            margin-right: 16px;
-            opacity: .95;
-        }
-
-        .card-info h3 {
-            margin: 0;
-            font-size: 26px;
-            color: #fff;
-            font-family: 'Fraunces', serif;
-        }
-
-        .card-info p {
-            margin: 4px 0 0;
-            font-size: 12.5px;
-            opacity: .85;
-            line-height: 1.3;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
-        }
-
-        .dash-chart-box {
-            background: var(--white);
-            border: 1px solid var(--line);
-            border-radius: var(--radius-m);
-            box-shadow: var(--shadow-1);
-            overflow: hidden;
-        }
-
-        .chart-box-header {
-            background: var(--paper-2);
-            padding: 11px 15px;
-            border-bottom: 1px solid var(--line);
-            font-weight: 600;
-            color: var(--ink);
-            font-size: 13px;
-        }
-
-        .chart-box-content {
-            padding: 14px;
-        }
-
-        .view-graph {
-            height: 200px;
-            width: 100%;
-        }
-
-        /* ---------------- Forms / Admission ---------------- */
-        .form-container {
-            background: var(--white);
-            border: 1px solid var(--line);
-            border-radius: var(--radius-l);
-            padding: 26px 28px;
-            box-shadow: var(--shadow-1);
-        }
-
-        .form-header {
-            margin-bottom: 18px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .form-header h2 {
-            font-size: 20px;
-        }
-
-        .form-tabs {
-            display: flex;
-            gap: 4px;
-            border-bottom: 1px solid var(--line);
-            margin-bottom: 22px;
-        }
-
-        .form-tabs .tab {
-            padding: 10px 18px;
-            background: none;
-            border: none;
-            font-size: 13.5px;
-            font-weight: 600;
-            color: var(--text-mute);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .form-tabs .tab.active {
-            color: var(--ink);
-            border-bottom-color: var(--brass);
-        }
-
-        .form-tab-content {
-            display: none;
-            animation: fadeIn .2s;
-        }
-
-        .form-tab-content.active {
-            display: block;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        .top-row {
-            background: var(--paper-2) !important;
-            border: 1px solid var(--line);
-            border-radius: var(--radius-m);
-            padding: 14px 16px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-
-        .input-group label {
-            font-size: 11.5px;
-            font-weight: 600;
-            color: var(--text-mute);
-            margin-bottom: 6px;
-            text-transform: none;
-            letter-spacing: .01em;
-        }
-
-        .input-group input,
-        .input-group select {
-            padding: 9px 11px;
-            border: 1px solid #D8D2C0;
-            border-radius: 7px;
-            font-size: 13px;
-            background: var(--paper-2);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            transition: border-color .15s, background .15s;
-        }
-
-        .input-group input:focus,
-        .input-group select:focus {
-            outline: none;
-            border-color: var(--brass);
-            background: #fff;
-        }
-
-        .input-group input[readonly] {
-            background: #EDEAE0;
-            color: var(--text-mute);
-        }
-
-        .section-title {
-            background: transparent;
-            padding: 0;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--ink);
-            margin: 26px 0 16px;
-            border-left: none;
-            position: relative;
-            padding-left: 14px;
-            font-family: 'Fraunces', serif;
-        }
-
-        .section-title::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 2px;
-            bottom: 2px;
-            width: 4px;
-            background: var(--brass);
-            border-radius: 2px;
-        }
-
-        .main-details {
-            display: flex;
-            gap: 24px;
-        }
-
-        .left-fields {
-            flex: 3;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .right-photo {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-        }
-
-        .photo-fieldset {
-            border: 1.5px dashed #CFC7AE;
-            padding: 16px;
-            text-align: center;
-            border-radius: var(--radius-m);
-            width: 100%;
-            max-width: 200px;
-            background: var(--paper-2);
-        }
-
-        .photo-fieldset legend {
-            padding: 0 6px;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-mute);
-        }
-
-        .photo-preview-box img {
-            width: 107px;
-            height: 150px;
-            border: 1px solid var(--line);
-            margin-bottom: 10px;
-            object-fit: cover;
-            border-radius: 6px;
-            background: #fff;
-        }
-
-        .upload-btn {
-            background: var(--ink);
-            color: #F4F1E9;
-            padding: 7px 14px;
-            border-radius: 7px;
-            cursor: pointer;
-            font-size: 11.5px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .upload-btn:hover {
-            background: var(--ink-soft);
-        }
-
-        .grid-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-        }
-
-        .submit-section {
-            text-align: right;
-            margin-top: 24px;
-            border-top: 1px solid var(--line);
-            padding-top: 18px;
-        }
-
-        .submit-btn {
-            background: var(--good);
-            color: #fff;
-            border: none;
-            padding: 11px 28px;
-            font-size: 14px;
-            font-weight: 700;
-            border-radius: 9px;
-            cursor: pointer;
-            box-shadow: 0 3px 10px rgba(31, 122, 82, .3);
-        }
-
-        .submit-btn:hover {
-            background: #186640;
-        }
-
-        /* ---------------- Modals ---------------- */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(20, 20, 15, .55);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(1.5px);
-        }
-
-        .modal-overlay.active {
-            display: flex;
-            animation: fadeIn .18s;
-        }
-
-        .modal-card {
-            background: var(--white);
-            border-radius: var(--radius-l);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
-            overflow: hidden;
-        }
-
-        .modal-header {
-            padding: 16px 22px;
-            background: var(--ink) !important;
-            color: #F4F1E9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            color: #F4F1E9 !important;
-            font-size: 16px;
-        }
-
-        .close-modal {
-            font-size: 22px;
-            cursor: pointer;
-            color: #C9C4B2;
-            font-weight: 400;
-            line-height: 1;
-        }
-
-        .close-modal:hover {
-            color: #fff;
-        }
-
-        .config-badge {
-            display: inline-flex;
-            align-items: center;
-            background: var(--paper-2);
-            border: 1px solid var(--line);
-            color: var(--text);
-            margin: 4px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-        }
-
-        .bulk-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 13px;
-        }
-
-        .bulk-table th,
-        .bulk-table td {
-            border: 1px solid var(--line);
-            padding: 8px;
-            text-align: left;
-        }
-
-        .bulk-table th {
-            background-color: var(--paper-2);
-            color: var(--ink);
-            font-weight: 700;
-        }
-
-        .bulk-table input {
-            width: 100%;
-            padding: 7px;
-            border: 1px solid #D8D2C0;
-            border-radius: 6px;
-            box-sizing: border-box;
-        }
-
-        .bulk-table input:focus {
-            border-color: var(--brass);
-            outline: none;
-        }
-
-        /* ---------------- Bulk Actions module ---------------- */
-        .bulk-card {
-            background: var(--white);
-            padding: 22px;
-            border-radius: var(--radius-l);
-            border: 1px solid var(--line);
-            box-shadow: var(--shadow-1);
-            margin-bottom: 20px;
-        }
-
-        .bulk-header {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--ink);
-            border-bottom: 1px solid var(--line);
-            padding-bottom: 12px;
-            margin-bottom: 18px;
-            font-family: 'Fraunces', serif;
-        }
-
-        .erp-select,
-        .erp-input {
-            border: 1px solid #D8D2C0 !important;
-            border-radius: 7px !important;
-            background: var(--paper-2) !important;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .erp-select:focus,
-        .erp-input:focus {
-            outline: none;
-            border-color: var(--brass) !important;
-        }
-
-        /* ---------------- Reports module ---------------- */
-        .report-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 18px;
-        }
-
-        .report-card {
-            background: var(--white);
-            border: 1px solid var(--line);
-            border-radius: var(--radius-l);
-            padding: 20px;
-            cursor: pointer;
-            transition: .18s;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: var(--shadow-1);
-        }
-
-        .report-card:hover {
-            border-color: var(--brass);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-2);
-        }
-
-        .report-icon {
-            font-size: 22px;
-            background: var(--paper-2);
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            border: 1px solid var(--line);
-        }
-
-        .report-text h4 {
-            margin: 0 0 4px;
-            color: var(--ink);
-            font-family: 'Fraunces', serif;
-            font-size: 15px;
-        }
-
-        .report-text p {
-            margin: 0;
-            font-size: 12px;
-            color: var(--text-mute);
-        }
-
-        /* ---------------- Master Setup ---------------- */
-        #module-master-setup>div>div {
-            background: var(--white) !important;
-            border: 1px solid var(--line) !important;
-            border-radius: var(--radius-l) !important;
-            box-shadow: var(--shadow-1) !important;
-        }
-
-        #module-master-setup h3 {
-            font-family: 'Fraunces', serif;
-            font-size: 16px;
-            border-bottom: 1px solid var(--line) !important;
-        }
-
-        #module-master-setup input,
-        #module-master-setup select {
-            border: 1px solid #D8D2C0 !important;
-            border-radius: 7px !important;
-            background: var(--paper-2) !important;
-            font-family: 'Inter', sans-serif !important;
-        }
-
-        #module-master-setup input:focus,
-        #module-master-setup select:focus {
-            outline: none;
-            border-color: var(--brass) !important;
-        }
-
-        #msDisplayArea>div {
-            border: 1px solid var(--line) !important;
-            border-radius: var(--radius-m) !important;
-        }
-
-        #msDisplayArea h4 {
-            border-bottom: 2px solid var(--brass) !important;
-            font-family: 'Fraunces', serif;
-            letter-spacing: .02em;
-        }
-
-        #msDisplayArea>div>div>div {
-            background: var(--ink) !important;
-            border-radius: 20px !important;
-        }
-
-        /* ---------------- Ledger Modal polish ---------------- */
-        #ledgerModal .modal-body {
-            background: var(--paper) !important;
-        }
-
-        #ledgerExportArea>div:first-child {
-            border-radius: var(--radius-m) !important;
-            box-shadow: var(--shadow-1);
-        }
-
-        #ledgerExportArea table {
-            border-radius: var(--radius-m);
-            overflow: hidden;
-            box-shadow: var(--shadow-1);
-        }
-
-        /* ---------------- Photo crop & remove ---------------- */
-        .btn-remove-photo {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: var(--bad);
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 10px;
-            padding: 4px 8px;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .3);
-        }
-
-        .btn-remove-photo:hover {
-            background: #8f2c22;
-        }
-
-        .crop-container {
-            width: 100%;
-            max-height: 400px;
-            background: #1c1c1c;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            border-radius: var(--radius-m);
-        }
-
-        /* ---------------- Responsive ---------------- */
-        @media (max-width:960px) {
-            .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .grid-row,
-            .left-fields {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        @media (max-width:680px) {
-            .sidebar {
-                position: fixed;
-                z-index: 60;
-                height: calc(100vh - 58px);
-            }
-
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .grid-row,
-            .left-fields {
-                grid-template-columns: 1fr;
-            }
-
-            .main-details {
-                flex-direction: column;
-            }
-
-            .dashboard-top-cards {
-                flex-direction: column;
-            }
-        }
     </style>
 
     <!-- ============================================================
          FEE MANAGEMENT THEME OVERRIDES — UI only
          ============================================================ -->
     <style id="fee-theme-overrides">
-        /* =====================================================================
-   FEE MANAGEMENT — SHUBH ERP CONSISTENT THEME
-   ---------------------------------------------------------------------
-   Visual layer only. Original fee module classes/IDs are retained so
-   the existing fee.js workflow continues to target the same elements.
-   Auth, rights, Firebase and payment/ledger calculations remain intact.
-   ===================================================================== */
-
         html,
         body {
             height: 100%;
@@ -1912,50 +1167,6 @@
             height: calc(100vh - 58px);
         }
 
-        .top-navbar {
-            height: 58px;
-            min-height: 58px;
-            padding: 0 22px;
-        }
-
-        .top-navbar .top-left {
-            gap: 14px;
-        }
-
-        .top-navbar .hamburger-btn {
-            background: rgba(255, 255, 255, .06);
-            border: 1px solid rgba(255, 255, 255, .1);
-            color: #EFEAD9;
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
-        }
-
-        .top-navbar .hamburger-btn:hover {
-            background: rgba(255, 255, 255, .14);
-            color: var(--brass-soft);
-        }
-
-        .top-navbar .top-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            font-size: 13px;
-            color: #D8D2BF;
-        }
-
-        .top-navbar .top-right span {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
         .btn-logout-fee {
             background: transparent !important;
             color: #F0B8AE !important;
@@ -1970,266 +1181,6 @@
         .btn-logout-fee:hover {
             background: rgba(178, 58, 46, .25) !important;
             border-color: #F0B8AE !important;
-        }
-
-        .sidebar {
-            width: var(--sidebar-w);
-            background: var(--ink);
-            display: flex;
-            flex-direction: column;
-            transition: width .25s ease;
-            overflow-x: hidden;
-            white-space: nowrap;
-            border-right: 1px solid rgba(255, 255, 255, .05);
-        }
-
-        .sidebar-header {
-            padding: 22px 20px 14px;
-        }
-
-        .sidebar-header h2 {
-            color: #F7F3E7;
-            font-size: 15px;
-            margin: 0;
-            letter-spacing: .03em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .sidebar-header::after {
-            content: "";
-            display: block;
-            height: 1px;
-            margin-top: 16px;
-            background: linear-gradient(90deg, var(--brass) 0%, rgba(192, 138, 46, 0) 70%);
-        }
-
-        .sidebar .nav-links {
-            list-style: none;
-            margin: 10px 0 0;
-            padding: 0 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .sidebar .nav-links li a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #C9C4B2;
-            text-decoration: none;
-            padding: 11px 14px;
-            border-radius: 9px;
-            border-left: 3px solid transparent;
-            border-bottom: none;
-            font-size: 13.5px;
-            font-weight: 500;
-            transition: background .15s, color .15s;
-        }
-
-        .sidebar .nav-links li a:hover {
-            background: rgba(255, 255, 255, .06);
-            color: #F7F3E7;
-        }
-
-        .sidebar .nav-links li a.active {
-            background: rgba(192, 138, 46, .16);
-            color: #F7F3E7;
-            border-left: 3px solid var(--brass);
-            font-weight: 600;
-        }
-
-        .sidebar.collapsed {
-            width: var(--sidebar-w-collapsed);
-        }
-
-        .sidebar.collapsed .sidebar-header h2 {
-            display: none;
-        }
-
-        .sidebar.collapsed .nav-text {
-            display: none;
-        }
-
-        .sidebar.collapsed .nav-links li a {
-            justify-content: center;
-            padding: 12px 0;
-            border-left: none;
-        }
-
-        .sidebar.collapsed .nav-links li a.active {
-            border-left: none;
-            background: rgba(192, 138, 46, .2);
-        }
-
-        .sidebar .nav-icon {
-            font-size: 16px;
-            width: 18px;
-            text-align: center;
-        }
-
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 26px 30px 60px;
-            background: var(--paper);
-            height: 100%;
-        }
-
-        .profile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding-bottom: 16px;
-            margin-bottom: 22px;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .profile-header h2 {
-            font-size: 23px;
-            color: var(--ink);
-            margin: 0;
-            text-transform: none;
-            letter-spacing: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-family: 'Fraunces', Georgia, serif;
-        }
-
-        /* Receipt list toolbar */
-        .table-toolbar {
-            background: var(--white) !important;
-            border: 1px solid var(--line) !important;
-            border-left: 3px solid var(--brass) !important;
-            border-radius: var(--radius-m) !important;
-            padding: 12px 14px !important;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow-1);
-        }
-
-        .table-toolbar .filters {
-            gap: 14px !important;
-        }
-
-        .search-small {
-            padding: 9px 11px !important;
-            border: 1px solid #D8D2C0 !important;
-            border-radius: 7px !important;
-            background: var(--paper-2) !important;
-            color: var(--text);
-            outline: none;
-        }
-
-        .search-small:focus {
-            border-color: var(--brass) !important;
-            background: #fff !important;
-        }
-
-        .btn {
-            border: none;
-            padding: 9px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            font-family: 'Inter', sans-serif;
-            transition: transform .05s ease, box-shadow .15s ease, background .15s ease;
-        }
-
-        .btn:active {
-            transform: translateY(1px);
-        }
-
-        .btn-dark {
-            background: var(--ink) !important;
-            color: #F4F1E9 !important;
-        }
-
-        .btn-dark:hover {
-            background: var(--ink-soft) !important;
-        }
-
-        .btn-green {
-            background: var(--good) !important;
-            color: #fff !important;
-            box-shadow: 0 2px 8px rgba(31, 122, 82, .25);
-        }
-
-        .btn-green:hover {
-            background: #186640 !important;
-        }
-
-        .btn-green-outline {
-            background: #fff !important;
-            color: var(--good) !important;
-            border: 1.5px solid var(--good) !important;
-        }
-
-        .btn-red {
-            background: var(--bad) !important;
-            color: #fff !important;
-            border-radius: 7px !important;
-        }
-
-        /* Tables */
-        .data-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            font-size: 13px;
-            background: var(--white) !important;
-            border: 1px solid var(--line) !important;
-            border-radius: var(--radius-m) !important;
-            overflow: hidden;
-            box-shadow: var(--shadow-1);
-        }
-
-        .data-table th {
-            background: var(--ink) !important;
-            color: #EFEAD9 !important;
-            font-weight: 600;
-            text-align: left;
-            padding: 12px 14px !important;
-            border: none !important;
-            border-bottom: 2px solid var(--brass) !important;
-            font-size: 12px;
-            letter-spacing: .02em;
-        }
-
-        .data-table td {
-            padding: 11px 14px !important;
-            border: none !important;
-            border-bottom: 1px solid var(--line-soft) !important;
-            vertical-align: middle;
-            color: var(--text);
-            background: var(--white);
-        }
-
-        .data-table tr:nth-child(even) td {
-            background: var(--paper-2);
-        }
-
-        .data-table tr:hover td {
-            background: #FBF8F0;
-        }
-
-        .data-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .student-ledger-link {
-            color: var(--info) !important;
-            text-decoration: none;
-            font-weight: 600;
-            border-bottom: 1px dashed rgba(42, 92, 138, .4);
-        }
-
-        .student-ledger-link:hover {
-            color: var(--brass) !important;
-            border-color: var(--brass);
         }
 
         /* Fee entry */
@@ -2447,78 +1398,6 @@
             text-align: right;
         }
 
-        /* Modals */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(20, 20, 15, .58);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(1.5px);
-            padding: 20px;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-            animation: fadeIn .18s;
-        }
-
-        .modal-card {
-            background: var(--white);
-            border-radius: var(--radius-l);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
-            overflow: hidden;
-            border: 1px solid var(--line);
-        }
-
-        .modal-header {
-            padding: 16px 22px;
-            background: var(--ink) !important;
-            color: #F4F1E9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 0;
-        }
-
-        .modal-header h3 {
-            color: #F4F1E9 !important;
-            font-family: 'Fraunces', Georgia, serif;
-            font-size: 16px;
-        }
-
-        .close-modal {
-            font-size: 22px;
-            cursor: pointer;
-            color: #C9C4B2;
-            font-weight: 400;
-            line-height: 1;
-        }
-
-        .close-modal:hover {
-            color: #fff;
-        }
-
-        #ledgerModal .modal-body {
-            background: var(--paper) !important;
-        }
-
-        #ledgerExportArea {
-            background: transparent !important;
-        }
-
-        #ledgerExportArea>div:first-child {
-            background: var(--white) !important;
-            border-color: var(--line) !important;
-            border-left-color: var(--brass) !important;
-            border-radius: var(--radius-m) !important;
-            box-shadow: var(--shadow-1);
-        }
-
         /* Fee setup */
         #module-fee-setup>div>div {
             background: var(--white) !important;
@@ -2554,8 +1433,6 @@
             background: #fff !important;
         }
 
-        /* Print: intentionally left clean/white for physical receipt output. */
-
         @media (max-width:960px) {
             .fee-main-split {
                 flex-direction: column;
@@ -2575,71 +1452,11 @@
                 flex: 1 1 180px !important;
             }
         }
-
-        @media (max-width:680px) {
-            .sidebar {
-                position: fixed;
-                z-index: 60;
-                height: calc(100vh - 58px);
-            }
-
-            .top-center {
-                display: none;
-            }
-
-            .main-content {
-                padding: 20px 16px 40px;
-            }
-
-            .profile-header h2 {
-                font-size: 21px !important;
-            }
-
-            .fee-top-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .fee-top-bar .input-group {
-                width: 100%;
-                min-width: 0;
-            }
-
-            .total-info-grid {
-                align-items: stretch;
-                flex-direction: column;
-            }
-
-            .total-info-grid p {
-                width: 100%;
-            }
-
-            .total-info-grid input {
-                width: 100%;
-                margin-left: 0;
-            }
-        }
     </style>
-
-
-    <!-- ============================================================
-         SECURITY / BROWSER HARDENING HINTS
-         These do not change application logic or Firebase/auth flow.
-         Server-side headers (HSTS, CSP, X-Frame-Options, etc.) should
-         still be configured at the hosting layer for production.
-         ============================================================ -->
-    <meta name="referrer" content="strict-origin-when-cross-origin">
-    <meta name="color-scheme" content="light">
-
 </head>
 
 <body>
 
-    <!-- ============================================================
-         GLOBAL ERP HEADER
-         Same SHUBH ERP visual shell used by Student SIS / Employee.
-         Functional IDs are preserved for the existing fee.js logic.
-         ============================================================ -->
     <div class="top-navbar">
         <div class="top-left">
             <button class="hamburger-btn" id="sidebarToggle" title="Toggle Sidebar">☰</button>
@@ -2664,11 +1481,6 @@
     </div>
 
     <div class="erp-wrapper">
-        <!-- ============================================================
-             SIDEBAR
-             Same navy + brass navigation shell as Student SIS.
-             Existing fee module data-target values are unchanged.
-             ============================================================ -->
         <div class="sidebar" id="appSidebar">
             <div class="sidebar-header">
                 <h2>📚 SHUBH ERP</h2>
@@ -3145,11 +1957,7 @@
         </div>
     </div>
 
-    <!-- ============================================================
-         SIDEBAR COLLAPSE CONTROL
-         Presentation-shell interaction only. The supplied fee.js block
-         below is preserved verbatim.
-         ============================================================ -->
+    <!-- SIDEBAR CONTROL -->
     <script id="fee-sidebar-ui">
         document.addEventListener('DOMContentLoaded', function () {
             const sidebarToggle = document.getElementById('sidebarToggle');
@@ -3162,11 +1970,7 @@
         });
     </script>
 
-    <!-- ============================================================
-         ORIGINAL FEE LOGIC — embedded verbatim
-         Auth, rights, Firebase, receipt, payment, ledger and print logic
-         are preserved from the supplied fee.js.
-         ============================================================ -->
+    <!-- MAIN FEE LOGIC WITH FIXED RBAC NAMES -->
     <script id="fee-inline-logic">
         window.customAlert = function (message) {
             let overlay = document.createElement('div');
@@ -3184,14 +1988,12 @@
             document.getElementById('cc-ok').addEventListener('click', () => { overlay.remove(); onConfirm(); });
         };
 
-        // Global Arrays
         let allStudents = []; let setupClasses = []; let feeHeads = []; let feeReceipts = [];
         const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
         let schoolCode = "";
 
         document.addEventListener('DOMContentLoaded', () => {
 
-            // UI Setup (Safe from fetch errors)
             document.querySelectorAll('.nav-btn').forEach(link => {
                 link.addEventListener('click', function (e) {
                     if (this.getAttribute('href') !== '#') return; e.preventDefault();
@@ -3200,7 +2002,8 @@
                     const targetId = this.getAttribute('data-target');
                     if (targetId) {
                         document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
-                        document.getElementById(targetId).classList.add('active-module');
+                        let tgt = document.getElementById(targetId);
+                        if (tgt) tgt.classList.add('active-module');
                     }
                 });
             });
@@ -3209,7 +2012,8 @@
             if (addReceiptTrigger) {
                 addReceiptTrigger.addEventListener('click', () => {
                     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                    document.getElementById('sideAddReceipt').classList.add('active');
+                    let sideAdd = document.querySelector('.nav-btn[data-target="module-add-receipt"]');
+                    if (sideAdd) sideAdd.classList.add('active');
                     document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
                     document.getElementById('module-add-receipt').classList.add('active-module');
                 });
@@ -3223,7 +2027,6 @@
             let userRights = [];
             try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch (e) { }
 
-            // DYNAMIC NAVBAR UPDATE
             try {
                 let savedName = localStorage.getItem('erp_school_name');
                 let savedLogo = localStorage.getItem('erp_school_logo');
@@ -3240,15 +2043,40 @@
             const topRightSpans = document.querySelectorAll('.top-right span');
             if (topRightSpans.length > 0) { topRightSpans[0].innerHTML = `👤 Welcome, <b>${activeUser.empName}</b>`; }
 
-            if (!isSA && !userRights.some(r => r.startsWith("FEE_"))) { window.location.href = 'index.html'; return; }
+            // ==========================================
+            // 🛡️ SECURITY GUARD (RBAC STRICT ENFORCEMENT)
+            // ==========================================
             if (!isSA) {
-                if (!userRights.includes("FEE_Add")) {
-                    let addBtn1 = document.getElementById('btn-open-add-receipt'); let addBtn2 = document.getElementById('sideAddReceipt');
-                    if (addBtn1) addBtn1.remove(); if (addBtn2) addBtn2.remove();
+                // If no Fee rights at all, kick to index
+                if (!userRights.some(r => r.startsWith("FEE_"))) {
+                    window.location.href = 'index.html';
+                    return;
                 }
-                if (!userRights.includes("FEE_Setup")) {
-                    let setupNav = document.querySelector('.nav-btn[data-target="module-fee-setup"]');
-                    if (setupNav) setupNav.remove();
+
+                // 1. FEE_View : Read receipts
+                if (!userRights.includes("FEE_View")) {
+                    let menuView = document.querySelector('.nav-btn[data-target="module-receipts-list"]');
+                    if (menuView) menuView.parentElement.remove();
+                    let modReceipts = document.getElementById('module-receipts-list');
+                    if (modReceipts) modReceipts.innerHTML = "<div style='padding:40px; text-align:center;'><h2 style='color:#e74c3c;'>Access Denied</h2><p>You do not have permission to view fee receipts.</p></div>";
+                }
+
+                // 2. FEE_Collect : Create new receipt
+                if (!userRights.includes("FEE_Collect")) {
+                    let addBtn = document.getElementById('btn-open-add-receipt');
+                    let menuCollect = document.getElementById('sideAddReceipt');
+                    if (addBtn) addBtn.remove();
+                    if (menuCollect) menuCollect.parentElement.remove();
+                    let addMod = document.getElementById('module-add-receipt');
+                    if (addMod) addMod.remove();
+                }
+
+                // 3. FEE_Heads : Manage Fee Setup
+                if (!userRights.includes("FEE_Heads")) {
+                    let menuHeads = document.querySelector('.nav-btn[data-target="module-fee-setup"]');
+                    if (menuHeads) menuHeads.parentElement.remove();
+                    let setupMod = document.getElementById('module-fee-setup');
+                    if (setupMod) setupMod.remove();
                 }
             }
 
@@ -3278,15 +2106,11 @@
                 document.title = originalTitle;
             }
 
-            // ==========================================
-            // AUTO LOAD SYNC (FIRESTORE)
-            // ==========================================
             window.initData = async function () {
                 const tbody = document.getElementById('receiptsTableBody');
                 if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">Fetching Database... ⏳</td></tr>';
 
                 try {
-                    // Fetch Setup Data
                     let setupDoc = await db.collection("setups").doc(schoolCode).get().catch(() => null);
                     if (setupDoc && setupDoc.exists) {
                         let setup = setupDoc.data();
@@ -3294,15 +2118,13 @@
                         feeHeads = setup.feeHeads || [];
                     }
 
-                    // Fetch Students Data
                     let studentSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
                     allStudents = [];
                     if (studentSnap.forEach) { studentSnap.forEach(doc => { allStudents.push(doc.data()); }); }
 
-                    // Fetch Fee Receipts
                     let feeSnap = await db.collection("fee_receipts").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
                     feeReceipts = [];
-                    if (feeSnap.forEach) { feeSnap.forEach(doc => feeReceipts.push(doc.data())); }
+                    if (feeSnap.forEach) { feeSnap.forEach(doc => { let d = doc.data(); d.id = doc.id; feeReceipts.push(d); }); }
 
                     populateStudentsDropdown();
                     renderFeeHeadsSetupList();
@@ -3386,7 +2208,7 @@
                 if (allRows.length === 0) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:green; font-weight:bold;">All Fees Cleared / Paid up to selected month!</td></tr>'; resetTotals(); return; }
 
                 allRows.forEach((r, idx) => {
-                    tbody.innerHTML += `<tr class="f-row" data-head="${r.head}" data-period="${r.period}"><td><input type="checkbox" class="f-chk" title="Check to delete/exclude row"></td><td class="f-head" style="text-align:left;"><b>${r.head}</b></td><td>${r.period}</td><td><input type="number" class="f-actual" value="${r.amount.toFixed(2)}" readonly style="border:none; background:transparent; font-weight:bold;"></td><td><input type="number" class="f-conc" value="0.00"></td><td><input type="number" class="f-waiver" value="0.00"></td><td><input type="number" class="f-net" value="${r.amount.toFixed(2)}" style="font-weight:bold; color:#e74c3c; background:#fff;"></td><td><input type="number" class="f-paid" value="${r.amount.toFixed(2)}" style="background:#e8f4f8;"></td><td><input type="number" class="f-bal" value="0.00" readonly style="border:none; background:transparent; font-weight:bold;"></td></tr>`;
+                    tbody.innerHTML += `<tr class="f-row" data-head="${r.head}" data-period="${r.period}"><td><input type="checkbox" class="f-chk" checked title="Check to delete/exclude row"></td><td class="f-head" style="text-align:left;"><b>${r.head}</b></td><td>${r.period}</td><td><input type="number" class="f-actual" value="${r.amount.toFixed(2)}" readonly style="border:none; background:transparent; font-weight:bold;"></td><td><input type="number" class="f-conc" value="0.00"></td><td><input type="number" class="f-waiver" value="0.00"></td><td><input type="number" class="f-net" value="${r.amount.toFixed(2)}" readonly style="font-weight:bold; color:#e74c3c; background:#f9f9f9; border:none;"></td><td><input type="number" class="f-paid" value="${r.amount.toFixed(2)}" style="background:#e8f4f8;"></td><td><input type="number" class="f-bal" value="0.00" readonly style="border:none; background:transparent; font-weight:bold;"></td></tr>`;
                 });
 
                 attachCalculationListeners(); calculateTotals();
@@ -3399,7 +2221,7 @@
                     row.querySelector('.f-net').addEventListener('input', () => { row.querySelector('.f-paid').value = (parseFloat(row.querySelector('.f-net').value) || 0).toFixed(2); updateRowBal(row); calculateTotals(); });
                     row.querySelector('.f-paid').addEventListener('input', () => { updateRowBal(row); calculateTotals(); });
                     row.querySelector('.f-chk').addEventListener('change', function () {
-                        if (this.checked) { row.classList.add('disabled-row'); row.querySelector('.f-paid').value = "0.00"; } else { row.classList.remove('disabled-row'); updateRowNetAndPaid(row); }
+                        if (!this.checked) { row.classList.add('disabled-row'); row.querySelector('.f-paid').value = "0.00"; } else { row.classList.remove('disabled-row'); updateRowNetAndPaid(row); }
                         calculateTotals();
                     });
                 });
@@ -3420,7 +2242,7 @@
             function calculateTotals() {
                 let totAct = 0, totConc = 0, totWaiv = 0, totNet = 0, totPaid = 0, totBal = 0;
                 document.querySelectorAll('.f-row').forEach(row => {
-                    if (!row.querySelector('.f-chk').checked) {
+                    if (row.querySelector('.f-chk').checked) {
                         totAct += parseFloat(row.querySelector('.f-actual').value) || 0; totConc += parseFloat(row.querySelector('.f-conc').value) || 0;
                         totWaiv += parseFloat(row.querySelector('.f-waiver').value) || 0; totNet += parseFloat(row.querySelector('.f-net').value) || 0;
                         totPaid += parseFloat(row.querySelector('.f-paid').value) || 0; totBal += parseFloat(row.querySelector('.f-bal').value) || 0;
@@ -3431,7 +2253,7 @@
                 document.getElementById('totPaid').innerText = totPaid.toFixed(2); document.getElementById('totBal').innerText = totBal.toFixed(2);
                 document.getElementById('profPayable').innerText = totNet.toFixed(2); document.getElementById('finalPayable').value = totNet.toFixed(2);
                 let advance = parseFloat(document.getElementById('finalAdvance').value) || 0; let finalPaid = totPaid + advance;
-                document.getElementById('finalTotalPaid').value = finalPaid.toFixed(2); document.getElementById('payAmount').value = finalPaid.toFixed(2);
+                document.getElementById('finalTotalPaid').value = finalPaid.toFixed(2);
             }
 
             function resetTotals() {
@@ -3442,7 +2264,6 @@
                 if (document.getElementById('finalPayable')) document.getElementById('finalPayable').value = "0.00";
                 if (document.getElementById('finalAdvance')) document.getElementById('finalAdvance').value = "0.00";
                 if (document.getElementById('finalTotalPaid')) document.getElementById('finalTotalPaid').value = "0.00";
-                if (document.getElementById('payAmount')) document.getElementById('payAmount').value = "";
             }
 
             function updateNextReceiptNo() {
@@ -3461,7 +2282,7 @@
                 const month = document.getElementById('feeMonthSelect').value; if (!month) { alert("Please select Fee Installment Month."); return; }
                 let paidDetails = [];
                 document.querySelectorAll('.f-row').forEach(row => {
-                    if (!row.querySelector('.f-chk').checked) {
+                    if (row.querySelector('.f-chk').checked) {
                         paidDetails.push({
                             head: row.getAttribute('data-head'),
                             period: row.getAttribute('data-period'),
@@ -3567,9 +2388,12 @@
                     }
 
                     let rNo = String(r.Receipt_No).replace("'", ""); let rDate = String(r.Date).replace("'", ""); let safeReceipt = JSON.stringify(r).replace(/'/g, "&#39;");
+
                     let btnHTML = `<button class="btn-red" style="background:#3498db;" title="Print" onclick='printFromHistory(${safeReceipt})'>🖨️</button>`;
+
+                    // 🛡️ SECURITY GUARD: FEE_Delete Check
                     if (isSA || userRights.includes("FEE_Delete")) {
-                        btnHTML += `<button class="btn-red" title="Delete" onclick="deleteReceipt('${rNo}')">🗑️</button>`;
+                        btnHTML += `<button class="btn-red" title="Delete" onclick="deleteReceipt('${r.id}')">🗑️</button>`;
                     }
 
                     tbody.innerHTML += `
@@ -3620,10 +2444,8 @@
                 document.getElementById('p-t-fees').innerText = tAct.toFixed(2); document.getElementById('p-t-adj').innerText = tAdj.toFixed(2); document.getElementById('p-t-pay').innerText = tPay.toFixed(2); document.getElementById('p-t-paid').innerText = tPaid.toFixed(2); document.getElementById('p-t-bal').innerText = tBal.toFixed(2); document.getElementById('p-words').innerText = tPaid.toFixed(2) + " /-"; document.getElementById('p-pmode').innerText = rData.paymentMode; document.getElementById('p-pbank').innerText = rData.bankName; document.getElementById('p-pdate').innerText = rData.date; document.getElementById('p-pdet').innerText = rData.refNo; document.getElementById('p-pamt').innerText = rData.totalAmount;
             }
 
-            window.deleteReceipt = function (receiptNo) {
-                if (confirm(`Are you sure you want to Delete Receipt No: ${receiptNo}?\nThis will revert the fee ledger.`)) {
-                    let rNoStr = receiptNo.replace(/\//g, '-');
-                    let docId = `${schoolCode}_${rNoStr}`;
+            window.deleteReceipt = function (docId) {
+                if (confirm(`Are you sure you want to Delete this Receipt?\nThis will revert the fee ledger.`)) {
                     db.collection("fee_receipts").doc(docId).delete().then(() => {
                         alert("Receipt Deleted Successfully.");
                         initData();
@@ -3644,7 +2466,7 @@
             }
 
             document.getElementById('feeSetupForm')?.addEventListener('submit', async function (e) {
-                e.preventDefault(); const btnSubmit = document.getElementById('btnSubmitFeeHead'); btnSubmit.disabled = true; btnSubmit.innerText = "Adding Fee Head..."; btnSubmit.style.opacity = '0.6';
+                e.preventDefault(); const btnSubmit = document.getElementById('btnSubmitFeeHead'); btnSubmit.disabled = true; btnSubmit.innerText = "Adding..."; btnSubmit.style.opacity = '0.6';
 
                 let newHead = {
                     Head_Name: document.getElementById('headName').value.trim(),
@@ -3698,9 +2520,6 @@
                 });
             }
 
-            // ==========================================
-            // EXPORT TO PDF LOGIC (html2pdf)
-            // ==========================================
             document.getElementById('exportLedgerPdfBtn')?.addEventListener('click', () => {
                 let sName = document.getElementById('l-name').innerText.replace(/[^a-zA-Z0-9]/g, "_");
                 let sReg = document.getElementById('l-reg').innerText.replace(/[^a-zA-Z0-9]/g, "_");
@@ -3708,7 +2527,6 @@
                 let fileName = `${sName}_${sReg}_${sClass}.pdf`;
 
                 let element = document.getElementById('ledgerExportArea');
-
                 let opt = {
                     margin: 0.3,
                     filename: fileName,
@@ -3716,18 +2534,13 @@
                     html2canvas: { scale: 2, useCORS: true },
                     jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
                 };
-
                 let originalBg = element.style.background;
                 element.style.background = "#fff";
-
                 html2pdf().set(opt).from(element).save().then(() => {
                     element.style.background = originalBg;
                 });
             });
 
-            // ==========================================
-            // EXPORT TO EXCEL LOGIC (Raw HTML wrapper)
-            // ==========================================
             document.getElementById('exportLedgerExcelBtn')?.addEventListener('click', () => {
                 let sName = document.getElementById('l-name').innerText.replace(/[^a-zA-Z0-9]/g, "_");
                 let sReg = document.getElementById('l-reg').innerText.replace(/[^a-zA-Z0-9]/g, "_");
@@ -3904,6 +2717,17 @@
             document.getElementById('closeLedgerBtn')?.addEventListener('click', () => {
                 document.getElementById('ledgerModal').classList.remove('active');
             });
+
+            // Search Receipts
+            let searchBox = document.getElementById('searchReceipt');
+            if (searchBox) {
+                searchBox.addEventListener('keyup', function () {
+                    let val = this.value.toLowerCase();
+                    document.querySelectorAll('#receiptsTableBody tr').forEach(tr => {
+                        tr.style.display = tr.innerText.toLowerCase().includes(val) ? '' : 'none';
+                    });
+                });
+            }
 
             initData();
         });
