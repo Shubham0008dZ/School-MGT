@@ -599,21 +599,16 @@
            - Negative horizontal margins extend the section to cover the
              main-content's 30px side padding so rows never show at the edges.
            - Bottom shadow gives clean visual separation from scrolling rows.
+           - ::before paints an opaque block ABOVE the section so scrolling rows
+             can never be seen in the strip above the sticky toolbar.
            ================================================== */
-        #module-profiles {
-            /* Preserve the existing visual top position without putting a
-               negative margin on the sticky element itself. */
-            margin-top: -20px;
-        }
-
         #module-profiles .sticky-top-section {
             position: sticky;
             top: 0;
             z-index: 20;
             background: var(--paper);
-            isolation: isolate;
-            /* Keep the sticky element at a normal top position */
-            margin-top: 0;
+            /* Cancel parent's top padding */
+            margin-top: -20px;
             padding-top: 18px;
             padding-bottom: 6px;
             /* Cover parent's side padding (30px) */
@@ -623,6 +618,18 @@
             padding-right: 30px;
             /* Visual separation from rows below */
             box-shadow: 0 6px 10px -8px rgba(20, 33, 61, 0.22);
+        }
+
+        /* Solid opaque cover ABOVE the sticky toolbar (prevents rows peeking). */
+        #module-profiles .sticky-top-section::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: -160px;
+            height: 160px;
+            background: var(--paper);
+            pointer-events: none;
         }
 
         #module-profiles .sticky-top-section .profile-header {
@@ -640,14 +647,15 @@
             padding: 8px 14px !important;
         }
 
-        /* Small breathing room before the table so the first listed
-           student is not visually clipped against the sticky area. */
+        /* Small breathing space so the very first row is never clipped by the header */
         #module-profiles .table-container {
-            padding-top: 8px;
+            padding-top: 10px;
         }
 
         /* ==================================================
            ✅ STICKY TABLE HEADER (Profiles only)
+           - 2px overlap with the sticky toolbar (which paints above, z-index 20)
+             guarantees there is never a hairline gap where rows can peek through.
            ================================================== */
         #module-profiles .data-table {
             overflow: visible;
@@ -655,8 +663,8 @@
 
         #module-profiles .data-table thead th {
             position: sticky;
-            top: var(--sticky-toolbar-h, 120px);
-            z-index: 10;
+            top: calc(var(--sticky-toolbar-h, 120px) - 2px);
+            z-index: 15;
             box-shadow: 0 1px 0 0 var(--line);
         }
 
@@ -2409,7 +2417,8 @@
         function updateStickyTableHead() {
             const stickySec = document.querySelector('#module-profiles .sticky-top-section');
             if (!stickySec) return;
-            const topOffset = stickySec.offsetHeight;
+            const topOffset = Math.ceil(stickySec.getBoundingClientRect().height);
+            if (!topOffset) return; // module hidden -> keep last known good value
             document.documentElement.style.setProperty('--sticky-toolbar-h', topOffset + 'px');
         }
 
