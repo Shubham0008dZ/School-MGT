@@ -2319,6 +2319,14 @@
         let pendingReceiptData = null;
         let pendingSuccessAction = null;
 
+        // PERFORMANCE / QUOTA CONTROL
+        // Keeps already-loaded fee data in memory so local UI actions do not
+        // trigger a full Firestore reload. Manual Sync still forces a refresh.
+        let feeDataLoaded = false;
+        let feeDataSchoolCode = "";
+        let feeInitPromise = null;
+        let searchableSelectsInitialized = false;
+
         const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
         const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/128/3135/3135715.png';
         let schoolCode = "";
@@ -2688,61 +2696,126 @@
                 document.title = originalTitle;
             }
 
-            window.initData = async function () {
+            function refreshFeeUIFromMemory() {
+                // No Firestore call here. Rebuild only the existing UI from the
+                // already-loaded arrays so saves/deletes stay fully functional
+                // without re-reading the whole database.
+                populateStudentsDropdown();
+                populateConcessionFormDropdowns();
+                renderFeeHeadsSetupList();
+                renderReceiptsTable();
+                renderConcessionsList();
+                updateNextReceiptNo();
+            }
+
+            window.initData = function (forceRefresh = false) {
+                const cacheIsValid = feeDataLoaded && feeDataSchoolCode === schoolCode;
+
+                // Normal callers (save/delete/navigation refresh) reuse the current
+                // in-memory dataset. This is the main quota-saving path.
+                if (!forceRefresh && cacheIsValid) {
+                    refreshFeeUIFromMemory();
+                    return Promise.resolve();
+                }
+
+                // Prevent duplicate simultaneous initial/manual sync requests.
+                if (feeInitPromise) return feeInitPromise;
+
                 const tbody = document.getElementById('receiptsTableBody');
                 if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">Fetching Database... ⏳</td></tr>';
 
-                try {
-                    let setupDoc = await db.collection("setups").doc(schoolCode).get().catch(() => null);
-                    if (setupDoc && setupDoc.exists) {
-                        let setup = setupDoc.data();
-                        setupClasses = setup.classes || [];
-                        feeHeads = setup.feeHeads || [];
+                feeInitPromise = (async () => {
+                    try {
+                        // These are the same four data sources as before; they are
+                        // fetched together to reduce wait time, while all existing
+                        // calculations/data structures remain unchanged.
+                        const [setupDoc, studentSnap, feeSnap, conSnap, advSnap] = await Promise.all([
+                            db.collection("setups").doc(schoolCode).get().catch(() => null),
+                            db.collection("students").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] })),
+                            db.collection("fee_receipts").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] })),
+                            db.collection("fee_concessions").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] })),
+                            db.collection("fee_advances").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }))
+                        ]);
+
+                        // Build new arrays/maps first; only replace live state after
+                        // all source reads have completed.
+                        let nextSetupClasses = setupClasses;
+                        let nextFeeHeads = feeHeads;
+                        if (setupDoc && setupDoc.exists) {
+                            const setup = setupDoc.data();
+                            nextSetupClasses = setup.classes || [];
+                            nextFeeHeads = setup.feeHeads || [];
+                        }
+
+                        const nextAllStudents = [];
+                        if (studentSnap && studentSnap.forEach) {
+                            studentSnap.forEach(doc => { nextAllStudents.push(doc.data()); });
+                        }
+
+                        const nextFeeReceipts = [];
+                        if (feeSnap && feeSnap.forEach) {
+                            feeSnap.forEach(doc => {
+                                const d = doc.data();
+                                d.id = doc.id;
+                                nextFeeReceipts.push(d);
+                            });
+                        }
+
+                        const nextFeeConcessions = [];
+                        if (conSnap && conSnap.forEach) {
+                            conSnap.forEach(doc => {
+                                const d = doc.data();
+                                d.id = doc.id;
+                                nextFeeConcessions.push(d);
+                            });
+                        }
+
+                        const nextFeeAdvancesMap = {};
+                        if (advSnap && advSnap.forEach) {
+                            advSnap.forEach(doc => {
+                                const d = doc.data();
+                                d.id = doc.id;
+                                nextFeeAdvancesMap[String(d.Reg_No)] = d;
+                            });
+                        }
+
+                        setupClasses = nextSetupClasses;
+                        feeHeads = nextFeeHeads;
+                        allStudents = nextAllStudents;
+                        feeReceipts = nextFeeReceipts;
+                        feeConcessions = nextFeeConcessions;
+                        feeAdvancesMap = nextFeeAdvancesMap;
+                        feeDataSchoolCode = schoolCode;
+                        feeDataLoaded = true;
+
+                        refreshFeeUIFromMemory();
+
+                        // Searchable-select wrappers are DOM enhancements; initialize
+                        // them only once so repeated syncs do not create duplicate
+                        // wrappers/listeners. Their underlying <select> data still
+                        // gets refreshed above.
+                        if (!searchableSelectsInitialized) {
+                            makeSearchableSelect('feeStudentSelect', '🔍 Type student name, adm no, class...');
+                            makeSearchableSelect('conStudent', '🔍 Type student name...');
+                            makeSearchableSelect('conFeeHead', '🔍 Search fee head...');
+                            makeSearchableSelect('feeMonthSelect', '🔍 Search month...');
+                            makeSearchableSelect('conFrom', '🔍 Search month...');
+                            makeSearchableSelect('conTo', '🔍 Search month...');
+                            searchableSelectsInitialized = true;
+                        }
+                    } catch (error) {
+                        console.error("Firebase Sync Error:", error);
+                        if (tbody) tbody.innerHTML = `<tr><td colspan="11" style="color:#c0392b; text-align:center;"><b>Connection Failed:</b> ${error.message} <button onclick="initData(true)">Retry</button></td></tr>`;
+                    } finally {
+                        feeInitPromise = null;
                     }
+                })();
 
-                    let studentSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
-                    allStudents = [];
-                    if (studentSnap.forEach) { studentSnap.forEach(doc => { allStudents.push(doc.data()); }); }
+                return feeInitPromise;
+            };
 
-                    let feeSnap = await db.collection("fee_receipts").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
-                    feeReceipts = [];
-                    if (feeSnap.forEach) { feeSnap.forEach(doc => { let d = doc.data(); d.id = doc.id; feeReceipts.push(d); }); }
-
-                    let conSnap = await db.collection("fee_concessions").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
-                    feeConcessions = [];
-                    if (conSnap.forEach) { conSnap.forEach(doc => { let d = doc.data(); d.id = doc.id; feeConcessions.push(d); }); }
-
-                    let advSnap = await db.collection("fee_advances").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
-                    feeAdvancesMap = {};
-                    if (advSnap.forEach) {
-                        advSnap.forEach(doc => {
-                            let d = doc.data();
-                            d.id = doc.id;
-                            feeAdvancesMap[String(d.Reg_No)] = d;
-                        });
-                    }
-
-                    populateStudentsDropdown();
-                    populateConcessionFormDropdowns();
-                    renderFeeHeadsSetupList();
-                    renderReceiptsTable();
-                    renderConcessionsList();
-                    updateNextReceiptNo();
-
-                    makeSearchableSelect('feeStudentSelect', '🔍 Type student name, adm no, class...');
-                    makeSearchableSelect('conStudent', '🔍 Type student name...');
-                    makeSearchableSelect('conFeeHead', '🔍 Search fee head...');
-                    makeSearchableSelect('feeMonthSelect', '🔍 Search month...');
-                    makeSearchableSelect('conFrom', '🔍 Search month...');
-                    makeSearchableSelect('conTo', '🔍 Search month...');
-
-                } catch (error) {
-                    console.error("Firebase Sync Error:", error);
-                    if (tbody) tbody.innerHTML = `<tr><td colspan="11" style="color:#c0392b; text-align:center;"><b>Connection Failed:</b> ${error.message} <button onclick="initData()">Retry</button></td></tr>`;
-                }
-            }
-
-            document.getElementById('btnSyncFees')?.addEventListener('click', initData);
+            // Manual Sync is the explicit cache-bypass action.
+            document.getElementById('btnSyncFees')?.addEventListener('click', () => initData(true));
 
             // ============================================================
             // ✅ PERFORMANCE-FIXED: populateStudentsDropdown
@@ -3295,12 +3368,20 @@
                     }
                     await db.collection("fee_advances").doc(advDocId).set(advData, { merge: true });
 
+                    // Keep local state in sync with the successful writes. This
+                    // replaces the old full initData() round-trip after every receipt.
+                    const receiptWithId = { ...receiptData, id: docId };
+                    const existingReceiptIndex = feeReceipts.findIndex(r => String(r.id) === String(docId));
+                    if (existingReceiptIndex >= 0) feeReceipts[existingReceiptIndex] = receiptWithId;
+                    else feeReceipts.push(receiptWithId);
+                    feeAdvancesMap[String(regNo)] = { ...advData, id: advDocId };
+
                     document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '1');
 
                     if (onSuccessAction === 'print') {
                         executePrint(document.getElementById('profName').innerText, receiptData.Receipt_No);
                         currentAppliedAdvance = 0;
-                        initData();
+                        refreshFeeUIFromMemory();
                     } else {
                         let msg = "Receipt Saved Successfully!";
                         if (refundAmount > 0) msg += `\n\nRefund of ₹${formatMoney(refundAmount)} recorded for parents.`;
@@ -3309,12 +3390,12 @@
                         if (onSuccessAction === 'close') {
                             document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
                             document.getElementById('module-receipts-list').classList.add('active-module');
-                            initData();
+                            refreshFeeUIFromMemory();
                         }
                         if (onSuccessAction === 'new') {
                             document.getElementById('feeStudentSelect').value = "";
                             clearProfilePanel();
-                            initData();
+                            refreshFeeUIFromMemory();
                         }
                     }
                 } catch (error) {
@@ -3533,8 +3614,9 @@
             window.deleteReceipt = function (docId) {
                 if (confirm(`Delete this Receipt? This will revert the fee ledger but NOT the advance balance.`)) {
                     db.collection("fee_receipts").doc(docId).delete().then(() => {
+                        feeReceipts = feeReceipts.filter(r => String(r.id) !== String(docId));
                         alert("Receipt Deleted.");
-                        initData();
+                        refreshFeeUIFromMemory();
                     }).catch(err => alert("Error: " + err.message));
                 }
             }
@@ -3586,10 +3668,11 @@
                 updatedHeads.push(newHead);
                 try {
                     await db.collection("setups").doc(schoolCode).set({ feeHeads: updatedHeads }, { merge: true });
+                    feeHeads = updatedHeads;
                     alert("Fee Head Added Successfully!");
                     document.getElementById('feeSetupForm').reset();
                     document.getElementById('quartersWrap').style.display = 'none';
-                    initData();
+                    refreshFeeUIFromMemory();
                 } catch (error) {
                     alert("Error adding fee head: " + error.message);
                 } finally {
@@ -3601,7 +3684,8 @@
                 if (confirm(`Delete Fee Head: ${headName}?`)) {
                     let updatedHeads = feeHeads.filter(h => h.Head_Name !== headName);
                     db.collection("setups").doc(schoolCode).set({ feeHeads: updatedHeads }, { merge: true }).then(() => {
-                        initData();
+                        feeHeads = updatedHeads;
+                        refreshFeeUIFromMemory();
                     });
                 }
             }
@@ -3636,11 +3720,13 @@
                     Created_By: activeUser.empName || 'System'
                 };
                 try {
-                    await db.collection("fee_concessions").add(conData);
+                    const concessionRef = await db.collection("fee_concessions").add(conData);
+                    conData.id = concessionRef.id;
+                    feeConcessions.push(conData);
                     alert("Concession Saved Successfully!");
                     document.getElementById('feeConcessionForm').reset();
                     document.getElementById('conTo').value = academicMonths[academicMonths.length - 1];
-                    initData();
+                    refreshFeeUIFromMemory();
                 } catch (err) {
                     alert("Error saving concession: " + err.message);
                 } finally {
@@ -3672,8 +3758,9 @@
             window.deleteConcession = function (id) {
                 customConfirm("Delete this concession record?", () => {
                     db.collection("fee_concessions").doc(id).delete().then(() => {
+                        feeConcessions = feeConcessions.filter(c => String(c.id) !== String(id));
                         customAlert("Concession deleted.");
-                        initData();
+                        refreshFeeUIFromMemory();
                     }).catch(err => alert("Error: " + err.message));
                 });
             }
