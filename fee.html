@@ -1507,9 +1507,9 @@
                         <div class="filters"
                             style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                             <div>
-                                <strong>Filters: </strong> Academic Year : 2026-2027
-                                <button class="btn btn-dark" style="margin-left:10px;">▼ Filters</button>
-                                <input type="text" id="searchReceipt" placeholder="🔍 Search..." class="search-small">
+                                <strong>Academic Year : 2026-2027</strong>
+                                <input type="text" id="searchReceipt" placeholder="🔍 Search..." class="search-small"
+                                    style="margin-left:10px;">
                             </div>
                             <div style="display:flex; gap:5px;">
                                 <button class="btn btn-green" id="btn-open-add-receipt">⊕ Add Receipt</button>
@@ -1579,7 +1579,8 @@
 
                     <div class="fee-main-split">
                         <div class="fee-profile-panel">
-                            <div class="profile-img-box"><img src="https://via.placeholder.com/100" alt="Student">
+                            <div class="profile-img-box">
+                                <img src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" alt="Student">
                                 <h4 id="profName" style="color:white; margin-top:10px;">STUDENT NAME</h4>
                             </div>
                             <div class="profile-details">
@@ -1992,6 +1993,58 @@
         const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
         let schoolCode = "";
 
+        // =============================================================
+        // FEE APPLICABLE DATE HELPERS (aligned with SIS module)
+        // =============================================================
+        const MONTH_NAME_TO_INDEX = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+
+        function parseAcademicMonthToken(mStr) {
+            if (typeof mStr !== 'string') return null;
+            const parts = mStr.split(',');
+            if (parts.length !== 2) return null;
+            const monKey = parts[0].trim();
+            const yrShort = parts[1].trim();
+            if (!/^[A-Za-z]{3}$/.test(monKey)) return null;
+            if (!/^\d{2}$/.test(yrShort)) return null;
+            const monIdx = MONTH_NAME_TO_INDEX[monKey.charAt(0).toUpperCase() + monKey.slice(1).toLowerCase()];
+            if (monIdx === undefined) return null;
+            return { year: 2000 + parseInt(yrShort, 10), month: monIdx };
+        }
+
+        function parseISODate(str) {
+            if (typeof str !== 'string') return null;
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return null;
+            const [y, m, d] = str.split('-').map(n => parseInt(n, 10));
+            if (y < 1900 || y > 2200) return null;
+            if (m < 1 || m > 12) return null;
+            if (d < 1 || d > 31) return null;
+            const dt = new Date(y, m - 1, d);
+            if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return null;
+            return { year: y, month: m - 1, day: d };
+        }
+
+        function shouldShowMonth(academicMonthStr, feeApplicableDateStr, fee50Rule) {
+            // No applicable date → show all (backward compatible)
+            if (!feeApplicableDateStr) return true;
+
+            const acc = parseAcademicMonthToken(academicMonthStr);
+            const app = parseISODate(feeApplicableDateStr);
+            if (!acc || !app) return true;
+
+            const accKey = acc.year * 12 + acc.month;
+            const appKey = app.year * 12 + app.month;
+
+            // Before applicable month → hide
+            if (accKey < appKey) return false;
+
+            // Same month as applicable → apply 50% rule
+            if (accKey === appKey && fee50Rule === true) {
+                // If joining day is after 15 → skip that whole month
+                if (app.day > 15) return false;
+            }
+            return true;
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
 
             document.querySelectorAll('.nav-btn').forEach(link => {
@@ -2047,13 +2100,11 @@
             // 🛡️ SECURITY GUARD (RBAC STRICT ENFORCEMENT)
             // ==========================================
             if (!isSA) {
-                // If no Fee rights at all, kick to index
                 if (!userRights.some(r => r.startsWith("FEE_"))) {
                     window.location.href = 'index.html';
                     return;
                 }
 
-                // 1. FEE_View : Read receipts
                 if (!userRights.includes("FEE_View")) {
                     let menuView = document.querySelector('.nav-btn[data-target="module-receipts-list"]');
                     if (menuView) menuView.parentElement.remove();
@@ -2061,7 +2112,6 @@
                     if (modReceipts) modReceipts.innerHTML = "<div style='padding:40px; text-align:center;'><h2 style='color:#e74c3c;'>Access Denied</h2><p>You do not have permission to view fee receipts.</p></div>";
                 }
 
-                // 2. FEE_Collect : Create new receipt
                 if (!userRights.includes("FEE_Collect")) {
                     let addBtn = document.getElementById('btn-open-add-receipt');
                     let menuCollect = document.getElementById('sideAddReceipt');
@@ -2071,7 +2121,6 @@
                     if (addMod) addMod.remove();
                 }
 
-                // 3. FEE_Heads : Manage Fee Setup
                 if (!userRights.includes("FEE_Heads")) {
                     let menuHeads = document.querySelector('.nav-btn[data-target="module-fee-setup"]');
                     if (menuHeads) menuHeads.parentElement.remove();
@@ -2179,6 +2228,10 @@
                 let classFeeAmount = 0;
                 if (student.studentClass) { let cSetup = setupClasses.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass); if (cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); } }
 
+                // ⭐ Fee Applicable Date + 50% Rule
+                const feeAppDate = (student && typeof student.feeApplicableDate === 'string') ? student.feeApplicableDate : '';
+                const fee50 = !!(student && student.fee50Rule === true);
+
                 let paidMap = {};
                 feeReceipts.forEach(r => {
                     if (String(r.Reg_No).trim() === String(student.regNo).trim()) {
@@ -2187,7 +2240,11 @@
                 });
 
                 let allRows = []; let selectedMonthIdx = academicMonths.indexOf(selectedMonthVal); if (selectedMonthIdx === -1) selectedMonthIdx = 0;
+
                 for (let i = 0; i <= selectedMonthIdx; i++) {
+                    // ⭐ Skip months before Fee Applicable Date
+                    if (!shouldShowMonth(academicMonths[i], feeAppDate, fee50)) continue;
+
                     let uid = "Monthly Tuition Fee_" + academicMonths[i]; let alreadyPaid = paidMap[uid] || 0; let remaining = classFeeAmount - alreadyPaid;
                     if (remaining > 0) { allRows.push({ head: "Monthly Tuition Fee", period: academicMonths[i], amount: remaining }); }
                 }
@@ -2196,6 +2253,9 @@
                     let amount = parseFloat(fh.Amount) || 0;
                     if (fh.Frequency === "Monthly") {
                         for (let i = 0; i <= selectedMonthIdx; i++) {
+                            // ⭐ Skip months before Fee Applicable Date
+                            if (!shouldShowMonth(academicMonths[i], feeAppDate, fee50)) continue;
+
                             let uid = fh.Head_Name + "_" + academicMonths[i]; let alreadyPaid = paidMap[uid] || 0; let remaining = amount - alreadyPaid;
                             if (remaining > 0) { allRows.push({ head: fh.Head_Name, period: academicMonths[i], amount: remaining }); }
                         }
@@ -2391,7 +2451,6 @@
 
                     let btnHTML = `<button class="btn-red" style="background:#3498db;" title="Print" onclick='printFromHistory(${safeReceipt})'>🖨️</button>`;
 
-                    // 🛡️ SECURITY GUARD: FEE_Delete Check
                     if (isSA || userRights.includes("FEE_Delete")) {
                         btnHTML += `<button class="btn-red" title="Delete" onclick="deleteReceipt('${r.id}')">🗑️</button>`;
                     }
@@ -2577,6 +2636,7 @@
 
             // ==========================================
             // THE "KUNDLI" - STUDENT FEE LEDGER 
+            // (Now respects Fee Applicable Date + 50% Rule)
             // ==========================================
             window.openLedger = function (regNo) {
                 let student = allStudents ? allStudents.find(s => String(s.regNo) === String(regNo)) : null;
@@ -2601,6 +2661,10 @@
                 document.getElementById('l-reg').innerText = regNo;
                 document.getElementById('l-class').innerText = sClass;
                 document.getElementById('l-father').innerText = sFather;
+
+                // ⭐ Fee Applicable Date + 50% Rule (from student record)
+                const feeAppDate = (student && typeof student.feeApplicableDate === 'string') ? student.feeApplicableDate : '';
+                const fee50 = !!(student && student.fee50Rule === true);
 
                 let classFeeAmount = 0;
                 if (student && student.studentClass && setupClasses) {
@@ -2665,6 +2729,11 @@
                 let totalDue = 0, totalPaid = 0;
 
                 academicMonths.forEach(month => {
+                    // ⭐ Apply Fee Applicable Date + 50% Rule
+                    if (!shouldShowMonth(month, feeAppDate, fee50)) {
+                        return; // Hide this month's fee rows entirely
+                    }
+
                     let tAmt = classFeeAmount;
                     let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0;
                     let tBal = tAmt - tPaid;
@@ -2706,6 +2775,10 @@
                         tbody.innerHTML += `<tr style="${anRowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (Annual)</b></td><td style="padding:10px; border:1px solid #ccc;">₹${amt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${pd.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${balStyle} font-weight:bold;">₹${bal.toFixed(2)}</td></tr>`;
                     }
                 });
+
+                if (tbody.innerHTML === '') {
+                    tbody.innerHTML = '<tr><td colspan="4" style="padding:16px; text-align:center; color:#888;">No applicable fees for the current academic session based on the Fee Applicable Date.</td></tr>';
+                }
 
                 document.getElementById('l-tot-due').innerText = "₹" + totalDue.toFixed(2);
                 document.getElementById('l-tot-paid').innerText = "₹" + totalPaid.toFixed(2);
