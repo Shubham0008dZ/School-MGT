@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,1126 +29,454 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap');
 
-        :root {
-            --ink: #14213D;
-            --ink-soft: #253355;
-            --brass: #C08A2E;
-            --brass-soft: #E4B563;
-            --paper: #F4F1E9;
-            --paper-2: #FBFAF6;
-            --white: #FFFFFF;
-            --line: #E3DFD2;
-            --line-soft: #ECE8DC;
-            --text: #211D18;
-            --text-mute: #6D6759;
-            --text-faint: #9A9382;
-            --good: #1F7A52;
-            --bad: #B23A2E;
-            --info: #2A5C8A;
-            --radius-m: 10px;
-            --radius-l: 16px;
-            --shadow-1: 0 1px 2px rgba(20, 33, 61, .06), 0 2px 8px rgba(20, 33, 61, .05);
-            --shadow-2: 0 10px 30px rgba(20, 33, 61, .12);
-        }
+        :root { --ink:#14213D; --ink-soft:#253355; --brass:#C08A2E; --brass-soft:#E4B563; --paper:#F4F1E9; --paper-2:#FBFAF6; --white:#FFFFFF; --line:#E3DFD2; --line-soft:#ECE8DC; --text:#211D18; --text-mute:#6D6759; --text-faint:#9A9382; --good:#1F7A52; --bad:#B23A2E; --info:#2A5C8A; --radius-m:10px; --radius-l:16px; --shadow-1:0 1px 2px rgba(20,33,61,.06), 0 2px 8px rgba(20,33,61,.05); --shadow-2:0 10px 30px rgba(20,33,61,.12); }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-        }
-
-        html,
-        body {
-            height: 100%;
-            background: var(--paper);
-            color: var(--text);
-        }
-
-        body {
-            overflow: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        ::-webkit-scrollbar {
-            width: 7px;
-            height: 7px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #C9C3B0;
-            border-radius: 999px;
-        }
-
-        h1,
-        h2,
-        h3,
-        h4 {
-            font-family: 'Fraunces', Georgia, serif;
-            color: var(--ink);
-            font-weight: 600;
-        }
+        * { box-sizing:border-box; margin:0; padding:0; font-family:'Inter', sans-serif; }
+        html, body { height:100%; background:var(--paper); color:var(--text); }
+        body { overflow:hidden; -webkit-font-smoothing:antialiased; }
+        ::-webkit-scrollbar { width:7px; height:7px; }
+        ::-webkit-scrollbar-thumb { background:#C9C3B0; border-radius:999px; }
+        h1,h2,h3,h4 { font-family:'Fraunces', Georgia, serif; color:var(--ink); font-weight:600; }
 
         /* NAVBAR */
-        .top-navbar {
-            height: 58px;
-            padding: 0 22px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--ink);
-            color: #EFEAD9;
-            box-shadow: 0 3px 16px rgba(20, 33, 61, .14);
-            position: relative;
-            z-index: 50;
-        }
-
-        .top-left {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .top-left a {
-            color: #F7F3E7;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .school-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-        }
-
-        #defaultNavLogo {
-            font-size: 20px;
-            line-height: 1;
-        }
-
-        #dynamicNavLogo {
-            object-fit: contain;
-        }
-
-        .school-name {
-            font-family: 'Fraunces', Georgia, serif;
-            font-size: 17px;
-            color: #F7F3E7;
-            font-weight: 600;
-        }
-
-        .top-center {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            max-width: 640px;
-            margin: 0 auto;
-        }
-
-        .global-search {
-            width: 100%;
-            max-width: 420px;
-            padding: 9px 14px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(255, 255, 255, .07);
-            color: #F7F3E7;
-            font-size: 13px;
-            outline: none;
-        }
-
-        .global-search::placeholder {
-            color: #A9A38E;
-        }
-
-        .global-search:focus {
-            background: rgba(255, 255, 255, .12);
-            border-color: var(--brass-soft);
-        }
-
-        .top-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #D8D2BF;
-        }
-
-        #btnLogout {
-            background: transparent;
-            color: #F0B8AE;
-            border: 1px solid rgba(240, 184, 174, .35);
-            padding: 7px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: .15s;
-        }
-
-        #btnLogout:hover {
-            background: rgba(178, 58, 46, .25);
-            border-color: #F0B8AE;
-        }
+        .top-navbar { height:58px; padding:0 22px; display:flex; align-items:center; justify-content:space-between; background:var(--ink); color:#EFEAD9; box-shadow:0 3px 16px rgba(20,33,61,.14); position:relative; z-index:50; }
+        .top-left { display:flex; align-items:center; gap:14px; }
+        .hamburger-btn { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); color:#EFEAD9; width:34px; height:34px; border-radius:8px; cursor:pointer; flex-shrink:0; }
+        .hamburger-btn:hover { background:rgba(255,255,255,.13); color:var(--brass-soft); }
+        .top-left a { color:#F7F3E7; text-decoration:none; display:flex; align-items:center; gap:12px; }
+        .school-logo { display:flex; align-items:center; justify-content:center; line-height:1; }
+        #defaultNavLogo { font-size:20px; line-height:1; }
+        #dynamicNavLogo { object-fit:contain; }
+        .school-name { font-family:'Fraunces', Georgia, serif; font-size:17px; color:#F7F3E7; font-weight:600; }
+        .top-center { flex:1; display:flex; justify-content:center; max-width:640px; margin:0 auto; }
+        .global-search { width:100%; max-width:420px; padding:9px 14px; border-radius:8px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.07); color:#F7F3E7; font-size:13px; outline:none; }
+        .global-search::placeholder { color:#A9A38E; }
+        .global-search:focus { background:rgba(255,255,255,.12); border-color:var(--brass-soft); }
+        .top-right { display:flex; align-items:center; gap:16px; font-size:13px; font-weight:600; color:#D8D2BF; }
+        #btnLogout { background:transparent; color:#F0B8AE; border:1px solid rgba(240,184,174,.35); padding:7px 14px; border-radius:8px; cursor:pointer; font-weight:600; transition:.15s; }
+        #btnLogout:hover { background:rgba(178,58,46,.25); border-color:#F0B8AE; }
 
         /* LAYOUT */
-        .erp-wrapper {
-            display: flex;
-            height: calc(100vh - 58px);
-        }
+        .erp-wrapper { display:flex; height:calc(100vh - 58px); }
+        .sidebar { width:258px; min-width:258px; flex-shrink:0; background:linear-gradient(180deg,#14213D 0%,#111C33 100%); display:flex; flex-direction:column; overflow-x:hidden; box-shadow:10px 0 30px rgba(20,33,61,.09); transition:width .25s ease, min-width .25s ease; }
+        .yellow-header { padding:22px 20px 14px; position:relative; border-bottom:1px solid rgba(255,255,255,.05); }
+        .yellow-header::after { content:""; position:absolute; left:20px; right:20px; bottom:-1px; height:1px; background:linear-gradient(90deg,var(--brass),transparent); }
+        .yellow-header h2 { color:#F7F3E7; font-size:15px; white-space:nowrap; }
+        .nav-links { list-style:none; padding:10px 12px; display:flex; flex-direction:column; gap:3px; }
+        .nav-links li a { display:flex; align-items:center; gap:12px; color:#C9C4B2; text-decoration:none; padding:11px 14px; border-radius:9px; font-size:13.5px; font-weight:500; border-left:3px solid transparent; white-space:nowrap; transition:background .15s, color .15s, padding .2s, font-size .2s; }
+        .nav-links li a:hover { background:rgba(255,255,255,.06); color:#F7F3E7; }
+        .nav-links li a.active { background:rgba(192,138,46,.16); color:#F7F3E7; border-left-color:var(--brass); font-weight:600; }
 
-        .sidebar {
-            width: 258px;
-            min-width: 258px;
-            flex-shrink: 0;
-            background: linear-gradient(180deg, #14213D 0%, #111C33 100%);
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-            box-shadow: 10px 0 30px rgba(20, 33, 61, .09);
-        }
+        /* COLLAPSED SIDEBAR STATE */
+        .sidebar.collapsed { width:68px; min-width:68px; }
+        .sidebar.collapsed .yellow-header h2 { display:none; }
+        .sidebar.collapsed .yellow-header { display:flex; justify-content:center; padding-left:0; padding-right:0; }
+        .sidebar.collapsed .nav-links li a { justify-content:center; gap:0; padding:12px 0; border-left:none; font-size:0; }
+        .sidebar.collapsed .nav-links li a .nav-icon { display:inline-flex; align-items:center; justify-content:center; width:20px; min-width:20px; font-size:17px; line-height:1; }
+        .sidebar.collapsed .nav-links li a.active { border-left:none; background:rgba(192,138,46,.20); }
 
-        .yellow-header {
-            padding: 22px 20px 14px;
-            position: relative;
-            border-bottom: 1px solid rgba(255, 255, 255, .05);
-        }
+        .main-content { flex:1; min-width:0; overflow-y:auto; padding:26px 30px 50px; background:var(--paper); }
+        .app-module { display:none; }
+        .app-module.active-module { display:block; animation:fadeIn .25s; }
+        @keyframes fadeIn { from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
 
-        .yellow-header::after {
-            content: "";
-            position: absolute;
-            left: 20px;
-            right: 20px;
-            bottom: -1px;
-            height: 1px;
-            background: linear-gradient(90deg, var(--brass), transparent);
-        }
+        .profile-header { display:flex; justify-content:space-between; align-items:flex-end; padding-bottom:16px; margin-bottom:22px; border-bottom:1px solid var(--line); flex-wrap:wrap; gap:12px; }
+        .profile-header h2 { font-size:22px; text-transform:none; }
 
-        .yellow-header h2 {
-            color: #F7F3E7;
-            font-size: 15px;
-        }
+        .table-toolbar { padding:12px 14px; margin-bottom:16px; border:1px solid var(--line); border-left:3px solid var(--brass); border-radius:var(--radius-m); background:var(--white); box-shadow:var(--shadow-1); }
+        .table-toolbar input[type="text"] { border:1px solid #D8D2C0; border-radius:7px; padding:9px 12px; background:var(--paper-2); font-size:13px; outline:none; }
+        .table-toolbar input[type="text"]:focus { border-color:var(--brass); background:var(--white); }
 
-        .nav-links {
-            list-style: none;
-            padding: 10px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
+        .btn { border:none; padding:9px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; transition:.15s; }
+        .btn:active { transform:translateY(1px); }
+        .btn-dark { background:var(--ink); color:#F4F1E9; }
+        .btn-dark:hover { background:var(--ink-soft); }
+        .btn-green { background:var(--good); color:#fff; }
+        .btn-green:hover { background:#186640; }
+        .btn-green:disabled { opacity:.6; cursor:not-allowed; }
 
-        .nav-links li a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #C9C4B2;
-            text-decoration: none;
-            padding: 11px 14px;
-            border-radius: 9px;
-            font-size: 13.5px;
-            font-weight: 500;
-            border-left: 3px solid transparent;
-            transition: background .15s, color .15s;
-        }
+        .data-table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; background:var(--white); border-radius:var(--radius-m); overflow:hidden; box-shadow:var(--shadow-1); border:1px solid var(--line); }
+        .data-table th { background:var(--ink); color:#EFEAD9; font-weight:600; text-align:left; padding:12px 14px; border-bottom:2px solid var(--brass); font-size:12px; letter-spacing:.02em; }
+        .data-table td { padding:11px 14px; border-bottom:1px solid var(--line-soft); vertical-align:middle; color:var(--text); }
+        .data-table tr:last-child td { border-bottom:none; }
+        .data-table tr:hover td { background:#FBF8F0; }
+        .data-table tr:nth-child(even) td { background:var(--paper-2); }
+        .data-table tr:nth-child(even):hover td { background:#F5F1E4; }
 
-        .nav-links li a:hover {
-            background: rgba(255, 255, 255, .06);
-            color: #F7F3E7;
-        }
-
-        .nav-links li a.active {
-            background: rgba(192, 138, 46, .16);
-            color: #F7F3E7;
-            border-left-color: var(--brass);
-            font-weight: 600;
-        }
-
-        .main-content {
-            flex: 1;
-            min-width: 0;
-            overflow-y: auto;
-            padding: 26px 30px 50px;
-            background: var(--paper);
-        }
-
-        .app-module {
-            display: none;
-        }
-
-        .app-module.active-module {
-            display: block;
-            animation: fadeIn .25s;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(4px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .profile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding-bottom: 16px;
-            margin-bottom: 22px;
-            border-bottom: 1px solid var(--line);
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .profile-header h2 {
-            font-size: 22px;
-            text-transform: none;
-        }
-
-        .table-toolbar {
-            padding: 12px 14px;
-            margin-bottom: 16px;
-            border: 1px solid var(--line);
-            border-left: 3px solid var(--brass);
-            border-radius: var(--radius-m);
-            background: var(--white);
-            box-shadow: var(--shadow-1);
-        }
-
-        .table-toolbar input[type="text"] {
-            border: 1px solid #D8D2C0;
-            border-radius: 7px;
-            padding: 9px 12px;
-            background: var(--paper-2);
-            font-size: 13px;
-            outline: none;
-        }
-
-        .table-toolbar input[type="text"]:focus {
-            border-color: var(--brass);
-            background: var(--white);
-        }
-
-        .btn {
-            border: none;
-            padding: 9px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: .15s;
-        }
-
-        .btn:active {
-            transform: translateY(1px);
-        }
-
-        .btn-dark {
-            background: var(--ink);
-            color: #F4F1E9;
-        }
-
-        .btn-dark:hover {
-            background: var(--ink-soft);
-        }
-
-        .btn-green {
-            background: var(--good);
-            color: #fff;
-        }
-
-        .btn-green:hover {
-            background: #186640;
-        }
-
-        .btn-green:disabled {
-            opacity: .6;
-            cursor: not-allowed;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            font-size: 13px;
-            background: var(--white);
-            border-radius: var(--radius-m);
-            overflow: hidden;
-            box-shadow: var(--shadow-1);
-            border: 1px solid var(--line);
-        }
-
-        .data-table th {
-            background: var(--ink);
-            color: #EFEAD9;
-            font-weight: 600;
-            text-align: left;
-            padding: 12px 14px;
-            border-bottom: 2px solid var(--brass);
-            font-size: 12px;
-            letter-spacing: .02em;
-        }
-
-        .data-table td {
-            padding: 11px 14px;
-            border-bottom: 1px solid var(--line-soft);
-            vertical-align: middle;
-            color: var(--text);
-        }
-
-        .data-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .data-table tr:hover td {
-            background: #FBF8F0;
-        }
-
-        .data-table tr:nth-child(even) td {
-            background: var(--paper-2);
-        }
-
-        .data-table tr:nth-child(even):hover td {
-            background: #F5F1E4;
-        }
-
-        .btn-action-rights {
-            background: var(--info);
-            color: #fff;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 7px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 12px;
-            margin-right: 5px;
-            transition: .15s;
-        }
-
-        .btn-action-rights:hover {
-            background: #1f4a70;
-        }
-
-        .btn-action-auth {
-            background: var(--brass);
-            color: #2a1c04;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 7px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 12px;
-            transition: .15s;
-        }
-
-        .btn-action-auth:hover {
-            background: #a8791f;
-        }
-
-        .badge-admin {
-            background: var(--good);
-            color: #fff;
-            padding: 4px 9px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .badge-user {
-            background: #9a9382;
-            color: #fff;
-            padding: 4px 9px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .badge-set {
-            background: var(--info);
-            color: #fff;
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-size: 10.5px;
-            font-weight: 700;
-        }
-
-        .badge-unset {
-            background: #D8D2C0;
-            color: #5c5748;
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-size: 10.5px;
-            font-weight: 700;
-        }
+        .btn-action-rights { background:var(--info); color:#fff; border:none; padding:6px 12px; border-radius:7px; cursor:pointer; font-weight:600; font-size:12px; margin-right:5px; transition:.15s; }
+        .btn-action-rights:hover { background:#1f4a70; }
+        .btn-action-auth { background:var(--brass); color:#2a1c04; border:none; padding:6px 12px; border-radius:7px; cursor:pointer; font-weight:700; font-size:12px; transition:.15s; }
+        .btn-action-auth:hover { background:#a8791f; }
+        .badge-admin { background:var(--good); color:#fff; padding:4px 9px; border-radius:20px; font-size:11px; font-weight:700; }
+        .badge-user { background:#9a9382; color:#fff; padding:4px 9px; border-radius:20px; font-size:11px; font-weight:700; }
+        .badge-set { background:var(--info); color:#fff; padding:3px 8px; border-radius:20px; font-size:10.5px; font-weight:700; }
+        .badge-unset { background:#D8D2C0; color:#5c5748; padding:3px 8px; border-radius:20px; font-size:10.5px; font-weight:700; }
 
         /* CAPSULE SWITCH */
-        .capsule-switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 22px;
-            flex-shrink: 0;
-        }
-
-        .capsule-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .capsule-slider {
-            position: absolute;
-            cursor: pointer;
-            inset: 0;
-            background: #D8D2C0;
-            transition: .25s;
-            border-radius: 22px;
-        }
-
-        .capsule-slider::before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 3px;
-            bottom: 3px;
-            background: #fff;
-            transition: .25s;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
-        }
-
-        input:checked+.capsule-slider {
-            background: var(--good);
-        }
-
-        input:checked+.capsule-slider::before {
-            transform: translateX(22px);
-        }
-
-        input:disabled+.capsule-slider {
-            opacity: .55;
-            cursor: not-allowed;
-        }
+        .capsule-switch { position:relative; display:inline-block; width:44px; height:22px; flex-shrink:0; }
+        .capsule-switch input { opacity:0; width:0; height:0; }
+        .capsule-slider { position:absolute; cursor:pointer; inset:0; background:#D8D2C0; transition:.25s; border-radius:22px; }
+        .capsule-slider::before { position:absolute; content:""; height:16px; width:16px; left:3px; bottom:3px; background:#fff; transition:.25s; border-radius:50%; box-shadow:0 2px 4px rgba(0,0,0,.2); }
+        input:checked + .capsule-slider { background:var(--good); }
+        input:checked + .capsule-slider::before { transform:translateX(22px); }
+        input:disabled + .capsule-slider { opacity:.55; cursor:not-allowed; }
 
         /* MODALS */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(20, 20, 15, .55);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(1.5px);
-        }
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(20,20,15,.55); z-index:9999; justify-content:center; align-items:center; backdrop-filter:blur(1.5px); }
+        .detailed-modal-content { background:var(--white); padding:0; border-radius:var(--radius-l); width:650px; box-shadow:0 20px 60px rgba(0,0,0,.35); overflow:hidden; display:flex; flex-direction:column; max-height:90vh; }
+        .modal-header-custom { background:var(--ink); color:#F4F1E9; padding:16px 22px; display:flex; justify-content:space-between; align-items:center; }
+        .modal-header-custom h3 { margin:0; font-size:16px; color:#F4F1E9; }
+        .modal-header-custom span[onclick] { cursor:pointer; color:#C9C4B2; font-size:22px; }
+        .modal-header-custom span[onclick]:hover { color:#fff; }
 
-        .detailed-modal-content {
-            background: var(--white);
-            padding: 0;
-            border-radius: var(--radius-l);
-            width: 650px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            max-height: 90vh;
-        }
+        .module-rights-group { border:1px solid var(--line); margin-bottom:15px; border-radius:var(--radius-m); overflow:hidden; }
+        .module-rights-header { background:var(--paper-2); padding:10px 15px; font-weight:700; color:var(--ink); border-bottom:1px solid var(--line); font-family:'Fraunces', serif; font-size:14px; }
+        .module-rights-body { padding:15px; display:grid; grid-template-columns:repeat(3,1fr); gap:15px; background:#fff; }
+        .right-item { display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:var(--text-mute); gap:8px; }
 
-        .modal-header-custom {
-            background: var(--ink);
-            color: #F4F1E9;
-            padding: 16px 22px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .super-admin-banner { background:var(--paper-2); border-left:5px solid var(--bad); padding:15px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; box-shadow:var(--shadow-1); }
+        .super-admin-banner h4 { margin:0; color:var(--bad); font-size:14px; }
+        .super-admin-banner p { margin:5px 0 0; font-size:12px; color:var(--text-mute); }
 
-        .modal-header-custom h3 {
-            margin: 0;
-            font-size: 16px;
-            color: #F4F1E9;
-        }
-
-        .modal-header-custom span[onclick] {
-            cursor: pointer;
-            color: #C9C4B2;
-            font-size: 22px;
-        }
-
-        .modal-header-custom span[onclick]:hover {
-            color: #fff;
-        }
-
-        .module-rights-group {
-            border: 1px solid var(--line);
-            margin-bottom: 15px;
-            border-radius: var(--radius-m);
-            overflow: hidden;
-        }
-
-        .module-rights-header {
-            background: var(--paper-2);
-            padding: 10px 15px;
-            font-weight: 700;
-            color: var(--ink);
-            border-bottom: 1px solid var(--line);
-            font-family: 'Fraunces', serif;
-            font-size: 14px;
-        }
-
-        .module-rights-body {
-            padding: 15px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            background: #fff;
-        }
-
-        .right-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 12.5px;
-            color: var(--text-mute);
-            gap: 8px;
-        }
-
-        .super-admin-banner {
-            background: var(--paper-2);
-            border-left: 5px solid var(--bad);
-            padding: 15px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow-1);
-        }
-
-        .super-admin-banner h4 {
-            margin: 0;
-            color: var(--bad);
-            font-size: 14px;
-        }
-
-        .super-admin-banner p {
-            margin: 5px 0 0;
-            font-size: 12px;
-            color: var(--text-mute);
-        }
-
-        .input-group {
-            margin-bottom: 14px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 11.5px;
-            color: var(--text-mute);
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .input-group input[type="text"],
-        .input-group input[type="email"] {
-            width: 100%;
-            padding: 10px 11px;
-            border: 1px solid #D8D2C0;
-            border-radius: 8px;
-            font-size: 13px;
-            background: var(--paper-2);
-            outline: none;
-        }
-
-        .input-group input:focus {
-            border-color: var(--brass);
-            background: #fff;
-        }
-
-        .chk-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: var(--text);
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-
-        .chk-row input {
-            accent-color: var(--brass);
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
+        .input-group { margin-bottom:14px; }
+        .input-group label { display:block; font-size:11.5px; color:var(--text-mute); font-weight:700; margin-bottom:6px; }
+        .input-group input[type="text"], .input-group input[type="email"] { width:100%; padding:10px 11px; border:1px solid #D8D2C0; border-radius:8px; font-size:13px; background:var(--paper-2); outline:none; }
+        .input-group input:focus { border-color:var(--brass); background:#fff; }
+        .chk-row { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text); margin-bottom:10px; cursor:pointer; }
+        .chk-row input { accent-color:var(--brass); width:16px; height:16px; cursor:pointer; }
 
         @media (max-width:680px) {
-            .sidebar {
-                width: 68px;
-                min-width: 68px;
-            }
-
-            .yellow-header h2 {
-                display: none;
-            }
-
-            .nav-links li a span:not(:first-child) {
-                display: none;
-            }
-
-            .nav-links li a {
-                justify-content: center;
-                padding: 12px 0;
-            }
-
-            .top-center {
-                display: none;
-            }
+            .sidebar:not(.collapsed) { width:68px; min-width:68px; }
+            .sidebar:not(.collapsed) .yellow-header h2 { display:none; }
+            .sidebar:not(.collapsed) .nav-links li a { justify-content:center; padding:12px 0; font-size:0; }
+            .sidebar:not(.collapsed) .nav-links li a .nav-icon { font-size:17px; }
+            .top-center { display:none; }
         }
     </style>
 </head>
-
 <body>
 
-    <div class="top-navbar">
-        <div class="top-left">
-            <a href="index.html">
-                <span class="school-logo">
-                    <img id="dynamicNavLogo" src="" alt="School logo"
-                        style="max-height:26px; max-width:32px; margin-right:2px; border-radius:5px; display:none; vertical-align:middle;">
-                    <span id="defaultNavLogo">🏫</span>
-                </span>
-                <span class="school-name" id="dynamicNavName">SHUBH ERP</span>
-            </a>
-        </div>
-        <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
-        <div class="top-right">
-            <span>⚏ User Management 🔔</span>
-            <button id="btnLogout">🚪 Logout</button>
-        </div>
+<div class="top-navbar">
+    <div class="top-left">
+        <button class="hamburger-btn" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">☰</button>
+        <a href="index.html">
+            <span class="school-logo">
+                <img id="dynamicNavLogo" src="" alt="School logo"
+                     style="max-height:26px; max-width:32px; margin-right:2px; border-radius:5px; display:none; vertical-align:middle;">
+                <span id="defaultNavLogo">🏫</span>
+            </span>
+            <span class="school-name" id="dynamicNavName">SHUBH ERP</span>
+        </a>
+    </div>
+    <div class="top-center"><input type="text" placeholder="Global Search..." class="global-search"></div>
+    <div class="top-right">
+        <span>⚏ User Management 🔔</span>
+        <button id="btnLogout">🚪 Logout</button>
+    </div>
+</div>
+
+<div class="erp-wrapper">
+    <div class="sidebar" id="sidebar">
+        <div class="yellow-header"><h2>📚 SHUBH ERP</h2></div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-btn"><span class="nav-icon">🏠</span> Dashboard</a></li>
+            <li><a href="#" class="nav-btn active" data-target="module-user-list"><span class="nav-icon">👥</span> Employees List</a></li>
+            <li><a href="#" class="nav-btn" data-target="module-student-users"><span class="nav-icon">🎓</span> Students List</a></li>
+        </ul>
     </div>
 
-    <div class="erp-wrapper">
-        <div class="sidebar">
-            <div class="yellow-header">
-                <h2>📚 SHUBH ERP</h2>
+    <div class="main-content">
+        <!-- EMPLOYEES -->
+        <div id="module-user-list" class="app-module active-module">
+            <div class="profile-header"><h2>User Management (Employees)</h2></div>
+            <div class="table-container">
+                <div class="table-toolbar">
+                    <div class="filters" style="display:flex; gap:10px; align-items:center; width:100%;">
+                        <span style="color:var(--text-faint); font-size:15px;">⚲</span>
+                        <input type="text" id="searchEmpUser" placeholder="Search by name or ID..." style="width:300px;">
+                        <button class="btn btn-dark" id="btnSyncUsers" style="margin-left:auto;">🔄 Sync Data</button>
+                    </div>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Sr No.</th><th>Employee ID</th><th>Employee Name</th><th>Department</th><th>Designation</th><th>Super Admin</th><th>Login Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr><td colspan="8" style="text-align: center;">Fetching Database... ⏳</td></tr>
+                    </tbody>
+                </table>
             </div>
-            <ul class="nav-links">
-                <li><a href="index.html" class="nav-btn"><span class="nav-icon">🏠</span> Dashboard</a></li>
-                <li><a href="#" class="nav-btn active" data-target="module-user-list"><span class="nav-icon">👥</span>
-                        Employees List</a></li>
-                <li><a href="#" class="nav-btn" data-target="module-student-users"><span class="nav-icon">🎓</span>
-                        Students List</a></li>
-            </ul>
         </div>
 
-        <div class="main-content">
-            <!-- EMPLOYEES -->
-            <div id="module-user-list" class="app-module active-module">
-                <div class="profile-header">
-                    <h2>User Management (Employees)</h2>
-                </div>
-                <div class="table-container">
-                    <div class="table-toolbar">
-                        <div class="filters" style="display:flex; gap:10px; align-items:center; width:100%;">
-                            <span style="color:var(--text-faint); font-size:15px;">⚲</span>
-                            <input type="text" id="searchEmpUser" placeholder="Search by name or ID..."
-                                style="width:300px;">
-                            <button class="btn btn-dark" id="btnSyncUsers" style="margin-left:auto;">🔄 Sync
-                                Data</button>
-                        </div>
+        <!-- STUDENTS -->
+        <div id="module-student-users" class="app-module">
+            <div class="profile-header"><h2>User Management (Students)</h2></div>
+            <div class="table-container">
+                <div class="table-toolbar" style="border-left-color:var(--info);">
+                    <div class="filters" style="display:flex; gap:10px; align-items:center; width:100%;">
+                        <span style="color:var(--text-faint); font-size:15px;">⚲</span>
+                        <input type="text" id="searchStudentUser" placeholder="Search Student Name, Login ID or Reg No..." style="width:340px;">
                     </div>
-
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Sr No.</th>
-                                <th>Employee ID</th>
-                                <th>Employee Name</th>
-                                <th>Department</th>
-                                <th>Designation</th>
-                                <th>Super Admin</th>
-                                <th>Login Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="userTableBody">
-                            <tr>
-                                <td colspan="8" style="text-align: center;">Fetching Database... ⏳</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
-            </div>
 
-            <!-- STUDENTS -->
-            <div id="module-student-users" class="app-module">
-                <div class="profile-header">
-                    <h2>User Management (Students)</h2>
-                </div>
-                <div class="table-container">
-                    <div class="table-toolbar" style="border-left-color:var(--info);">
-                        <div class="filters" style="display:flex; gap:10px; align-items:center; width:100%;">
-                            <span style="color:var(--text-faint); font-size:15px;">⚲</span>
-                            <input type="text" id="searchStudentUser"
-                                placeholder="Search Student Name, Login ID or Reg No..." style="width:340px;">
-                        </div>
-                    </div>
-
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Sr No.</th>
-                                <th>Reg No.</th>
-                                <th>Student Name</th>
-                                <th>Class (Sec)</th>
-                                <th>Portal User ID</th>
-                                <th>Security PIN</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="studentUserTableBody">
-                            <tr>
-                                <td colspan="7" style="text-align: center;">Fetching Database... ⏳</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Sr No.</th><th>Reg No.</th><th>Student Name</th><th>Class (Sec)</th><th>Portal User ID</th><th>Security PIN</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="studentUserTableBody">
+                        <tr><td colspan="7" style="text-align: center;">Fetching Database... ⏳</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- =====================================
+<!-- =====================================
      MODALS
      ===================================== -->
 
-    <!-- ASSIGN RIGHTS MODAL (EMPLOYEES) -->
-    <div id="assignRightsModal" class="modal-overlay">
-        <div class="detailed-modal-content">
-            <div class="modal-header-custom">
-                <h3>Assign Rights: <span id="rightsEmpName" style="color:var(--brass-soft);">Employee</span>
-                    <small style="opacity:.65; font-weight:400; font-size:12px;">(ID: <span
-                            id="rightsEmpId"></span>)</small>
-                </h3>
-                <span onclick="document.getElementById('assignRightsModal').style.display='none'">&times;</span>
-            </div>
-            <div style="padding:20px; overflow-y:auto; background:var(--paper); flex:1;">
+<!-- ASSIGN RIGHTS MODAL (EMPLOYEES) -->
+<div id="assignRightsModal" class="modal-overlay">
+    <div class="detailed-modal-content">
+        <div class="modal-header-custom">
+            <h3>Assign Rights: <span id="rightsEmpName" style="color:var(--brass-soft);">Employee</span>
+                <small style="opacity:.65; font-weight:400; font-size:12px;">(ID: <span id="rightsEmpId"></span>)</small>
+            </h3>
+            <span onclick="document.getElementById('assignRightsModal').style.display='none'">&times;</span>
+        </div>
+        <div style="padding:20px; overflow-y:auto; background:var(--paper); flex:1;">
 
-                <div class="super-admin-banner">
-                    <div>
-                        <h4>Super Admin Privilege</h4>
-                        <p>Grants full unrestricted access to all modules and menus. Overrides individual rights.</p>
-                    </div>
-                    <label class="capsule-switch">
-                        <input type="checkbox" id="toggleSuperAdmin">
-                        <span class="capsule-slider"></span>
-                    </label>
+            <div class="super-admin-banner">
+                <div>
+                    <h4>Super Admin Privilege</h4>
+                    <p>Grants full unrestricted access to all modules and menus. Overrides individual rights.</p>
                 </div>
+                <label class="capsule-switch">
+                    <input type="checkbox" id="toggleSuperAdmin">
+                    <span class="capsule-slider"></span>
+                </label>
+            </div>
 
-                <div id="granularRightsContainer">
-                    <div class="module-rights-group">
-                        <div class="module-rights-header">Student Info System (SIS)</div>
-                        <div class="module-rights-body">
-                            <div class="right-item"><span>View Module</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="SIS_View"><span
-                                        class="capsule-slider"></span></label></div>
-                            <div class="right-item"><span>Add Student</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="SIS_Add"><span
-                                        class="capsule-slider"></span></label></div>
-                            <div class="right-item"><span>Edit Student</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="SIS_Edit"><span
-                                        class="capsule-slider"></span></label></div>
-                            <div class="right-item"><span>Delete Student</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="SIS_Delete"><span
-                                        class="capsule-slider"></span></label></div>
-                            <div class="right-item"><span>Master Setup</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="SIS_Setup"><span
-                                        class="capsule-slider"></span></label></div>
-                        </div>
-                    </div>
-                    <div class="module-rights-group">
-                        <div class="module-rights-header">Human Resources (HR)</div>
-                        <div class="module-rights-body">
-                            <div class="right-item"><span>View Module</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="HR_View"><span
-                                        class="capsule-slider"></span></label></div>
-                            <div class="right-item"><span>Add Employee</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="HR_Add"><span
-                                        class="capsule-slider"></span></label></div>
-                            <div class="right-item"><span>Edit Employee</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="HR_Edit"><span
-                                        class="capsule-slider"></span></label></div>
-                            <div class="right-item"><span>HR Setup</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="HR_Setup"><span
-                                        class="capsule-slider"></span></label></div>
-                        </div>
-                    </div>
-                    <div class="module-rights-group">
-                        <div class="module-rights-header">Fee Management</div>
-                        <div class="module-rights-body">
-                            <div class="right-item"><span>View Ledger</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="FEE_View"><span
-                                        class="capsule-slider"></span></label></div>
-                            <div class="right-item"><span>Collect Fee</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="FEE_Collect"><span
-                                        class="capsule-slider"></span></label></div>
-                            <div class="right-item"><span>Delete Receipt</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="FEE_Delete"><span
-                                        class="capsule-slider"></span></label></div>
-                            <div class="right-item"><span>Manage Heads</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="FEE_Heads"><span
-                                        class="capsule-slider"></span></label></div>
-                        </div>
-                    </div>
-                    <div class="module-rights-group">
-                        <div class="module-rights-header">Attendance System</div>
-                        <div class="module-rights-body">
-                            <div class="right-item"><span>Mark Attendance</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="ATT_Mark"><span
-                                        class="capsule-slider"></span></label></div>
-                            <div class="right-item"><span>View Register</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="ATT_View"><span
-                                        class="capsule-slider"></span></label></div>
-                            <div class="right-item"><span>Send Alerts</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="ATT_Alerts"><span
-                                        class="capsule-slider"></span></label></div>
-                        </div>
-                    </div>
-                    <div class="module-rights-group">
-                        <div class="module-rights-header">Communication (Homework/Notices)</div>
-                        <div class="module-rights-body">
-                            <div class="right-item"><span>View Records</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="HW_View"><span
-                                        class="capsule-slider"></span></label></div>
-                            <div class="right-item"><span>Upload Data</span> <label class="capsule-switch"><input
-                                        type="checkbox" class="right-chk" value="HW_Upload"><span
-                                        class="capsule-slider"></span></label></div>
-                        </div>
-                    </div>
+            <div id="granularRightsContainer">
+                <div class="module-rights-group"><div class="module-rights-header">Student Info System (SIS)</div><div class="module-rights-body"><div class="right-item"><span>View Module</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_View"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Add Student</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_Add"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Edit Student</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_Edit"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Delete Student</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_Delete"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Master Setup</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="SIS_Setup"><span class="capsule-slider"></span></label></div></div></div>
+                <div class="module-rights-group"><div class="module-rights-header">Human Resources (HR)</div><div class="module-rights-body"><div class="right-item"><span>View Module</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HR_View"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Add Employee</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HR_Add"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Edit Employee</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HR_Edit"><span class="capsule-slider"></span></label></div><div class="right-item"><span>HR Setup</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HR_Setup"><span class="capsule-slider"></span></label></div></div></div>
+                <div class="module-rights-group"><div class="module-rights-header">Fee Management</div><div class="module-rights-body"><div class="right-item"><span>View Ledger</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="FEE_View"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Collect Fee</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="FEE_Collect"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Delete Receipt</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="FEE_Delete"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Manage Heads</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="FEE_Heads"><span class="capsule-slider"></span></label></div></div></div>
+                <div class="module-rights-group"><div class="module-rights-header">Attendance System</div><div class="module-rights-body"><div class="right-item"><span>Mark Attendance</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="ATT_Mark"><span class="capsule-slider"></span></label></div><div class="right-item"><span>View Register</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="ATT_View"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Send Alerts</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="ATT_Alerts"><span class="capsule-slider"></span></label></div></div></div>
+                <div class="module-rights-group"><div class="module-rights-header">Communication (Homework/Notices)</div><div class="module-rights-body"><div class="right-item"><span>View Records</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HW_View"><span class="capsule-slider"></span></label></div><div class="right-item"><span>Upload Data</span> <label class="capsule-switch"><input type="checkbox" class="right-chk" value="HW_Upload"><span class="capsule-slider"></span></label></div></div></div>
+            </div>
+        </div>
+        <div style="background:#fff; padding:15px 20px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:10px;">
+            <button class="btn btn-dark" onclick="document.getElementById('assignRightsModal').style.display='none'">Cancel</button>
+            <button id="btnSaveRights" class="btn btn-green">💾 Save Rights</button>
+        </div>
+    </div>
+</div>
+
+<!-- SEND AUTH / CREDENTIALS MODAL -->
+<div id="authModal" class="modal-overlay">
+    <div class="detailed-modal-content" style="width:480px;">
+        <div class="modal-header-custom" style="background:var(--brass); color:#2a1c04;">
+            <h3 style="color:#2a1c04;">Send Login Access: <span id="authEmpName">Employee</span></h3>
+            <span onclick="document.getElementById('authModal').style.display='none'" style="color:#2a1c04;">&times;</span>
+        </div>
+
+        <div style="padding:20px; background:#fff;">
+            <input type="hidden" id="authTargetId">
+
+            <div class="input-group">
+                <label>Employee Email (used as login ID) *</label>
+                <input type="email" id="authTargetEmail" placeholder="name@school.com">
+            </div>
+
+            <label class="chk-row">
+                <input type="radio" name="authOpt" value="auto" checked onchange="toggleManualAuthInputs()">
+                Auto-generate a secure password
+            </label>
+            <label class="chk-row">
+                <input type="radio" name="authOpt" value="manual" onchange="toggleManualAuthInputs()">
+                Set a custom password
+            </label>
+
+            <div id="manualAuthFields" style="display:none; margin-top:10px; background:var(--paper-2); border:1px solid var(--line); border-radius:8px; padding:14px;">
+                <div class="input-group" style="margin-bottom:0;">
+                    <label>Custom Password (min 6 chars) *</label>
+                    <input type="text" id="customPass" placeholder="e.g. Pass@123">
                 </div>
             </div>
-            <div
-                style="background:#fff; padding:15px 20px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:10px;">
-                <button class="btn btn-dark"
-                    onclick="document.getElementById('assignRightsModal').style.display='none'">Cancel</button>
-                <button id="btnSaveRights" class="btn btn-green">💾 Save Rights</button>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:22px;">
+                <button class="btn btn-dark" onclick="document.getElementById('authModal').style.display='none'">Cancel</button>
+                <button id="btnSendAuthNow" class="btn btn-green">✉️ Create &amp; Send Access</button>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- SEND AUTH / CREDENTIALS MODAL -->
-    <div id="authModal" class="modal-overlay">
-        <div class="detailed-modal-content" style="width:480px;">
-            <div class="modal-header-custom" style="background:var(--brass); color:#2a1c04;">
-                <h3 style="color:#2a1c04;">Send Login Access: <span id="authEmpName">Employee</span></h3>
-                <span onclick="document.getElementById('authModal').style.display='none'"
-                    style="color:#2a1c04;">&times;</span>
-            </div>
-
-            <div style="padding:20px; background:#fff;">
-                <input type="hidden" id="authTargetId">
-
-                <div class="input-group">
-                    <label>Employee Email (used as login ID) *</label>
-                    <input type="email" id="authTargetEmail" placeholder="name@school.com">
-                </div>
-
-                <label class="chk-row">
-                    <input type="radio" name="authOpt" value="auto" checked onchange="toggleManualAuthInputs()">
-                    Auto-generate a secure password
-                </label>
-                <label class="chk-row">
-                    <input type="radio" name="authOpt" value="manual" onchange="toggleManualAuthInputs()">
-                    Set a custom password
-                </label>
-
-                <div id="manualAuthFields"
-                    style="display:none; margin-top:10px; background:var(--paper-2); border:1px solid var(--line); border-radius:8px; padding:14px;">
-                    <div class="input-group" style="margin-bottom:0;">
-                        <label>Custom Password (min 6 chars) *</label>
-                        <input type="text" id="customPass" placeholder="e.g. Pass@123">
-                    </div>
-                </div>
-
-                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:22px;">
-                    <button class="btn btn-dark"
-                        onclick="document.getElementById('authModal').style.display='none'">Cancel</button>
-                    <button id="btnSendAuthNow" class="btn btn-green">✉️ Create &amp; Send Access</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==========================================
+<!-- ==========================================
      UI-ONLY WIRING: shows/hides the manual
      password field depending on the selected
      "Send Login Access" option.
      ========================================== -->
-    <script>
-        function toggleManualAuthInputs() {
-            const selected = document.querySelector('input[name="authOpt"]:checked');
-            const manualBox = document.getElementById('manualAuthFields');
-            if (!manualBox) return;
-            manualBox.style.display = (selected && selected.value === 'manual') ? 'block' : 'none';
-        }
-    </script>
+<script>
+    function toggleManualAuthInputs() {
+        const selected = document.querySelector('input[name="authOpt"]:checked');
+        const manualBox = document.getElementById('manualAuthFields');
+        if (!manualBox) return;
+        manualBox.style.display = (selected && selected.value === 'manual') ? 'block' : 'none';
+    }
+</script>
 
-    <!-- ==========================================
+<!-- ==========================================
      APPLICATION LOGIC (Firebase)
      ========================================== -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // ==========================================
-            // 1. SESSION & SECURITY INITIALIZATION
-            // ==========================================
-            const activeUserStr = localStorage.getItem('erp_active_user');
-            if (!activeUserStr) {
-                window.location.href = 'login.html';
-                return;
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // ==========================================
+    // 1. SESSION & SECURITY INITIALIZATION
+    // ==========================================
+    const activeUserStr = localStorage.getItem('erp_active_user');
+    if (!activeUserStr) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const activeUser = JSON.parse(activeUserStr);
+    const isSA = activeUser.Is_SuperAdmin === "Yes";
+    const schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode;
+    let userRights = [];
+
+    try {
+        userRights = JSON.parse(activeUser.Rights_JSON || "[]");
+    } catch (e) {
+        console.error("Failed to parse user rights:", e);
+    }
+
+    // DYNAMIC NAVBAR UPDATE LOGIC
+    try {
+        let savedName = localStorage.getItem('erp_school_name');
+        let savedLogo = localStorage.getItem('erp_school_logo');
+
+        let navNameEl = document.getElementById('dynamicNavName');
+        let navLogoImg = document.getElementById('dynamicNavLogo');
+        let navLogoDefault = document.getElementById('defaultNavLogo');
+
+        if (savedName && navNameEl) navNameEl.innerText = savedName;
+
+        if (savedLogo && savedLogo.startsWith('http') && navLogoImg) {
+            navLogoImg.src = savedLogo;
+            navLogoImg.style.display = 'inline-block';
+            if (navLogoDefault) navLogoDefault.style.display = 'none';
+        }
+    } catch (error) {
+        console.error("Navbar logic failed:", error);
+    }
+
+    // This module is restricted to Super Admins / users with a SUPER_ right.
+    if (!isSA && !userRights.some(r => r.startsWith("SUPER"))) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    const btnLogout = document.getElementById('btnLogout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            if (confirm("Are you sure you want to logout?")) {
+                auth.signOut().then(() => {
+                    localStorage.removeItem('erp_active_user');
+                    window.location.href = 'login.html';
+                });
             }
+        });
+    }
 
-            const activeUser = JSON.parse(activeUserStr);
-            const isSA = activeUser.Is_SuperAdmin === "Yes";
-            const schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode;
-            let userRights = [];
+    let allEmployees = [];
+    let allStudents = [];
 
-            try {
-                userRights = JSON.parse(activeUser.Rights_JSON || "[]");
-            } catch (e) {
-                console.error("Failed to parse user rights:", e);
-            }
+    // ==========================================
+    // 2. NAVIGATION TABS LOGIC
+    // ==========================================
+    document.querySelectorAll('.nav-btn').forEach(link => {
+        link.addEventListener('click', function (e) {
+            if (this.getAttribute('href') !== '#') return;
+            e.preventDefault();
 
-            // DYNAMIC NAVBAR UPDATE LOGIC
-            try {
-                let savedName = localStorage.getItem('erp_school_name');
-                let savedLogo = localStorage.getItem('erp_school_logo');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
 
-                let navNameEl = document.getElementById('dynamicNavName');
-                let navLogoImg = document.getElementById('dynamicNavLogo');
-                let navLogoDefault = document.getElementById('defaultNavLogo');
+            const targetId = this.getAttribute('data-target');
+            document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
+            document.getElementById(targetId).classList.add('active-module');
+        });
+    });
 
-                if (savedName && navNameEl) navNameEl.innerText = savedName;
+    // ==========================================
+    // 3. DATA FETCH & INITIALIZATION (Firestore)
+    // ==========================================
+    async function initData() {
+        document.getElementById('userTableBody').innerHTML = '<tr><td colspan="8" style="text-align: center;">Fetching Database... ⏳</td></tr>';
+        document.getElementById('studentUserTableBody').innerHTML = '<tr><td colspan="7" style="text-align: center;">Fetching Database... ⏳</td></tr>';
 
-                if (savedLogo && savedLogo.startsWith('http') && navLogoImg) {
-                    navLogoImg.src = savedLogo;
-                    navLogoImg.style.display = 'inline-block';
-                    if (navLogoDefault) navLogoDefault.style.display = 'none';
+        try {
+            // Employees
+            let empSnap = await db.collection("employees").where("schoolCode", "==", schoolCode).get();
+            allEmployees = [];
+            empSnap.forEach(doc => { let d = doc.data(); d.docId = doc.id; allEmployees.push(d); });
+
+            // Students
+            let stuSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get();
+            allStudents = [];
+            stuSnap.forEach(doc => { let d = doc.data(); d.docId = doc.id; allStudents.push(d); });
+
+            // Auth/rights records ("users" collection, keyed by Firebase Auth UID)
+            let userSnap = await db.collection("users").where("schoolCode", "==", schoolCode).get();
+            let authUsers = [];
+            userSnap.forEach(doc => { let d = doc.data(); d.uid = doc.id; authUsers.push(d); });
+
+            // Merge auth/rights info onto each employee record
+            allEmployees.forEach(emp => {
+                let match = authUsers.find(u => String(u.empId).trim() === String(emp.empId).trim());
+                if (match) {
+                    emp.registeredEmail = match.email;
+                    emp.Rights_JSON = match.Rights_JSON;
+                    emp.Is_SuperAdmin = match.Is_SuperAdmin;
+                    emp.authUid = match.uid;
                 }
-            } catch (error) {
-                console.error("Navbar logic failed:", error);
-            }
-
-            // This module is restricted to Super Admins / users with a SUPER_ right.
-            if (!isSA && !userRights.some(r => r.startsWith("SUPER"))) {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            const btnLogout = document.getElementById('btnLogout');
-            if (btnLogout) {
-                btnLogout.addEventListener('click', () => {
-                    if (confirm("Are you sure you want to logout?")) {
-                        auth.signOut().then(() => {
-                            localStorage.removeItem('erp_active_user');
-                            window.location.href = 'login.html';
-                        });
-                    }
-                });
-            }
-
-            let allEmployees = [];
-            let allStudents = [];
-
-            // ==========================================
-            // 2. NAVIGATION TABS LOGIC
-            // ==========================================
-            document.querySelectorAll('.nav-btn').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    if (this.getAttribute('href') !== '#') return;
-                    e.preventDefault();
-
-                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-
-                    const targetId = this.getAttribute('data-target');
-                    document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
-                    document.getElementById(targetId).classList.add('active-module');
-                });
             });
 
-            // ==========================================
-            // 3. DATA FETCH & INITIALIZATION (Firestore)
-            // ==========================================
-            async function initData() {
-                document.getElementById('userTableBody').innerHTML = '<tr><td colspan="8" style="text-align: center;">Fetching Database... ⏳</td></tr>';
-                document.getElementById('studentUserTableBody').innerHTML = '<tr><td colspan="7" style="text-align: center;">Fetching Database... ⏳</td></tr>';
+            renderEmployeeTable(allEmployees);
+            renderStudentTable(allStudents);
 
-                try {
-                    // Employees
-                    let empSnap = await db.collection("employees").where("schoolCode", "==", schoolCode).get();
-                    allEmployees = [];
-                    empSnap.forEach(doc => { let d = doc.data(); d.docId = doc.id; allEmployees.push(d); });
+        } catch (e) {
+            console.error("Firebase sync error:", e);
+            document.getElementById('userTableBody').innerHTML = `<tr><td colspan="8" style="text-align:center; color:#c0392b;">Error: ${e.message}</td></tr>`;
+        }
+    }
 
-                    // Students
-                    let stuSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get();
-                    allStudents = [];
-                    stuSnap.forEach(doc => { let d = doc.data(); d.docId = doc.id; allStudents.push(d); });
+    if (document.getElementById('btnSyncUsers')) {
+        document.getElementById('btnSyncUsers').addEventListener('click', initData);
+    }
 
-                    // Auth/rights records ("users" collection, keyed by Firebase Auth UID)
-                    let userSnap = await db.collection("users").where("schoolCode", "==", schoolCode).get();
-                    let authUsers = [];
-                    userSnap.forEach(doc => { let d = doc.data(); d.uid = doc.id; authUsers.push(d); });
+    // ==========================================
+    // 4. EMPLOYEE TABLE RENDER & SEARCH
+    // ==========================================
+    function renderEmployeeTable(list) {
+        const tbody = document.getElementById('userTableBody');
+        tbody.innerHTML = '';
 
-                    // Merge auth/rights info onto each employee record
-                    allEmployees.forEach(emp => {
-                        let match = authUsers.find(u => String(u.empId).trim() === String(emp.empId).trim());
-                        if (match) {
-                            emp.registeredEmail = match.email;
-                            emp.Rights_JSON = match.Rights_JSON;
-                            emp.Is_SuperAdmin = match.Is_SuperAdmin;
-                            emp.authUid = match.uid;
-                        }
-                    });
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No employees found.</td></tr>';
+            return;
+        }
 
-                    renderEmployeeTable(allEmployees);
-                    renderStudentTable(allStudents);
+        list.forEach((emp, idx) => {
+            let badge = emp.Is_SuperAdmin === "Yes" ? `<span class="badge-admin">Yes</span>` : `<span class="badge-user">No</span>`;
+            let loginBadge = emp.authUid ? `<span class="badge-set">Login Set</span>` : `<span class="badge-unset">Not Set</span>`;
 
-                } catch (e) {
-                    console.error("Firebase sync error:", e);
-                    document.getElementById('userTableBody').innerHTML = `<tr><td colspan="8" style="text-align:center; color:#c0392b;">Error: ${e.message}</td></tr>`;
-                }
-            }
+            let safeEmpId = String(emp.empId).trim();
 
-            if (document.getElementById('btnSyncUsers')) {
-                document.getElementById('btnSyncUsers').addEventListener('click', initData);
-            }
-
-            // ==========================================
-            // 4. EMPLOYEE TABLE RENDER & SEARCH
-            // ==========================================
-            function renderEmployeeTable(list) {
-                const tbody = document.getElementById('userTableBody');
-                tbody.innerHTML = '';
-
-                if (list.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No employees found.</td></tr>';
-                    return;
-                }
-
-                list.forEach((emp, idx) => {
-                    let badge = emp.Is_SuperAdmin === "Yes" ? `<span class="badge-admin">Yes</span>` : `<span class="badge-user">No</span>`;
-                    let loginBadge = emp.authUid ? `<span class="badge-set">Login Set</span>` : `<span class="badge-unset">Not Set</span>`;
-
-                    let safeEmpId = String(emp.empId).trim();
-
-                    tbody.innerHTML += `<tr>
+            tbody.innerHTML += `<tr>
                 <td>${idx + 1}</td>
                 <td><b>${safeEmpId}</b></td>
                 <td>${emp.empName}</td>
@@ -1162,240 +489,240 @@
                     <button class="btn-action-auth" onclick='openDetailedAuthModal("${safeEmpId}")'>🔑 Send Auth</button>
                 </td>
             </tr>`;
-                });
-            }
+        });
+    }
 
-            if (document.getElementById('searchEmpUser')) {
-                document.getElementById('searchEmpUser').addEventListener('input', function () {
-                    let filterText = this.value.toLowerCase();
-                    let filteredList = allEmployees.filter(e => {
-                        let nameMatch = String(e.empName || "").toLowerCase().includes(filterText);
-                        let idMatch = String(e.empId || "").toLowerCase().includes(filterText);
-                        return nameMatch || idMatch;
-                    });
-                    renderEmployeeTable(filteredList);
-                });
-            }
+    if (document.getElementById('searchEmpUser')) {
+        document.getElementById('searchEmpUser').addEventListener('input', function () {
+            let filterText = this.value.toLowerCase();
+            let filteredList = allEmployees.filter(e => {
+                let nameMatch = String(e.empName || "").toLowerCase().includes(filterText);
+                let idMatch = String(e.empId || "").toLowerCase().includes(filterText);
+                return nameMatch || idMatch;
+            });
+            renderEmployeeTable(filteredList);
+        });
+    }
 
-            // =======================================================
-            // 5. ASSIGN RIGHTS (Firestore "users" collection)
-            // =======================================================
-            let currentRightsEmp = null;
+    // =======================================================
+    // 5. ASSIGN RIGHTS (Firestore "users" collection)
+    // =======================================================
+    let currentRightsEmp = null;
 
-            window.openDetailedRightsModal = function (empId) {
-                let targetIdStr = String(empId).trim();
-                let emp = allEmployees.find(e => String(e.empId).trim() === targetIdStr);
+    window.openDetailedRightsModal = function (empId) {
+        let targetIdStr = String(empId).trim();
+        let emp = allEmployees.find(e => String(e.empId).trim() === targetIdStr);
 
-                if (!emp) {
-                    alert("Error: Employee data could not be found.");
-                    return;
-                }
+        if (!emp) {
+            alert("Error: Employee data could not be found.");
+            return;
+        }
 
-                if (!emp.authUid) {
-                    alert("This employee does not have a login account yet. Please click 'Send Auth' first to create one — rights can only be assigned once a login exists.");
-                    return;
-                }
+        if (!emp.authUid) {
+            alert("This employee does not have a login account yet. Please click 'Send Auth' first to create one — rights can only be assigned once a login exists.");
+            return;
+        }
 
-                currentRightsEmp = emp;
+        currentRightsEmp = emp;
 
-                document.getElementById('rightsEmpId').innerText = String(emp.empId);
-                document.getElementById('rightsEmpName').innerText = emp.empName || "Unknown";
+        document.getElementById('rightsEmpId').innerText = String(emp.empId);
+        document.getElementById('rightsEmpName').innerText = emp.empName || "Unknown";
 
-                document.getElementById('toggleSuperAdmin').checked = false;
+        document.getElementById('toggleSuperAdmin').checked = false;
+        document.querySelectorAll('.right-chk').forEach(chk => {
+            chk.checked = false;
+            chk.disabled = false;
+        });
+
+        if (emp.Is_SuperAdmin === "Yes") {
+            document.getElementById('toggleSuperAdmin').checked = true;
+            document.querySelectorAll('.right-chk').forEach(chk => {
+                chk.checked = true;
+                chk.disabled = true;
+            });
+        }
+
+        try {
+            let currentRights = JSON.parse(emp.Rights_JSON || "[]");
+            if (Array.isArray(currentRights)) {
                 document.querySelectorAll('.right-chk').forEach(chk => {
-                    chk.checked = false;
-                    chk.disabled = false;
-                });
-
-                if (emp.Is_SuperAdmin === "Yes") {
-                    document.getElementById('toggleSuperAdmin').checked = true;
-                    document.querySelectorAll('.right-chk').forEach(chk => {
-                        chk.checked = true;
-                        chk.disabled = true;
-                    });
-                }
-
-                try {
-                    let currentRights = JSON.parse(emp.Rights_JSON || "[]");
-                    if (Array.isArray(currentRights)) {
-                        document.querySelectorAll('.right-chk').forEach(chk => {
-                            if (currentRights.includes(chk.value)) chk.checked = true;
-                        });
-                    }
-                } catch (e) {
-                    console.error("Rights parsing error:", e);
-                }
-
-                document.getElementById('assignRightsModal').style.display = 'flex';
-            };
-
-            let toggleSuperAdminEl = document.getElementById('toggleSuperAdmin');
-            if (toggleSuperAdminEl) {
-                toggleSuperAdminEl.addEventListener('change', function () {
-                    let isSuper = this.checked;
-                    document.querySelectorAll('.right-chk').forEach(chk => {
-                        if (isSuper) { chk.checked = true; chk.disabled = true; }
-                        else { chk.checked = false; chk.disabled = false; }
-                    });
+                    if (currentRights.includes(chk.value)) chk.checked = true;
                 });
             }
+        } catch (e) {
+            console.error("Rights parsing error:", e);
+        }
 
-            let btnSaveRightsEl = document.getElementById('btnSaveRights');
-            if (btnSaveRightsEl) {
-                btnSaveRightsEl.addEventListener('click', async function () {
-                    if (!currentRightsEmp || !currentRightsEmp.authUid) {
-                        alert("Missing employee login context.");
-                        return;
-                    }
+        document.getElementById('assignRightsModal').style.display = 'flex';
+    };
 
-                    let isSuper = document.getElementById('toggleSuperAdmin').checked ? "Yes" : "No";
-                    let selectedRights = [];
-                    if (isSuper === "No") {
-                        document.querySelectorAll('.right-chk:checked').forEach(chk => selectedRights.push(chk.value));
-                    }
+    let toggleSuperAdminEl = document.getElementById('toggleSuperAdmin');
+    if (toggleSuperAdminEl) {
+        toggleSuperAdminEl.addEventListener('change', function () {
+            let isSuper = this.checked;
+            document.querySelectorAll('.right-chk').forEach(chk => {
+                if (isSuper) { chk.checked = true; chk.disabled = true; }
+                else { chk.checked = false; chk.disabled = false; }
+            });
+        });
+    }
 
-                    this.innerText = "Saving...";
-                    this.disabled = true;
-
-                    try {
-                        await db.collection("users").doc(currentRightsEmp.authUid).set({
-                            Is_SuperAdmin: isSuper,
-                            Rights_JSON: JSON.stringify(selectedRights)
-                        }, { merge: true });
-
-                        alert("Rights updated successfully.");
-                        document.getElementById('assignRightsModal').style.display = 'none';
-                        initData();
-                    } catch (e) {
-                        alert("Error updating rights: " + e.message);
-                    } finally {
-                        this.innerText = "💾 Save Rights";
-                        this.disabled = false;
-                    }
-                });
+    let btnSaveRightsEl = document.getElementById('btnSaveRights');
+    if (btnSaveRightsEl) {
+        btnSaveRightsEl.addEventListener('click', async function () {
+            if (!currentRightsEmp || !currentRightsEmp.authUid) {
+                alert("Missing employee login context.");
+                return;
             }
 
-            // =======================================================
-            // 6. SEND AUTH / CREATE LOGIN (Firebase Auth, secondary app)
-            // =======================================================
-            function generateSecurePassword() {
-                const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#";
-                let pass = "";
-                for (let i = 0; i < 10; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
-                return pass;
+            let isSuper = document.getElementById('toggleSuperAdmin').checked ? "Yes" : "No";
+            let selectedRights = [];
+            if (isSuper === "No") {
+                document.querySelectorAll('.right-chk:checked').forEach(chk => selectedRights.push(chk.value));
             }
 
-            window.openDetailedAuthModal = function (empId) {
-                let targetIdStr = String(empId).trim();
-                let emp = allEmployees.find(e => String(e.empId).trim() === targetIdStr);
+            this.innerText = "Saving...";
+            this.disabled = true;
 
-                if (!emp) {
-                    alert("Error: Employee data could not be found.");
+            try {
+                await db.collection("users").doc(currentRightsEmp.authUid).set({
+                    Is_SuperAdmin: isSuper,
+                    Rights_JSON: JSON.stringify(selectedRights)
+                }, { merge: true });
+
+                alert("Rights updated successfully.");
+                document.getElementById('assignRightsModal').style.display = 'none';
+                initData();
+            } catch (e) {
+                alert("Error updating rights: " + e.message);
+            } finally {
+                this.innerText = "💾 Save Rights";
+                this.disabled = false;
+            }
+        });
+    }
+
+    // =======================================================
+    // 6. SEND AUTH / CREATE LOGIN (Firebase Auth, secondary app)
+    // =======================================================
+    function generateSecurePassword() {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#";
+        let pass = "";
+        for (let i = 0; i < 10; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+        return pass;
+    }
+
+    window.openDetailedAuthModal = function (empId) {
+        let targetIdStr = String(empId).trim();
+        let emp = allEmployees.find(e => String(e.empId).trim() === targetIdStr);
+
+        if (!emp) {
+            alert("Error: Employee data could not be found.");
+            return;
+        }
+
+        document.getElementById('authEmpName').innerText = emp.empName;
+        document.getElementById('authTargetId').value = emp.empId;
+        document.getElementById('authTargetEmail').value = emp.registeredEmail || emp.empEmail || "";
+
+        let autoOpt = document.querySelector('input[name="authOpt"][value="auto"]');
+        if (autoOpt) autoOpt.checked = true;
+        document.getElementById('customPass').value = "";
+
+        if (typeof toggleManualAuthInputs === 'function') toggleManualAuthInputs();
+
+        document.getElementById('authModal').style.display = 'flex';
+    };
+
+    let btnSendAuthNowEl = document.getElementById('btnSendAuthNow');
+    if (btnSendAuthNowEl) {
+        btnSendAuthNowEl.addEventListener('click', async function () {
+            const rawEmpId = document.getElementById('authTargetId').value;
+            const emp = allEmployees.find(e => String(e.empId).trim() === String(rawEmpId).trim());
+            if (!emp) return;
+
+            const email = document.getElementById('authTargetEmail').value.trim();
+            if (!email || !email.includes('@')) {
+                alert("Please enter a valid email address.");
+                return;
+            }
+
+            let checkedOpt = document.querySelector('input[name="authOpt"]:checked');
+            const authOptValue = checkedOpt ? checkedOpt.value : 'auto';
+
+            let password;
+            if (authOptValue === 'manual') {
+                password = document.getElementById('customPass').value.trim();
+                if (!password || password.length < 6) {
+                    alert("Custom password must be at least 6 characters.");
                     return;
                 }
-
-                document.getElementById('authEmpName').innerText = emp.empName;
-                document.getElementById('authTargetId').value = emp.empId;
-                document.getElementById('authTargetEmail').value = emp.registeredEmail || emp.empEmail || "";
-
-                let autoOpt = document.querySelector('input[name="authOpt"][value="auto"]');
-                if (autoOpt) autoOpt.checked = true;
-                document.getElementById('customPass').value = "";
-
-                if (typeof toggleManualAuthInputs === 'function') toggleManualAuthInputs();
-
-                document.getElementById('authModal').style.display = 'flex';
-            };
-
-            let btnSendAuthNowEl = document.getElementById('btnSendAuthNow');
-            if (btnSendAuthNowEl) {
-                btnSendAuthNowEl.addEventListener('click', async function () {
-                    const rawEmpId = document.getElementById('authTargetId').value;
-                    const emp = allEmployees.find(e => String(e.empId).trim() === String(rawEmpId).trim());
-                    if (!emp) return;
-
-                    const email = document.getElementById('authTargetEmail').value.trim();
-                    if (!email || !email.includes('@')) {
-                        alert("Please enter a valid email address.");
-                        return;
-                    }
-
-                    let checkedOpt = document.querySelector('input[name="authOpt"]:checked');
-                    const authOptValue = checkedOpt ? checkedOpt.value : 'auto';
-
-                    let password;
-                    if (authOptValue === 'manual') {
-                        password = document.getElementById('customPass').value.trim();
-                        if (!password || password.length < 6) {
-                            alert("Custom password must be at least 6 characters.");
-                            return;
-                        }
-                    } else {
-                        password = generateSecurePassword();
-                    }
-
-                    this.innerText = "Processing...";
-                    this.disabled = true;
-
-                    try {
-                        const userCred = await secondaryApp.auth().createUserWithEmailAndPassword(email, password);
-                        const newUid = userCred.user.uid;
-
-                        await db.collection("users").doc(newUid).set({
-                            schoolCode: schoolCode,
-                            empId: emp.empId,
-                            empName: emp.empName,
-                            email: email,
-                            Is_SuperAdmin: emp.Is_SuperAdmin || "No",
-                            Rights_JSON: emp.Rights_JSON || "[]"
-                        }, { merge: true });
-
-                        await secondaryApp.auth().signOut();
-
-                        if (authOptValue === 'auto') {
-                            alert(`Login created successfully!\n\nEmail: ${email}\nPassword: ${password}\n\nPlease share these credentials securely with ${emp.empName} — this password is shown only once.`);
-                        } else {
-                            alert("Login created successfully with the custom password you set.");
-                        }
-
-                        document.getElementById('authModal').style.display = 'none';
-                        initData();
-                    } catch (e) {
-                        alert("Error: " + e.message);
-                    } finally {
-                        this.innerText = "✉️ Create & Send Access";
-                        this.disabled = false;
-                    }
-                });
+            } else {
+                password = generateSecurePassword();
             }
 
-            // ==========================================
-            // 7. STUDENT TABLE RENDER & SEARCH
-            // ==========================================
-            function renderStudentTable(list) {
-                const tbody = document.getElementById('studentUserTableBody');
-                tbody.innerHTML = '';
+            this.innerText = "Processing...";
+            this.disabled = true;
 
-                if (list.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No students found in SIS.</td></tr>';
-                    return;
+            try {
+                const userCred = await secondaryApp.auth().createUserWithEmailAndPassword(email, password);
+                const newUid = userCred.user.uid;
+
+                await db.collection("users").doc(newUid).set({
+                    schoolCode: schoolCode,
+                    empId: emp.empId,
+                    empName: emp.empName,
+                    email: email,
+                    Is_SuperAdmin: emp.Is_SuperAdmin || "No",
+                    Rights_JSON: emp.Rights_JSON || "[]"
+                }, { merge: true });
+
+                await secondaryApp.auth().signOut();
+
+                if (authOptValue === 'auto') {
+                    alert(`Login created successfully!\n\nEmail: ${email}\nPassword: ${password}\n\nPlease share these credentials securely with ${emp.empName} — this password is shown only once.`);
+                } else {
+                    alert("Login created successfully with the custom password you set.");
                 }
 
-                list.forEach((st, idx) => {
-                    let uid = st.portalId || `<span style="color:#e74c3c;">Not Set</span>`;
-                    let pin = st.pin || st.password || `---`;
-                    let maskPin = pin !== `---` ? `********` : `---`;
+                document.getElementById('authModal').style.display = 'none';
+                initData();
+            } catch (e) {
+                alert("Error: " + e.message);
+            } finally {
+                this.innerText = "✉️ Create & Send Access";
+                this.disabled = false;
+            }
+        });
+    }
 
-                    let sClass = "-";
-                    if (st.studentClass) {
-                        let match = String(st.studentClass).match(/(.*?)\s*\((.*?)\)/);
-                        if (match) { sClass = match[1].trim() + " (" + match[2].trim() + ")"; }
-                        else { sClass = st.studentClass; }
-                    }
+    // ==========================================
+    // 7. STUDENT TABLE RENDER & SEARCH
+    // ==========================================
+    function renderStudentTable(list) {
+        const tbody = document.getElementById('studentUserTableBody');
+        tbody.innerHTML = '';
 
-                    let safeRegNo = String(st.regNo).trim();
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No students found in SIS.</td></tr>';
+            return;
+        }
 
-                    tbody.innerHTML += `<tr>
+        list.forEach((st, idx) => {
+            let uid = st.portalId || `<span style="color:#e74c3c;">Not Set</span>`;
+            let pin = st.pin || st.password || `---`;
+            let maskPin = pin !== `---` ? `********` : `---`;
+
+            let sClass = "-";
+            if (st.studentClass) {
+                let match = String(st.studentClass).match(/(.*?)\s*\((.*?)\)/);
+                if (match) { sClass = match[1].trim() + " (" + match[2].trim() + ")"; }
+                else { sClass = st.studentClass; }
+            }
+
+            let safeRegNo = String(st.regNo).trim();
+
+            tbody.innerHTML += `<tr>
                 <td>${idx + 1}</td>
                 <td><b>${safeRegNo}</b></td>
                 <td>${st.studentFirstName || st.studentName}</td>
@@ -1406,55 +733,54 @@
                     <button class="btn-action-auth" onclick='resendStudentAuth("${safeRegNo}")'>🔑 Edit Login</button>
                 </td>
             </tr>`;
-                });
-            }
-
-            if (document.getElementById('searchStudentUser')) {
-                document.getElementById('searchStudentUser').addEventListener('input', function () {
-                    let filterText = this.value.toLowerCase();
-                    let filteredList = allStudents.filter(s => {
-                        let nameMatch = String(s.studentFirstName || s.studentName || "").toLowerCase().includes(filterText);
-                        let loginMatch = String(s.portalId || "").toLowerCase().includes(filterText);
-                        let regMatch = String(s.regNo || "").toLowerCase().includes(filterText);
-                        return nameMatch || loginMatch || regMatch;
-                    });
-                    renderStudentTable(filteredList);
-                });
-            }
-
-            // Quick edit of a student's Portal ID / PIN, saved straight to Firestore.
-            window.resendStudentAuth = async function (regNo) {
-                let safeRegNo = String(regNo).trim();
-                let student = allStudents.find(s => String(s.regNo).trim() === safeRegNo);
-                if (!student) { alert("Student not found."); return; }
-
-                let newPortalId = prompt("Portal User ID for " + (student.studentFirstName || student.studentName) + ":", student.portalId || "");
-                if (newPortalId === null) return;
-                newPortalId = newPortalId.trim();
-                if (!newPortalId) { alert("Portal ID cannot be empty."); return; }
-
-                let newPin = prompt("Security PIN:", student.pin || student.password || "");
-                if (newPin === null) return;
-                newPin = newPin.trim();
-                if (!newPin) { alert("PIN cannot be empty."); return; }
-
-                try {
-                    await db.collection("students").doc(student.docId).set({
-                        portalId: newPortalId,
-                        pin: newPin,
-                        password: newPin
-                    }, { merge: true });
-                    alert("Student login credentials updated.");
-                    initData();
-                } catch (e) {
-                    alert("Error updating student login: " + e.message);
-                }
-            };
-
-            // Trigger initial data load
-            initData();
         });
-    </script>
-</body>
+    }
 
+    if (document.getElementById('searchStudentUser')) {
+        document.getElementById('searchStudentUser').addEventListener('input', function () {
+            let filterText = this.value.toLowerCase();
+            let filteredList = allStudents.filter(s => {
+                let nameMatch = String(s.studentFirstName || s.studentName || "").toLowerCase().includes(filterText);
+                let loginMatch = String(s.portalId || "").toLowerCase().includes(filterText);
+                let regMatch = String(s.regNo || "").toLowerCase().includes(filterText);
+                return nameMatch || loginMatch || regMatch;
+            });
+            renderStudentTable(filteredList);
+        });
+    }
+
+    // Quick edit of a student's Portal ID / PIN, saved straight to Firestore.
+    window.resendStudentAuth = async function (regNo) {
+        let safeRegNo = String(regNo).trim();
+        let student = allStudents.find(s => String(s.regNo).trim() === safeRegNo);
+        if (!student) { alert("Student not found."); return; }
+
+        let newPortalId = prompt("Portal User ID for " + (student.studentFirstName || student.studentName) + ":", student.portalId || "");
+        if (newPortalId === null) return;
+        newPortalId = newPortalId.trim();
+        if (!newPortalId) { alert("Portal ID cannot be empty."); return; }
+
+        let newPin = prompt("Security PIN:", student.pin || student.password || "");
+        if (newPin === null) return;
+        newPin = newPin.trim();
+        if (!newPin) { alert("PIN cannot be empty."); return; }
+
+        try {
+            await db.collection("students").doc(student.docId).set({
+                portalId: newPortalId,
+                pin: newPin,
+                password: newPin
+            }, { merge: true });
+            alert("Student login credentials updated.");
+            initData();
+        } catch (e) {
+            alert("Error updating student login: " + e.message);
+        }
+    };
+
+    // Trigger initial data load
+    initData();
+});
+</script>
+</body>
 </html>
