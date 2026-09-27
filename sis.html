@@ -1225,6 +1225,137 @@
             border-radius: var(--radius-m);
         }
 
+        /* ============================================================
+           FEE APPLICABLE DATE — Info Tooltip (Custom CSS tooltip)
+           ============================================================ */
+        .fee-rule-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-top: 22px;
+            flex-wrap: wrap;
+        }
+
+        .fee-rule-wrap input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--brass);
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .fee-rule-wrap label.fee-rule-label {
+            cursor: pointer;
+            margin: 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink);
+            user-select: none;
+        }
+
+        .info-tooltip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--info);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Fraunces', Georgia, serif;
+            cursor: help;
+            position: relative;
+            flex-shrink: 0;
+            transition: background .15s;
+        }
+
+        .info-tooltip:hover {
+            background: var(--ink);
+        }
+
+        .info-tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+            max-width: 78vw;
+            background: var(--ink);
+            color: #F4F1E9;
+            padding: 12px 15px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 400;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.55;
+            white-space: normal;
+            text-align: left;
+            box-shadow: 0 10px 24px rgba(20, 33, 61, .28);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity .18s ease, visibility .18s ease;
+            z-index: 99999;
+        }
+
+        .info-tooltip::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 7px solid transparent;
+            border-top-color: var(--ink);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity .18s ease, visibility .18s ease;
+        }
+
+        .info-tooltip:hover::after,
+        .info-tooltip:hover::before {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Fee rule banner in ledger */
+        .fee-rule-banner {
+            display: none;
+            background: var(--info-bg);
+            border: 1px solid #c8dbeb;
+            border-left: 4px solid var(--info);
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 12.5px;
+            color: var(--info);
+            line-height: 1.5;
+        }
+
+        .fee-rule-banner b {
+            color: var(--ink);
+        }
+
+        .fee-rule-banner .pill {
+            display: inline-block;
+            background: var(--info);
+            color: #fff;
+            padding: 2px 9px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 6px;
+            letter-spacing: .02em;
+        }
+
+        .fee-rule-banner .pill.off {
+            background: #9a9a9a;
+        }
+
         /* ---------------- Responsive ---------------- */
         @media (max-width:960px) {
             .dashboard-grid {
@@ -1259,6 +1390,10 @@
 
             .dashboard-top-cards {
                 flex-direction: column;
+            }
+
+            .info-tooltip::after {
+                width: 250px;
             }
         }
     </style>
@@ -1427,6 +1562,28 @@
                             <div class="input-group"><label>Admission Date</label><input type="date" id="adminDate">
                             </div>
                         </div>
+
+                        <!-- ⭐ NEW ROW: Fee Applicable Date + 50% Rule + Info Tooltip ⭐ -->
+                        <div class="form-row top-row" style="margin-top: 14px;">
+                            <div class="input-group" style="flex: 1.2;">
+                                <label>Fee Applicable From</label>
+                                <input type="date" id="feeApplicableDate"
+                                    title="Fee will be shown only from this month onwards in the Fee Ledger.">
+                                <small
+                                    style="color:var(--text-faint); font-size:10.5px; margin-top:4px; line-height:1.4;">
+                                    Ledger will start from this month. Leave blank to show all months.
+                                </small>
+                            </div>
+                            <div class="input-group" style="flex: 2;">
+                                <label>&nbsp;</label>
+                                <div class="fee-rule-wrap">
+                                    <input type="checkbox" id="fee50Rule">
+                                    <label for="fee50Rule" class="fee-rule-label">50% Rule Applicable</label>
+                                    <span class="info-tooltip" data-tooltip="What is 50% Rule? If the Fee Applicable Date falls AFTER the 15th of that month AND this rule is ON, then that whole month's fee will be SKIPPED. Example: Fee Applicable Date = 20 Aug 2026 → Aug fee NOT charged (Sep onwards charged). Fee Applicable Date = 10 Aug 2026 → Aug fee IS charged. If this rule is OFF, the fee for the joining month will always be charged.">i</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div id="tab-personal" class="form-tab-content active">
                             <div class="main-details">
                                 <div class="left-fields">
@@ -1915,6 +2072,9 @@
                                 style="color:var(--ink);">-</span></div>
                     </div>
 
+                    <!-- ⭐ Fee Rule Info Banner ⭐ -->
+                    <div id="ledgerFeeRuleBanner" class="fee-rule-banner"></div>
+
                     <div style="display:flex; gap:15px; margin-bottom:20px;">
                         <div
                             style="flex:1; background:#fff; padding:16px; border-radius:8px; text-align:center; border:1px solid var(--line); border-bottom:4px solid var(--warn);">
@@ -2142,6 +2302,62 @@
         const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
         const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/128/3135/3135715.png';
         let schoolCode = "";
+
+        // =============================================================
+        // FEE RULE HELPERS (NEW) — security-first: strict validation
+        // =============================================================
+        const MONTH_NAME_TO_INDEX = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+
+        // Parse "Aug, 26" → { year: 2026, month: 7 }
+        function parseAcademicMonthToken(mStr) {
+            if (typeof mStr !== 'string') return null;
+            const parts = mStr.split(',');
+            if (parts.length !== 2) return null;
+            const monKey = parts[0].trim();
+            const yrShort = parts[1].trim();
+            if (!/^[A-Za-z]{3}$/.test(monKey)) return null;
+            if (!/^\d{2}$/.test(yrShort)) return null;
+            const monIdx = MONTH_NAME_TO_INDEX[monKey.charAt(0).toUpperCase() + monKey.slice(1).toLowerCase()];
+            if (monIdx === undefined) return null;
+            return { year: 2000 + parseInt(yrShort, 10), month: monIdx };
+        }
+
+        // Strict YYYY-MM-DD validation
+        function parseISODate(str) {
+            if (typeof str !== 'string') return null;
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return null;
+            const [y, m, d] = str.split('-').map(n => parseInt(n, 10));
+            if (y < 1900 || y > 2200) return null;
+            if (m < 1 || m > 12) return null;
+            if (d < 1 || d > 31) return null;
+            const dt = new Date(y, m - 1, d);
+            if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return null;
+            return { year: y, month: m - 1, day: d };
+        }
+
+        // Decide whether a given academic month should be shown for a student
+        function shouldShowMonth(academicMonthStr, feeApplicableDateStr, fee50Rule) {
+            // If no fee applicable date → show all (backward compatible)
+            if (!feeApplicableDateStr) return true;
+
+            const acc = parseAcademicMonthToken(academicMonthStr);
+            const app = parseISODate(feeApplicableDateStr);
+            if (!acc || !app) return true; // fallback: show all if malformed
+
+            // Compare year+month
+            const accKey = acc.year * 12 + acc.month;
+            const appKey = app.year * 12 + app.month;
+
+            // Before applicable month → hide
+            if (accKey < appKey) return false;
+
+            // Same month as applicable → apply 50% rule
+            if (accKey === appKey && fee50Rule === true) {
+                // If day is after 15 → skip entire joining month
+                if (app.day > 15) return false;
+            }
+            return true;
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
 
@@ -2462,6 +2678,10 @@
                 setVal('motherName', s.motherName); setVal('motherSalutation', s.motherSalutation); setVal('motherContact', s.motherContact); setVal('motherWhatsapp', s.motherWhatsapp); setVal('motherProfession', s.motherProfession); setVal('motherQualification', s.motherQualification); setVal('motherDesignation', s.motherDesignation); setVal('motherIncome', s.motherIncome); setVal('motherOfficeName', s.motherOfficeName); setVal('motherOfficeContact', s.motherOfficeContact); setVal('motherOfficeAddress', s.motherOfficeAddress); setVal('motherAadhaar', s.motherAadhaar);
                 setVal('corrAddress', s.corrAddress); setVal('corrCity', s.corrCity); setVal('corrState', s.corrState); setVal('corrCountry', s.corrCountry); setVal('corrPincode', s.corrPincode); setVal('permAddress', s.permAddress); setVal('permCity', s.permCity); setVal('permState', s.permState); setVal('permCountry', s.permCountry); setVal('permPincode', s.permPincode);
 
+                // ⭐ Fee Applicable Date + 50% Rule (editable on edit — admin may need to correct)
+                setVal('feeApplicableDate', s.feeApplicableDate || '');
+                document.getElementById('fee50Rule').checked = s.fee50Rule === true;
+
                 setVal('studentPhotoBase64', s.studentPhotoBase64); document.getElementById('photoPreview').src = s.studentPhotoBase64 || DEFAULT_AVATAR;
                 if (s.studentPhotoBase64) document.getElementById('btnRemove_studentPhoto').style.display = 'inline-block'; else document.getElementById('btnRemove_studentPhoto').style.display = 'none';
 
@@ -2495,8 +2715,18 @@
                 e.preventDefault();
                 pendingIsEdit = document.getElementById('editMode').value === "true";
 
+                // ✅ Validate fee applicable date (strict ISO) if provided
+                const feeDateRaw = getVal('feeApplicableDate');
+                if (feeDateRaw && !parseISODate(feeDateRaw)) {
+                    customAlert("Invalid Fee Applicable Date. Please enter a valid date.");
+                    return;
+                }
+
                 pendingStudentData = {
                     regNo: getVal('regNo'), adminDate: getVal('adminDate'), studentFirstName: getVal('studentFirstName'), studentLastName: getVal('studentLastName'), primaryEmail: getVal('primaryEmail'), dob: getVal('dob'), mobile: getVal('mobile'), placeOfBirth: getVal('placeOfBirth'), motherTongue: getVal('motherTongue'), studentClass: getVal('studentClass'), gender: getVal('gender'), bloodGroup: getVal('bloodGroup'), category: getVal('category'), house: getVal('house'), religion: getVal('religion'), udiseNo: getVal('udiseNo'), apaarId: getVal('apaarId'), aadhaarNo: getVal('aadhaarNo'), prevSchool: getVal('prevSchool'), fatherName: getVal('fatherName'), fatherSalutation: getVal('fatherSalutation'), fatherContact: getVal('fatherContact'), fatherWhatsapp: getVal('fatherWhatsapp'), fatherProfession: getVal('fatherProfession'), fatherQualification: getVal('fatherQualification'), fatherDesignation: getVal('fatherDesignation'), fatherIncome: getVal('fatherIncome'), fatherOfficeName: getVal('fatherOfficeName'), fatherOfficeContact: getVal('fatherOfficeContact'), fatherOfficeAddress: getVal('fatherOfficeAddress'), fatherAadhaar: getVal('fatherAadhaar'), motherName: getVal('motherName'), motherSalutation: getVal('motherSalutation'), motherContact: getVal('motherContact'), motherWhatsapp: getVal('motherWhatsapp'), motherProfession: getVal('motherProfession'), motherQualification: getVal('motherQualification'), motherDesignation: getVal('motherDesignation'), motherIncome: getVal('motherIncome'), motherOfficeName: getVal('motherOfficeName'), motherOfficeContact: getVal('motherOfficeContact'), motherOfficeAddress: getVal('motherOfficeAddress'), motherAadhaar: getVal('motherAadhaar'), corrAddress: getVal('corrAddress'), corrCity: getVal('corrCity'), corrState: getVal('corrState'), corrCountry: getVal('corrCountry'), corrPincode: getVal('corrPincode'), permAddress: getVal('permAddress'), permCity: getVal('permCity'), permState: getVal('permState'), permCountry: getVal('permCountry'), permPincode: getVal('permPincode'),
+                    // ⭐ NEW FEE FIELDS ⭐
+                    feeApplicableDate: feeDateRaw || '',
+                    fee50Rule: document.getElementById('fee50Rule').checked === true,
                     studentPhotoBase64: getVal('studentPhotoBase64'), fatherPhotoBase64: getVal('fatherPhotoBase64'), motherPhotoBase64: getVal('motherPhotoBase64'),
                     schoolCode: schoolCode
                 };
@@ -2557,6 +2787,9 @@
                     document.getElementById('studentClass').style.background = "";
                     document.getElementById('studentClass').style.cursor = "";
                     document.getElementById('studentClass').title = "";
+                    // 🔓 Reset fee rule fields for fresh admission
+                    document.getElementById('feeApplicableDate').value = '';
+                    document.getElementById('fee50Rule').checked = false;
                     formTabs[0].click(); updateNextRegNo();
                     ['studentPhoto', 'fatherPhoto', 'motherPhoto'].forEach(p => { document.getElementById(p + 'Base64').value = ''; document.getElementById(p.replace('studentPhoto', 'photo') + 'Preview').src = DEFAULT_AVATAR; document.getElementById('btnRemove_' + p).style.display = 'none'; });
                 });
@@ -2797,6 +3030,7 @@
 
             // ==========================================
             // THE "KUNDLI" - STUDENT FEE LEDGER
+            // (Now respects Fee Applicable Date + 50% Rule)
             // ==========================================
             window.openLedger = function (regNo) {
                 let student = appData ? appData.find(s => String(s.regNo) === String(regNo)) : null;
@@ -2806,6 +3040,26 @@
                 else { let rec = feeReceipts.find(r => String(r.Reg_No) === String(regNo)); if (rec) { sName = rec.Student_Name; sClass = rec.Class_Section; } }
 
                 document.getElementById('l-name').innerText = sName; document.getElementById('l-reg').innerText = regNo; document.getElementById('l-class').innerText = sClass; document.getElementById('l-father').innerText = sFather;
+
+                // ============================================================
+                // ⭐ FEE APPLICABLE DATE + 50% RULE LOGIC ⭐
+                // ============================================================
+                let feeApplicableDateStr = (student && typeof student.feeApplicableDate === 'string') ? student.feeApplicableDate : '';
+                let fee50Rule = !!(student && student.fee50Rule === true);
+                let feeApplicableDateObj = parseISODate(feeApplicableDateStr);
+
+                // Populate the fee-rule banner
+                const bannerEl = document.getElementById('ledgerFeeRuleBanner');
+                if (feeApplicableDateObj) {
+                    const dd = String(feeApplicableDateObj.day).padStart(2, '0');
+                    const mm = String(feeApplicableDateObj.month + 1).padStart(2, '0');
+                    const yyyy = feeApplicableDateObj.year;
+                    bannerEl.innerHTML = `<b>ℹ️ Fee Rule Applied:</b> Ledger starts from <b>${dd}-${mm}-${yyyy}</b>. Months before this are hidden. <span class="pill ${fee50Rule ? '' : 'off'}">50% Rule: ${fee50Rule ? 'ON' : 'OFF'}</span>` +
+                        (fee50Rule && feeApplicableDateObj.day > 15 ? `<br><span style="font-size:11.5px;">Because the joining date is after the 15th, the first month's fee is skipped as per the 50% Rule.</span>` : '');
+                    bannerEl.style.display = 'block';
+                } else {
+                    bannerEl.style.display = 'none';
+                }
 
                 let classFeeAmount = 0;
                 if (student && student.studentClass && setupData && setupData.classes) { let cSetup = setupData.classes.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass); if (cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); } }
@@ -2841,6 +3095,11 @@
                 let tbody = document.getElementById('ledgerTableBody'); tbody.innerHTML = ''; let totalDue = 0, totalPaid = 0;
 
                 academicMonths.forEach(month => {
+                    // ⭐ Apply Fee Applicable Date + 50% Rule filter ⭐
+                    if (!shouldShowMonth(month, feeApplicableDateStr, fee50Rule)) {
+                        return; // hide this month's fee rows completely
+                    }
+
                     let tAmt = classFeeAmount; let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0; let tBal = tAmt - tPaid; totalDue += tAmt; totalPaid += tPaid;
                     let rowBg = (tAmt > 0 && tBal <= 0) ? 'background-color:#e8f5e9;' : ''; let tStyle = tBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
                     tbody.innerHTML += `<tr style="${rowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>Monthly Tuition Fee (${month})</b></td><td style="padding:10px; border:1px solid #ccc;">₹${tAmt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${tPaid.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${tStyle} font-weight:bold;">₹${tBal.toFixed(2)}</td></tr>`;
@@ -2861,6 +3120,10 @@
                         tbody.innerHTML += `<tr style="${anRowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (Annual)</b></td><td style="padding:10px; border:1px solid #ccc;">₹${amt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${pd.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${balStyle} font-weight:bold;">₹${bal.toFixed(2)}</td></tr>`;
                     }
                 });
+
+                if (tbody.innerHTML === '') {
+                    tbody.innerHTML = '<tr><td colspan="4" style="padding:16px; text-align:center; color:#888;">No applicable fees for the current academic session based on the Fee Applicable Date.</td></tr>';
+                }
 
                 document.getElementById('l-tot-due').innerText = "₹" + totalDue.toFixed(2); document.getElementById('l-tot-paid').innerText = "₹" + totalPaid.toFixed(2); document.getElementById('l-tot-bal').innerText = "₹" + (totalDue - totalPaid).toFixed(2);
                 document.getElementById('ledgerModal').classList.add('active');
