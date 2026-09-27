@@ -1578,7 +1578,6 @@
             line-height: 1.55;
         }
 
-        /* Highlight for Paid Amount field */
         .paid-amount-highlight {
             background: #E7F3EC !important;
             color: #1F7A52 !important;
@@ -1756,7 +1755,6 @@
                                 </tfoot>
                             </table>
 
-                            <!-- ✅ Advance Info Bar -->
                             <div id="advanceInfoBar" class="advance-info-bar no-advance" style="display:none;">
                                 <div><span class="label">🎁 Advance Balance:</span> <span class="amount"
                                         id="advanceBalanceDisplay">₹0.00</span></div>
@@ -1767,7 +1765,6 @@
                             </div>
 
                             <div class="section-title-red">Total Amount Information</div>
-                            <!-- ✅ REORDERED FIELDS -->
                             <div class="total-info-grid">
                                 <p>Payable Amount: <input type="text" id="finalPayable" readonly value="0.00"></p>
                                 <p>Paid Amount: <input type="text" id="finalTotalPaid" readonly value="0.00"
@@ -2318,7 +2315,6 @@
         let isSA = false;
         let userRights = [];
 
-        // Applied advance for the current receipt (in-memory only)
         let currentAppliedAdvance = 0;
         let pendingReceiptData = null;
         let pendingSuccessAction = null;
@@ -2402,7 +2398,6 @@
             return true;
         }
 
-        // CALCULATION LOGIC: ALWAYS BASED ON BASE AMOUNT (Order-independent)
         function calcAdjustmentFromRecords(studentRegNo, feeHeadName, rowPeriod, rowFrequency, quartersPerYear, baseAmount) {
             let concession = 0, waiver = 0;
             feeConcessions.forEach(c => {
@@ -2425,7 +2420,6 @@
             return { concession: concession, waiver: waiver };
         }
 
-        // Searchable Select utility
         function makeSearchableSelect(selectId, placeholder) {
             const sel = document.getElementById(selectId);
             if (!sel || sel.dataset.searchable === 'yes') return;
@@ -2526,7 +2520,6 @@
             updateDisplay();
         }
 
-        // ADVANCE HELPERS
         function getAdvanceBalance(regNo) {
             const a = feeAdvancesMap[String(regNo)];
             if (!a) return 0;
@@ -2809,7 +2802,6 @@
 
                     generateFeeTable(student, selectedMonth);
 
-                    // ✅ AUTO-APPLY advance balance up to payable amount
                     const bal = getAdvanceBalance(student.regNo);
                     const payable = parseFloat(document.getElementById('finalPayable').value) || 0;
                     if (bal > 0 && payable > 0) {
@@ -2883,14 +2875,13 @@
                 if (student) updateAdvanceInfoBar(student);
             });
 
-            // ✅ UPDATED: Paid Amount = cash paid against fees only
+            // ✅ FIXED: Paid Amount = sum(Paid column) - Advance Applied
+            // (Previously it used Net total, which ignored user's manual Paid column edits)
             function recalcCashPaid() {
-                const totNet = parseFloat(document.getElementById('totNet').innerText) || 0;
+                const totPaid = parseFloat(document.getElementById('totPaid').innerText) || 0;
                 const newAdvance = parseFloat(document.getElementById('finalAdvance').value) || 0;
-                const cashForFees = Math.max(0, totNet - currentAppliedAdvance);
-                // "Paid Amount" = cash for fees (what parent hands over for the current fee)
+                const cashForFees = Math.max(0, totPaid - currentAppliedAdvance);
                 document.getElementById('finalTotalPaid').value = formatMoney(cashForFees);
-                // Total cash collected = cash for fees + new advance (for payment table display)
                 const totalCash = cashForFees + newAdvance;
                 const payAmountEl = document.getElementById('payAmount');
                 if (payAmountEl) payAmountEl.value = formatMoney(totalCash);
@@ -3146,13 +3137,11 @@
                 const newAdvance = parseFloat(document.getElementById('finalAdvance').value) || 0;
                 const student = allStudents.find(s => String(s.regNo) === String(regNo));
 
-                // Compute old advance and total cash
                 const oldAdv = student ? getAdvanceBalance(student.regNo) : 0;
                 const cashForFees = parseFloat(document.getElementById('finalTotalPaid').value) || 0;
                 const totalCash = cashForFees + newAdvance;
                 const newAdvanceBalance = oldAdv - currentAppliedAdvance + newAdvance;
 
-                // Check if new advance would exceed remaining session fees
                 if (newAdvance > 0 && student) {
                     const totalSessionFees = getTotalSessionFees(student);
                     const totalPaidSoFar = getTotalPaidForSession(student);
@@ -3193,7 +3182,6 @@
                     }
                 }
 
-                // No overflow — save directly
                 await performSaveReceipt({
                     schoolCode: schoolCode,
                     Receipt_No: document.getElementById('feeReceiptNo').value,
@@ -3215,7 +3203,6 @@
                 }, paidDetails, onSuccessAction);
             }
 
-            // Perform save with advance balance update
             async function performSaveReceipt(receiptData, paidDetails, onSuccessAction, advanceChoice) {
                 if (onSuccessAction === 'print') {
                     populatePrintTemplate(receiptData, paidDetails,
@@ -3408,7 +3395,26 @@
                 executePrint(studentName, receiptNo);
             };
 
-            function populatePrintTemplate(rData, detailsArray, fName, mName) {
+            // ✅ FIXED: Normalize keys so this works for both
+            // `saveReceipt` (snake_case) and `printFromHistoryById` (camelCase)
+            function populatePrintTemplate(rDataIn, detailsArray, fName, mName) {
+                const rData = {
+                    receiptNo: rDataIn.receiptNo != null ? rDataIn.receiptNo : (rDataIn.Receipt_No != null ? rDataIn.Receipt_No : '-'),
+                    regNo: rDataIn.regNo != null ? rDataIn.regNo : (rDataIn.Reg_No != null ? rDataIn.Reg_No : '-'),
+                    studentName: rDataIn.studentName != null ? rDataIn.studentName : (rDataIn.Student_Name != null ? rDataIn.Student_Name : '-'),
+                    classSec: rDataIn.classSec != null ? rDataIn.classSec : (rDataIn.Class_Section != null ? rDataIn.Class_Section : '-'),
+                    installment: rDataIn.installment != null ? rDataIn.installment : (rDataIn.Installment != null ? rDataIn.Installment : '-'),
+                    date: rDataIn.date != null ? rDataIn.date : (rDataIn.Date != null ? rDataIn.Date : '-'),
+                    totalAmount: rDataIn.totalAmount != null ? rDataIn.totalAmount : (rDataIn.Amount != null ? rDataIn.Amount : '-'),
+                    paymentMode: rDataIn.paymentMode != null ? rDataIn.paymentMode : (rDataIn.Payment_Mode != null ? rDataIn.Payment_Mode : '-'),
+                    bankName: rDataIn.bankName != null ? rDataIn.bankName : (rDataIn.Bank_Name != null ? rDataIn.Bank_Name : '-'),
+                    refNo: rDataIn.refNo != null ? rDataIn.refNo : (rDataIn.Ref_No != null ? rDataIn.Ref_No : '-'),
+                    advanceBefore: parseFloat(rDataIn.advanceBefore != null ? rDataIn.advanceBefore : rDataIn.Advance_Balance_Before) || 0,
+                    advanceApplied: parseFloat(rDataIn.advanceApplied != null ? rDataIn.advanceApplied : rDataIn.Advance_Applied) || 0,
+                    advanceAdded: parseFloat(rDataIn.advanceAdded != null ? rDataIn.advanceAdded : rDataIn.Advance_Added) || 0,
+                    advanceAfter: parseFloat(rDataIn.advanceAfter != null ? rDataIn.advanceAfter : rDataIn.Advance_Balance_After) || 0
+                };
+
                 const schoolName = localStorage.getItem('erp_school_name') || 'School Name';
                 document.getElementById('p-school-name').innerText = schoolName;
                 document.getElementById('p-sign-school').innerText = `For ${schoolName}`;
@@ -3467,11 +3473,10 @@
                 document.getElementById('p-pdet').innerText = rData.refNo || '-';
                 document.getElementById('p-pamt').innerText = rData.totalAmount || '-';
 
-                // ✅ ADVANCE DETAILS section
-                const advBefore = parseFloat(rData.advanceBefore) || 0;
-                const advApplied = parseFloat(rData.advanceApplied) || 0;
-                const advAdded = parseFloat(rData.advanceAdded) || 0;
-                const advAfter = parseFloat(rData.advanceAfter) || 0;
+                const advBefore = rData.advanceBefore;
+                const advApplied = rData.advanceApplied;
+                const advAdded = rData.advanceAdded;
+                const advAfter = rData.advanceAfter;
                 const hasAdvance = (advBefore > 0) || (advApplied > 0) || (advAdded > 0);
                 const advTable = document.getElementById('advance-details-table');
                 if (hasAdvance) {
