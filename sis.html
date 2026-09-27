@@ -600,13 +600,20 @@
              main-content's 30px side padding so rows never show at the edges.
            - Bottom shadow gives clean visual separation from scrolling rows.
            ================================================== */
+        #module-profiles {
+            /* Preserve the existing visual top position without putting a
+               negative margin on the sticky element itself. */
+            margin-top: -20px;
+        }
+
         #module-profiles .sticky-top-section {
             position: sticky;
             top: 0;
             z-index: 20;
             background: var(--paper);
-            /* Cancel parent's top padding */
-            margin-top: -20px;
+            isolation: isolate;
+            /* Keep the sticky element at a normal top position */
+            margin-top: 0;
             padding-top: 18px;
             padding-bottom: 6px;
             /* Cover parent's side padding (30px) */
@@ -633,6 +640,12 @@
             padding: 8px 14px !important;
         }
 
+        /* Small breathing room before the table so the first listed
+           student is not visually clipped against the sticky area. */
+        #module-profiles .table-container {
+            padding-top: 8px;
+        }
+
         /* ==================================================
            ✅ STICKY TABLE HEADER (Profiles only)
            ================================================== */
@@ -643,7 +656,7 @@
         #module-profiles .data-table thead th {
             position: sticky;
             top: var(--sticky-toolbar-h, 120px);
-            z-index: 15;
+            z-index: 10;
             box-shadow: 0 1px 0 0 var(--line);
         }
 
