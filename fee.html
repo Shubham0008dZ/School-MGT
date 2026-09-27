@@ -1,3 +1,4 @@
+]
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,9 +22,7 @@
             messagingSenderId: "222944507292",
             appId: "1:222944507292:web:3b80280c1359b9fa6ec459"
         };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
         const auth = firebase.auth();
     </script>
@@ -1320,7 +1319,6 @@
             background: #fff !important;
         }
 
-        /* Note box for calculation logic */
         .calc-note-box {
             background: #FFF8E1;
             border: 1px solid #F0C36D;
@@ -1369,6 +1367,227 @@
             }
         }
     </style>
+
+    <!-- ✅ NEW: Searchable Select + Advance Feature Styles -->
+    <style id="advance-feature-styles">
+        .ss-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .ss-display {
+            padding: 9px 11px;
+            border: 1px solid #D8D2C0;
+            border-radius: 7px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 38px;
+            box-sizing: border-box;
+            gap: 8px;
+        }
+
+        .ss-display:hover {
+            border-color: var(--brass);
+        }
+
+        .ss-display .ss-text {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ss-panel {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #D8D2C0;
+            border-radius: 7px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+            z-index: 100000;
+            max-height: 340px;
+            overflow: hidden;
+            margin-top: 4px;
+            flex-direction: column;
+        }
+
+        .ss-search {
+            width: 100%;
+            padding: 10px 12px;
+            border: none;
+            border-bottom: 1px solid #eee;
+            outline: none;
+            font-size: 13px;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .ss-list {
+            max-height: 270px;
+            overflow-y: auto;
+        }
+
+        .ss-item {
+            padding: 9px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            border-bottom: 1px solid #f5f5f5;
+            line-height: 1.4;
+        }
+
+        .ss-item:hover {
+            background: #F4F1E9;
+        }
+
+        .ss-item.selected {
+            background: #E9F1F8;
+            font-weight: 600;
+        }
+
+        .ss-empty {
+            padding: 14px;
+            color: #999;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .advance-capsule {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #1F7A52, #27a068);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(31, 122, 82, 0.3);
+            transition: all 0.15s;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: .02em;
+        }
+
+        .advance-capsule:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(31, 122, 82, 0.4);
+        }
+
+        .advance-capsule:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .advance-capsule.remove {
+            background: linear-gradient(135deg, #B23A2E, #d54b3c);
+            box-shadow: 0 2px 8px rgba(178, 58, 46, 0.3);
+        }
+
+        .advance-capsule.remove:hover {
+            box-shadow: 0 4px 12px rgba(178, 58, 46, 0.4);
+        }
+
+        .advance-info-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 14px;
+            background: #E7F3EC;
+            border-left: 4px solid #1F7A52;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+
+        .advance-info-bar.no-advance {
+            background: #F4F1E9;
+            border-left-color: #948E7D;
+        }
+
+        .advance-info-bar .label {
+            font-weight: 600;
+            color: #14213D;
+        }
+
+        .advance-info-bar .amount {
+            font-weight: 800;
+            color: #1F7A52;
+            font-size: 15px;
+        }
+
+        .advance-info-bar.no-advance .amount {
+            color: #6D6759;
+        }
+
+        .choice-radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .choice-radio-group label {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px;
+            border: 2px solid #E3DFD2;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .choice-radio-group label:hover {
+            border-color: var(--brass);
+            background: #FBFAF6;
+        }
+
+        .choice-radio-group input[type="radio"] {
+            margin-top: 3px;
+            accent-color: var(--brass);
+            transform: scale(1.3);
+            cursor: pointer;
+        }
+
+        .choice-radio-group label:has(input:checked) {
+            border-color: var(--brass);
+            background: #FAF5E8;
+        }
+
+        .choice-radio-group .choice-title {
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .choice-radio-group .choice-desc {
+            font-size: 12px;
+            color: #6D6759;
+            line-height: 1.55;
+        }
+
+        .advance-applied-row {
+            background: #FFF3CD !important;
+            font-weight: 700 !important;
+        }
+
+        .advance-applied-row td {
+            color: #856404 !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -1385,7 +1604,6 @@
                 <span class="school-name" id="dynamicNavName">SHUBH ERP</span>
             </a>
         </div>
-
         <div class="top-right">
             <span>⚏&nbsp;Fee Module&nbsp;&nbsp;🔔</span>
             <button id="btnLogout" class="btn-logout-fee">🚪 Logout</button>
@@ -1463,10 +1681,11 @@
                 </div>
                 <div class="fee-form-wrapper">
                     <div class="fee-top-bar">
-                        <div class="input-group" style="flex:2;"><label>Student*</label><select id="feeStudentSelect"
-                                style="width:100%; padding:8px; font-weight:bold;">
+                        <div class="input-group" style="flex:2;"><label>Student*</label>
+                            <select id="feeStudentSelect" style="width:100%; padding:8px; font-weight:bold;">
                                 <option value="">-- Search and Select Student --</option>
-                            </select></div>
+                            </select>
+                        </div>
                         <div class="input-group" style="flex:1;"><label>Receipt No.</label><input type="text"
                                 id="feeReceiptNo" readonly style="background:#f1f1f1;"></div>
                         <div class="input-group" style="flex:1;"><label>Fee Date*</label><input type="date"
@@ -1540,9 +1759,21 @@
                                 </tfoot>
                             </table>
 
+                            <!-- ✅ NEW: Advance Info Bar -->
+                            <div id="advanceInfoBar" class="advance-info-bar no-advance" style="display:none;">
+                                <div><span class="label">🎁 Advance Balance:</span> <span class="amount"
+                                        id="advanceBalanceDisplay">₹0.00</span></div>
+                                <button type="button" id="btnApplyAdvance" class="advance-capsule"
+                                    style="display:none;">⚡ Apply Advance</button>
+                                <button type="button" id="btnRemoveAdvance" class="advance-capsule remove"
+                                    style="display:none;">✖ Remove Applied</button>
+                            </div>
+
                             <div class="section-title-red">Total Amount Information</div>
                             <div class="total-info-grid">
                                 <p>Payable Amount: <input type="text" id="finalPayable" readonly value="0.00"></p>
+                                <p>Advance Applied: <input type="text" id="advanceAppliedField" readonly value="0.00"
+                                        style="color:#856404; background:#FFF3CD;"></p>
                                 <p>Advance in Current Receipt: <input type="text" id="finalAdvance" value="0.00"></p>
                                 <p>Total Paid Amount: <input type="text" id="finalTotalPaid" readonly value="0.00"></p>
                             </div>
@@ -1595,22 +1826,18 @@
                 <div style="display:flex; gap:20px; align-items:flex-start;">
                     <div style="width:38%; padding:20px;">
                         <h3 style="margin-top:0; padding-bottom:10px;">Grant New Concession / Waiver</h3>
-
-                        <!-- ✅ NOTE BOX: Calculation Logic -->
-                  
-<div class="calc-note-box">
-    <strong>📌 Note — Calculation Basis:</strong> The <b>order (sequence) of Concession and Waiver does not matter</b>. Both deductions will always be calculated on the <b>Base Amount</b> (not on the remaining amount).
-
-    <div class="example-box">
-        <b>Example — Admission Fee:</b><br>
-        • Base Amount: ₹15,000<br>
-        • Concession (Fixed): ₹1,000<br>
-        • Waiver (10% of Base): ₹15,000 × 10% = ₹1,500<br>
-        <b>Net Payable = ₹15,000 − ₹1,000 − ₹1,500 = ₹12,500</b>
-    </div>
-</div>
-
-
+                        <div class="calc-note-box">
+                            <strong>📌 Note — Calculation Basis:</strong> The <b>order (sequence) of Concession and
+                                Waiver does not matter</b>. Both deductions will always be calculated on the <b>Base
+                                Amount</b> (not on the remaining amount).
+                            <div class="example-box">
+                                <b>Example — Admission Fee:</b><br>
+                                • Base Amount: ₹15,000<br>
+                                • Concession (Fixed): ₹1,000<br>
+                                • Waiver (10% of Base): ₹15,000 × 10% = ₹1,500<br>
+                                <b>Net Payable = ₹15,000 − ₹1,000 − ₹1,500 = ₹12,500</b>
+                            </div>
+                        </div>
                         <form id="feeConcessionForm" style="margin-top:15px;">
                             <div style="margin-bottom:12px;">
                                 <label style="font-weight:bold; display:block; margin-bottom:5px;">Student *</label>
@@ -1666,7 +1893,6 @@
                                 style="width:100%; padding:11px;">Save Concession</button>
                         </form>
                     </div>
-
                     <div style="width:62%; padding:20px;">
                         <h3 style="margin-top:0; padding-bottom:10px;">Active Concessions & Waivers</h3>
                         <table class="data-table" style="margin-top:15px;">
@@ -1767,7 +1993,6 @@
                 <span class="close-modal" id="closeLedgerBtn"
                     style="font-size:24px; color:white; cursor:pointer;">&times;</span>
             </div>
-
             <div class="modal-body" style="padding:20px; overflow-y:auto; background:#f9f9f9;">
                 <div id="ledgerExportArea" style="background:#f9f9f9; padding:5px;">
                     <div
@@ -1781,7 +2006,11 @@
                         <div><strong style="color:#555;">Father Name:</strong> <span id="l-father"
                                 style="color:#000;">-</span></div>
                     </div>
-
+                    <div id="l-advance-banner"
+                        style="display:none; background:#E7F3EC; border:1px solid #1F7A52; border-left:4px solid #1F7A52; padding:10px 14px; border-radius:5px; margin-bottom:15px; font-family:Arial,sans-serif; font-size:13px;">
+                        🎁 <b>Advance Balance Available:</b> <span id="l-advance"
+                            style="font-weight:bold; color:#1F7A52;">₹0.00</span>
+                    </div>
                     <div style="display:flex; gap:15px; margin-bottom:20px; font-family:Arial,sans-serif;">
                         <div
                             style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border:1px solid #ddd; border-bottom:4px solid #e67e22;">
@@ -1808,7 +2037,6 @@
                             <div id="l-tot-bal" style="font-size:24px; font-weight:bold; color:#e74c3c;">₹0.00</div>
                         </div>
                     </div>
-
                     <table class="data-table"
                         style="background:white; width:100%; border-collapse:collapse; font-family:Arial,sans-serif; border:1px solid #ddd; margin-bottom:25px;">
                         <thead style="background:#2c3e50; color:white;">
@@ -1824,7 +2052,6 @@
                         </thead>
                         <tbody id="ledgerTableBody"></tbody>
                     </table>
-
                     <h4
                         style="margin-top:25px; margin-bottom:10px; color:#2c3e50; border-bottom:2px solid #ddd; padding-bottom:5px; font-family:Arial,sans-serif;">
                         Payment History Log</h4>
@@ -1846,6 +2073,57 @@
         </div>
     </div>
 
+    <!-- ✅ NEW: Advance Choice Modal -->
+    <div id="advanceChoiceModal" class="modal-overlay">
+        <div class="modal-card" style="width: 540px; max-height: 95vh;">
+            <div class="modal-header" style="background: var(--info) !important;">
+                <h3 style="color:#fff !important;">💡 Advance Payment — Choose Action</h3>
+                <span class="close-modal" id="closeAdvanceChoiceModal">&times;</span>
+            </div>
+            <div class="modal-body" style="padding: 25px;">
+                <p style="font-size: 14px; line-height: 1.65; color: var(--text-mute);">
+                    This receipt is adding <b style="color: var(--good);">₹<span id="acm-new-advance">0</span></b> to
+                    the advance balance.
+                    After saving, the student's total advance will be <b style="color: var(--good);">₹<span
+                            id="acm-total-advance">0</span></b>,
+                    but the remaining fees for the current academic session are only <b
+                        style="color: var(--warn);">₹<span id="acm-session-fees">0</span></b>.
+                    The excess amount of <b style="color: var(--bad);">₹<span id="acm-excess">0</span></b> cannot be
+                    consumed this session.
+                </p>
+                <p style="font-size: 13px; color: var(--text-mute); margin-top: 12px;">What do you want to do with the
+                    excess <b>₹<span id="acm-excess-2">0</span></b>?</p>
+
+                <div class="choice-radio-group">
+                    <label>
+                        <input type="radio" name="advanceChoice" value="transfer" checked>
+                        <div>
+                            <div class="choice-title">🔄 Transfer with Student</div>
+                            <div class="choice-desc">The excess will be carried forward as an advance balance. When the
+                                student is promoted to the next session, this balance will remain and can be adjusted
+                                against their future fees.</div>
+                        </div>
+                    </label>
+                    <label>
+                        <input type="radio" name="advanceChoice" value="refund">
+                        <div>
+                            <div class="choice-title">💵 Refund to Parents</div>
+                            <div class="choice-desc">The excess will be refunded back to the parents. The advance
+                                balance will be reduced to only what's needed for the current session's remaining fees.
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <div
+                    style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; border-top: 1px solid var(--line); padding-top: 18px;">
+                    <button class="btn btn-dark" id="btnCancelAdvanceChoice">Cancel</button>
+                    <button class="btn btn-green" id="btnConfirmAdvanceChoice">Confirm & Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- PRINT TEMPLATE -->
     <div id="printSection">
         <div class="print-container">
@@ -1859,7 +2137,6 @@
                 </div>
             </div>
             <h3 class="print-title"><u>Fee Receipt</u></h3>
-
             <div class="print-details-wrapper">
                 <table class="print-info-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                     <tr>
@@ -1912,7 +2189,6 @@
                     </tr>
                 </table>
             </div>
-
             <table class="print-particulars-table">
                 <thead>
                     <tr>
@@ -1944,7 +2220,6 @@
                     </tr>
                 </tfoot>
             </table>
-
             <table class="print-particulars-table" style="margin-top:0;">
                 <thead>
                     <tr>
@@ -1993,14 +2268,13 @@
     <script id="fee-inline-logic">
         window.customAlert = function (message) {
             let overlay = document.createElement('div');
-            overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+            overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;";
             overlay.innerHTML = `<div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;"><p style="color:#333;margin-bottom:20px;font-size:15px;font-weight:bold;">${message}</p><button onclick="this.parentElement.parentElement.remove()" style="padding:8px 25px;background:#3498db;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">OK</button></div>`;
             document.body.appendChild(overlay);
         };
-
         window.customConfirm = function (message, onConfirm) {
             let overlay = document.createElement('div');
-            overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+            overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;";
             overlay.innerHTML = `<div style="background:#fff;padding:25px;border-radius:8px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);min-width:300px;"><p style="color:#555;margin-bottom:20px;">${message}</p><div style="display:flex;justify-content:center;gap:10px;"><button id="cc-cancel" style="padding:8px 20px;background:#95a5a6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Cancel</button><button id="cc-ok" style="padding:8px 20px;background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Confirm</button></div></div>`;
             document.body.appendChild(overlay);
             document.getElementById('cc-cancel').addEventListener('click', () => overlay.remove());
@@ -2012,9 +2286,15 @@
         let feeHeads = [];
         let feeReceipts = [];
         let feeConcessions = [];
+        let feeAdvancesMap = {};          // ✅ NEW: keyed by regNo → { Advance_Balance, ... }
         let activeUser = null;
         let isSA = false;
         let userRights = [];
+
+        // ✅ NEW: Applied advance for the current receipt (in-memory only)
+        let currentAppliedAdvance = 0;
+        let pendingReceiptData = null;
+        let pendingSuccessAction = null;
 
         const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
         const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/128/3135/3135715.png';
@@ -2095,12 +2375,7 @@
             return true;
         }
 
-        // ============================================================
         // ⭐ CALCULATION LOGIC: ALWAYS BASED ON BASE AMOUNT (Order-independent)
-        // Both Concession & Waiver apply on the ORIGINAL (base) amount.
-        // Example: Base 15000, Concession 1000 (fixed), Waiver 10% → 1500
-        //          Net = 15000 - 1000 - 1500 = 12500
-        // ============================================================
         function calcAdjustmentFromRecords(studentRegNo, feeHeadName, rowPeriod, rowFrequency, quartersPerYear, baseAmount) {
             let concession = 0, waiver = 0;
             feeConcessions.forEach(c => {
@@ -2110,19 +2385,168 @@
                 if (!doesConcessionApply(rowPeriod, rowFrequency, quartersPerYear, c.From_Month, c.To_Month)) return;
                 const val = parseFloat(c.Value) || 0;
                 let amt = 0;
-                // ✅ Always compute on BASE amount (not remaining), so order does not matter
                 if (c.Basis === 'Amount') amt = val;
                 else if (c.Basis === 'Percent') amt = (val / 100) * baseAmount;
                 if (c.Type === 'Concession') concession += amt;
                 else if (c.Type === 'Waiver') waiver += amt;
             });
-            // Cap so total doesn't exceed base amount
             if (concession + waiver > baseAmount && baseAmount > 0) {
                 const ratio = baseAmount / (concession + waiver);
                 concession *= ratio;
                 waiver *= ratio;
             }
             return { concession: concession, waiver: waiver };
+        }
+
+        // ============================================================
+        // ✅ NEW: Searchable Select — reusable utility
+        // ============================================================
+        function makeSearchableSelect(selectId, placeholder) {
+            const sel = document.getElementById(selectId);
+            if (!sel || sel.dataset.searchable === 'yes') return;
+            sel.dataset.searchable = 'yes';
+            sel.style.display = 'none';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'ss-wrapper';
+
+            const disp = document.createElement('div');
+            disp.className = 'ss-display';
+            disp.innerHTML = `<span class="ss-text" style="color:#6D6759;">-- Select --</span><span style="color:#948E7D; font-size:10px;">▼</span>`;
+            wrapper.appendChild(disp);
+
+            const panel = document.createElement('div');
+            panel.className = 'ss-panel';
+
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.className = 'ss-search';
+            searchInput.placeholder = placeholder || 'Search...';
+            panel.appendChild(searchInput);
+
+            const listEl = document.createElement('div');
+            listEl.className = 'ss-list';
+            panel.appendChild(listEl);
+
+            wrapper.appendChild(panel);
+            sel.parentNode.insertBefore(wrapper, sel.nextSibling);
+
+            function rebuildList(filter) {
+                const f = (filter || '').toLowerCase().trim();
+                const opts = Array.from(sel.options);
+                listEl.innerHTML = '';
+                let shown = 0;
+                opts.forEach(o => {
+                    const txt = o.textContent || '';
+                    if (f && !txt.toLowerCase().includes(f)) return;
+                    shown++;
+                    const item = document.createElement('div');
+                    item.className = 'ss-item';
+                    if (o.selected) item.classList.add('selected');
+                    item.textContent = txt;
+                    item.onclick = (e) => {
+                        e.stopPropagation();
+                        sel.value = o.value;
+                        sel.dispatchEvent(new Event('change', { bubbles: true }));
+                        updateDisplay();
+                        closePanel();
+                    };
+                    listEl.appendChild(item);
+                });
+                if (shown === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = 'ss-empty';
+                    empty.textContent = 'No matches found';
+                    listEl.appendChild(empty);
+                }
+            }
+
+            function updateDisplay() {
+                const opt = sel.options[sel.selectedIndex];
+                const txtEl = disp.querySelector('.ss-text');
+                if (opt && opt.value) {
+                    txtEl.textContent = opt.textContent;
+                    txtEl.style.color = '#211D18';
+                    txtEl.style.fontWeight = '600';
+                } else {
+                    txtEl.textContent = '-- Select --';
+                    txtEl.style.color = '#6D6759';
+                    txtEl.style.fontWeight = 'normal';
+                }
+            }
+
+            function openPanel() {
+                document.querySelectorAll('.ss-panel').forEach(p => { if (p !== panel) p.style.display = 'none'; });
+                panel.style.display = 'flex';
+                searchInput.value = '';
+                rebuildList('');
+                setTimeout(() => searchInput.focus(), 40);
+            }
+            function closePanel() { panel.style.display = 'none'; }
+
+            disp.onclick = (e) => {
+                e.stopPropagation();
+                if (panel.style.display === 'flex') closePanel();
+                else openPanel();
+            };
+            searchInput.onclick = (e) => e.stopPropagation();
+            searchInput.oninput = () => rebuildList(searchInput.value);
+            searchInput.onkeydown = (e) => {
+                if (e.key === 'Escape') closePanel();
+            };
+            panel.onclick = (e) => e.stopPropagation();
+            document.addEventListener('click', () => closePanel());
+
+            const observer = new MutationObserver(() => { updateDisplay(); });
+            observer.observe(sel, { childList: true, subtree: true });
+
+            updateDisplay();
+        }
+
+        // ============================================================
+        // ✅ NEW: ADVANCE HELPERS
+        // ============================================================
+        function getAdvanceBalance(regNo) {
+            const a = feeAdvancesMap[String(regNo)];
+            if (!a) return 0;
+            return Math.max(0, parseFloat(a.Advance_Balance) || 0);
+        }
+
+        function formatMoney(n) {
+            return (Math.round((parseFloat(n) || 0) * 100) / 100).toFixed(2);
+        }
+
+        // Compute total session fees (Apr to Mar) for a student
+        function getTotalSessionFees(student) {
+            let total = 0;
+            if (student && student.studentClass) {
+                let cSetup = setupClasses.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass);
+                if (cSetup && cSetup.fee) total += (parseFloat(cSetup.fee) || 0) * 12;
+            }
+            feeHeads.forEach(fh => {
+                const amt = parseFloat(fh.Amount) || 0;
+                if (fh.Frequency === 'Monthly') total += amt * 12;
+                else if (fh.Frequency === 'Quarterly') {
+                    const qpy = parseInt(fh.QuartersPerYear) === 3 ? 3 : 4;
+                    total += amt * qpy;
+                } else total += amt; // One Time / Annually
+            });
+            return total;
+        }
+
+        // Compute total already paid (fees) for the student
+        function getTotalPaidForSession(student) {
+            let total = 0;
+            feeReceipts.forEach(r => {
+                if (String(r.Reg_No) === String(student.regNo)) {
+                    try {
+                        JSON.parse(r.Paid_Heads || "[]").forEach(d => {
+                            total += parseFloat(d.paid) || 0;
+                        });
+                    } catch (e) { }
+                }
+            });
+            return total;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -2255,12 +2679,31 @@
                     feeConcessions = [];
                     if (conSnap.forEach) { conSnap.forEach(doc => { let d = doc.data(); d.id = doc.id; feeConcessions.push(d); }); }
 
+                    // ✅ NEW: Load fee_advances
+                    let advSnap = await db.collection("fee_advances").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
+                    feeAdvancesMap = {};
+                    if (advSnap.forEach) {
+                        advSnap.forEach(doc => {
+                            let d = doc.data();
+                            d.id = doc.id;
+                            feeAdvancesMap[String(d.Reg_No)] = d;
+                        });
+                    }
+
                     populateStudentsDropdown();
                     populateConcessionFormDropdowns();
                     renderFeeHeadsSetupList();
                     renderReceiptsTable();
                     renderConcessionsList();
                     updateNextReceiptNo();
+
+                    // ✅ NEW: Make dropdowns searchable (only once)
+                    makeSearchableSelect('feeStudentSelect', '🔍 Type student name, adm no, class...');
+                    makeSearchableSelect('conStudent', '🔍 Type student name...');
+                    makeSearchableSelect('conFeeHead', '🔍 Search fee head...');
+                    makeSearchableSelect('feeMonthSelect', '🔍 Search month...');
+                    makeSearchableSelect('conFrom', '🔍 Search month...');
+                    makeSearchableSelect('conTo', '🔍 Search month...');
 
                 } catch (error) {
                     console.error("Firebase Sync Error:", error);
@@ -2274,8 +2717,18 @@
                 const sel = document.getElementById('feeStudentSelect');
                 if (!sel) return;
                 sel.innerHTML = '<option value="">-- Search and Select Student --</option>';
-                allStudents.forEach(s => {
-                    let val = `${s.regNo} - ${s.studentFirstName || s.studentName} (${s.studentClass}) - ${s.fatherName}`;
+                // Sort by name for easier browsing
+                const sorted = [...allStudents].sort((a, b) => {
+                    const nA = (a.studentFirstName || a.studentName || '').toLowerCase();
+                    const nB = (b.studentFirstName || b.studentName || '').toLowerCase();
+                    return nA.localeCompare(nB);
+                });
+                sorted.forEach(s => {
+                    // ✅ NEW FORMAT: Name - AdmissionNo (Class-Section) FatherName
+                    const firstName = s.studentFirstName || s.studentName || '';
+                    const lastName = s.studentLastName || '';
+                    const fullName = (firstName + ' ' + lastName).trim();
+                    const val = `${fullName} - ${s.regNo} (${s.studentClass || '-'}) ${s.fatherName || ''}`.trim();
                     sel.innerHTML += `<option value="${s.regNo}">${val}</option>`;
                 });
             }
@@ -2284,8 +2737,17 @@
                 const sSel = document.getElementById('conStudent');
                 if (sSel) {
                     sSel.innerHTML = '<option value="">-- Select Student --</option>';
-                    allStudents.forEach(s => {
-                        sSel.innerHTML += `<option value="${s.regNo}">${s.regNo} - ${s.studentFirstName || s.studentName} (${s.studentClass})</option>`;
+                    const sorted = [...allStudents].sort((a, b) => {
+                        const nA = (a.studentFirstName || a.studentName || '').toLowerCase();
+                        const nB = (b.studentFirstName || b.studentName || '').toLowerCase();
+                        return nA.localeCompare(nB);
+                    });
+                    sorted.forEach(s => {
+                        const firstName = s.studentFirstName || s.studentName || '';
+                        const lastName = s.studentLastName || '';
+                        const fullName = (firstName + ' ' + lastName).trim();
+                        const val = `${fullName} - ${s.regNo} (${s.studentClass || '-'}) ${s.fatherName || ''}`.trim();
+                        sSel.innerHTML += `<option value="${s.regNo}">${val}</option>`;
                     });
                 }
                 const fhSel = document.getElementById('conFeeHead');
@@ -2311,12 +2773,11 @@
             document.getElementById('feeStudentSelect')?.addEventListener('change', triggerTableGeneration);
             document.getElementById('feeMonthSelect')?.addEventListener('change', triggerTableGeneration);
 
-            // ==========================================
-            // ✅ FIXED: Photo also updates now
-            // ==========================================
             function triggerTableGeneration() {
                 const regNo = document.getElementById('feeStudentSelect').value;
                 const selectedMonth = document.getElementById('feeMonthSelect').value;
+                // Reset applied advance whenever student/month changes
+                currentAppliedAdvance = 0;
                 if (!regNo) { clearProfilePanel(); return; }
                 const student = allStudents.find(s => String(s.regNo) === String(regNo));
                 if (student) {
@@ -2326,7 +2787,6 @@
                     document.getElementById('profFather').innerText = student.fatherName || '-';
                     document.getElementById('profMother').innerText = student.motherName || '-';
 
-                    // ✅ Photo update logic (adds the SIS-uploaded photo to Fee panel)
                     const photoEl = document.getElementById('profPhoto');
                     if (photoEl) {
                         photoEl.src = student.studentPhotoBase64 || DEFAULT_AVATAR;
@@ -2334,6 +2794,7 @@
                     }
 
                     generateFeeTable(student, selectedMonth);
+                    updateAdvanceInfoBar(student);
                 }
             }
 
@@ -2342,20 +2803,84 @@
                     let el = document.getElementById(id);
                     if (el) el.innerText = "-";
                 });
-
-                // ✅ Reset photo when student is cleared
                 const photoEl = document.getElementById('profPhoto');
                 if (photoEl) photoEl.src = DEFAULT_AVATAR;
-
                 let tbody = document.getElementById('feeHeadsTbody');
                 if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Select a student to view fee heads</td></tr>';
+                document.getElementById('advanceInfoBar').style.display = 'none';
                 resetTotals();
             }
 
+            // ✅ NEW: Update advance info bar
+            function updateAdvanceInfoBar(student) {
+                if (!student) { document.getElementById('advanceInfoBar').style.display = 'none'; return; }
+                const bal = getAdvanceBalance(student.regNo);
+                const bar = document.getElementById('advanceInfoBar');
+                bar.style.display = 'flex';
+                document.getElementById('advanceBalanceDisplay').innerText = '₹' + formatMoney(bal);
+
+                const btnApply = document.getElementById('btnApplyAdvance');
+                const btnRemove = document.getElementById('btnRemoveAdvance');
+
+                if (bal > 0 && currentAppliedAdvance === 0) {
+                    bar.classList.remove('no-advance');
+                    btnApply.style.display = 'inline-flex';
+                    btnRemove.style.display = 'none';
+                } else if (currentAppliedAdvance > 0) {
+                    bar.classList.add('no-advance');
+                    btnApply.style.display = 'none';
+                    btnRemove.style.display = 'inline-flex';
+                } else {
+                    bar.classList.add('no-advance');
+                    btnApply.style.display = 'none';
+                    btnRemove.style.display = 'none';
+                }
+            }
+
             // ==========================================
-            // ✅ FIXED: Fee Table Generation
-            // Correctly subtracts previous concessions/waivers/payments
-            // and applies auto-concession only for first-time rows.
+            // ✅ NEW: Apply / Remove Advance
+            // ==========================================
+            document.getElementById('btnApplyAdvance')?.addEventListener('click', () => {
+                const regNo = document.getElementById('feeStudentSelect').value;
+                const student = allStudents.find(s => String(s.regNo) === String(regNo));
+                if (!student) return;
+                const bal = getAdvanceBalance(student.regNo);
+                const payable = parseFloat(document.getElementById('finalPayable').value) || 0;
+                const applyAmt = Math.min(bal, payable);
+                if (applyAmt <= 0) { customAlert("No advance available or nothing to apply against."); return; }
+                currentAppliedAdvance = applyAmt;
+                document.getElementById('advanceAppliedField').value = formatMoney(applyAmt);
+                // Recompute cash paid
+                recalcCashPaid();
+                updateAdvanceInfoBar(student);
+            });
+
+            document.getElementById('btnRemoveAdvance')?.addEventListener('click', () => {
+                currentAppliedAdvance = 0;
+                document.getElementById('advanceAppliedField').value = '0.00';
+                recalcCashPaid();
+                const regNo = document.getElementById('feeStudentSelect').value;
+                const student = allStudents.find(s => String(s.regNo) === String(regNo));
+                if (student) updateAdvanceInfoBar(student);
+            });
+
+            // ✅ NEW: Recompute total cash paid = totNet - appliedAdvance + newAdvance
+            function recalcCashPaid() {
+                const totNet = parseFloat(document.getElementById('totNet').innerText) || 0;
+                const newAdvance = parseFloat(document.getElementById('finalAdvance').value) || 0;
+                const cashForFees = Math.max(0, totNet - currentAppliedAdvance);
+                const totalCash = cashForFees + newAdvance;
+                document.getElementById('finalTotalPaid').value = formatMoney(totalCash);
+                const payAmountEl = document.getElementById('payAmount');
+                if (payAmountEl) payAmountEl.value = formatMoney(totalCash);
+            }
+
+            document.getElementById('finalAdvance')?.addEventListener('input', () => {
+                recalcCashPaid();
+            });
+
+            // ==========================================
+            // FEE TABLE GENERATION
             // ==========================================
             function generateFeeTable(student, selectedMonthVal) {
                 const tbody = document.getElementById('feeHeadsTbody');
@@ -2369,7 +2894,6 @@
                 const feeAppDate = (student && typeof student.feeApplicableDate === 'string') ? student.feeApplicableDate : '';
                 const fee50 = !!(student && student.fee50Rule === true);
 
-                // Build cumulative paid / concession / waiver maps from all previous receipts
                 let paidMap = {}, concMap = {}, waivMap = {};
                 feeReceipts.forEach(r => {
                     if (String(r.Reg_No).trim() === String(student.regNo).trim()) {
@@ -2380,7 +2904,6 @@
                                 let conc = parseFloat(d.concession) || 0;
                                 let waiv = parseFloat(d.waiver) || 0;
                                 const adj = parseFloat(d.adj) || 0;
-                                // Backward compat: if only `adj` stored (old format), attribute to concession
                                 if (conc + waiv === 0 && adj > 0) conc = adj;
                                 paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
                                 concMap[uid] = (concMap[uid] || 0) + conc;
@@ -2404,14 +2927,12 @@
                     const remaining = originalAmount - totalPrevHandled;
                     if (remaining <= 0) return;
 
-                    // Auto concession/waiver — only for FIRST TIME rows (no previous activity)
                     let autoConc = 0, autoWaiv = 0;
                     if (totalPrevHandled === 0) {
                         const adj = calcAdjustmentFromRecords(student.regNo, feeHeadName, period, frequency, quartersPerYear, originalAmount);
                         autoConc = adj.concession;
                         autoWaiv = adj.waiver;
                     }
-                    // Cap so we don't exceed remaining
                     autoConc = Math.min(autoConc, remaining);
                     autoWaiv = Math.min(autoWaiv, Math.max(0, remaining - autoConc));
 
@@ -2420,20 +2941,18 @@
                     allRows.push({
                         head: feeHeadName,
                         period: period,
-                        amount: remaining,          // "Actual Due" = remaining after prev settlements
+                        amount: remaining,
                         autoConc: autoConc,
                         autoWaiv: autoWaiv,
                         netPayable: netPayable
                     });
                 }
 
-                // Monthly Tuition Fee (from class setup)
                 for (let i = 0; i <= selectedMonthIdx; i++) {
                     if (!shouldShowMonth(academicMonths[i], feeAppDate, fee50)) continue;
                     addRow("Monthly Tuition Fee", academicMonths[i], classFeeAmount, 'Monthly', 0);
                 }
 
-                // Custom Fee Heads
                 feeHeads.forEach(fh => {
                     const amount = parseFloat(fh.Amount) || 0;
                     if (fh.Frequency === "Monthly") {
@@ -2476,7 +2995,7 @@
 
                 allRows.forEach(r => {
                     tbody.innerHTML += `<tr class="f-row" data-head="${r.head}" data-period="${r.period}">
-                        <td><input type="checkbox" class="f-chk" checked title="Check to delete/exclude row"></td>
+                        <td><input type="checkbox" class="f-chk" checked></td>
                         <td class="f-head" style="text-align:left;"><b>${r.head}</b></td>
                         <td>${r.period}</td>
                         <td><input type="number" class="f-actual" value="${r.amount.toFixed(2)}" readonly style="border:none; background:transparent; font-weight:bold;"></td>
@@ -2504,7 +3023,6 @@
                         calculateTotals();
                     });
                 });
-                document.getElementById('finalAdvance')?.addEventListener('input', calculateTotals);
             }
 
             function updateRowNetAndPaid(row) {
@@ -2548,11 +3066,12 @@
                 document.getElementById('totBal').innerText = totBal.toFixed(2);
                 document.getElementById('profPayable').innerText = totNet.toFixed(2);
                 document.getElementById('finalPayable').value = totNet.toFixed(2);
-                let advance = parseFloat(document.getElementById('finalAdvance').value) || 0;
-                let finalPaid = totPaid + advance;
-                document.getElementById('finalTotalPaid').value = finalPaid.toFixed(2);
-                let payAmountEl = document.getElementById('payAmount');
-                if (payAmountEl) payAmountEl.value = finalPaid.toFixed(2);
+                // Clamp applied advance if payable changed
+                if (currentAppliedAdvance > totNet) {
+                    currentAppliedAdvance = totNet;
+                    document.getElementById('advanceAppliedField').value = formatMoney(currentAppliedAdvance);
+                }
+                recalcCashPaid();
             }
 
             function resetTotals() {
@@ -2563,6 +3082,7 @@
                 if (document.getElementById('finalPayable')) document.getElementById('finalPayable').value = "0.00";
                 if (document.getElementById('finalAdvance')) document.getElementById('finalAdvance').value = "0.00";
                 if (document.getElementById('finalTotalPaid')) document.getElementById('finalTotalPaid').value = "0.00";
+                if (document.getElementById('advanceAppliedField')) document.getElementById('advanceAppliedField').value = "0.00";
                 if (document.getElementById('payAmount')) document.getElementById('payAmount').value = "0.00";
             }
 
@@ -2577,6 +3097,9 @@
                 if (rNoElem) rNoElem.value = `2026-27/${maxNo + 1}`;
             }
 
+            // ==========================================
+            // SAVE RECEIPT (with advance logic)
+            // ==========================================
             async function saveReceipt(onSuccessAction) {
                 const regNo = document.getElementById('feeStudentSelect').value;
                 if (!regNo) { alert("Please select a student first."); return; }
@@ -2603,10 +3126,56 @@
                 });
                 if (paidDetails.length === 0) { alert("No fees selected to pay."); return; }
 
-                let rNoStr = document.getElementById('feeReceiptNo').value.replace(/\//g, '-');
-                let docId = `${schoolCode}_${rNoStr}`;
+                const newAdvance = parseFloat(document.getElementById('finalAdvance').value) || 0;
+                const totalCashPaid = parseFloat(document.getElementById('finalTotalPaid').value) || 0;
+                const student = allStudents.find(s => String(s.regNo) === String(regNo));
 
-                const receiptData = {
+                // ✅ NEW: Check if new advance would exceed remaining session fees
+                if (newAdvance > 0 && student) {
+                    const totalSessionFees = getTotalSessionFees(student);
+                    const totalPaidSoFar = getTotalPaidForSession(student);
+                    // After this receipt: total fees paid (new) + advance balance
+                    const feePaidThisReceipt = paidDetails.reduce((a, d) => a + (parseFloat(d.paid) || 0), 0);
+                    const oldAdvance = getAdvanceBalance(student.regNo);
+                    const newAdvanceBalance = oldAdvance - currentAppliedAdvance + newAdvance;
+                    const totalFeesPaidAfter = totalPaidSoFar + feePaidThisReceipt - currentAppliedAdvance;
+                    // Note: applied advance was paid earlier, so not counted as new cash
+                    const remainingSessionAfter = Math.max(0, totalSessionFees - (totalPaidSoFar + feePaidThisReceipt));
+
+                    if (newAdvanceBalance > remainingSessionAfter) {
+                        // Show modal
+                        const excess = newAdvanceBalance - remainingSessionAfter;
+                        pendingReceiptData = {
+                            schoolCode: schoolCode,
+                            Receipt_No: document.getElementById('feeReceiptNo').value,
+                            Reg_No: regNo,
+                            Student_Name: document.getElementById('profName').innerText,
+                            Class_Section: document.getElementById('profClass').innerText,
+                            Installment: month,
+                            Amount: document.getElementById('finalTotalPaid').value,
+                            Payment_Mode: document.getElementById('payType').value,
+                            Date: formatToDDMMYYYY(document.getElementById('feeDate').value),
+                            Bank_Name: document.getElementById('payBank').value || '-',
+                            Ref_No: document.getElementById('payRef').value || '-',
+                            Paid_Heads: JSON.stringify(paidDetails),
+                            Advance_Added: newAdvance,
+                            Advance_Applied: currentAppliedAdvance,
+                            Timestamp: new Date().toISOString()
+                        };
+                        pendingSuccessAction = onSuccessAction;
+
+                        document.getElementById('acm-new-advance').innerText = formatMoney(newAdvance);
+                        document.getElementById('acm-total-advance').innerText = formatMoney(newAdvanceBalance);
+                        document.getElementById('acm-session-fees').innerText = formatMoney(remainingSessionAfter);
+                        document.getElementById('acm-excess').innerText = formatMoney(excess);
+                        document.getElementById('acm-excess-2').innerText = formatMoney(excess);
+                        document.getElementById('advanceChoiceModal').classList.add('active');
+                        return;
+                    }
+                }
+
+                // No advance overflow — save directly
+                await performSaveReceipt({
                     schoolCode: schoolCode,
                     Receipt_No: document.getElementById('feeReceiptNo').value,
                     Reg_No: regNo,
@@ -2619,9 +3188,14 @@
                     Bank_Name: document.getElementById('payBank').value || '-',
                     Ref_No: document.getElementById('payRef').value || '-',
                     Paid_Heads: JSON.stringify(paidDetails),
+                    Advance_Added: newAdvance,
+                    Advance_Applied: currentAppliedAdvance,
                     Timestamp: new Date().toISOString()
-                };
+                }, paidDetails, onSuccessAction);
+            }
 
+            // ✅ NEW: Perform save with advance balance update
+            async function performSaveReceipt(receiptData, paidDetails, onSuccessAction, advanceChoice) {
                 if (onSuccessAction === 'print') {
                     populatePrintTemplate(receiptData, paidDetails,
                         document.getElementById('profFather').innerText,
@@ -2631,14 +3205,59 @@
                 document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '0.5');
 
                 try {
+                    let rNoStr = receiptData.Receipt_No.replace(/\//g, '-');
+                    let docId = `${schoolCode}_${rNoStr}`;
                     await db.collection("fee_receipts").doc(docId).set(receiptData);
+
+                    // ✅ NEW: Update advance balance
+                    const regNo = receiptData.Reg_No;
+                    const oldAdv = getAdvanceBalance(regNo);
+                    const addedAdv = parseFloat(receiptData.Advance_Added) || 0;
+                    const appliedAdv = parseFloat(receiptData.Advance_Applied) || 0;
+                    let newBalance = oldAdv - appliedAdv + addedAdv;
+
+                    // If user chose "refund", deduct the excess from advance balance and record refund
+                    let refundAmount = 0;
+                    if (advanceChoice === 'refund') {
+                        const student = allStudents.find(s => String(s.regNo) === String(regNo));
+                        if (student) {
+                            const totalSessionFees = getTotalSessionFees(student);
+                            const totalPaidSoFar = getTotalPaidForSession(student);
+                            const feePaidThisReceipt = paidDetails.reduce((a, d) => a + (parseFloat(d.paid) || 0), 0);
+                            const remainingAfter = Math.max(0, totalSessionFees - (totalPaidSoFar + feePaidThisReceipt));
+                            if (newBalance > remainingAfter) {
+                                refundAmount = newBalance - remainingAfter;
+                                newBalance = remainingAfter;
+                            }
+                        }
+                    }
+
+                    const student = allStudents.find(s => String(s.regNo) === String(regNo));
+                    const advDocId = `${schoolCode}_${String(regNo).replace(/\//g, '-')}`;
+                    const advData = {
+                        schoolCode: schoolCode,
+                        Reg_No: regNo,
+                        Student_Name: student ? (student.studentFirstName || student.studentName || '') : '',
+                        Class_Section: student ? (student.studentClass || '') : '',
+                        Advance_Balance: newBalance,
+                        Last_Updated: new Date().toISOString()
+                    };
+                    if (refundAmount > 0) {
+                        advData.Last_Refund = { amount: refundAmount, date: new Date().toISOString(), receiptNo: receiptData.Receipt_No };
+                    }
+                    await db.collection("fee_advances").doc(advDocId).set(advData, { merge: true });
+
                     document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '1');
 
                     if (onSuccessAction === 'print') {
                         executePrint(document.getElementById('profName').innerText, receiptData.Receipt_No);
+                        currentAppliedAdvance = 0;
                         initData();
                     } else {
-                        alert("Receipt Saved Successfully!");
+                        let msg = "Receipt Saved Successfully!";
+                        if (refundAmount > 0) msg += `\n\nRefund of ₹${formatMoney(refundAmount)} recorded for parents.`;
+                        alert(msg);
+                        currentAppliedAdvance = 0;
                         if (onSuccessAction === 'close') {
                             document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
                             document.getElementById('module-receipts-list').classList.add('active-module');
@@ -2655,6 +3274,31 @@
                     alert("Error saving receipt: " + error.message);
                 }
             }
+
+            // ✅ NEW: Handle advance choice modal
+            document.getElementById('btnConfirmAdvanceChoice')?.addEventListener('click', async () => {
+                const choice = document.querySelector('input[name="advanceChoice"]:checked');
+                if (!choice) { customAlert("Please select an option."); return; }
+                const advanceChoice = choice.value;
+                document.getElementById('advanceChoiceModal').classList.remove('active');
+
+                if (pendingReceiptData) {
+                    const paidDetails = JSON.parse(pendingReceiptData.Paid_Heads);
+                    await performSaveReceipt(pendingReceiptData, paidDetails, pendingSuccessAction, advanceChoice);
+                    pendingReceiptData = null;
+                    pendingSuccessAction = null;
+                }
+            });
+            document.getElementById('btnCancelAdvanceChoice')?.addEventListener('click', () => {
+                document.getElementById('advanceChoiceModal').classList.remove('active');
+                pendingReceiptData = null;
+                pendingSuccessAction = null;
+            });
+            document.getElementById('closeAdvanceChoiceModal')?.addEventListener('click', () => {
+                document.getElementById('advanceChoiceModal').classList.remove('active');
+                pendingReceiptData = null;
+                pendingSuccessAction = null;
+            });
 
             document.getElementById('btnSaveReceiptClose')?.addEventListener('click', () => saveReceipt('close'));
             document.getElementById('btnSaveReceiptNew')?.addEventListener('click', () => saveReceipt('new'));
@@ -2711,8 +3355,7 @@
 
             window.printFromHistoryById = function (docId) {
                 let r = feeReceipts.find(x => x.id === docId);
-                if (!r) { customAlert("Receipt not found in memory. Please click Sync Data and retry."); return; }
-
+                if (!r) { customAlert("Receipt not found. Please Sync Data and retry."); return; }
                 const regNo = r.Reg_No || '';
                 const studentName = r.Student_Name || 'Student';
                 const classSec = r.Class_Section || '-';
@@ -2735,16 +3378,9 @@
                 } catch (e) { }
 
                 let rData = {
-                    receiptNo: receiptNo || '-',
-                    regNo: regNo || '-',
-                    studentName: studentName,
-                    classSec: classSec,
-                    installment: installment || '-',
-                    date: receiptDate || '-',
-                    totalAmount: amount,
-                    paymentMode: paymentMode,
-                    bankName: bankName,
-                    refNo: refNo
+                    receiptNo: receiptNo || '-', regNo: regNo || '-', studentName: studentName,
+                    classSec: classSec, installment: installment || '-', date: receiptDate || '-',
+                    totalAmount: amount, paymentMode: paymentMode, bankName: bankName, refNo: refNo
                 };
                 populatePrintTemplate(rData, detailsArray, fName, mName);
                 executePrint(studentName, receiptNo);
@@ -2754,7 +3390,6 @@
                 const schoolName = localStorage.getItem('erp_school_name') || 'School Name';
                 document.getElementById('p-school-name').innerText = schoolName;
                 document.getElementById('p-sign-school').innerText = `For ${schoolName}`;
-
                 document.getElementById('p-adm').innerText = rData.regNo || '-';
                 document.getElementById('p-name').innerText = rData.studentName || '-';
                 document.getElementById('p-father').innerText = fName || '-';
@@ -2779,12 +3414,9 @@
                     const pay = parseFloat(d.payable) || 0;
                     const pd = parseFloat(d.paid) || 0;
                     const bal = parseFloat(d.bal) || 0;
-
                     tAct += fee; tAdj += adj; tPay += pay; tPaid += pd; tBal += bal;
-
                     let displayName = d.head || "Fee";
                     if (d.period) displayName += ` <span style="color:#555; font-size:11px;">(${d.period})</span>`;
-
                     let adjCell = `${adj.toFixed(2)}`;
                     if (finalConc > 0 || finalWaiv > 0) {
                         let parts = [];
@@ -2792,7 +3424,6 @@
                         if (finalWaiv > 0) parts.push(`Waiv: ₹${finalWaiv.toFixed(2)}`);
                         adjCell += `<br><span style="font-size:10px; color:#555; font-weight:normal;">(${parts.join(' + ')})</span>`;
                     }
-
                     pBody.innerHTML += `<tr>
                         <td style="text-align:left; border:1px solid #333; padding:5px;">${displayName}</td>
                         <td style="border:1px solid #333; padding:5px;">${fee.toFixed(2)}</td>
@@ -2802,7 +3433,6 @@
                         <td style="border:1px solid #333; padding:5px;">${bal.toFixed(2)}</td>
                     </tr>`;
                 });
-
                 document.getElementById('p-t-fees').innerText = tAct.toFixed(2);
                 document.getElementById('p-t-adj').innerText = tAdj.toFixed(2);
                 document.getElementById('p-t-pay').innerText = tPay.toFixed(2);
@@ -2817,11 +3447,11 @@
             }
 
             window.deleteReceipt = function (docId) {
-                if (confirm(`Are you sure you want to Delete this Receipt?\nThis will revert the fee ledger.`)) {
+                if (confirm(`Delete this Receipt? This will revert the fee ledger but NOT the advance balance.`)) {
                     db.collection("fee_receipts").doc(docId).delete().then(() => {
-                        alert("Receipt Deleted Successfully.");
+                        alert("Receipt Deleted.");
                         initData();
-                    }).catch(err => alert("Error deleting receipt: " + err.message));
+                    }).catch(err => alert("Error: " + err.message));
                 }
             }
 
@@ -2853,7 +3483,6 @@
                 e.preventDefault();
                 const btnSubmit = document.getElementById('btnSubmitFeeHead');
                 btnSubmit.disabled = true; btnSubmit.innerText = "Adding..."; btnSubmit.style.opacity = '0.6';
-
                 const freq = document.getElementById('headFreq').value;
                 let newHead = {
                     Head_Name: document.getElementById('headName').value.trim(),
@@ -2863,7 +3492,6 @@
                 if (freq === 'Quarterly') {
                     newHead.QuartersPerYear = parseInt(document.getElementById('headQuarters').value) || 4;
                 }
-
                 let updatedHeads = [...feeHeads];
                 let exists = updatedHeads.findIndex(h => h.Head_Name === newHead.Head_Name);
                 if (exists !== -1) {
@@ -2872,7 +3500,6 @@
                     return;
                 }
                 updatedHeads.push(newHead);
-
                 try {
                     await db.collection("setups").doc(schoolCode).set({ feeHeads: updatedHeads }, { merge: true });
                     alert("Fee Head Added Successfully!");
@@ -2899,7 +3526,6 @@
                 e.preventDefault();
                 const btn = document.getElementById('btnSaveConcession');
                 btn.disabled = true; btn.innerText = "Saving..."; btn.style.opacity = '0.6';
-
                 const studentRegNo = document.getElementById('conStudent').value;
                 const student = allStudents.find(s => String(s.regNo) === String(studentRegNo));
                 const feeHead = document.getElementById('conFeeHead').value;
@@ -2918,20 +3544,13 @@
                 if (basis === 'Percent' && (value < 0 || value > 100)) { alert("Percent value must be between 0 and 100."); btn.disabled = false; btn.innerText = "Save Concession"; btn.style.opacity = '1'; return; }
 
                 const conData = {
-                    schoolCode: schoolCode,
-                    Student_RegNo: studentRegNo,
+                    schoolCode: schoolCode, Student_RegNo: studentRegNo,
                     Student_Name: student.studentFirstName || student.studentName || 'N/A',
-                    FeeHead_Name: feeHead,
-                    Type: type,
-                    Basis: basis,
-                    Value: value,
-                    From_Month: fromMonth,
-                    To_Month: toMonth,
-                    Reason: reason,
+                    FeeHead_Name: feeHead, Type: type, Basis: basis, Value: value,
+                    From_Month: fromMonth, To_Month: toMonth, Reason: reason,
                     Created_On: new Date().toISOString(),
                     Created_By: activeUser.empName || 'System'
                 };
-
                 try {
                     await db.collection("fee_concessions").add(conData);
                     alert("Concession Saved Successfully!");
@@ -2967,7 +3586,7 @@
             }
 
             window.deleteConcession = function (id) {
-                customConfirm("Delete this concession record? This will affect future receipts and ledger.", () => {
+                customConfirm("Delete this concession record?", () => {
                     db.collection("fee_concessions").doc(id).delete().then(() => {
                         customAlert("Concession deleted.");
                         initData();
@@ -2982,20 +3601,11 @@
                     let sClass = (document.getElementById('l-class').innerText || '').replace(/[^a-zA-Z0-9]/g, "_");
                     let fileName = `${sName}_${sReg}_${sClass}_Ledger.pdf`;
                     let element = document.getElementById('ledgerExportArea');
-                    let opt = {
-                        margin: 0.3, filename: fileName,
-                        image: { type: 'jpeg', quality: 0.98 },
-                        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-                        jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
-                    };
+                    let opt = { margin: 0.3, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' } };
                     let originalBg = element.style.background;
                     element.style.background = "#fff";
-                    html2pdf().set(opt).from(element).save().then(() => {
-                        element.style.background = originalBg;
-                    }).catch(err => {
-                        alert("PDF export error: " + err.message);
-                        element.style.background = originalBg;
-                    });
+                    html2pdf().set(opt).from(element).save().then(() => { element.style.background = originalBg; })
+                        .catch(err => { alert("PDF export error: " + err.message); element.style.background = originalBg; });
                 } catch (err) { alert("PDF export failed: " + err.message); }
             });
 
@@ -3006,16 +3616,7 @@
                     let sClass = (document.getElementById('l-class').innerText || '').replace(/[^a-zA-Z0-9]/g, "_");
                     let fileName = `${sName}_${sReg}_${sClass}_Ledger.xls`;
                     let exportDiv = document.getElementById('ledgerExportArea').cloneNode(true);
-                    let htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-                        <head><meta charset="utf-8">
-                        <style>
-                            table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
-                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                            th { background-color: #2c3e50; color: white; font-weight: bold; }
-                        </style>
-                        </head>
-                        <body>${exportDiv.innerHTML}</body>
-                        </html>`;
+                    let htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; } th, td { border: 1px solid #ddd; padding: 8px; text-align: left; } th { background-color: #2c3e50; color: white; font-weight: bold; }</style></head><body>${exportDiv.innerHTML}</body></html>`;
                     let blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
                     let url = URL.createObjectURL(blob);
                     let a = document.createElement('a');
@@ -3027,9 +3628,7 @@
 
             window.openLedger = function (regNo) {
                 let student = allStudents ? allStudents.find(s => String(s.regNo) === String(regNo)) : null;
-                let sName = "Unknown (Deleted)";
-                let sClass = "-";
-                let sFather = "-";
+                let sName = "Unknown (Deleted)", sClass = "-", sFather = "-";
                 if (student) {
                     sName = student.studentFirstName || student.studentName || 'N/A';
                     sClass = student.studentClass || '-';
@@ -3038,21 +3637,27 @@
                     let rec = feeReceipts.find(r => String(r.Reg_No) === String(regNo));
                     if (rec) { sName = rec.Student_Name; sClass = rec.Class_Section; }
                 }
-
                 document.getElementById('l-name').innerText = sName;
                 document.getElementById('l-reg').innerText = regNo;
                 document.getElementById('l-class').innerText = sClass;
                 document.getElementById('l-father').innerText = sFather;
 
+                // ✅ NEW: Show advance balance in ledger
+                const advBal = getAdvanceBalance(regNo);
+                if (advBal > 0) {
+                    document.getElementById('l-advance-banner').style.display = 'block';
+                    document.getElementById('l-advance').innerText = '₹' + formatMoney(advBal);
+                } else {
+                    document.getElementById('l-advance-banner').style.display = 'none';
+                }
+
                 const feeAppDate = (student && typeof student.feeApplicableDate === 'string') ? student.feeApplicableDate : '';
                 const fee50 = !!(student && student.fee50Rule === true);
-
                 let classFeeAmount = 0;
                 if (student && student.studentClass && setupClasses) {
                     let cSetup = setupClasses.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass);
                     if (cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); }
                 }
-
                 let paidMap = {}, concMap = {}, waivMap = {};
                 let histBody = document.getElementById('ledgerHistoryBody');
                 histBody.innerHTML = '';
@@ -3087,14 +3692,11 @@
                                 particularsStr = "Fee Payment";
                             }
                         } catch (e) { particularsStr = r.Receipt_Summary || "Details Unavailable"; }
-
                         let rNo = String(r.Receipt_No || '').replace(/'/g, "");
                         let rDate = String(r.Date || '').replace(/'/g, "");
-
                         histBody.innerHTML += `<tr><td style="padding:10px; border:1px solid #ccc;">${rDate}</td><td style="padding:10px; border:1px solid #ccc;">${rNo}</td><td style="padding:10px; border:1px solid #ccc;">${r.Payment_Mode || '-'}</td><td style="padding:10px; border:1px solid #ccc; text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td><td style="padding:10px; border:1px solid #ccc; color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount || 0).toFixed(2)}</td></tr>`;
                     }
                 });
-
                 if (histBody.innerHTML === '') {
                     histBody.innerHTML = '<tr><td colspan="5" style="padding:10px; border:1px solid #ccc; text-align:center;">No payment history found.</td></tr>';
                 }
@@ -3108,25 +3710,17 @@
                     const prevConc = concMap[uid] || 0;
                     const prevWaiv = waivMap[uid] || 0;
                     const prevPaid = paidMap[uid] || 0;
-
-                    // Compute policy-based auto adjustment (for months where no receipt exists yet)
                     const autoAdj = student ? calcAdjustmentFromRecords(student.regNo, feeHeadName, period, frequency, qpy, actualAmount) : { concession: 0, waiver: 0 };
-
-                    // Use max of (recorded, policy) so we don't double count
                     const conc = Math.max(prevConc, autoAdj.concession);
                     const waiv = Math.max(prevWaiv, autoAdj.waiver);
-
                     const netApplicable = Math.max(0, actualAmount - conc - waiv);
                     const paid = prevPaid;
                     const bal = netApplicable - paid;
-
                     totalDue += actualAmount;
                     totalPaid += paid;
                     totalAdj += (conc + waiv);
-
                     let rowBg = (actualAmount > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
                     let tStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
-
                     tbody.innerHTML += `<tr style="${rowBg}">
                         <td style="padding:10px; border:1px solid #ccc;"><b>${feeHeadName} (${period})</b></td>
                         <td style="padding:10px; border:1px solid #ccc; text-align:right;">₹${actualAmount.toFixed(2)}</td>
@@ -3138,13 +3732,11 @@
                     </tr>`;
                 }
 
-                // Monthly Tuition Fee
                 academicMonths.forEach(month => {
                     if (!shouldShowMonth(month, feeAppDate, fee50)) return;
                     addLedgerRow("Monthly Tuition Fee", month, classFeeAmount, 'Monthly', 0);
                 });
 
-                // Custom Fee Heads
                 feeHeads.forEach(fh => {
                     const amount = parseFloat(fh.Amount) || 0;
                     if (fh.Frequency === "Monthly") {
@@ -3152,8 +3744,7 @@
                             if (!shouldShowMonth(month, feeAppDate, fee50)) return;
                             addLedgerRow(fh.Head_Name, month, amount, 'Monthly', 0);
                         });
-                    }
-                    else if (fh.Frequency === "Quarterly") {
+                    } else if (fh.Frequency === "Quarterly") {
                         const qpy = parseInt(fh.QuartersPerYear) === 3 ? 3 : 4;
                         const qList = getQuarterStructure(qpy);
                         qList.forEach(q => {
@@ -3171,21 +3762,18 @@
                             }
                             addLedgerRow(fh.Head_Name, q.label, amount, 'Quarterly', qpy);
                         });
-                    }
-                    else {
+                    } else {
                         addLedgerRow(fh.Head_Name, fh.Frequency, amount, fh.Frequency, 0);
                     }
                 });
 
                 if (tbody.innerHTML === '') {
-                    tbody.innerHTML = '<tr><td colspan="7" style="padding:16px; text-align:center; color:#888;">No applicable fees for the current academic session based on the Fee Applicable Date.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" style="padding:16px; text-align:center; color:#888;">No applicable fees for the current academic session.</td></tr>';
                 }
-
                 document.getElementById('l-tot-due').innerText = "₹" + totalDue.toFixed(2);
                 document.getElementById('l-tot-adj').innerText = "₹" + totalAdj.toFixed(2);
                 document.getElementById('l-tot-paid').innerText = "₹" + totalPaid.toFixed(2);
                 document.getElementById('l-tot-bal').innerText = "₹" + Math.max(0, totalDue - totalAdj - totalPaid).toFixed(2);
-
                 document.getElementById('ledgerModal').classList.add('active');
             }
 
