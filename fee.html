@@ -1597,18 +1597,20 @@
                         <h3 style="margin-top:0; padding-bottom:10px;">Grant New Concession / Waiver</h3>
 
                         <!-- ✅ NOTE BOX: Calculation Logic -->
-                        <div class="calc-note-box">
-                            <strong>📌 Note — Calculation Basis:</strong> Concession aur Waiver ka <b>order (sequence)
-                                koi matter nahi karta</b>. Dono deductions hamesha <b>Base Amount</b> par hi calculate
-                            honge (not on remaining amount).
-                            <div class="example-box">
-                                <b>Example — Admission Fee:</b><br>
-                                • Base Amount: ₹15,000<br>
-                                • Concession (Fixed): ₹1,000<br>
-                                • Waiver (10% of Base): ₹15,000 × 10% = ₹1,500<br>
-                                <b>Net Payable = ₹15,000 − ₹1,000 − ₹1,500 = ₹12,500</b>
-                            </div>
-                        </div>
+                  ```html
+<div class="calc-note-box">
+    <strong>📌 Note — Calculation Basis:</strong> The <b>order (sequence) of Concession and Waiver does not matter</b>. Both deductions will always be calculated on the <b>Base Amount</b> (not on the remaining amount).
+
+    <div class="example-box">
+        <b>Example — Admission Fee:</b><br>
+        • Base Amount: ₹15,000<br>
+        • Concession (Fixed): ₹1,000<br>
+        • Waiver (10% of Base): ₹15,000 × 10% = ₹1,500<br>
+        <b>Net Payable = ₹15,000 − ₹1,000 − ₹1,500 = ₹12,500</b>
+    </div>
+</div>
+```
+
 
                         <form id="feeConcessionForm" style="margin-top:15px;">
                             <div style="margin-bottom:12px;">
