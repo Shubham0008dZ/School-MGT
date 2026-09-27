@@ -620,10 +620,11 @@
         #module-profiles .sticky-top-section {
             position: sticky;
             top: 0;
-            z-index: 20;
+            z-index: 100;
+            isolation: isolate;
             background: var(--paper);
-            /* Cancel parent's top padding */
-            margin-top: -20px;
+            /* Keep the sticky block in normal flow so table rows can never peek above it. */
+            margin-top: 0;
             padding-top: 18px;
             padding-bottom: 6px;
             /* Cover parent's side padding (30px) */
@@ -631,8 +632,19 @@
             margin-right: -30px;
             padding-left: 30px;
             padding-right: 30px;
-            /* Visual separation from rows below */
+            /* Visual separation from scrolling rows */
             box-shadow: 0 6px 10px -8px rgba(20, 33, 61, 0.22);
+        }
+
+        #module-profiles .sticky-top-section::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -2px;
+            height: 2px;
+            background: var(--paper);
+            pointer-events: none;
         }
 
         #module-profiles .sticky-top-section .profile-header {
@@ -653,14 +665,23 @@
         /* ==================================================
            ✅ STICKY TABLE HEADER (Profiles only)
            ================================================== */
+        #module-profiles .table-container {
+            position: relative;
+            z-index: 1;
+            padding-top: 8px;
+        }
+
         #module-profiles .data-table {
+            position: relative;
             overflow: visible;
+            z-index: 1;
         }
 
         #module-profiles .data-table thead th {
             position: sticky;
             top: var(--sticky-toolbar-h, 120px);
-            z-index: 15;
+            z-index: 90;
+            background: var(--ink);
             box-shadow: 0 1px 0 0 var(--line);
         }
 
