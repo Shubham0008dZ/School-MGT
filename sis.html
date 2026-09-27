@@ -116,7 +116,6 @@
             background: transparent;
         }
 
-        /* ---------------- Top Navbar ---------------- */
         .top-navbar {
             height: 58px;
             padding: 0 22px;
@@ -209,13 +208,11 @@
             border-color: #F0B8AE !important;
         }
 
-        /* ---------------- Layout Shell ---------------- */
         .erp-wrapper {
             display: flex;
             height: calc(100vh - 58px);
         }
 
-        /* ---------------- Sidebar ---------------- */
         .sidebar {
             width: var(--sidebar-w);
             background: var(--ink);
@@ -314,7 +311,6 @@
             background: rgba(192, 138, 46, .2);
         }
 
-        /* ---------------- Main Content ---------------- */
         .main-content {
             flex: 1;
             overflow-y: auto;
@@ -362,7 +358,6 @@
             gap: 10px;
         }
 
-        /* ---------------- Buttons ---------------- */
         .btn {
             border: none;
             padding: 9px 16px;
@@ -444,7 +439,6 @@
             background: #48396e;
         }
 
-        /* ---------------- Table Toolbar / Filters ---------------- */
         .table-toolbar {
             background: var(--white) !important;
             border: 1px solid var(--line) !important;
@@ -535,7 +529,6 @@
             }
         }
 
-        /* ---------------- Data Table ---------------- */
         .table-container {
             background: transparent;
         }
@@ -600,19 +593,29 @@
         }
 
         /* ==================================================
-           ✅ STICKY TOP SECTION (Profiles only)
+           ✅ STICKY TOP SECTION (Profiles only) — FIXED
+           - Negative margin-top cancels out main-content's 20px padding-top
+             so sticky sticks RIGHT at the top of scroll area (no gap where rows peek).
+           - Negative horizontal margins extend the section to cover the
+             main-content's 30px side padding so rows never show at the edges.
+           - Bottom shadow gives clean visual separation from scrolling rows.
            ================================================== */
         #module-profiles .sticky-top-section {
             position: sticky;
             top: 0;
             z-index: 20;
             background: var(--paper);
-            padding-top: 6px;
-            /* ✅ changed: padding-bottom 6px -> 0 to remove gap between toolbar & thead */
-            padding-bottom: 0;
-            margin: 0 -6px;
-            padding-left: 6px;
-            padding-right: 6px;
+            /* Cancel parent's top padding */
+            margin-top: -20px;
+            padding-top: 26px;
+            padding-bottom: 6px;
+            /* Cover parent's side padding (30px) */
+            margin-left: -36px;
+            margin-right: -36px;
+            padding-left: 36px;
+            padding-right: 36px;
+            /* Visual separation from rows below */
+            box-shadow: 0 6px 10px -8px rgba(20, 33, 61, 0.22);
         }
 
         #module-profiles .sticky-top-section .profile-header {
@@ -632,11 +635,8 @@
 
         /* ==================================================
            ✅ STICKY TABLE HEADER (Profiles only)
-           - thead th sticks below the sticky toolbar
-           - top value dynamically set via JS (--sticky-toolbar-h)
            ================================================== */
         #module-profiles .data-table {
-            /* allow sticky thead to work (remove overflow clipping inside this module) */
             overflow: visible;
         }
 
@@ -644,11 +644,9 @@
             position: sticky;
             top: var(--sticky-toolbar-h, 120px);
             z-index: 15;
-            /* keep rounded corners on the outer table via table border */
             box-shadow: 0 1px 0 0 var(--line);
         }
 
-        /* Restore rounded corner effect for first/last cell in thead */
         #module-profiles .data-table thead th:first-child {
             border-top-left-radius: var(--radius-m);
         }
@@ -658,7 +656,7 @@
         }
 
         /* ==================================================
-           ✅ INLINE PAGINATION (inside toolbar)
+           ✅ INLINE PAGINATION
            ================================================== */
         .inline-pagination {
             display: inline-flex;
@@ -714,7 +712,7 @@
             padding: 0 4px;
         }
 
-        /* ---------------- Dashboard ---------------- */
+        /* Dashboard */
         .dashboard-top-cards {
             display: flex;
             gap: 18px;
@@ -808,7 +806,7 @@
             width: 100%;
         }
 
-        /* ---------------- Forms / Admission ---------------- */
+        /* Forms */
         .form-container {
             background: var(--white);
             border: 1px solid var(--line);
@@ -1025,7 +1023,7 @@
             background: #186640;
         }
 
-        /* ---------------- Modals ---------------- */
+        /* Modals */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -1122,7 +1120,6 @@
             outline: none;
         }
 
-        /* ---------------- Bulk Actions module ---------------- */
         .bulk-card {
             background: var(--white);
             padding: 22px;
@@ -1156,7 +1153,6 @@
             border-color: var(--brass) !important;
         }
 
-        /* ---------------- Reports module ---------------- */
         .report-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -1207,7 +1203,6 @@
             color: var(--text-mute);
         }
 
-        /* ---------------- Master Setup ---------------- */
         #module-master-setup>div>div {
             background: var(--white) !important;
             border: 1px solid var(--line) !important;
@@ -1251,7 +1246,6 @@
             border-radius: 20px !important;
         }
 
-        /* ---------------- Ledger Modal polish ---------------- */
         #ledgerModal .modal-body {
             background: var(--paper) !important;
         }
@@ -1267,7 +1261,6 @@
             box-shadow: var(--shadow-1);
         }
 
-        /* ---------------- Photo crop & remove ---------------- */
         .btn-remove-photo {
             position: absolute;
             top: 5px;
@@ -1297,7 +1290,6 @@
             border-radius: var(--radius-m);
         }
 
-        /* ---------------- FEE APPLICABLE DATE tooltip ---------------- */
         .fee-rule-wrap {
             display: flex;
             align-items: center;
@@ -1425,7 +1417,6 @@
             background: #9a9a9a;
         }
 
-        /* ---------------- Responsive ---------------- */
         @media (max-width:960px) {
             .dashboard-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -1512,7 +1503,6 @@
 
             <!-- MODULE: PROFILES -->
             <div id="module-profiles" class="app-module active-module">
-                <!-- ✅ STICKY TOP SECTION -->
                 <div class="sticky-top-section">
                     <div class="profile-header">
                         <h2>Student Profiles</h2>
@@ -1532,7 +1522,6 @@
                             </div>
 
                             <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
-                                <!-- Export Dropdown -->
                                 <div class="dropdown" style="position:relative;">
                                     <button id="btnExportStudentsToggle" class="btn btn-dark">Export ▾</button>
                                     <div id="studentsExportMenu"
@@ -1545,15 +1534,12 @@
                                             Export to EXCEL</button>
                                     </div>
                                 </div>
-                                <!-- Add Student -->
                                 <button class="btn btn-green" id="btn-add-student">⊕ Add Student</button>
-                                <!-- ✅ Inline Pagination -->
                                 <div class="inline-pagination" id="inlinePagination">
                                     <button class="pg-btn" id="btnPrevPage" title="Previous Page">‹</button>
                                     <span class="pg-info" id="paginationInfo">0 of 0</span>
                                     <button class="pg-btn" id="btnNextPage" title="Next Page">›</button>
                                 </div>
-                                <!-- Sync with DB -->
                                 <button class="btn btn-dark" id="btn-refresh-data">🔄 Sync with DB</button>
                             </div>
 
@@ -2342,9 +2328,6 @@
             document.getElementById('cc-ok').addEventListener('click', () => { overlay.remove(); onConfirm(); });
         };
 
-        // ============================================================
-        // GLOBAL DATA
-        // ============================================================
         let appData = [];
         let setupData = null;
         let feeHeads = [];
@@ -2354,9 +2337,6 @@
         const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/128/3135/3135715.png';
         let schoolCode = "";
 
-        // ============================================================
-        // ✅ PAGINATION STATE
-        // ============================================================
         const PAGE_SIZE = 50;
         let currentPage = 1;
         let pageCursors = [null];
@@ -2405,9 +2385,6 @@
             return true;
         }
 
-        // ============================================================
-        // ✅ LAZY LOAD
-        // ============================================================
         async function ensureAppDataLoaded() {
             if (appDataLoaded) return appData;
             const snap = await db.collection("students").where("schoolCode", "==", schoolCode).get();
@@ -2416,9 +2393,6 @@
             return appData;
         }
 
-        // ============================================================
-        // ✅ STICKY TABLE HEADER: dynamic top offset = toolbar height
-        // ============================================================
         function updateStickyTableHead() {
             const stickySec = document.querySelector('#module-profiles .sticky-top-section');
             if (!stickySec) return;
@@ -2426,9 +2400,6 @@
             document.documentElement.style.setProperty('--sticky-toolbar-h', topOffset + 'px');
         }
 
-        // ============================================================
-        // ✅ PAGINATED LOADING
-        // ============================================================
         async function loadStudentPage(pageNum) {
             if (currentMode === 'filter') {
                 currentPage = pageNum;
@@ -2468,7 +2439,6 @@
                 currentPageDocs.forEach(student => renderStudentRow(student, tbody));
             }
             updatePaginationUI(totalStudentsCount);
-            // ✅ Recompute sticky offset after render
             updateStickyTableHead();
         }
 
@@ -2528,9 +2498,6 @@
             next.disabled = !hasNext;
         }
 
-        // ============================================================
-        // FIRESTORE SYNC
-        // ============================================================
         let isSA = false;
         let userRights = [];
 
@@ -2568,7 +2535,6 @@
                 updateNextRegNoLocal();
                 renderMasterSetup();
 
-                // ✅ After all rendering, measure and set sticky offset
                 setTimeout(updateStickyTableHead, 50);
 
             } catch (error) {
@@ -2645,7 +2611,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- UI NAVIGATION ---
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('appSidebar');
             if (sidebarToggle && sidebar) {
@@ -2671,7 +2636,6 @@
                             await ensureAppDataLoaded();
                         }
                         if (targetId === 'module-profiles') {
-                            // ✅ Recompute sticky offset when navigating back to profiles
                             setTimeout(updateStickyTableHead, 50);
                         }
                     }
@@ -2690,7 +2654,6 @@
                 });
             });
 
-            // --- AUTH ---
             const activeUserStr = localStorage.getItem('erp_active_user');
             if (!activeUserStr) { window.location.href = 'login.html'; return; }
             const activeUser = JSON.parse(activeUserStr);
@@ -2752,7 +2715,6 @@
                 }
             });
 
-            // ✅ PAGINATION HANDLERS
             document.getElementById('btnPrevPage')?.addEventListener('click', () => {
                 if (currentPage > 1) loadStudentPage(currentPage - 1);
             });
@@ -2763,7 +2725,6 @@
                 if (hasNext) loadStudentPage(currentPage + 1);
             });
 
-            // FILTER CLASS CHANGE
             const fClassDropdown = document.getElementById('filterClass');
             const fSecDropdown = document.getElementById('filterSection');
             if (fClassDropdown && fSecDropdown) {
@@ -2781,7 +2742,6 @@
                 });
             }
 
-            // APPLY FILTERS
             const btnApplyFilter = document.getElementById('btn-apply-filter');
             const searchNameInput = document.getElementById('searchName');
 
@@ -2944,9 +2904,6 @@
                 });
             };
 
-            // ==========================================
-            // SAVE STUDENT
-            // ==========================================
             let pendingStudentData = null;
             let pendingIsEdit = false;
 
@@ -3063,11 +3020,9 @@
             document.getElementById('btn-back-to-profiles')?.addEventListener('click', () => {
                 document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
                 document.getElementById('module-profiles').classList.add('active-module');
-                // ✅ recompute sticky offset
                 setTimeout(updateStickyTableHead, 50);
             });
 
-            // EXPORT DROPDOWN
             const exportToggle = document.getElementById('btnExportStudentsToggle');
             const exportMenu = document.getElementById('studentsExportMenu');
             if (exportToggle && exportMenu) {
@@ -3090,9 +3045,6 @@
                 let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = "Student_Profiles_Export.xls"; document.body.appendChild(a); a.click(); document.body.removeChild(a);
             });
 
-            // ==========================================
-            // MASTER SETUP
-            // ==========================================
             const msCategoryEl = document.getElementById('msCategory');
             if (msCategoryEl) {
                 msCategoryEl.addEventListener('change', function () {
@@ -3275,9 +3227,6 @@
                 });
             }
 
-            // ==========================================
-            // CROPPER
-            // ==========================================
             let currentCropTarget = '';
             let cropper = null;
 
@@ -3335,9 +3284,6 @@
                 if (cropper) { cropper.destroy(); cropper = null; }
             });
 
-            // ==========================================
-            // FEE LEDGER
-            // ==========================================
             window.openLedger = function (regNo) {
                 let student = currentPageDocs.find(s => String(s.regNo) === String(regNo))
                     || (appDataLoaded ? appData.find(s => String(s.regNo) === String(regNo)) : null);
@@ -3451,9 +3397,6 @@
                 document.getElementById('ledgerModal').classList.remove('active');
             });
 
-            // ==========================================
-            // BULK ACTIONS
-            // ==========================================
             window.populateBulkDropdowns = function () {
                 const fromClass = document.getElementById('bulkFromClass');
                 const toClass = document.getElementById('bulkToClass');
@@ -3577,9 +3520,6 @@
                 finally { btn.innerText = "Save Roll Numbers"; btn.disabled = false; }
             });
 
-            // ==========================================
-            // REPORTS
-            // ==========================================
             window.openReportModal = function (type) {
                 document.getElementById('reportTypeHidden').value = type;
                 let title = "Generate Report";
@@ -3625,21 +3565,17 @@
                 document.getElementById('reportConfigModal').classList.remove('active');
             });
 
-            // ✅ Window resize: recompute sticky offset
             window.addEventListener('resize', () => {
                 updateStickyTableHead();
             });
 
-            // ✅ ResizeObserver on the sticky top section itself
-            // (handles cases where the toolbar wraps on narrower screens)
             const _stickySec = document.querySelector('#module-profiles .sticky-top-section');
             if (_stickySec && 'ResizeObserver' in window) {
                 try {
                     new ResizeObserver(() => updateStickyTableHead()).observe(_stickySec);
-                } catch (e) { /* silent */ }
+                } catch (e) { }
             }
 
-            // Start fetching data
             setTimeout(() => { syncWithDatabase(); }, 100);
         });
 
