@@ -27,6 +27,23 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
         const auth = firebase.auth();
+
+        /* ============================================================
+           FIRESTORE READ OPTIMIZATION LAYER
+           - Keeps the existing Firebase compat setup intact.
+           - Uses the Firestore v9 aggregation API for counts, without
+             downloading the complete students collection.
+           - Falls back safely if the aggregation helper cannot load.
+           ============================================================ */
+        let _getCountFromServer = null;
+        let _firestoreCountModuleReady = (async () => {
+            try {
+                const fsModule = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js');
+                _getCountFromServer = fsModule.getCountFromServer || null;
+            } catch (err) {
+                console.warn('Firestore aggregation helper unavailable; count fallback will be used.', err);
+            }
+        })();
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap');
@@ -599,8 +616,6 @@
            - Negative horizontal margins extend the section to cover the
              main-content's 30px side padding so rows never show at the edges.
            - Bottom shadow gives clean visual separation from scrolling rows.
-           - ::before paints an opaque block ABOVE the section so scrolling rows
-             can never be seen in the strip above the sticky toolbar.
            ================================================== */
         #module-profiles .sticky-top-section {
             position: sticky;
@@ -620,18 +635,6 @@
             box-shadow: 0 6px 10px -8px rgba(20, 33, 61, 0.22);
         }
 
-        /* Solid opaque cover ABOVE the sticky toolbar (prevents rows peeking). */
-        #module-profiles .sticky-top-section::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: -160px;
-            height: 160px;
-            background: var(--paper);
-            pointer-events: none;
-        }
-
         #module-profiles .sticky-top-section .profile-header {
             padding-bottom: 8px;
             margin-bottom: 8px;
@@ -647,15 +650,8 @@
             padding: 8px 14px !important;
         }
 
-        /* Small breathing space so the very first row is never clipped by the header */
-        #module-profiles .table-container {
-            padding-top: 10px;
-        }
-
         /* ==================================================
            ✅ STICKY TABLE HEADER (Profiles only)
-           - 2px overlap with the sticky toolbar (which paints above, z-index 20)
-             guarantees there is never a hairline gap where rows can peek through.
            ================================================== */
         #module-profiles .data-table {
             overflow: visible;
@@ -663,7 +659,7 @@
 
         #module-profiles .data-table thead th {
             position: sticky;
-            top: calc(var(--sticky-toolbar-h, 120px) - 2px);
+            top: var(--sticky-toolbar-h, 120px);
             z-index: 15;
             box-shadow: 0 1px 0 0 var(--line);
         }
@@ -2353,6 +2349,7 @@
         let setupData = null;
         let feeHeads = [];
         let feeReceipts = [];
+        let feeReceiptCache = new Map();
         let charts = { class: null, blood: null, cat: null, rel: null, house: null, age: null };
         const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
         const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/128/3135/3135715.png';
@@ -2362,7 +2359,8 @@
         let currentPage = 1;
         let pageCursors = [null];
         let currentPageDocs = [];
-        let totalStudentsCount = 0;
+        let studentPageCache = new Map();
+        let totalStudentsCount = null;
         let currentMode = 'browse';
         let filteredStudents = [];
         let appDataLoaded = false;
@@ -2409,25 +2407,93 @@
         async function ensureAppDataLoaded() {
             if (appDataLoaded) return appData;
             const snap = await db.collection("students").where("schoolCode", "==", schoolCode).get();
-            appData = snap.docs.map(d => d.data());
+            appData = snap.docs.map(d => ({ ...d.data(), _docId: d.id }));
             appDataLoaded = true;
             return appData;
+        }
+
+        async function getStudentCount(force = false) {
+            try {
+                await _firestoreCountModuleReady;
+                if (_getCountFromServer) {
+                    const compatQuery = db.collection("students").where("schoolCode", "==", schoolCode);
+                    if (typeof compatQuery._delegate !== 'undefined') {
+                        const snap = await _getCountFromServer(compatQuery._delegate);
+                        return Number(snap.data().count || 0);
+                    }
+                }
+            } catch (err) {
+                console.warn('Student count aggregation failed; using pagination fallback.', err);
+            }
+            return null;
+        }
+
+        function resetStudentPageCache() {
+            studentPageCache.clear();
+            pageCursors = [null];
+            currentPageDocs = [];
+        }
+
+        function cacheCurrentPage(pageNum) {
+            studentPageCache.set(pageNum, currentPageDocs);
+        }
+
+        function updateLocalStudentCaches(student, mode = 'upsert') {
+            const regNo = student && student.regNo != null ? String(student.regNo) : '';
+            if (!regNo) return;
+
+            if (appDataLoaded) {
+                const idx = appData.findIndex(s => String(s.regNo) === regNo);
+                if (mode === 'remove') {
+                    if (idx >= 0) appData.splice(idx, 1);
+                } else if (idx >= 0) {
+                    appData[idx] = { ...appData[idx], ...student };
+                } else {
+                    appData.push({ ...student });
+                }
+            }
+
+            for (const [pageNo, docs] of studentPageCache.entries()) {
+                const idx = docs.findIndex(s => String(s.regNo) === regNo);
+                if (mode === 'remove') {
+                    if (idx >= 0) docs.splice(idx, 1);
+                } else if (idx >= 0) {
+                    docs[idx] = { ...docs[idx], ...student };
+                }
+                studentPageCache.set(pageNo, docs);
+            }
+
+            if (currentPageDocs.length) {
+                const idx = currentPageDocs.findIndex(s => String(s.regNo) === regNo);
+                if (mode === 'remove') {
+                    if (idx >= 0) currentPageDocs.splice(idx, 1);
+                } else if (idx >= 0) {
+                    currentPageDocs[idx] = { ...currentPageDocs[idx], ...student };
+                }
+            }
         }
 
         function updateStickyTableHead() {
             const stickySec = document.querySelector('#module-profiles .sticky-top-section');
             if (!stickySec) return;
-            const topOffset = Math.ceil(stickySec.getBoundingClientRect().height);
-            if (!topOffset) return; // module hidden -> keep last known good value
+            const topOffset = stickySec.offsetHeight;
             document.documentElement.style.setProperty('--sticky-toolbar-h', topOffset + 'px');
         }
 
-        async function loadStudentPage(pageNum) {
+        async function loadStudentPage(pageNum, forceReload = false) {
             if (currentMode === 'filter') {
                 currentPage = pageNum;
                 renderFilteredPage();
                 return;
             }
+
+            if (!forceReload && studentPageCache.has(pageNum)) {
+                currentPageDocs = studentPageCache.get(pageNum) || [];
+                currentPage = pageNum;
+                renderBrowsePage();
+                return;
+            }
+
             const tbody = document.getElementById('studentTableBody');
             if (tbody) tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:24px; color:#6D6759;">Loading page ${pageNum}... ⏳</td></tr>`;
 
@@ -2444,6 +2510,10 @@
                     pageCursors[pageNum] = null;
                 }
                 currentPage = pageNum;
+                cacheCurrentPage(pageNum);
+                if (snap.docs.length < PAGE_SIZE) {
+                    totalStudentsCount = Math.max(0, (pageNum - 1) * PAGE_SIZE + snap.docs.length);
+                }
                 renderBrowsePage();
             } catch (e) {
                 console.error("Page load error:", e);
@@ -2508,8 +2578,10 @@
             const next = document.getElementById('btnNextPage');
             if (!info || !prev || !next) return;
             const startIdx = (currentPage - 1) * PAGE_SIZE;
-            const endIdx = Math.min(startIdx + PAGE_SIZE, total);
-            info.innerText = total === 0 ? '0 of 0' : `${startIdx + 1}-${endIdx} of ${total}`;
+            const endIdx = Math.min(startIdx + PAGE_SIZE, total == null ? startIdx + currentPageDocs.length : total);
+            info.innerText = total == null
+                ? (currentPageDocs.length === 0 ? '0 of 0' : `${startIdx + 1}-${endIdx} of ${endIdx}+`)
+                : (total === 0 ? '0 of 0' : `${startIdx + 1}-${endIdx} of ${total}`);
             prev.disabled = currentPage <= 1;
             let hasNext = false;
             if (currentMode === 'filter') {
@@ -2528,30 +2600,27 @@
             if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳</td></tr>';
 
             currentPage = 1;
-            pageCursors = [null];
-            currentPageDocs = [];
             currentMode = 'browse';
             filteredStudents = [];
             appData = [];
             appDataLoaded = false;
+            feeReceipts = [];
+            feeReceiptCache.clear();
+            resetStudentPageCache();
 
             try {
-                const [setupDoc, feeSnap, countSnap] = await Promise.all([
-                    db.collection("setups").doc(schoolCode).get().catch(() => null),
-                    db.collection("fee_receipts").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] })),
-                    db.collection("students").where("schoolCode", "==", schoolCode).get().catch(() => null)]);
-
+                const setupDoc = await db.collection("setups").doc(schoolCode).get().catch(() => null);
                 setupData = (setupDoc && setupDoc.exists)
                     ? setupDoc.data()
                     : { classes: [], genders: [], categories: [], bloodGroups: [], houses: [], religions: [], salutations: [] };
 
                 feeHeads = setupData.feeHeads || [];
-                feeReceipts = [];
-                if (feeSnap.forEach) { feeSnap.forEach(doc => feeReceipts.push(doc.data())); }
 
-                totalStudentsCount = countSnap ? countSnap.size : 0;
+                const freshCount = await getStudentCount(true);
+                if (freshCount !== null) totalStudentsCount = freshCount;
+                else totalStudentsCount = null;
 
-                await loadStudentPage(1);
+                await loadStudentPage(1, true);
 
                 loadSetupDropdowns();
                 updateNextRegNoLocal();
@@ -2566,14 +2635,24 @@
         }
 
         function updateNextRegNoLocal() {
-            const maxKnown = Math.max(totalStudentsCount, 0);
-            document.getElementById('lastRegNoDisplay').innerText = maxKnown;
-            if (document.getElementById('editMode').value === "false") {
+            const maxKnown = Number.isFinite(totalStudentsCount) ? totalStudentsCount : null;
+            document.getElementById('lastRegNoDisplay').innerText = maxKnown == null ? '-' : maxKnown;
+            if (document.getElementById('editMode').value === "false" && maxKnown != null) {
                 document.getElementById('regNo').value = maxKnown + 1;
             }
         }
 
         async function updateNextRegNoAccurate() {
+            let knownCount = Number.isFinite(totalStudentsCount) ? totalStudentsCount : await getStudentCount(true);
+            if (knownCount !== null) {
+                totalStudentsCount = knownCount;
+                document.getElementById('lastRegNoDisplay').innerText = knownCount;
+                if (document.getElementById('editMode').value === "false") {
+                    document.getElementById('regNo').value = knownCount + 1;
+                }
+                return;
+            }
+            // Last-resort compatibility fallback only if aggregation is unavailable.
             await ensureAppDataLoaded();
             let maxReg = 0;
             appData.forEach(s => { let num = parseInt(s.regNo, 10); if (!isNaN(num) && num > maxReg) maxReg = num; });
@@ -2653,9 +2732,6 @@
                             await ensureAppDataLoaded();
                             renderDashboard();
                             setTimeout(() => { Object.values(charts).forEach(c => { if (c) c.resize(); }); }, 100);
-                        }
-                        if (targetId === 'module-bulk-actions') {
-                            await ensureAppDataLoaded();
                         }
                         if (targetId === 'module-profiles') {
                             setTimeout(updateStickyTableHead, 50);
@@ -2775,13 +2851,24 @@
                 const fCat = document.getElementById('filterCategory').value;
                 const fBlood = document.getElementById('filterBloodGroup').value;
                 const fRel = document.getElementById('filterReligion').value;
-                const fName = searchNameInput.value.toLowerCase();
+                const fName = searchNameInput.value.trim().toLowerCase();
 
+                const hasAnyFilter = [fClass, fSec, fGender, fHouse, fCat, fBlood, fRel, fName].some(v => v && v !== 'All');
                 const tbody = document.getElementById('studentTableBody');
-                if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:20px;">Loading all students to apply filter... ⏳</td></tr>';
-                await ensureAppDataLoaded();
 
-                let filtered = appData.filter(s => {
+                // Empty filter = return to normal paginated browse without a full read.
+                if (!hasAnyFilter) {
+                    currentMode = 'browse';
+                    filteredStudents = [];
+                    currentPage = 1;
+                    document.getElementById('filterDropdownPanel').style.display = 'none';
+                    await loadStudentPage(1);
+                    return;
+                }
+
+                if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:20px;">Applying filter... ⏳</td></tr>';
+
+                const localFilter = (source) => source.filter(s => {
                     let sClass = "", sSec = "";
                     if (s.studentClass) {
                         let match = s.studentClass.match(/(.*?)\s*\((.*?)\)/);
@@ -2798,6 +2885,67 @@
                     let matchName = fName === "" || sNameStr.includes(fName);
                     return matchClass && matchSec && matchGender && matchHouse && matchCat && matchBlood && matchRel && matchName;
                 });
+
+                let filtered = [];
+
+                // If the complete student cache already exists (Dashboard/Report/Bulk used it), do zero new reads.
+                if (appDataLoaded) {
+                    filtered = localFilter(appData);
+                } else {
+                    let classValues = [];
+                    if (setupData && Array.isArray(setupData.classes)) {
+                        classValues = setupData.classes
+                            .filter(c => {
+                                const classMatch = !fClass || fClass === 'All' || String(c.name) === String(fClass);
+                                const secMatch = !fSec || fSec === 'All' || String(c.section) === String(fSec);
+                                return classMatch && secMatch;
+                            })
+                            .map(c => `${c.name} (${c.section})`);
+                    }
+
+                    let baseParts = [];
+                    if (fGender && fGender !== 'All') baseParts.push(['gender', fGender]);
+                    if (fHouse && fHouse !== 'All') baseParts.push(['house', fHouse]);
+                    if (fCat && fCat !== 'All') baseParts.push(['category', fCat]);
+                    if (fBlood && fBlood !== 'All') baseParts.push(['bloodGroup', fBlood]);
+                    if (fRel && fRel !== 'All') baseParts.push(['religion', fRel]);
+
+                    // Build one or more server-side equality queries. Class/section is stored as one field.
+                    let queries = [];
+                    if (classValues.length === 1) {
+                        let q = db.collection("students").where("schoolCode", "==", schoolCode).where("studentClass", "==", classValues[0]);
+                        baseParts.forEach(([field, value]) => { q = q.where(field, "==", value); });
+                        queries.push(q);
+                    } else if (classValues.length > 1) {
+                        for (let i = 0; i < classValues.length; i += 30) {
+                            const chunk = classValues.slice(i, i + 30);
+                            let q = db.collection("students").where("schoolCode", "==", schoolCode).where("studentClass", "in", chunk);
+                            baseParts.forEach(([field, value]) => { q = q.where(field, "==", value); });
+                            queries.push(q);
+                        }
+                    } else if (!fClass && !fSec) {
+                        let q = db.collection("students").where("schoolCode", "==", schoolCode);
+                        baseParts.forEach(([field, value]) => { q = q.where(field, "==", value); });
+                        queries.push(q);
+                    }
+
+                    if (queries.length > 0) {
+                        const snaps = await Promise.all(queries.map(q => q.get()));
+                        const seen = new Set();
+                        snaps.forEach(snap => snap.docs.forEach(doc => {
+                            if (!seen.has(doc.id)) {
+                                seen.add(doc.id);
+                                filtered.push({ ...doc.data(), _docId: doc.id });
+                            }
+                        }));
+                        // Name search remains client-side so existing contains() behaviour is preserved.
+                        filtered = localFilter(filtered);
+                    } else {
+                        // Rare case: a section value is absent from Master Setup. Preserve legacy behaviour.
+                        await ensureAppDataLoaded();
+                        filtered = localFilter(appData);
+                    }
+                }
 
                 currentMode = 'filter';
                 filteredStudents = filtered;
@@ -2855,6 +3003,7 @@
             function setVal(id, val) { if (document.getElementById(id)) document.getElementById(id).value = val || ''; }
 
             window.editStudent = function (s) {
+                pendingOriginalStudentData = JSON.parse(JSON.stringify(s || {}));
                 document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
                 document.getElementById('module-admission').classList.add('active-module');
                 document.getElementById('formTitle').innerText = "Edit Student Profile";
@@ -2919,14 +3068,25 @@
                 customConfirm(`Are you sure you want to delete Reg No: ${regNo} from Database?`, () => {
                     let safeRegNo = regNo.replace(/\//g, '-');
                     let docId = `${schoolCode}_${safeRegNo}`;
-                    db.collection("students").doc(docId).delete().then(() => {
+                    db.collection("students").doc(docId).delete().then(async () => {
                         customAlert("Deleted from DB!");
-                        syncWithDatabase();
+                        updateLocalStudentCaches({ regNo }, 'remove');
+                        if (Number.isFinite(totalStudentsCount)) totalStudentsCount = Math.max(0, totalStudentsCount - 1);
+                        feeReceiptCache.delete(String(regNo));
+                        feeReceipts = [];
+                        if (currentMode === 'filter') {
+                            filteredStudents = filteredStudents.filter(s => String(s.regNo) !== String(regNo));
+                            if (filteredStudents.length > 0 && currentPage > Math.ceil(filteredStudents.length / PAGE_SIZE)) currentPage = Math.ceil(filteredStudents.length / PAGE_SIZE);
+                            renderFilteredPage();
+                        } else {
+                            renderBrowsePage();
+                        }
                     }).catch(err => { alert("Error deleting: " + err.message); });
                 });
             };
 
             let pendingStudentData = null;
+            let pendingOriginalStudentData = null;
             let pendingIsEdit = false;
 
             document.getElementById('admissionForm').addEventListener('submit', function (e) {
@@ -2982,6 +3142,12 @@
                 executeStudentSave(sendEmailChoice);
             });
 
+            function hasStudentChanges(newData, oldData) {
+                if (!oldData) return true;
+                const normalize = value => value == null ? '' : String(value);
+                return Object.keys(newData).some(key => normalize(newData[key]) !== normalize(oldData[key]));
+            }
+
             async function executeStudentSave(sendEmailChoice) {
                 const submitBtn = document.getElementById('saveSubmitBtn');
                 submitBtn.textContent = 'Syncing...'; submitBtn.disabled = true;
@@ -2990,6 +3156,11 @@
                 let docId = `${schoolCode}_${safeRegNo}`;
 
                 try {
+                    if (pendingIsEdit && !hasStudentChanges(pendingStudentData, pendingOriginalStudentData)) {
+                        customAlert("No changes detected.");
+                        document.getElementById('btn-back-to-profiles').click();
+                        return;
+                    }
                     if (!pendingIsEdit) {
                         pendingStudentData.portalId = pendingStudentData.regNo.replace(/\//g, '').toLowerCase();
                         pendingStudentData.pin = "123456";
@@ -3003,8 +3174,28 @@
                     }
                     await db.collection("students").doc(docId).set(pendingStudentData, { merge: true });
                     customAlert(pendingIsEdit ? "Updated in DB!" : "Added to DB!");
+
+                    if (pendingIsEdit) {
+                        updateLocalStudentCaches({ ...pendingStudentData, _docId: docId }, 'upsert');
+                        if (currentMode === 'filter') {
+                            const idx = filteredStudents.findIndex(s => String(s.regNo) === String(pendingStudentData.regNo));
+                            if (idx >= 0) filteredStudents[idx] = { ...filteredStudents[idx], ...pendingStudentData };
+                            renderFilteredPage();
+                        } else {
+                            renderBrowsePage();
+                        }
+                    } else {
+                        updateLocalStudentCaches({ ...pendingStudentData, _docId: docId }, 'upsert');
+                        if (Number.isFinite(totalStudentsCount)) totalStudentsCount += 1;
+                        else if (totalStudentsCount === null) totalStudentsCount = 1;
+                        // New registrations normally fall outside the first page; only reload one 50-record page.
+                        resetStudentPageCache();
+                        currentPage = 1;
+                        currentMode = 'browse';
+                        await loadStudentPage(1, true);
+                    }
+
                     document.getElementById('btn-back-to-profiles').click();
-                    syncWithDatabase();
                 } catch (err) {
                     customAlert("Error saving data: " + err.message);
                 } finally {
@@ -3022,6 +3213,7 @@
                     document.getElementById('saveSubmitBtn').innerText = "Save Record to DB";
                     document.getElementById('saveSubmitBtn').style.background = "#5cb85c";
                     document.getElementById('editMode').value = "false";
+                    pendingOriginalStudentData = null;
                     document.getElementById('regNo').readOnly = false;
                     document.getElementById('studentClass').disabled = false;
                     document.getElementById('studentClass').style.background = "";
@@ -3306,12 +3498,13 @@
                 if (cropper) { cropper.destroy(); cropper = null; }
             });
 
-            window.openLedger = function (regNo) {
+            window.openLedger = async function (regNo) {
                 let student = currentPageDocs.find(s => String(s.regNo) === String(regNo))
+                    || studentPageCacheListFind(regNo)
                     || (appDataLoaded ? appData.find(s => String(s.regNo) === String(regNo)) : null);
+
                 let sName = "Unknown (Deleted)"; let sClass = "-"; let sFather = "-";
                 if (student) { sName = student.studentFirstName || student.studentName || 'N/A'; sClass = student.studentClass || '-'; sFather = student.fatherName || '-'; }
-                else { let rec = feeReceipts.find(r => String(r.Reg_No) === String(regNo)); if (rec) { sName = rec.Student_Name; sClass = rec.Class_Section; } }
 
                 document.getElementById('l-name').innerText = sName;
                 document.getElementById('l-reg').innerText = regNo;
@@ -3334,37 +3527,68 @@
                 let classFeeAmount = 0;
                 if (student && student.studentClass && setupData && setupData.classes) { let cSetup = setupData.classes.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass); if (cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); } }
 
+                const cacheKey = String(regNo).trim();
+                let studentFeeReceipts = feeReceiptCache.get(cacheKey);
+                if (!studentFeeReceipts) {
+                    const histBodyLoading = document.getElementById('ledgerHistoryBody');
+                    const ledgerBodyLoading = document.getElementById('ledgerTableBody');
+                    if (histBodyLoading) histBodyLoading.innerHTML = '<tr><td colspan="5" style="padding:10px; border:1px solid #ccc; text-align:center;">Loading payment history... ⏳</td></tr>';
+                    if (ledgerBodyLoading) ledgerBodyLoading.innerHTML = '<tr><td colspan="4" style="padding:16px; text-align:center; color:#888;">Loading ledger... ⏳</td></tr>';
+
+                    try {
+                        const snap = await db.collection("fee_receipts")
+                            .where("schoolCode", "==", schoolCode)
+                            .where("Reg_No", "==", regNo)
+                            .get();
+                        studentFeeReceipts = snap.docs.map(d => ({ ...d.data(), _docId: d.id }));
+                        feeReceiptCache.set(cacheKey, studentFeeReceipts);
+                        feeReceipts = studentFeeReceipts;
+                    } catch (err) {
+                        console.error('Fee ledger read error:', err);
+                        studentFeeReceipts = [];
+                    }
+                } else {
+                    feeReceipts = studentFeeReceipts;
+                }
+
+                // When the student record is missing but a receipt exists, recover display details exactly as before.
+                if (!student && studentFeeReceipts.length > 0) {
+                    const rec = studentFeeReceipts[0];
+                    sName = rec.Student_Name || sName;
+                    sClass = rec.Class_Section || sClass;
+                    document.getElementById('l-name').innerText = sName;
+                    document.getElementById('l-class').innerText = sClass;
+                }
+
                 let paidMap = {};
                 let histBody = document.getElementById('ledgerHistoryBody');
                 histBody.innerHTML = '';
 
-                feeReceipts.forEach(r => {
-                    if (String(r.Reg_No).trim() === String(regNo).trim()) {
-                        let particularsStr = "";
-                        try {
-                            let rawHeads = String(r.Paid_Heads || "").trim();
-                            let rawSummary = String(r.Receipt_Summary || "").trim();
-                            if (rawHeads !== "" && rawHeads !== "[]" && rawHeads.startsWith("[")) {
-                                let details = JSON.parse(rawHeads);
-                                let pList = [];
-                                details.forEach(d => {
-                                    let pName = d.head || "Fee";
-                                    if (d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") { pName += ` (${d.period})`; }
-                                    else if (d.period) { pName += ` (${d.period})`; }
-                                    pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
-                                    let uid = d.head + "_" + d.period;
-                                    paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
-                                });
-                                particularsStr = pList.join("<br>");
-                                if (particularsStr === "") { particularsStr = rawSummary || "Fee Payment"; }
-                            } else if (rawSummary !== "") { particularsStr = rawSummary; }
-                            else { particularsStr = "Fee Payment"; }
-                        } catch (e) { particularsStr = r.Receipt_Summary || "Details Unavailable"; }
+                studentFeeReceipts.forEach(r => {
+                    let particularsStr = "";
+                    try {
+                        let rawHeads = String(r.Paid_Heads || "").trim();
+                        let rawSummary = String(r.Receipt_Summary || "").trim();
+                        if (rawHeads !== "" && rawHeads !== "[]" && rawHeads.startsWith("[")) {
+                            let details = JSON.parse(rawHeads);
+                            let pList = [];
+                            details.forEach(d => {
+                                let pName = d.head || "Fee";
+                                if (d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") { pName += ` (${d.period})`; }
+                                else if (d.period) { pName += ` (${d.period})`; }
+                                pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
+                                let uid = d.head + "_" + d.period;
+                                paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
+                            });
+                            particularsStr = pList.join("<br>");
+                            if (particularsStr === "") { particularsStr = rawSummary || "Fee Payment"; }
+                        } else if (rawSummary !== "") { particularsStr = rawSummary; }
+                        else { particularsStr = "Fee Payment"; }
+                    } catch (e) { particularsStr = r.Receipt_Summary || "Details Unavailable"; }
 
-                        let rNo = String(r.Receipt_No).replace("'", "");
-                        let rDate = String(r.Date).replace("'", "");
-                        histBody.innerHTML += `<tr><td style="padding:10px; border:1px solid #ccc;">${rDate}</td><td style="padding:10px; border:1px solid #ccc;">${rNo}</td><td style="padding:10px; border:1px solid #ccc;">${r.Payment_Mode}</td><td style="padding:10px; border:1px solid #ccc; text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td><td style="padding:10px; border:1px solid #ccc; color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td></tr>`;
-                    }
+                    let rNo = String(r.Receipt_No).replace("'", "");
+                    let rDate = String(r.Date).replace("'", "");
+                    histBody.innerHTML += `<tr><td style="padding:10px; border:1px solid #ccc;">${rDate}</td><td style="padding:10px; border:1px solid #ccc;">${rNo}</td><td style="padding:10px; border:1px solid #ccc;">${r.Payment_Mode}</td><td style="padding:10px; border:1px solid #ccc; text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td><td style="padding:10px; border:1px solid #ccc; color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td></tr>`;
                 });
 
                 if (histBody.innerHTML === '') { histBody.innerHTML = '<tr><td colspan="5" style="padding:10px; border:1px solid #ccc; text-align:center;">No payment history found.</td></tr>'; }
@@ -3415,6 +3639,14 @@
                 document.getElementById('ledgerModal').classList.add('active');
             }
 
+            function studentPageCacheListFind(regNo) {
+                for (const docs of studentPageCache.values()) {
+                    const found = docs.find(s => String(s.regNo) === String(regNo));
+                    if (found) return found;
+                }
+                return null;
+            }
+
             document.getElementById('closeLedgerBtn')?.addEventListener('click', () => {
                 document.getElementById('ledgerModal').classList.remove('active');
             });
@@ -3439,11 +3671,14 @@
             }
 
             document.getElementById('btnFetchForPromote')?.addEventListener('click', async () => {
-                await ensureAppDataLoaded();
                 let cls = document.getElementById('bulkFromClass').value;
                 if (!cls) { customAlert("Please select a 'From' class first."); return; }
 
-                let studentsInClass = appData.filter(s => s.studentClass === cls);
+                const snap = await db.collection("students")
+                    .where("schoolCode", "==", schoolCode)
+                    .where("studentClass", "==", cls)
+                    .get();
+                let studentsInClass = snap.docs.map(d => ({ ...d.data(), _docId: d.id }));
                 let tbody = document.getElementById('promoteTableBody');
                 tbody.innerHTML = '';
 
@@ -3483,21 +3718,31 @@
                     });
                     await batch.commit();
                     customAlert("Bulk Update Successful!");
+                    const promotedRegNos = Array.from(checkboxes).map(chk => String(chk.value));
+                    promotedRegNos.forEach(regNo => updateLocalStudentCaches({ regNo, studentClass: toCls }, 'upsert'));
                     document.getElementById('promoteTableArea').style.display = 'none';
                     document.getElementById('bulkFromClass').value = "";
                     document.getElementById('bulkToClass').value = "";
-                    syncWithDatabase();
+                    if (currentMode === 'filter') {
+                        filteredStudents = filteredStudents.map(s => promotedRegNos.includes(String(s.regNo)) ? { ...s, studentClass: toCls } : s);
+                        renderFilteredPage();
+                    } else {
+                        renderBrowsePage();
+                    }
                 } catch (err) { customAlert("Error during bulk update: " + err.message); }
                 finally { btn.innerText = "Update Selected Students"; btn.disabled = false; }
             });
 
             document.getElementById('btnGenerateRolls')?.addEventListener('click', async () => {
-                await ensureAppDataLoaded();
                 let cls = document.getElementById('bulkRollClass').value;
                 let startNo = parseInt(document.getElementById('bulkRollStart').value) || 1;
                 if (!cls) { customAlert("Select a class to generate roll numbers."); return; }
 
-                let studentsInClass = appData.filter(s => s.studentClass === cls);
+                const snap = await db.collection("students")
+                    .where("schoolCode", "==", schoolCode)
+                    .where("studentClass", "==", cls)
+                    .get();
+                let studentsInClass = snap.docs.map(d => ({ ...d.data(), _docId: d.id }));
                 studentsInClass.sort((a, b) => {
                     let nameA = (a.studentFirstName || a.studentName || "").toLowerCase();
                     let nameB = (b.studentFirstName || b.studentName || "").toLowerCase();
@@ -3535,9 +3780,20 @@
                     });
                     await batch.commit();
                     customAlert("Roll Numbers Assigned Successfully!");
+                    rows.forEach(tr => {
+                        const regNo = tr.getAttribute('data-reg');
+                        const newRoll = tr.getAttribute('data-newroll');
+                        updateLocalStudentCaches({ regNo, rollNo: newRoll }, 'upsert');
+                    });
                     document.getElementById('rollTableArea').style.display = 'none';
                     document.getElementById('bulkRollClass').value = "";
-                    syncWithDatabase();
+                    if (currentMode === 'filter') {
+                        const changed = new Map(Array.from(rows).map(tr => [String(tr.getAttribute('data-reg')), String(tr.getAttribute('data-newroll'))]));
+                        filteredStudents = filteredStudents.map(s => changed.has(String(s.regNo)) ? { ...s, rollNo: changed.get(String(s.regNo)) } : s);
+                        renderFilteredPage();
+                    } else {
+                        renderBrowsePage();
+                    }
                 } catch (err) { customAlert("Error saving roll numbers: " + err.message); }
                 finally { btn.innerText = "Save Roll Numbers"; btn.disabled = false; }
             });
@@ -3553,12 +3809,20 @@
             };
 
             document.getElementById('btnDownloadReport')?.addEventListener('click', async () => {
-                await ensureAppDataLoaded();
                 let type = document.getElementById('reportTypeHidden').value;
                 let cls = document.getElementById('reportClassSelect').value;
 
-                let reportData = appData;
-                if (cls !== "All") { reportData = appData.filter(s => s.studentClass === cls); }
+                let reportData;
+                if (cls !== "All") {
+                    const snap = await db.collection("students")
+                        .where("schoolCode", "==", schoolCode)
+                        .where("studentClass", "==", cls)
+                        .get();
+                    reportData = snap.docs.map(d => ({ ...d.data(), _docId: d.id }));
+                } else {
+                    await ensureAppDataLoaded();
+                    reportData = appData;
+                }
                 if (reportData.length === 0) { customAlert("No students found in the selected class."); return; }
 
                 let htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"><style>table { border-collapse: collapse; font-family: Arial; } th, td { border: 1px solid #000; padding: 5px; text-align: left; } th { background-color: #f2f2f2; font-weight: bold; }</style></head><body>`;
