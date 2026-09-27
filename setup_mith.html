@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup MITH School</title>
+    <!-- FIREBASE SDKS -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script>
+        // YOUR FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHS0Xk5o-PZK_bBGtsQqGlS9TLOcnXCsM",
+            authDomain: "school-erp-3bd0a.firebaseapp.com",
+            projectId: "school-erp-3bd0a",
+            storageBucket: "school-erp-3bd0a.firebasestorage.app",
+            messagingSenderId: "222944507292",
+            appId: "1:222944507292:web:3b80280c1359b9fa6ec459"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+    </script>
+</head>
+<body style="padding: 50px; font-family: Arial, sans-serif; background-color: #f4f7fa; text-align: center;">
+
+    <h2 style="color: #2c3e50;">Initialize MITH School Database</h2>
+    <p style="color: #7f8c8d; margin-bottom: 30px;">Creates Master Data & First Super Admin Account for MITH</p>
+    
+    <button onclick="setupMith()" id="setupBtn" style="padding: 15px 30px; background: #8e44ad; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; box-shadow: 0 4px 10px rgba(142,68,173,0.3);">
+        🚀 Setup MITH Database & Admin
+    </button>
+    
+    <p id="status" style="margin-top: 20px; font-weight: bold; color: #27ae60; font-size: 18px;"></p>
+
+    <script>
+        async function setupMith() {
+            const btn = document.getElementById('setupBtn');
+            const statusEl = document.getElementById('status');
+            
+            btn.disabled = true;
+            btn.innerText = "⏳ Processing...";
+            statusEl.innerText = "Creating accounts and data... Please wait.";
+            statusEl.style.color = "#f39c12";
+
+            try {
+                const schoolCode = "MITH";
+                
+                // 1. Setup Master Classes
+                await db.collection("setups").doc(schoolCode).set({
+                    classes: [
+                        { name: "Class 1", section: "A", fee: "1500" },
+                        { name: "Class 10", section: "A", fee: "2500" }
+                    ]
+                }, { merge: true });
+
+                // 2. Auth for First Admin
+                const userCred = await auth.createUserWithEmailAndPassword('admin@mithlesh.com', 'Admin@123');
+                const uid = userCred.user.uid;
+
+                // 3. Employee Record
+                await db.collection("employees").doc(`${schoolCode}_EMP-001`).set({
+                    schoolCode: schoolCode, 
+                    empId: "MITH/EMP/001", 
+                    empName: "Mithlesh Admin", 
+                    empDept: "Management",
+                    Is_SuperAdmin: "Yes", 
+                    registeredEmail: "admin@mithlesh.com",
+                    Status: "Active"
+                }, { merge: true });
+
+                // 4. User Record for RBAC
+                await db.collection("users").doc(uid).set({
+                    schoolCode: schoolCode, 
+                    empId: "MITH/EMP/001", 
+                    empName: "Mithlesh Admin", 
+                    email: "admin@mithlesh.com", 
+                    Is_SuperAdmin: "Yes"
+                }, { merge: true });
+
+                // Force logout so it doesn't mess with existing sessions
+                await auth.signOut();
+                
+                statusEl.style.color = "#27ae60";
+                statusEl.innerText = "✅ Done! Database is ready.";
+                btn.style.display = "none";
+                
+                alert("MITH School Setup Complete! You can now login with:\n\nSchool Code: MITH\nEmail: admin@mithlesh.com\nPassword: Admin@123");
+
+            } catch (e) {
+                statusEl.style.color = "#e74c3c";
+                statusEl.innerText = "Error: " + e.message;
+                btn.disabled = false;
+                btn.innerText = "🚀 Try Again";
+            }
+        }
+    </script>
+</body>
+</html>
