@@ -2451,7 +2451,13 @@
                 document.getElementById('formTitle').innerText = "Edit Student Profile"; document.getElementById('saveSubmitBtn').innerText = "Update Record in DB"; document.getElementById('saveSubmitBtn').style.background = "#f39c12"; document.getElementById('editMode').value = "true"; formTabs[0].click();
 
                 setVal('regNo', s.regNo); document.getElementById('regNo').readOnly = true; setVal('adminDate', s.adminDate ? new Date(s.adminDate).toISOString().split('T')[0] : ''); setVal('studentFirstName', s.studentFirstName || s.studentName); setVal('studentLastName', s.studentLastName); setVal('primaryEmail', s.primaryEmail); setVal('dob', s.dob ? new Date(s.dob).toISOString().split('T')[0] : ''); if (s.dob) document.getElementById('dob').dispatchEvent(new Event('change'));
-                setVal('mobile', s.mobile); setVal('placeOfBirth', s.placeOfBirth); setVal('motherTongue', s.motherTongue); setVal('studentClass', s.studentClass); setVal('gender', s.gender); setVal('bloodGroup', s.bloodGroup); setVal('category', s.category); setVal('house', s.house); setVal('religion', s.religion); setVal('udiseNo', s.udiseNo); setVal('apaarId', s.apaarId); setVal('aadhaarNo', s.aadhaarNo); setVal('prevSchool', s.prevSchool);
+                setVal('mobile', s.mobile); setVal('placeOfBirth', s.placeOfBirth); setVal('motherTongue', s.motherTongue); setVal('studentClass', s.studentClass);
+                // 🔒 LOCK Class & Section dropdown while editing
+                document.getElementById('studentClass').disabled = true;
+                document.getElementById('studentClass').style.background = "#EDEAE0";
+                document.getElementById('studentClass').style.cursor = "not-allowed";
+                document.getElementById('studentClass').title = "Class/Section cannot be changed once the record is saved.";
+                setVal('gender', s.gender); setVal('bloodGroup', s.bloodGroup); setVal('category', s.category); setVal('house', s.house); setVal('religion', s.religion); setVal('udiseNo', s.udiseNo); setVal('apaarId', s.apaarId); setVal('aadhaarNo', s.aadhaarNo); setVal('prevSchool', s.prevSchool);
                 setVal('fatherName', s.fatherName); setVal('fatherSalutation', s.fatherSalutation); setVal('fatherContact', s.fatherContact); setVal('fatherWhatsapp', s.fatherWhatsapp); setVal('fatherProfession', s.fatherProfession); setVal('fatherQualification', s.fatherQualification); setVal('fatherDesignation', s.fatherDesignation); setVal('fatherIncome', s.fatherIncome); setVal('fatherOfficeName', s.fatherOfficeName); setVal('fatherOfficeContact', s.fatherOfficeContact); setVal('fatherOfficeAddress', s.fatherOfficeAddress); setVal('fatherAadhaar', s.fatherAadhaar);
                 setVal('motherName', s.motherName); setVal('motherSalutation', s.motherSalutation); setVal('motherContact', s.motherContact); setVal('motherWhatsapp', s.motherWhatsapp); setVal('motherProfession', s.motherProfession); setVal('motherQualification', s.motherQualification); setVal('motherDesignation', s.motherDesignation); setVal('motherIncome', s.motherIncome); setVal('motherOfficeName', s.motherOfficeName); setVal('motherOfficeContact', s.motherOfficeContact); setVal('motherOfficeAddress', s.motherOfficeAddress); setVal('motherAadhaar', s.motherAadhaar);
                 setVal('corrAddress', s.corrAddress); setVal('corrCity', s.corrCity); setVal('corrState', s.corrState); setVal('corrCountry', s.corrCountry); setVal('corrPincode', s.corrPincode); setVal('permAddress', s.permAddress); setVal('permCity', s.permCity); setVal('permState', s.permState); setVal('permCountry', s.permCountry); setVal('permPincode', s.permPincode);
@@ -2545,7 +2551,13 @@
             if (btnAddStudent) {
                 btnAddStudent.addEventListener('click', () => {
                     document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module')); document.getElementById('module-admission').classList.add('active-module');
-                    document.getElementById('admissionForm').reset(); document.getElementById('formTitle').innerText = "Student Admission Form"; document.getElementById('saveSubmitBtn').innerText = "Save Record to DB"; document.getElementById('saveSubmitBtn').style.background = "#5cb85c"; document.getElementById('editMode').value = "false"; document.getElementById('regNo').readOnly = false; formTabs[0].click(); updateNextRegNo();
+                    document.getElementById('admissionForm').reset(); document.getElementById('formTitle').innerText = "Student Admission Form"; document.getElementById('saveSubmitBtn').innerText = "Save Record to DB"; document.getElementById('saveSubmitBtn').style.background = "#5cb85c"; document.getElementById('editMode').value = "false"; document.getElementById('regNo').readOnly = false;
+                    // 🔓 UNLOCK Class & Section dropdown for fresh admission
+                    document.getElementById('studentClass').disabled = false;
+                    document.getElementById('studentClass').style.background = "";
+                    document.getElementById('studentClass').style.cursor = "";
+                    document.getElementById('studentClass').title = "";
+                    formTabs[0].click(); updateNextRegNo();
                     ['studentPhoto', 'fatherPhoto', 'motherPhoto'].forEach(p => { document.getElementById(p + 'Base64').value = ''; document.getElementById(p.replace('studentPhoto', 'photo') + 'Preview').src = DEFAULT_AVATAR; document.getElementById('btnRemove_' + p).style.display = 'none'; });
                 });
             }
