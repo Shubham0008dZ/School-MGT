@@ -2510,8 +2510,7 @@
                 const [setupDoc, feeSnap, countSnap] = await Promise.all([
                     db.collection("setups").doc(schoolCode).get().catch(() => null),
                     db.collection("fee_receipts").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] })),
-                    db.collection("students").where("schoolCode", "==", schoolCode).count().get().catch(() => null)
-                ]);
+                    db.collection("students").where("schoolCode", "==", schoolCode).get().catch(() => null)]);
 
                 setupData = (setupDoc && setupDoc.exists)
                     ? setupDoc.data()
@@ -2521,7 +2520,7 @@
                 feeReceipts = [];
                 if (feeSnap.forEach) { feeSnap.forEach(doc => feeReceipts.push(doc.data())); }
 
-                totalStudentsCount = countSnap ? (countSnap.data().count || 0) : 0;
+                totalStudentsCount = countSnap ? countSnap.size : 0;
 
                 // Load first page
                 await loadStudentPage(1);
