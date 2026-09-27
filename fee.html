@@ -311,6 +311,7 @@
             border-radius: 50%;
             background: #fff;
             padding: 2px;
+            object-fit: cover;
         }
 
         .profile-details {
@@ -1128,6 +1129,7 @@
             background: #fff;
             padding: 2px;
             border: 1px solid rgba(255, 255, 255, .3);
+            object-fit: cover;
         }
 
         .profile-details {
@@ -1318,6 +1320,35 @@
             background: #fff !important;
         }
 
+        /* Note box for calculation logic */
+        .calc-note-box {
+            background: #FFF8E1;
+            border: 1px solid #F0C36D;
+            border-left: 4px solid #F0A500;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 15px;
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: #5D4037;
+        }
+
+        .calc-note-box strong {
+            color: #B26500;
+        }
+
+        .calc-note-box .example-box {
+            background: #fff;
+            border: 1px dashed #F0C36D;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin-top: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #333;
+            line-height: 1.7;
+        }
+
         @media (max-width:960px) {
             .fee-main-split {
                 flex-direction: column;
@@ -1462,7 +1493,8 @@
                     <div class="fee-main-split">
                         <div class="fee-profile-panel">
                             <div class="profile-img-box">
-                                <img src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png" alt="Student">
+                                <img id="profPhoto" src="https://cdn-icons-png.flaticon.com/128/3135/3135715.png"
+                                    alt="Student">
                                 <h4 id="profName" style="color:white; margin-top:10px;">STUDENT NAME</h4>
                             </div>
                             <div class="profile-details">
@@ -1563,6 +1595,21 @@
                 <div style="display:flex; gap:20px; align-items:flex-start;">
                     <div style="width:38%; padding:20px;">
                         <h3 style="margin-top:0; padding-bottom:10px;">Grant New Concession / Waiver</h3>
+
+                        <!-- ✅ NOTE BOX: Calculation Logic -->
+                        <div class="calc-note-box">
+                            <strong>📌 Note — Calculation Basis:</strong> Concession aur Waiver ka <b>order (sequence)
+                                koi matter nahi karta</b>. Dono deductions hamesha <b>Base Amount</b> par hi calculate
+                            honge (not on remaining amount).
+                            <div class="example-box">
+                                <b>Example — Admission Fee:</b><br>
+                                • Base Amount: ₹15,000<br>
+                                • Concession (Fixed): ₹1,000<br>
+                                • Waiver (10% of Base): ₹15,000 × 10% = ₹1,500<br>
+                                <b>Net Payable = ₹15,000 − ₹1,000 − ₹1,500 = ₹12,500</b>
+                            </div>
+                        </div>
+
                         <form id="feeConcessionForm" style="margin-top:15px;">
                             <div style="margin-bottom:12px;">
                                 <label style="font-weight:bold; display:block; margin-bottom:5px;">Student *</label>
@@ -1969,6 +2016,7 @@
         let userRights = [];
 
         const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
+        const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/128/3135/3135715.png';
         let schoolCode = "";
 
         const MONTH_NAME_TO_INDEX = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
@@ -2046,7 +2094,13 @@
             return true;
         }
 
-        function calcAdjustmentFromRecords(studentRegNo, feeHeadName, rowPeriod, rowFrequency, quartersPerYear, actualAmount) {
+        // ============================================================
+        // ⭐ CALCULATION LOGIC: ALWAYS BASED ON BASE AMOUNT (Order-independent)
+        // Both Concession & Waiver apply on the ORIGINAL (base) amount.
+        // Example: Base 15000, Concession 1000 (fixed), Waiver 10% → 1500
+        //          Net = 15000 - 1000 - 1500 = 12500
+        // ============================================================
+        function calcAdjustmentFromRecords(studentRegNo, feeHeadName, rowPeriod, rowFrequency, quartersPerYear, baseAmount) {
             let concession = 0, waiver = 0;
             feeConcessions.forEach(c => {
                 if (String(c.Student_RegNo) !== String(studentRegNo)) return;
@@ -2055,13 +2109,15 @@
                 if (!doesConcessionApply(rowPeriod, rowFrequency, quartersPerYear, c.From_Month, c.To_Month)) return;
                 const val = parseFloat(c.Value) || 0;
                 let amt = 0;
+                // ✅ Always compute on BASE amount (not remaining), so order does not matter
                 if (c.Basis === 'Amount') amt = val;
-                else if (c.Basis === 'Percent') amt = (val / 100) * actualAmount;
+                else if (c.Basis === 'Percent') amt = (val / 100) * baseAmount;
                 if (c.Type === 'Concession') concession += amt;
                 else if (c.Type === 'Waiver') waiver += amt;
             });
-            if (concession + waiver > actualAmount && actualAmount > 0) {
-                const ratio = actualAmount / (concession + waiver);
+            // Cap so total doesn't exceed base amount
+            if (concession + waiver > baseAmount && baseAmount > 0) {
+                const ratio = baseAmount / (concession + waiver);
                 concession *= ratio;
                 waiver *= ratio;
             }
@@ -2254,6 +2310,9 @@
             document.getElementById('feeStudentSelect')?.addEventListener('change', triggerTableGeneration);
             document.getElementById('feeMonthSelect')?.addEventListener('change', triggerTableGeneration);
 
+            // ==========================================
+            // ✅ FIXED: Photo also updates now
+            // ==========================================
             function triggerTableGeneration() {
                 const regNo = document.getElementById('feeStudentSelect').value;
                 const selectedMonth = document.getElementById('feeMonthSelect').value;
@@ -2265,6 +2324,14 @@
                     document.getElementById('profClass').innerText = student.studentClass || '-';
                     document.getElementById('profFather').innerText = student.fatherName || '-';
                     document.getElementById('profMother').innerText = student.motherName || '-';
+
+                    // ✅ Photo update logic (adds the SIS-uploaded photo to Fee panel)
+                    const photoEl = document.getElementById('profPhoto');
+                    if (photoEl) {
+                        photoEl.src = student.studentPhotoBase64 || DEFAULT_AVATAR;
+                        photoEl.onerror = function () { this.src = DEFAULT_AVATAR; };
+                    }
+
                     generateFeeTable(student, selectedMonth);
                 }
             }
@@ -2274,6 +2341,11 @@
                     let el = document.getElementById(id);
                     if (el) el.innerText = "-";
                 });
+
+                // ✅ Reset photo when student is cleared
+                const photoEl = document.getElementById('profPhoto');
+                if (photoEl) photoEl.src = DEFAULT_AVATAR;
+
                 let tbody = document.getElementById('feeHeadsTbody');
                 if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Select a student to view fee heads</td></tr>';
                 resetTotals();
@@ -2636,7 +2708,6 @@
                 });
             }
 
-            // ✅ FIXED: Lookup by docId, robust against missing fields
             window.printFromHistoryById = function (docId) {
                 let r = feeReceipts.find(x => x.id === docId);
                 if (!r) { customAlert("Receipt not found in memory. Please click Sync Data and retry."); return; }
@@ -2678,7 +2749,6 @@
                 executePrint(studentName, receiptNo);
             };
 
-            // ✅ FIXED: Print template now uses dynamic school name
             function populatePrintTemplate(rData, detailsArray, fName, mName) {
                 const schoolName = localStorage.getItem('erp_school_name') || 'School Name';
                 document.getElementById('p-school-name').innerText = schoolName;
