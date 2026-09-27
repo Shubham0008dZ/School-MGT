@@ -1,4 +1,3 @@
-]
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1368,7 +1367,7 @@
         }
     </style>
 
-    <!-- ✅ NEW: Searchable Select + Advance Feature Styles -->
+    <!-- ✅ Searchable Select + Advance Feature Styles -->
     <style id="advance-feature-styles">
         .ss-wrapper {
             position: relative;
@@ -1579,13 +1578,11 @@
             line-height: 1.55;
         }
 
-        .advance-applied-row {
-            background: #FFF3CD !important;
-            font-weight: 700 !important;
-        }
-
-        .advance-applied-row td {
-            color: #856404 !important;
+        /* Highlight for Paid Amount field */
+        .paid-amount-highlight {
+            background: #E7F3EC !important;
+            color: #1F7A52 !important;
+            font-weight: 800 !important;
         }
     </style>
 </head>
@@ -1759,7 +1756,7 @@
                                 </tfoot>
                             </table>
 
-                            <!-- ✅ NEW: Advance Info Bar -->
+                            <!-- ✅ Advance Info Bar -->
                             <div id="advanceInfoBar" class="advance-info-bar no-advance" style="display:none;">
                                 <div><span class="label">🎁 Advance Balance:</span> <span class="amount"
                                         id="advanceBalanceDisplay">₹0.00</span></div>
@@ -1770,12 +1767,14 @@
                             </div>
 
                             <div class="section-title-red">Total Amount Information</div>
+                            <!-- ✅ REORDERED FIELDS -->
                             <div class="total-info-grid">
                                 <p>Payable Amount: <input type="text" id="finalPayable" readonly value="0.00"></p>
+                                <p>Paid Amount: <input type="text" id="finalTotalPaid" readonly value="0.00"
+                                        class="paid-amount-highlight"></p>
+                                <p>Advance in Current Receipt: <input type="text" id="finalAdvance" value="0.00"></p>
                                 <p>Advance Applied: <input type="text" id="advanceAppliedField" readonly value="0.00"
                                         style="color:#856404; background:#FFF3CD;"></p>
-                                <p>Advance in Current Receipt: <input type="text" id="finalAdvance" value="0.00"></p>
-                                <p>Total Paid Amount: <input type="text" id="finalTotalPaid" readonly value="0.00"></p>
                             </div>
 
                             <div class="section-title-red">Payment Information</div>
@@ -2073,7 +2072,7 @@
         </div>
     </div>
 
-    <!-- ✅ NEW: Advance Choice Modal -->
+    <!-- ✅ Advance Choice Modal -->
     <div id="advanceChoiceModal" class="modal-overlay">
         <div class="modal-card" style="width: 540px; max-height: 95vh;">
             <div class="modal-header" style="background: var(--info) !important;">
@@ -2220,6 +2219,34 @@
                     </tr>
                 </tfoot>
             </table>
+
+            <!-- ✅ ADVANCE DETAILS (shown only if any advance activity) -->
+            <table class="print-particulars-table" id="advance-details-table" style="margin-top:0; display:none;">
+                <thead>
+                    <tr>
+                        <th colspan="2" style="background:#e4e4e4; text-align:center;">ADVANCE DETAILS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align:left; width:60%;"><b>Advance Balance (Before this Receipt)</b></td>
+                        <td style="text-align:right;">₹ <span id="p-adv-before">0.00</span></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><b>Advance Applied in this Receipt</b></td>
+                        <td style="text-align:right;">− ₹ <span id="p-adv-applied">0.00</span></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><b>New Advance Added in this Receipt</b></td>
+                        <td style="text-align:right;">+ ₹ <span id="p-adv-added">0.00</span></td>
+                    </tr>
+                    <tr style="font-weight:bold; background:#f4f4f4;">
+                        <td style="text-align:left;"><b>Remaining Advance Balance</b></td>
+                        <td style="text-align:right;">₹ <span id="p-adv-remaining">0.00</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
             <table class="print-particulars-table" style="margin-top:0;">
                 <thead>
                     <tr>
@@ -2286,12 +2313,12 @@
         let feeHeads = [];
         let feeReceipts = [];
         let feeConcessions = [];
-        let feeAdvancesMap = {};          // ✅ NEW: keyed by regNo → { Advance_Balance, ... }
+        let feeAdvancesMap = {};
         let activeUser = null;
         let isSA = false;
         let userRights = [];
 
-        // ✅ NEW: Applied advance for the current receipt (in-memory only)
+        // Applied advance for the current receipt (in-memory only)
         let currentAppliedAdvance = 0;
         let pendingReceiptData = null;
         let pendingSuccessAction = null;
@@ -2375,7 +2402,7 @@
             return true;
         }
 
-        // ⭐ CALCULATION LOGIC: ALWAYS BASED ON BASE AMOUNT (Order-independent)
+        // CALCULATION LOGIC: ALWAYS BASED ON BASE AMOUNT (Order-independent)
         function calcAdjustmentFromRecords(studentRegNo, feeHeadName, rowPeriod, rowFrequency, quartersPerYear, baseAmount) {
             let concession = 0, waiver = 0;
             feeConcessions.forEach(c => {
@@ -2398,9 +2425,7 @@
             return { concession: concession, waiver: waiver };
         }
 
-        // ============================================================
-        // ✅ NEW: Searchable Select — reusable utility
-        // ============================================================
+        // Searchable Select utility
         function makeSearchableSelect(selectId, placeholder) {
             const sel = document.getElementById(selectId);
             if (!sel || sel.dataset.searchable === 'yes') return;
@@ -2491,9 +2516,7 @@
             };
             searchInput.onclick = (e) => e.stopPropagation();
             searchInput.oninput = () => rebuildList(searchInput.value);
-            searchInput.onkeydown = (e) => {
-                if (e.key === 'Escape') closePanel();
-            };
+            searchInput.onkeydown = (e) => { if (e.key === 'Escape') closePanel(); };
             panel.onclick = (e) => e.stopPropagation();
             document.addEventListener('click', () => closePanel());
 
@@ -2503,9 +2526,7 @@
             updateDisplay();
         }
 
-        // ============================================================
-        // ✅ NEW: ADVANCE HELPERS
-        // ============================================================
+        // ADVANCE HELPERS
         function getAdvanceBalance(regNo) {
             const a = feeAdvancesMap[String(regNo)];
             if (!a) return 0;
@@ -2516,7 +2537,6 @@
             return (Math.round((parseFloat(n) || 0) * 100) / 100).toFixed(2);
         }
 
-        // Compute total session fees (Apr to Mar) for a student
         function getTotalSessionFees(student) {
             let total = 0;
             if (student && student.studentClass) {
@@ -2529,12 +2549,11 @@
                 else if (fh.Frequency === 'Quarterly') {
                     const qpy = parseInt(fh.QuartersPerYear) === 3 ? 3 : 4;
                     total += amt * qpy;
-                } else total += amt; // One Time / Annually
+                } else total += amt;
             });
             return total;
         }
 
-        // Compute total already paid (fees) for the student
         function getTotalPaidForSession(student) {
             let total = 0;
             feeReceipts.forEach(r => {
@@ -2679,7 +2698,6 @@
                     feeConcessions = [];
                     if (conSnap.forEach) { conSnap.forEach(doc => { let d = doc.data(); d.id = doc.id; feeConcessions.push(d); }); }
 
-                    // ✅ NEW: Load fee_advances
                     let advSnap = await db.collection("fee_advances").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
                     feeAdvancesMap = {};
                     if (advSnap.forEach) {
@@ -2697,7 +2715,6 @@
                     renderConcessionsList();
                     updateNextReceiptNo();
 
-                    // ✅ NEW: Make dropdowns searchable (only once)
                     makeSearchableSelect('feeStudentSelect', '🔍 Type student name, adm no, class...');
                     makeSearchableSelect('conStudent', '🔍 Type student name...');
                     makeSearchableSelect('conFeeHead', '🔍 Search fee head...');
@@ -2717,14 +2734,12 @@
                 const sel = document.getElementById('feeStudentSelect');
                 if (!sel) return;
                 sel.innerHTML = '<option value="">-- Search and Select Student --</option>';
-                // Sort by name for easier browsing
                 const sorted = [...allStudents].sort((a, b) => {
                     const nA = (a.studentFirstName || a.studentName || '').toLowerCase();
                     const nB = (b.studentFirstName || b.studentName || '').toLowerCase();
                     return nA.localeCompare(nB);
                 });
                 sorted.forEach(s => {
-                    // ✅ NEW FORMAT: Name - AdmissionNo (Class-Section) FatherName
                     const firstName = s.studentFirstName || s.studentName || '';
                     const lastName = s.studentLastName || '';
                     const fullName = (firstName + ' ' + lastName).trim();
@@ -2776,7 +2791,6 @@
             function triggerTableGeneration() {
                 const regNo = document.getElementById('feeStudentSelect').value;
                 const selectedMonth = document.getElementById('feeMonthSelect').value;
-                // Reset applied advance whenever student/month changes
                 currentAppliedAdvance = 0;
                 if (!regNo) { clearProfilePanel(); return; }
                 const student = allStudents.find(s => String(s.regNo) === String(regNo));
@@ -2794,6 +2808,16 @@
                     }
 
                     generateFeeTable(student, selectedMonth);
+
+                    // ✅ AUTO-APPLY advance balance up to payable amount
+                    const bal = getAdvanceBalance(student.regNo);
+                    const payable = parseFloat(document.getElementById('finalPayable').value) || 0;
+                    if (bal > 0 && payable > 0) {
+                        currentAppliedAdvance = Math.min(bal, payable);
+                        document.getElementById('advanceAppliedField').value = formatMoney(currentAppliedAdvance);
+                        recalcCashPaid();
+                    }
+
                     updateAdvanceInfoBar(student);
                 }
             }
@@ -2811,7 +2835,6 @@
                 resetTotals();
             }
 
-            // ✅ NEW: Update advance info bar
             function updateAdvanceInfoBar(student) {
                 if (!student) { document.getElementById('advanceInfoBar').style.display = 'none'; return; }
                 const bal = getAdvanceBalance(student.regNo);
@@ -2837,9 +2860,6 @@
                 }
             }
 
-            // ==========================================
-            // ✅ NEW: Apply / Remove Advance
-            // ==========================================
             document.getElementById('btnApplyAdvance')?.addEventListener('click', () => {
                 const regNo = document.getElementById('feeStudentSelect').value;
                 const student = allStudents.find(s => String(s.regNo) === String(regNo));
@@ -2850,7 +2870,6 @@
                 if (applyAmt <= 0) { customAlert("No advance available or nothing to apply against."); return; }
                 currentAppliedAdvance = applyAmt;
                 document.getElementById('advanceAppliedField').value = formatMoney(applyAmt);
-                // Recompute cash paid
                 recalcCashPaid();
                 updateAdvanceInfoBar(student);
             });
@@ -2864,13 +2883,15 @@
                 if (student) updateAdvanceInfoBar(student);
             });
 
-            // ✅ NEW: Recompute total cash paid = totNet - appliedAdvance + newAdvance
+            // ✅ UPDATED: Paid Amount = cash paid against fees only
             function recalcCashPaid() {
                 const totNet = parseFloat(document.getElementById('totNet').innerText) || 0;
                 const newAdvance = parseFloat(document.getElementById('finalAdvance').value) || 0;
                 const cashForFees = Math.max(0, totNet - currentAppliedAdvance);
+                // "Paid Amount" = cash for fees (what parent hands over for the current fee)
+                document.getElementById('finalTotalPaid').value = formatMoney(cashForFees);
+                // Total cash collected = cash for fees + new advance (for payment table display)
                 const totalCash = cashForFees + newAdvance;
-                document.getElementById('finalTotalPaid').value = formatMoney(totalCash);
                 const payAmountEl = document.getElementById('payAmount');
                 if (payAmountEl) payAmountEl.value = formatMoney(totalCash);
             }
@@ -2879,9 +2900,6 @@
                 recalcCashPaid();
             });
 
-            // ==========================================
-            // FEE TABLE GENERATION
-            // ==========================================
             function generateFeeTable(student, selectedMonthVal) {
                 const tbody = document.getElementById('feeHeadsTbody');
                 tbody.innerHTML = '';
@@ -3066,7 +3084,6 @@
                 document.getElementById('totBal').innerText = totBal.toFixed(2);
                 document.getElementById('profPayable').innerText = totNet.toFixed(2);
                 document.getElementById('finalPayable').value = totNet.toFixed(2);
-                // Clamp applied advance if payable changed
                 if (currentAppliedAdvance > totNet) {
                     currentAppliedAdvance = totNet;
                     document.getElementById('advanceAppliedField').value = formatMoney(currentAppliedAdvance);
@@ -3127,24 +3144,24 @@
                 if (paidDetails.length === 0) { alert("No fees selected to pay."); return; }
 
                 const newAdvance = parseFloat(document.getElementById('finalAdvance').value) || 0;
-                const totalCashPaid = parseFloat(document.getElementById('finalTotalPaid').value) || 0;
                 const student = allStudents.find(s => String(s.regNo) === String(regNo));
 
-                // ✅ NEW: Check if new advance would exceed remaining session fees
+                // Compute old advance and total cash
+                const oldAdv = student ? getAdvanceBalance(student.regNo) : 0;
+                const cashForFees = parseFloat(document.getElementById('finalTotalPaid').value) || 0;
+                const totalCash = cashForFees + newAdvance;
+                const newAdvanceBalance = oldAdv - currentAppliedAdvance + newAdvance;
+
+                // Check if new advance would exceed remaining session fees
                 if (newAdvance > 0 && student) {
                     const totalSessionFees = getTotalSessionFees(student);
                     const totalPaidSoFar = getTotalPaidForSession(student);
-                    // After this receipt: total fees paid (new) + advance balance
                     const feePaidThisReceipt = paidDetails.reduce((a, d) => a + (parseFloat(d.paid) || 0), 0);
-                    const oldAdvance = getAdvanceBalance(student.regNo);
-                    const newAdvanceBalance = oldAdvance - currentAppliedAdvance + newAdvance;
-                    const totalFeesPaidAfter = totalPaidSoFar + feePaidThisReceipt - currentAppliedAdvance;
-                    // Note: applied advance was paid earlier, so not counted as new cash
                     const remainingSessionAfter = Math.max(0, totalSessionFees - (totalPaidSoFar + feePaidThisReceipt));
 
                     if (newAdvanceBalance > remainingSessionAfter) {
-                        // Show modal
                         const excess = newAdvanceBalance - remainingSessionAfter;
+
                         pendingReceiptData = {
                             schoolCode: schoolCode,
                             Receipt_No: document.getElementById('feeReceiptNo').value,
@@ -3152,7 +3169,7 @@
                             Student_Name: document.getElementById('profName').innerText,
                             Class_Section: document.getElementById('profClass').innerText,
                             Installment: month,
-                            Amount: document.getElementById('finalTotalPaid').value,
+                            Amount: formatMoney(totalCash),
                             Payment_Mode: document.getElementById('payType').value,
                             Date: formatToDDMMYYYY(document.getElementById('feeDate').value),
                             Bank_Name: document.getElementById('payBank').value || '-',
@@ -3160,6 +3177,8 @@
                             Paid_Heads: JSON.stringify(paidDetails),
                             Advance_Added: newAdvance,
                             Advance_Applied: currentAppliedAdvance,
+                            Advance_Balance_Before: oldAdv,
+                            Advance_Balance_After: newAdvanceBalance,
                             Timestamp: new Date().toISOString()
                         };
                         pendingSuccessAction = onSuccessAction;
@@ -3174,7 +3193,7 @@
                     }
                 }
 
-                // No advance overflow — save directly
+                // No overflow — save directly
                 await performSaveReceipt({
                     schoolCode: schoolCode,
                     Receipt_No: document.getElementById('feeReceiptNo').value,
@@ -3182,7 +3201,7 @@
                     Student_Name: document.getElementById('profName').innerText,
                     Class_Section: document.getElementById('profClass').innerText,
                     Installment: month,
-                    Amount: document.getElementById('finalTotalPaid').value,
+                    Amount: formatMoney(totalCash),
                     Payment_Mode: document.getElementById('payType').value,
                     Date: formatToDDMMYYYY(document.getElementById('feeDate').value),
                     Bank_Name: document.getElementById('payBank').value || '-',
@@ -3190,11 +3209,13 @@
                     Paid_Heads: JSON.stringify(paidDetails),
                     Advance_Added: newAdvance,
                     Advance_Applied: currentAppliedAdvance,
+                    Advance_Balance_Before: oldAdv,
+                    Advance_Balance_After: newAdvanceBalance,
                     Timestamp: new Date().toISOString()
                 }, paidDetails, onSuccessAction);
             }
 
-            // ✅ NEW: Perform save with advance balance update
+            // Perform save with advance balance update
             async function performSaveReceipt(receiptData, paidDetails, onSuccessAction, advanceChoice) {
                 if (onSuccessAction === 'print') {
                     populatePrintTemplate(receiptData, paidDetails,
@@ -3209,14 +3230,12 @@
                     let docId = `${schoolCode}_${rNoStr}`;
                     await db.collection("fee_receipts").doc(docId).set(receiptData);
 
-                    // ✅ NEW: Update advance balance
                     const regNo = receiptData.Reg_No;
-                    const oldAdv = getAdvanceBalance(regNo);
+                    const oldAdv = parseFloat(receiptData.Advance_Balance_Before) || 0;
                     const addedAdv = parseFloat(receiptData.Advance_Added) || 0;
                     const appliedAdv = parseFloat(receiptData.Advance_Applied) || 0;
                     let newBalance = oldAdv - appliedAdv + addedAdv;
 
-                    // If user chose "refund", deduct the excess from advance balance and record refund
                     let refundAmount = 0;
                     if (advanceChoice === 'refund') {
                         const student = allStudents.find(s => String(s.regNo) === String(regNo));
@@ -3275,7 +3294,6 @@
                 }
             }
 
-            // ✅ NEW: Handle advance choice modal
             document.getElementById('btnConfirmAdvanceChoice')?.addEventListener('click', async () => {
                 const choice = document.querySelector('input[name="advanceChoice"]:checked');
                 if (!choice) { customAlert("Please select an option."); return; }
@@ -3380,7 +3398,11 @@
                 let rData = {
                     receiptNo: receiptNo || '-', regNo: regNo || '-', studentName: studentName,
                     classSec: classSec, installment: installment || '-', date: receiptDate || '-',
-                    totalAmount: amount, paymentMode: paymentMode, bankName: bankName, refNo: refNo
+                    totalAmount: amount, paymentMode: paymentMode, bankName: bankName, refNo: refNo,
+                    advanceBefore: parseFloat(r.Advance_Balance_Before) || 0,
+                    advanceApplied: parseFloat(r.Advance_Applied) || 0,
+                    advanceAdded: parseFloat(r.Advance_Added) || 0,
+                    advanceAfter: parseFloat(r.Advance_Balance_After) || 0
                 };
                 populatePrintTemplate(rData, detailsArray, fName, mName);
                 executePrint(studentName, receiptNo);
@@ -3444,6 +3466,23 @@
                 document.getElementById('p-pdate').innerText = rData.date || '-';
                 document.getElementById('p-pdet').innerText = rData.refNo || '-';
                 document.getElementById('p-pamt').innerText = rData.totalAmount || '-';
+
+                // ✅ ADVANCE DETAILS section
+                const advBefore = parseFloat(rData.advanceBefore) || 0;
+                const advApplied = parseFloat(rData.advanceApplied) || 0;
+                const advAdded = parseFloat(rData.advanceAdded) || 0;
+                const advAfter = parseFloat(rData.advanceAfter) || 0;
+                const hasAdvance = (advBefore > 0) || (advApplied > 0) || (advAdded > 0);
+                const advTable = document.getElementById('advance-details-table');
+                if (hasAdvance) {
+                    advTable.style.display = 'table';
+                    document.getElementById('p-adv-before').innerText = advBefore.toFixed(2);
+                    document.getElementById('p-adv-applied').innerText = advApplied.toFixed(2);
+                    document.getElementById('p-adv-added').innerText = advAdded.toFixed(2);
+                    document.getElementById('p-adv-remaining').innerText = advAfter.toFixed(2);
+                } else {
+                    advTable.style.display = 'none';
+                }
             }
 
             window.deleteReceipt = function (docId) {
@@ -3642,7 +3681,6 @@
                 document.getElementById('l-class').innerText = sClass;
                 document.getElementById('l-father').innerText = sFather;
 
-                // ✅ NEW: Show advance balance in ledger
                 const advBal = getAdvanceBalance(regNo);
                 if (advBal > 0) {
                     document.getElementById('l-advance-banner').style.display = 'block';
