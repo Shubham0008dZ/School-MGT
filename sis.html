@@ -636,6 +636,19 @@
             box-shadow: 0 6px 10px -8px rgba(20, 33, 61, 0.22);
         }
 
+        /* Cover the main-content top padding so scrolled student rows can never
+           appear in the 20px strip above the sticky profile section. */
+        #module-profiles .sticky-top-section::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: -20px;
+            height: 20px;
+            background: var(--paper);
+            pointer-events: none;
+        }
+
         #module-profiles .sticky-top-section::after {
             content: "";
             position: absolute;
