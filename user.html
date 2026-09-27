@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SHUBH ERP · User Management</title>
 
-    <!-- FIREBASE SDKS (kept for parity with other modules; not used by this
-         page's logic, which talks to the Google Apps Script backend instead) -->
+    <!-- FIREBASE SDKS -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -23,6 +22,9 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
         const auth = firebase.auth();
+        // Secondary app instance so creating a new employee's login doesn't
+        // sign the currently logged-in admin out.
+        const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
     </script>
 
     <style>
@@ -468,6 +470,24 @@
             font-weight: 700;
         }
 
+        .badge-set {
+            background: var(--info);
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 10.5px;
+            font-weight: 700;
+        }
+
+        .badge-unset {
+            background: #D8D2C0;
+            color: #5c5748;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 10.5px;
+            font-weight: 700;
+        }
+
         /* CAPSULE SWITCH */
         .capsule-switch {
             position: relative;
@@ -756,12 +776,13 @@
                                 <th>Department</th>
                                 <th>Designation</th>
                                 <th>Super Admin</th>
+                                <th>Login Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="userTableBody">
                             <tr>
-                                <td colspan="7" style="text-align: center;">Fetching Database... ⏳</td>
+                                <td colspan="8" style="text-align: center;">Fetching Database... ⏳</td>
                             </tr>
                         </tbody>
                     </table>
@@ -934,29 +955,25 @@
 
             <div style="padding:20px; background:#fff;">
                 <input type="hidden" id="authTargetId">
-                <input type="hidden" id="authTargetEmail">
 
-                <p style="font-size:12.5px; color:var(--text-mute); margin-bottom:16px;">
-                    Choose how this employee should receive their portal login credentials.
-                </p>
+                <div class="input-group">
+                    <label>Employee Email (used as login ID) *</label>
+                    <input type="email" id="authTargetEmail" placeholder="name@school.com">
+                </div>
 
                 <label class="chk-row">
                     <input type="radio" name="authOpt" value="auto" checked onchange="toggleManualAuthInputs()">
-                    Auto-generate credentials &amp; email them
+                    Auto-generate a secure password
                 </label>
                 <label class="chk-row">
                     <input type="radio" name="authOpt" value="manual" onchange="toggleManualAuthInputs()">
-                    Set a custom User ID &amp; Password
+                    Set a custom password
                 </label>
 
                 <div id="manualAuthFields"
                     style="display:none; margin-top:10px; background:var(--paper-2); border:1px solid var(--line); border-radius:8px; padding:14px;">
-                    <div class="input-group">
-                        <label>Custom User ID *</label>
-                        <input type="text" id="customUid" placeholder="e.g. rahul.sharma">
-                    </div>
                     <div class="input-group" style="margin-bottom:0;">
-                        <label>Custom Password *</label>
+                        <label>Custom Password (min 6 chars) *</label>
                         <input type="text" id="customPass" placeholder="e.g. Pass@123">
                     </div>
                 </div>
@@ -964,17 +981,16 @@
                 <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:22px;">
                     <button class="btn btn-dark"
                         onclick="document.getElementById('authModal').style.display='none'">Cancel</button>
-                    <button id="btnSendAuthNow" class="btn btn-green">✉️ Send Credentials</button>
+                    <button id="btnSendAuthNow" class="btn btn-green">✉️ Create &amp; Send Access</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ==========================================
-     UI-ONLY WIRING (not business logic):
-     shows/hides the manual User-ID / Password
-     fields depending on which "Send Login Access"
-     option is selected.
+     UI-ONLY WIRING: shows/hides the manual
+     password field depending on the selected
+     "Send Login Access" option.
      ========================================== -->
     <script>
         function toggleManualAuthInputs() {
@@ -986,7 +1002,7 @@
     </script>
 
     <!-- ==========================================
-     APPLICATION LOGIC (unchanged)
+     APPLICATION LOGIC (Firebase)
      ========================================== -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -1001,6 +1017,7 @@
 
             const activeUser = JSON.parse(activeUserStr);
             const isSA = activeUser.Is_SuperAdmin === "Yes";
+            const schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode;
             let userRights = [];
 
             try {
@@ -1009,18 +1026,7 @@
                 console.error("Failed to parse user rights:", e);
             }
 
-            // REPLACE WITH YOUR ACTUAL GOOGLE SCRIPT URL
-            // DYNAMIC SCRIPT URL FROM MULTI-TENANT LOGIN
-            const scriptURL = localStorage.getItem('erp_school_url');
-            if (!scriptURL) { window.location.href = 'login.html'; }
-
-
-
-
-
-
-
-            // DYNAMIC NAVBAR UPDATE LOGIC (Immediate Execution Fix)
+            // DYNAMIC NAVBAR UPDATE LOGIC
             try {
                 let savedName = localStorage.getItem('erp_school_name');
                 let savedLogo = localStorage.getItem('erp_school_logo');
@@ -1029,12 +1035,8 @@
                 let navLogoImg = document.getElementById('dynamicNavLogo');
                 let navLogoDefault = document.getElementById('defaultNavLogo');
 
-                // School Name Update
-                if (savedName && navNameEl) {
-                    navNameEl.innerText = savedName;
-                }
+                if (savedName && navNameEl) navNameEl.innerText = savedName;
 
-                // School Logo Update
                 if (savedLogo && savedLogo.startsWith('http') && navLogoImg) {
                     navLogoImg.src = savedLogo;
                     navLogoImg.style.display = 'inline-block';
@@ -1044,10 +1046,7 @@
                 console.error("Navbar logic failed:", error);
             }
 
-
-
-
-
+            // This module is restricted to Super Admins / users with a SUPER_ right.
             if (!isSA && !userRights.some(r => r.startsWith("SUPER"))) {
                 window.location.href = 'index.html';
                 return;
@@ -1057,8 +1056,10 @@
             if (btnLogout) {
                 btnLogout.addEventListener('click', () => {
                     if (confirm("Are you sure you want to logout?")) {
-                        localStorage.removeItem('erp_active_user');
-                        window.location.href = 'login.html';
+                        auth.signOut().then(() => {
+                            localStorage.removeItem('erp_active_user');
+                            window.location.href = 'login.html';
+                        });
                     }
                 });
             }
@@ -1084,27 +1085,46 @@
             });
 
             // ==========================================
-            // 3. DATA FETCH & INITIALIZATION
+            // 3. DATA FETCH & INITIALIZATION (Firestore)
             // ==========================================
-            function initData() {
-                document.getElementById('userTableBody').innerHTML = '<tr><td colspan="7" style="text-align: center;">Fetching Database... ⏳</td></tr>';
+            async function initData() {
+                document.getElementById('userTableBody').innerHTML = '<tr><td colspan="8" style="text-align: center;">Fetching Database... ⏳</td></tr>';
                 document.getElementById('studentUserTableBody').innerHTML = '<tr><td colspan="7" style="text-align: center;">Fetching Database... ⏳</td></tr>';
 
-                fetch(scriptURL, { redirect: "follow" })
-                    .then(res => res.json())
-                    .then(res => {
-                        if (res.status === "Success") {
-                            allEmployees = res.employees || [];
-                            allStudents = res.data || [];
-                            renderEmployeeTable(allEmployees);
-                            renderStudentTable(allStudents);
-                        } else {
-                            console.error("Database sync failed.", res.message);
-                            alert("Failed to sync database: " + res.message);
+                try {
+                    // Employees
+                    let empSnap = await db.collection("employees").where("schoolCode", "==", schoolCode).get();
+                    allEmployees = [];
+                    empSnap.forEach(doc => { let d = doc.data(); d.docId = doc.id; allEmployees.push(d); });
+
+                    // Students
+                    let stuSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get();
+                    allStudents = [];
+                    stuSnap.forEach(doc => { let d = doc.data(); d.docId = doc.id; allStudents.push(d); });
+
+                    // Auth/rights records ("users" collection, keyed by Firebase Auth UID)
+                    let userSnap = await db.collection("users").where("schoolCode", "==", schoolCode).get();
+                    let authUsers = [];
+                    userSnap.forEach(doc => { let d = doc.data(); d.uid = doc.id; authUsers.push(d); });
+
+                    // Merge auth/rights info onto each employee record
+                    allEmployees.forEach(emp => {
+                        let match = authUsers.find(u => String(u.empId).trim() === String(emp.empId).trim());
+                        if (match) {
+                            emp.registeredEmail = match.email;
+                            emp.Rights_JSON = match.Rights_JSON;
+                            emp.Is_SuperAdmin = match.Is_SuperAdmin;
+                            emp.authUid = match.uid;
                         }
-                    }).catch(err => {
-                        console.error("Network issue during sync.", err);
                     });
+
+                    renderEmployeeTable(allEmployees);
+                    renderStudentTable(allStudents);
+
+                } catch (e) {
+                    console.error("Firebase sync error:", e);
+                    document.getElementById('userTableBody').innerHTML = `<tr><td colspan="8" style="text-align:center; color:#c0392b;">Error: ${e.message}</td></tr>`;
+                }
             }
 
             if (document.getElementById('btnSyncUsers')) {
@@ -1119,14 +1139,14 @@
                 tbody.innerHTML = '';
 
                 if (list.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No employees found.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No employees found.</td></tr>';
                     return;
                 }
 
                 list.forEach((emp, idx) => {
                     let badge = emp.Is_SuperAdmin === "Yes" ? `<span class="badge-admin">Yes</span>` : `<span class="badge-user">No</span>`;
+                    let loginBadge = emp.authUid ? `<span class="badge-set">Login Set</span>` : `<span class="badge-unset">Not Set</span>`;
 
-                    // Explicitly converting empId to String to ensure HTML template literals do not break on numbers
                     let safeEmpId = String(emp.empId).trim();
 
                     tbody.innerHTML += `<tr>
@@ -1136,6 +1156,7 @@
                 <td>${emp.empDept || '-'}</td>
                 <td>${emp.empDesig || '-'}</td>
                 <td>${badge}</td>
+                <td>${loginBadge}</td>
                 <td>
                     <button class="btn-action-rights" onclick='openDetailedRightsModal("${safeEmpId}")'>✏️ Assign Rights</button>
                     <button class="btn-action-auth" onclick='openDetailedAuthModal("${safeEmpId}")'>🔑 Send Auth</button>
@@ -1144,7 +1165,6 @@
                 });
             }
 
-            // FIXED: Search filter crashing on numbers bug resolved via explicit String conversion
             if (document.getElementById('searchEmpUser')) {
                 document.getElementById('searchEmpUser').addEventListener('input', function () {
                     let filterText = this.value.toLowerCase();
@@ -1158,35 +1178,35 @@
             }
 
             // =======================================================
-            // 5. COMPLEX ASSIGN RIGHTS LOGIC (CAPSULES & ARRAYS)
+            // 5. ASSIGN RIGHTS (Firestore "users" collection)
             // =======================================================
-            let currentRightsEmpId = null;
+            let currentRightsEmp = null;
 
             window.openDetailedRightsModal = function (empId) {
-                // FIXED: Universal Type Caster to support both old numeric IDs and new string IDs
                 let targetIdStr = String(empId).trim();
-
                 let emp = allEmployees.find(e => String(e.empId).trim() === targetIdStr);
 
                 if (!emp) {
-                    console.error("Modal Error: Employee not found in dataset for ID:", targetIdStr);
                     alert("Error: Employee data could not be found.");
                     return;
                 }
 
-                currentRightsEmpId = emp.empId; // Preserve original type for backend
+                if (!emp.authUid) {
+                    alert("This employee does not have a login account yet. Please click 'Send Auth' first to create one — rights can only be assigned once a login exists.");
+                    return;
+                }
+
+                currentRightsEmp = emp;
 
                 document.getElementById('rightsEmpId').innerText = String(emp.empId);
                 document.getElementById('rightsEmpName').innerText = emp.empName || "Unknown";
 
-                // Reset all toggles safely
                 document.getElementById('toggleSuperAdmin').checked = false;
                 document.querySelectorAll('.right-chk').forEach(chk => {
                     chk.checked = false;
                     chk.disabled = false;
                 });
 
-                // Set Super Admin Status Override
                 if (emp.Is_SuperAdmin === "Yes") {
                     document.getElementById('toggleSuperAdmin').checked = true;
                     document.querySelectorAll('.right-chk').forEach(chk => {
@@ -1195,14 +1215,11 @@
                     });
                 }
 
-                // Set Granular Array Rights
                 try {
                     let currentRights = JSON.parse(emp.Rights_JSON || "[]");
                     if (Array.isArray(currentRights)) {
                         document.querySelectorAll('.right-chk').forEach(chk => {
-                            if (currentRights.includes(chk.value)) {
-                                chk.checked = true;
-                            }
+                            if (currentRights.includes(chk.value)) chk.checked = true;
                         });
                     }
                 } catch (e) {
@@ -1212,181 +1229,143 @@
                 document.getElementById('assignRightsModal').style.display = 'flex';
             };
 
-            // Super Admin Toggle override behavior
             let toggleSuperAdminEl = document.getElementById('toggleSuperAdmin');
             if (toggleSuperAdminEl) {
                 toggleSuperAdminEl.addEventListener('change', function () {
                     let isSuper = this.checked;
                     document.querySelectorAll('.right-chk').forEach(chk => {
-                        if (isSuper) {
-                            chk.checked = true;
-                            chk.disabled = true;
-                        } else {
-                            chk.checked = false;
-                            chk.disabled = false;
-                        }
+                        if (isSuper) { chk.checked = true; chk.disabled = true; }
+                        else { chk.checked = false; chk.disabled = false; }
                     });
                 });
             }
 
             let btnSaveRightsEl = document.getElementById('btnSaveRights');
             if (btnSaveRightsEl) {
-                btnSaveRightsEl.addEventListener('click', function () {
-                    if (!currentRightsEmpId) {
-                        alert("Missing Employee ID context.");
+                btnSaveRightsEl.addEventListener('click', async function () {
+                    if (!currentRightsEmp || !currentRightsEmp.authUid) {
+                        alert("Missing employee login context.");
                         return;
                     }
 
-                    let isSuper = document.getElementById('toggleSuperAdmin').checked;
+                    let isSuper = document.getElementById('toggleSuperAdmin').checked ? "Yes" : "No";
                     let selectedRights = [];
-
-                    if (!isSuper) {
-                        document.querySelectorAll('.right-chk:checked').forEach(chk => {
-                            selectedRights.push(chk.value);
-                        });
+                    if (isSuper === "No") {
+                        document.querySelectorAll('.right-chk:checked').forEach(chk => selectedRights.push(chk.value));
                     }
 
                     this.innerText = "Saving...";
                     this.disabled = true;
 
-                    fetch(scriptURL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: "saveUserRights",
-                            empId: currentRightsEmpId,
-                            isSuperAdmin: isSuper,
-                            rights: selectedRights
-                        }),
-                        redirect: "follow",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" }
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.status === "Success") {
-                                alert(data.message);
-                                document.getElementById('assignRightsModal').style.display = 'none';
-                                initData(); // Refresh table to show updated status
-                            } else {
-                                alert("Error: " + data.message);
-                            }
-                        })
-                        .catch(err => {
-                            console.error("Error saving rights:", err);
-                            alert("Network error occurred while saving rights.");
-                        })
-                        .finally(() => {
-                            this.innerText = "💾 Save Rights";
-                            this.disabled = false;
-                        });
+                    try {
+                        await db.collection("users").doc(currentRightsEmp.authUid).set({
+                            Is_SuperAdmin: isSuper,
+                            Rights_JSON: JSON.stringify(selectedRights)
+                        }, { merge: true });
+
+                        alert("Rights updated successfully.");
+                        document.getElementById('assignRightsModal').style.display = 'none';
+                        initData();
+                    } catch (e) {
+                        alert("Error updating rights: " + e.message);
+                    } finally {
+                        this.innerText = "💾 Save Rights";
+                        this.disabled = false;
+                    }
                 });
             }
 
             // =======================================================
-            // 6. COMPLEX SEND AUTH LOGIC (2 OPTIONS)
+            // 6. SEND AUTH / CREATE LOGIN (Firebase Auth, secondary app)
             // =======================================================
-            window.openDetailedAuthModal = function (empId) {
-                // FIXED: Universal Type Caster applied here as well
-                let targetIdStr = String(empId).trim();
+            function generateSecurePassword() {
+                const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#";
+                let pass = "";
+                for (let i = 0; i < 10; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+                return pass;
+            }
 
+            window.openDetailedAuthModal = function (empId) {
+                let targetIdStr = String(empId).trim();
                 let emp = allEmployees.find(e => String(e.empId).trim() === targetIdStr);
 
                 if (!emp) {
-                    console.error("Auth Modal Error: Employee not found for ID:", targetIdStr);
                     alert("Error: Employee data could not be found.");
                     return;
                 }
 
-                if (!emp.empEmail || String(emp.empEmail).trim() === "") {
-                    alert("Error: This employee does not have a registered Email ID in the system.");
-                    return;
-                }
-
                 document.getElementById('authEmpName').innerText = emp.empName;
-                document.getElementById('authTargetId').value = emp.empId; // Original format
-                document.getElementById('authTargetEmail').value = emp.empEmail;
+                document.getElementById('authTargetId').value = emp.empId;
+                document.getElementById('authTargetEmail').value = emp.registeredEmail || emp.empEmail || "";
 
-                // Reset modal fields strictly
                 let autoOpt = document.querySelector('input[name="authOpt"][value="auto"]');
                 if (autoOpt) autoOpt.checked = true;
-
-                document.getElementById('customUid').value = "";
                 document.getElementById('customPass').value = "";
 
-                // Explicitly call toggle to hide manual inputs
-                if (typeof toggleManualAuthInputs === 'function') {
-                    toggleManualAuthInputs();
-                }
+                if (typeof toggleManualAuthInputs === 'function') toggleManualAuthInputs();
 
                 document.getElementById('authModal').style.display = 'flex';
             };
 
             let btnSendAuthNowEl = document.getElementById('btnSendAuthNow');
             if (btnSendAuthNowEl) {
-                btnSendAuthNowEl.addEventListener('click', function () {
+                btnSendAuthNowEl.addEventListener('click', async function () {
                     const rawEmpId = document.getElementById('authTargetId').value;
-
-                    // Re-verify existence using string matching
                     const emp = allEmployees.find(e => String(e.empId).trim() === String(rawEmpId).trim());
                     if (!emp) return;
 
-                    let checkedOpt = document.querySelector('input[name="authOpt"]:checked');
-                    if (!checkedOpt) return;
-
-                    const authOptValue = checkedOpt.value;
-                    let selectedOptionId = (authOptValue === "auto") ? 2 : 1;
-
-                    let customUid = "";
-                    let customPass = "";
-
-                    if (authOptValue === "manual") {
-                        customUid = document.getElementById('customUid').value.trim();
-                        customPass = document.getElementById('customPass').value.trim();
-                        if (!customUid || !customPass) {
-                            alert("Validation Error: Please fill both Custom User ID and Custom Password.");
-                            return;
-                        }
+                    const email = document.getElementById('authTargetEmail').value.trim();
+                    if (!email || !email.includes('@')) {
+                        alert("Please enter a valid email address.");
+                        return;
                     }
 
-                    this.innerText = "Sending...";
+                    let checkedOpt = document.querySelector('input[name="authOpt"]:checked');
+                    const authOptValue = checkedOpt ? checkedOpt.value : 'auto';
+
+                    let password;
+                    if (authOptValue === 'manual') {
+                        password = document.getElementById('customPass').value.trim();
+                        if (!password || password.length < 6) {
+                            alert("Custom password must be at least 6 characters.");
+                            return;
+                        }
+                    } else {
+                        password = generateSecurePassword();
+                    }
+
+                    this.innerText = "Processing...";
                     this.disabled = true;
 
-                    const loginUrl = window.location.origin + window.location.pathname.replace('user.html', 'login.html');
+                    try {
+                        const userCred = await secondaryApp.auth().createUserWithEmailAndPassword(email, password);
+                        const newUid = userCred.user.uid;
 
-                    const payload = {
-                        action: "sendUserCredentials",
-                        empId: emp.empId,
-                        empName: emp.empName,
-                        empEmail: emp.empEmail,
-                        option: selectedOptionId,
-                        customUid: customUid,
-                        customPass: customPass,
-                        loginUrl: loginUrl
-                    };
+                        await db.collection("users").doc(newUid).set({
+                            schoolCode: schoolCode,
+                            empId: emp.empId,
+                            empName: emp.empName,
+                            email: email,
+                            Is_SuperAdmin: emp.Is_SuperAdmin || "No",
+                            Rights_JSON: emp.Rights_JSON || "[]"
+                        }, { merge: true });
 
-                    fetch(scriptURL, {
-                        method: 'POST',
-                        body: JSON.stringify(payload),
-                        redirect: "follow",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" }
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.status === "Success") {
-                                alert(data.message);
-                                document.getElementById('authModal').style.display = 'none';
-                                initData();
-                            } else {
-                                alert("Server Error: " + data.message);
-                            }
-                        })
-                        .catch(err => {
-                            console.error("Auth send error:", err);
-                            alert("Network Error: Could not send credentials.");
-                        })
-                        .finally(() => {
-                            this.innerText = "✉️ Send Credentials";
-                            this.disabled = false;
-                        });
+                        await secondaryApp.auth().signOut();
+
+                        if (authOptValue === 'auto') {
+                            alert(`Login created successfully!\n\nEmail: ${email}\nPassword: ${password}\n\nPlease share these credentials securely with ${emp.empName} — this password is shown only once.`);
+                        } else {
+                            alert("Login created successfully with the custom password you set.");
+                        }
+
+                        document.getElementById('authModal').style.display = 'none';
+                        initData();
+                    } catch (e) {
+                        alert("Error: " + e.message);
+                    } finally {
+                        this.innerText = "✉️ Create & Send Access";
+                        this.disabled = false;
+                    }
                 });
             }
 
@@ -1403,18 +1382,15 @@
                 }
 
                 list.forEach((st, idx) => {
-                    let uid = st.Login_ID || `<span style="color:#e74c3c;">Pending Sync</span>`;
-                    let pin = st.Password || `---`;
+                    let uid = st.portalId || `<span style="color:#e74c3c;">Not Set</span>`;
+                    let pin = st.pin || st.password || `---`;
                     let maskPin = pin !== `---` ? `********` : `---`;
 
                     let sClass = "-";
                     if (st.studentClass) {
                         let match = String(st.studentClass).match(/(.*?)\s*\((.*?)\)/);
-                        if (match) {
-                            sClass = match[1].trim() + " (" + match[2].trim() + ")";
-                        } else {
-                            sClass = st.studentClass;
-                        }
+                        if (match) { sClass = match[1].trim() + " (" + match[2].trim() + ")"; }
+                        else { sClass = st.studentClass; }
                     }
 
                     let safeRegNo = String(st.regNo).trim();
@@ -1427,19 +1403,18 @@
                 <td><b style="color:#2980b9;">${uid}</b></td>
                 <td><span style="letter-spacing:1px; background:#f1f1f1; padding:3px 6px; border:1px solid #ddd;">${maskPin}</span></td>
                 <td>
-                    <button style="background:#f39c12; color:white; border:none; padding:6px 12px; border-radius:3px; cursor:pointer; font-weight:bold;" onclick='resendStudentAuth("${safeRegNo}")'>🔑 Resend Credentials</button>
+                    <button class="btn-action-auth" onclick='resendStudentAuth("${safeRegNo}")'>🔑 Edit Login</button>
                 </td>
             </tr>`;
                 });
             }
 
-            // FIXED: Search filter crashing on numbers bug resolved via explicit String conversion
             if (document.getElementById('searchStudentUser')) {
                 document.getElementById('searchStudentUser').addEventListener('input', function () {
                     let filterText = this.value.toLowerCase();
                     let filteredList = allStudents.filter(s => {
                         let nameMatch = String(s.studentFirstName || s.studentName || "").toLowerCase().includes(filterText);
-                        let loginMatch = String(s.Login_ID || "").toLowerCase().includes(filterText);
+                        let loginMatch = String(s.portalId || "").toLowerCase().includes(filterText);
                         let regMatch = String(s.regNo || "").toLowerCase().includes(filterText);
                         return nameMatch || loginMatch || regMatch;
                     });
@@ -1447,10 +1422,33 @@
                 });
             }
 
-            // Student Credentials Resend Logic (Uses same API concept as SIS admission)
-            window.resendStudentAuth = function (regNo) {
+            // Quick edit of a student's Portal ID / PIN, saved straight to Firestore.
+            window.resendStudentAuth = async function (regNo) {
                 let safeRegNo = String(regNo).trim();
-                alert("Action triggered for Reg No: " + safeRegNo + ". Auto-emailing capabilities are handled strictly inside the SIS add/update flow to prevent accidental spam.");
+                let student = allStudents.find(s => String(s.regNo).trim() === safeRegNo);
+                if (!student) { alert("Student not found."); return; }
+
+                let newPortalId = prompt("Portal User ID for " + (student.studentFirstName || student.studentName) + ":", student.portalId || "");
+                if (newPortalId === null) return;
+                newPortalId = newPortalId.trim();
+                if (!newPortalId) { alert("Portal ID cannot be empty."); return; }
+
+                let newPin = prompt("Security PIN:", student.pin || student.password || "");
+                if (newPin === null) return;
+                newPin = newPin.trim();
+                if (!newPin) { alert("PIN cannot be empty."); return; }
+
+                try {
+                    await db.collection("students").doc(student.docId).set({
+                        portalId: newPortalId,
+                        pin: newPin,
+                        password: newPin
+                    }, { merge: true });
+                    alert("Student login credentials updated.");
+                    initData();
+                } catch (e) {
+                    alert("Error updating student login: " + e.message);
+                }
             };
 
             // Trigger initial data load
