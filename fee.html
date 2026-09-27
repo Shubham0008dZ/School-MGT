@@ -13,7 +13,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
     <script>
-        // YOUR REAL FIREBASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyAHS0Xk5o-PZK_bBGtsQqGlS9TLOcnXCsM",
             authDomain: "school-erp-3bd0a.firebaseapp.com",
@@ -29,10 +28,6 @@
         const auth = firebase.auth();
     </script>
 
-    <!-- ============================================================
-         ORIGINAL FEE CSS — embedded locally
-         Source preserved from the supplied fee.css.
-         ============================================================ -->
     <style id="fee-original-styles">
         * {
             box-sizing: border-box;
@@ -242,7 +237,6 @@
             background-color: #fafafa;
         }
 
-        /* Student Link in Table */
         .student-ledger-link {
             color: #2980b9;
             text-decoration: none;
@@ -468,7 +462,6 @@
             border-radius: 3px;
         }
 
-        /* MODAL STYLES */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -645,9 +638,6 @@
         }
     </style>
 
-    <!-- ============================================================
-         SHUBH ERP BASE THEME — same visual system as Student SIS
-         ============================================================ -->
     <style id="shubh-erp-base-theme">
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -735,7 +725,6 @@
             background: transparent;
         }
 
-        /* ---------------- Top Navbar ---------------- */
         .top-navbar {
             height: 58px;
             padding: 0 22px;
@@ -805,28 +794,6 @@
             margin: 0 auto;
         }
 
-        .global-search {
-            width: 100%;
-            max-width: 420px;
-            padding: 9px 14px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(255, 255, 255, .07);
-            color: #F7F3E7;
-            font-size: 13px;
-            outline: none;
-            transition: background .15s, border-color .15s;
-        }
-
-        .global-search::placeholder {
-            color: #A9A38E;
-        }
-
-        .global-search:focus {
-            background: rgba(255, 255, 255, .12);
-            border-color: var(--brass-soft);
-        }
-
         .top-right {
             display: flex;
             align-items: center;
@@ -841,7 +808,7 @@
             gap: 6px;
         }
 
-        #btnLogout {
+        .btn-logout-fee {
             background: transparent !important;
             color: #F0B8AE !important;
             border: 1px solid rgba(240, 184, 174, .35) !important;
@@ -850,21 +817,18 @@
             font-weight: 600 !important;
             font-size: 12px !important;
             cursor: pointer;
-            transition: .15s;
         }
 
-        #btnLogout:hover {
+        .btn-logout-fee:hover {
             background: rgba(178, 58, 46, .25) !important;
             border-color: #F0B8AE !important;
         }
 
-        /* ---------------- Layout Shell ---------------- */
         .erp-wrapper {
             display: flex;
             height: calc(100vh - 58px);
         }
 
-        /* ---------------- Sidebar ---------------- */
         .sidebar {
             width: var(--sidebar-w);
             background: var(--ink);
@@ -963,7 +927,6 @@
             background: rgba(192, 138, 46, .2);
         }
 
-        /* ---------------- Main Content ---------------- */
         .main-content {
             flex: 1;
             overflow-y: auto;
@@ -1010,7 +973,6 @@
             gap: 10px;
         }
 
-        /* ---------------- Buttons ---------------- */
         .btn {
             border: none;
             padding: 9px 16px;
@@ -1067,7 +1029,6 @@
             background: #963025;
         }
 
-        /* ---------------- Table Toolbar / Filters ---------------- */
         .table-toolbar {
             background: var(--white) !important;
             border: 1px solid var(--line) !important;
@@ -1079,7 +1040,6 @@
             position: relative;
         }
 
-        /* ---------------- Data Table ---------------- */
         .table-container {
             background: transparent;
         }
@@ -1142,48 +1102,7 @@
             color: var(--brass);
             border-color: var(--brass);
         }
-    </style>
 
-    <!-- ============================================================
-         FEE MANAGEMENT THEME OVERRIDES — UI only
-         ============================================================ -->
-    <style id="fee-theme-overrides">
-        html,
-        body {
-            height: 100%;
-            background: var(--paper);
-        }
-
-        body {
-            margin: 0;
-            color: var(--text);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-size: 14px;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .erp-wrapper {
-            display: flex;
-            height: calc(100vh - 58px);
-        }
-
-        .btn-logout-fee {
-            background: transparent !important;
-            color: #F0B8AE !important;
-            border: 1px solid rgba(240, 184, 174, .35) !important;
-            padding: 7px 14px !important;
-            border-radius: 8px !important;
-            font-weight: 600 !important;
-            font-size: 12px !important;
-            cursor: pointer;
-        }
-
-        .btn-logout-fee:hover {
-            background: rgba(178, 58, 46, .25) !important;
-            border-color: #F0B8AE !important;
-        }
-
-        /* Fee entry */
         .fee-form-wrapper {
             background: transparent;
         }
@@ -1398,36 +1317,46 @@
             text-align: right;
         }
 
-        /* Fee setup */
-        #module-fee-setup>div>div {
+        #module-fee-setup>div>div,
+        #module-fee-concessions>div>div {
             background: var(--white) !important;
             border: 1px solid var(--line) !important;
             border-radius: var(--radius-l) !important;
             box-shadow: var(--shadow-1);
         }
 
-        #module-fee-setup h3 {
+        #module-fee-setup h3,
+        #module-fee-concessions h3 {
             font-family: 'Fraunces', Georgia, serif;
             color: var(--ink) !important;
             border-bottom: 1px solid var(--line);
         }
 
-        #module-fee-setup label {
+        #module-fee-setup label,
+        #module-fee-concessions label {
             color: var(--text-mute) !important;
             font-size: 11.5px !important;
         }
 
         #module-fee-setup input,
-        #module-fee-setup select {
+        #module-fee-setup select,
+        #module-fee-concessions input,
+        #module-fee-concessions select,
+        #module-fee-concessions textarea {
             border: 1px solid #D8D2C0 !important;
             border-radius: 7px !important;
             background: var(--paper-2) !important;
             color: var(--text);
             font-family: 'Inter', sans-serif;
+            padding: 8px !important;
+            box-sizing: border-box;
         }
 
         #module-fee-setup input:focus,
-        #module-fee-setup select:focus {
+        #module-fee-setup select:focus,
+        #module-fee-concessions input:focus,
+        #module-fee-concessions select:focus,
+        #module-fee-concessions textarea:focus {
             outline: none;
             border-color: var(--brass) !important;
             background: #fff !important;
@@ -1470,10 +1399,6 @@
             </a>
         </div>
 
-        <div class="top-center">
-            <input type="text" placeholder="Search students, receipt no…" class="global-search">
-        </div>
-
         <div class="top-right">
             <span>⚏&nbsp;Fee Module&nbsp;&nbsp;🔔</span>
             <button id="btnLogout" class="btn-logout-fee">🚪 Logout</button>
@@ -1491,6 +1416,8 @@
                             class="nav-text">Student Fee Receipts</span></a></li>
                 <li><a href="#" class="nav-btn" data-target="module-add-receipt" id="sideAddReceipt">➕ <span
                             class="nav-text">Add Receipt</span></a></li>
+                <li><a href="#" class="nav-btn" data-target="module-fee-concessions" id="sideConcessions">🎁 <span
+                            class="nav-text">Fee Concessions</span></a></li>
                 <li><a href="#" class="nav-btn" data-target="module-fee-setup">⚙️ <span class="nav-text">Fee
                             Setup</span></a></li>
             </ul>
@@ -1500,20 +1427,19 @@
             <!-- MODULE 1: RECEIPTS LIST -->
             <div id="module-receipts-list" class="app-module active-module">
                 <div class="profile-header">
-                    <h2>STUDENT FEE RECEIPTS ℹ️</h2>
+                    <h2>STUDENT FEE RECEIPTS</h2>
                 </div>
                 <div class="table-container">
-                    <div class="table-toolbar" style="background:#e8f4f8; border-left:4px solid #e74c3c;">
+                    <div class="table-toolbar">
                         <div class="filters"
                             style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                             <div>
                                 <strong>Academic Year : 2026-2027</strong>
-                                <input type="text" id="searchReceipt" placeholder="🔍 Search..." class="search-small"
-                                    style="margin-left:10px;">
+                                <input type="text" id="searchReceipt" placeholder="🔍 Search receipt/student..."
+                                    class="search-small" style="margin-left:10px; width:260px;">
                             </div>
                             <div style="display:flex; gap:5px;">
                                 <button class="btn btn-green" id="btn-open-add-receipt">⊕ Add Receipt</button>
-                                <button class="btn btn-green-outline">Export to Excel</button>
                                 <button class="btn btn-dark" id="btnSyncFees">🔄 Sync Data</button>
                             </div>
                         </div>
@@ -1673,36 +1599,130 @@
                 </div>
             </div>
 
+            <!-- MODULE: FEE CONCESSIONS -->
+            <div id="module-fee-concessions" class="app-module">
+                <div class="profile-header">
+                    <h2>FEE CONCESSIONS & WAIVERS</h2>
+                </div>
+                <div style="display:flex; gap:20px; align-items:flex-start;">
+                    <div style="width:38%; padding:20px;">
+                        <h3 style="margin-top:0; padding-bottom:10px;">Grant New Concession / Waiver</h3>
+                        <form id="feeConcessionForm" style="margin-top:15px;">
+                            <div style="margin-bottom:12px;">
+                                <label style="font-weight:bold; display:block; margin-bottom:5px;">Student *</label>
+                                <select id="conStudent" required style="width:100%;">
+                                    <option value="">-- Select Student --</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom:12px;">
+                                <label style="font-weight:bold; display:block; margin-bottom:5px;">Fee Head *</label>
+                                <select id="conFeeHead" required style="width:100%;">
+                                    <option value="__ALL__">All Fee Heads</option>
+                                </select>
+                            </div>
+                            <div style="display:flex; gap:10px; margin-bottom:12px;">
+                                <div style="flex:1;">
+                                    <label style="font-weight:bold; display:block; margin-bottom:5px;">Type *</label>
+                                    <select id="conType" required style="width:100%;">
+                                        <option value="Concession">Concession</option>
+                                        <option value="Waiver">Waiver</option>
+                                    </select>
+                                </div>
+                                <div style="flex:1;">
+                                    <label style="font-weight:bold; display:block; margin-bottom:5px;">Basis *</label>
+                                    <select id="conBasis" required style="width:100%;">
+                                        <option value="Amount">Fixed Amount (₹)</option>
+                                        <option value="Percent">Percent (%)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="margin-bottom:12px;">
+                                <label style="font-weight:bold; display:block; margin-bottom:5px;">Value *</label>
+                                <input type="number" id="conValue" min="0" step="0.01" required
+                                    placeholder="e.g., 500 or 20" style="width:100%;">
+                            </div>
+                            <div style="display:flex; gap:10px; margin-bottom:12px;">
+                                <div style="flex:1;">
+                                    <label style="font-weight:bold; display:block; margin-bottom:5px;">From Month
+                                        *</label>
+                                    <select id="conFrom" required style="width:100%;"></select>
+                                </div>
+                                <div style="flex:1;">
+                                    <label style="font-weight:bold; display:block; margin-bottom:5px;">To Month
+                                        *</label>
+                                    <select id="conTo" required style="width:100%;"></select>
+                                </div>
+                            </div>
+                            <div style="margin-bottom:15px;">
+                                <label style="font-weight:bold; display:block; margin-bottom:5px;">Reason / Note</label>
+                                <input type="text" id="conReason" placeholder="e.g., Sibling discount, Merit..."
+                                    style="width:100%;">
+                            </div>
+                            <button type="submit" class="btn btn-green" id="btnSaveConcession"
+                                style="width:100%; padding:11px;">Save Concession</button>
+                        </form>
+                    </div>
+
+                    <div style="width:62%; padding:20px;">
+                        <h3 style="margin-top:0; padding-bottom:10px;">Active Concessions & Waivers</h3>
+                        <table class="data-table" style="margin-top:15px;">
+                            <thead>
+                                <tr>
+                                    <th>Sr</th>
+                                    <th>Student</th>
+                                    <th>Fee Head</th>
+                                    <th>Type</th>
+                                    <th>Value</th>
+                                    <th>Period</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="concessionsListBody">
+                                <tr>
+                                    <td colspan="7" style="text-align:center;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- MODULE 3: FEE SETUP -->
             <div id="module-fee-setup" class="app-module">
                 <div class="profile-header">
-                    <h2>FEE SETUP (HEADS) ℹ️</h2>
+                    <h2>FEE SETUP (HEADS)</h2>
                 </div>
                 <div style="display:flex; gap:20px;">
-                    <div style="width:35%; background:white; padding:20px; border:1px solid #ccc; border-radius:5px;">
-                        <h3>Create New Fee Head</h3>
+                    <div style="width:35%; padding:20px;">
+                        <h3 style="margin-top:0; padding-bottom:10px;">Create New Fee Head</h3>
                         <form id="feeSetupForm" style="margin-top:15px;">
                             <div style="margin-bottom:15px;"><label style="font-weight:bold;">Fee Head Name
-                                    *</label><input type="text" id="headName" required style="width:100%; padding:8px;">
-                            </div>
+                                    *</label><input type="text" id="headName" required style="width:100%;"></div>
                             <div style="margin-bottom:15px;">
                                 <label style="font-weight:bold;">Frequency *</label>
-                                <select id="headFreq" required style="width:100%; padding:8px;">
+                                <select id="headFreq" required style="width:100%;">
                                     <option value="One Time">One Time</option>
                                     <option value="Monthly">Monthly</option>
                                     <option value="Quarterly">Quarterly</option>
                                     <option value="Annually">Annually</option>
                                 </select>
                             </div>
+                            <div id="quartersWrap" style="display:none; margin-bottom:15px;">
+                                <label style="font-weight:bold;">Quarters per Year *</label>
+                                <select id="headQuarters" style="width:100%;">
+                                    <option value="4">4 Quarters (Apr-Jun, Jul-Sep, Oct-Dec, Jan-Mar)</option>
+                                    <option value="3">3 Quarters (Apr-Jul, Aug-Nov, Dec-Mar)</option>
+                                </select>
+                            </div>
                             <div style="margin-bottom:15px;"><label style="font-weight:bold;">Default Amount
-                                    (₹)</label><input type="number" id="headAmount" value="0"
-                                    style="width:100%; padding:8px;"></div>
+                                    (₹)</label><input type="number" id="headAmount" value="0" style="width:100%;">
+                            </div>
                             <button type="submit" class="btn btn-green" style="width:100%;" id="btnSubmitFeeHead">Add
                                 Fee Head</button>
                         </form>
                     </div>
-                    <div style="width:65%; background:white; padding:20px; border:1px solid #ccc; border-radius:5px;">
-                        <h3>Configured Fee Heads</h3>
+                    <div style="width:65%; padding:20px;">
+                        <h3 style="margin-top:0; padding-bottom:10px;">Configured Fee Heads</h3>
                         <table class="data-table" style="margin-top:15px;">
                             <thead>
                                 <tr>
@@ -1727,26 +1747,18 @@
 
     <!-- LEDGER MODAL -->
     <div id="ledgerModal" class="modal-overlay">
-        <div class="modal-card" style="width:900px; max-height:95vh;">
-
+        <div class="modal-card" style="width:960px; max-height:95vh;">
             <div class="modal-header"
                 style="display:flex; align-items:center; justify-content:space-between; padding:15px 20px; background:#2c3e50; border-radius:8px 8px 0 0;">
                 <div style="display:flex; align-items:center; gap:20px;">
                     <h3 style="margin:0; color:white;">Student Fee Ledger (2026-27)</h3>
-
-                    <div class="dropdown" style="position:relative;">
-                        <button id="btnExportLedgerToggle"
-                            style="background:#f39c12; color:white; border:none; padding:6px 15px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:13px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">Export
-                            ▼</button>
-                        <div id="ledgerExportMenu"
-                            style="display:none; position:absolute; top:110%; left:0; background:white; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 8px rgba(0,0,0,0.3); z-index:9999; flex-direction:column; min-width:160px; overflow:hidden;">
-                            <button id="exportLedgerPdfBtn"
-                                style="background:white; color:#333; border:none; padding:12px; text-align:left; cursor:pointer; width:100%; border-bottom:1px solid #eee; font-weight:bold;">📄
-                                Export to PDF</button>
-                            <button id="exportLedgerExcelBtn"
-                                style="background:white; color:#333; border:none; padding:12px; text-align:left; cursor:pointer; width:100%; font-weight:bold;">📊
-                                Export to EXCEL</button>
-                        </div>
+                    <div style="display:flex; gap:8px;">
+                        <button id="exportLedgerPdfBtn"
+                            style="background:#f39c12; color:white; border:none; padding:6px 14px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12.5px;">📄
+                            PDF</button>
+                        <button id="exportLedgerExcelBtn"
+                            style="background:#27ae60; color:white; border:none; padding:6px 14px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12.5px;">📊
+                            Excel</button>
                     </div>
                 </div>
                 <span class="close-modal" id="closeLedgerBtn"
@@ -1776,6 +1788,12 @@
                             <div id="l-tot-due" style="font-size:24px; font-weight:bold; color:#e67e22;">₹0.00</div>
                         </div>
                         <div
+                            style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border:1px solid #ddd; border-bottom:4px solid #3498db;">
+                            <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Total
+                                Concession + Waiver</div>
+                            <div id="l-tot-adj" style="font-size:24px; font-weight:bold; color:#3498db;">₹0.00</div>
+                        </div>
+                        <div
                             style="flex:1; background:#fff; padding:15px; border-radius:5px; text-align:center; border:1px solid #ddd; border-bottom:4px solid #27ae60;">
                             <div style="color:#555; font-size:12px; font-weight:bold; text-transform:uppercase;">Total
                                 Amount Paid</div>
@@ -1794,9 +1812,12 @@
                         <thead style="background:#2c3e50; color:white;">
                             <tr>
                                 <th style="padding:10px; border:1px solid #ccc; text-align:left;">Month / Fee Head</th>
-                                <th style="padding:10px; border:1px solid #ccc; text-align:left;">Applicable Amount</th>
-                                <th style="padding:10px; border:1px solid #ccc; text-align:left;">Total Paid</th>
-                                <th style="padding:10px; border:1px solid #ccc; text-align:left;">Balance Pending</th>
+                                <th style="padding:10px; border:1px solid #ccc; text-align:right;">Applicable</th>
+                                <th style="padding:10px; border:1px solid #ccc; text-align:right;">Concession</th>
+                                <th style="padding:10px; border:1px solid #ccc; text-align:right;">Waiver</th>
+                                <th style="padding:10px; border:1px solid #ccc; text-align:right;">Net Payable</th>
+                                <th style="padding:10px; border:1px solid #ccc; text-align:right;">Total Paid</th>
+                                <th style="padding:10px; border:1px solid #ccc; text-align:right;">Balance Pending</th>
                             </tr>
                         </thead>
                         <tbody id="ledgerTableBody"></tbody>
@@ -1958,7 +1979,6 @@
         </div>
     </div>
 
-    <!-- SIDEBAR CONTROL -->
     <script id="fee-sidebar-ui">
         document.addEventListener('DOMContentLoaded', function () {
             const sidebarToggle = document.getElementById('sidebarToggle');
@@ -1971,7 +1991,6 @@
         });
     </script>
 
-    <!-- MAIN FEE LOGIC WITH FIXED RBAC NAMES -->
     <script id="fee-inline-logic">
         window.customAlert = function (message) {
             let overlay = document.createElement('div');
@@ -1989,12 +2008,20 @@
             document.getElementById('cc-ok').addEventListener('click', () => { overlay.remove(); onConfirm(); });
         };
 
-        let allStudents = []; let setupClasses = []; let feeHeads = []; let feeReceipts = [];
+        let allStudents = [];
+        let setupClasses = [];
+        let feeHeads = [];
+        let feeReceipts = [];
+        let feeConcessions = [];
+        let activeUser = null;
+        let isSA = false;
+        let userRights = [];
+
         const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
         let schoolCode = "";
 
         // =============================================================
-        // FEE APPLICABLE DATE HELPERS (aligned with SIS module)
+        // FEE APPLICABLE DATE HELPERS
         // =============================================================
         const MONTH_NAME_TO_INDEX = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
 
@@ -2024,25 +2051,87 @@
         }
 
         function shouldShowMonth(academicMonthStr, feeApplicableDateStr, fee50Rule) {
-            // No applicable date → show all (backward compatible)
             if (!feeApplicableDateStr) return true;
-
             const acc = parseAcademicMonthToken(academicMonthStr);
             const app = parseISODate(feeApplicableDateStr);
             if (!acc || !app) return true;
-
             const accKey = acc.year * 12 + acc.month;
             const appKey = app.year * 12 + app.month;
-
-            // Before applicable month → hide
             if (accKey < appKey) return false;
-
-            // Same month as applicable → apply 50% rule
             if (accKey === appKey && fee50Rule === true) {
-                // If joining day is after 15 → skip that whole month
                 if (app.day > 15) return false;
             }
             return true;
+        }
+
+        // =============================================================
+        // QUARTER HELPERS
+        // =============================================================
+        function getQuarterStructure(quartersPerYear) {
+            if (quartersPerYear === 3) {
+                return [
+                    { num: 1, months: ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26"], label: "Q1 (Apr-Jul)" },
+                    { num: 2, months: ["Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26"], label: "Q2 (Aug-Nov)" },
+                    { num: 3, months: ["Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"], label: "Q3 (Dec-Mar)" }
+                ];
+            }
+            return [
+                { num: 1, months: ["Apr, 26", "May, 26", "Jun, 26"], label: "Q1 (Apr-Jun)" },
+                { num: 2, months: ["Jul, 26", "Aug, 26", "Sep, 26"], label: "Q2 (Jul-Sep)" },
+                { num: 3, months: ["Oct, 26", "Nov, 26", "Dec, 26"], label: "Q3 (Oct-Dec)" },
+                { num: 4, months: ["Jan, 27", "Feb, 27", "Mar, 27"], label: "Q4 (Jan-Mar)" }
+            ];
+        }
+
+        // Determine whether a concession applies to a given row (head + period)
+        function doesConcessionApply(rowPeriod, rowFrequency, quartersPerYear, fromMonth, toMonth) {
+            const fromIdx = academicMonths.indexOf(fromMonth);
+            const toIdx = academicMonths.indexOf(toMonth);
+            if (fromIdx === -1 || toIdx === -1) return false;
+
+            if (rowFrequency === 'Monthly') {
+                const pIdx = academicMonths.indexOf(rowPeriod);
+                if (pIdx === -1) return false;
+                return pIdx >= fromIdx && pIdx <= toIdx;
+            }
+            if (rowFrequency === 'Quarterly') {
+                const qList = getQuarterStructure(quartersPerYear || 4);
+                const q = qList.find(x => x.label === rowPeriod);
+                if (!q) return false;
+                const firstIdx = academicMonths.indexOf(q.months[0]);
+                const lastIdx = academicMonths.indexOf(q.months[q.months.length - 1]);
+                // Applies if quarter overlaps with range
+                return !(lastIdx < fromIdx || firstIdx > toIdx);
+            }
+            // Annual / One Time — applies if the range overlaps with the year start
+            return true;
+        }
+
+        // Compute total concession/waiver amount for a given row (from saved concession records)
+        function calcAdjustmentFromRecords(studentRegNo, feeHeadName, rowPeriod, rowFrequency, quartersPerYear, actualAmount) {
+            let concession = 0;
+            let waiver = 0;
+            feeConcessions.forEach(c => {
+                if (String(c.Student_RegNo) !== String(studentRegNo)) return;
+                const headMatch = (c.FeeHead_Name === "__ALL__" || c.FeeHead_Name === feeHeadName);
+                if (!headMatch) return;
+                if (!doesConcessionApply(rowPeriod, rowFrequency, quartersPerYear, c.From_Month, c.To_Month)) return;
+
+                const val = parseFloat(c.Value) || 0;
+                let amt = 0;
+                if (c.Basis === 'Amount') amt = val;
+                else if (c.Basis === 'Percent') amt = (val / 100) * actualAmount;
+
+                if (c.Type === 'Concession') concession += amt;
+                else if (c.Type === 'Waiver') waiver += amt;
+            });
+            // Cap at actual
+            if (concession + waiver > actualAmount) {
+                const ratio = actualAmount / (concession + waiver);
+                concession *= ratio;
+                waiver *= ratio;
+            }
+            return { concession: concession, waiver: waiver };
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -2074,10 +2163,9 @@
 
             const activeUserStr = localStorage.getItem('erp_active_user');
             if (!activeUserStr) { window.location.href = 'login.html'; return; }
-            const activeUser = JSON.parse(activeUserStr);
-            const isSA = activeUser.Is_SuperAdmin === "Yes";
+            activeUser = JSON.parse(activeUserStr);
+            isSA = activeUser.Is_SuperAdmin === "Yes";
             schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode;
-            let userRights = [];
             try { userRights = JSON.parse(activeUser.Rights_JSON || "[]"); } catch (e) { }
 
             try {
@@ -2121,7 +2209,13 @@
                     if (addMod) addMod.remove();
                 }
 
+                // Concessions — use FEE_Heads right
                 if (!userRights.includes("FEE_Heads")) {
+                    let menuCon = document.getElementById('sideConcessions');
+                    if (menuCon) menuCon.parentElement.remove();
+                    let conMod = document.getElementById('module-fee-concessions');
+                    if (conMod) conMod.remove();
+
                     let menuHeads = document.querySelector('.nav-btn[data-target="module-fee-setup"]');
                     if (menuHeads) menuHeads.parentElement.remove();
                     let setupMod = document.getElementById('module-fee-setup');
@@ -2155,6 +2249,9 @@
                 document.title = originalTitle;
             }
 
+            // ==========================================
+            // INIT DATA
+            // ==========================================
             window.initData = async function () {
                 const tbody = document.getElementById('receiptsTableBody');
                 if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">Fetching Database... ⏳</td></tr>';
@@ -2175,9 +2272,15 @@
                     feeReceipts = [];
                     if (feeSnap.forEach) { feeSnap.forEach(doc => { let d = doc.data(); d.id = doc.id; feeReceipts.push(d); }); }
 
+                    let conSnap = await db.collection("fee_concessions").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] }));
+                    feeConcessions = [];
+                    if (conSnap.forEach) { conSnap.forEach(doc => { let d = doc.data(); d.id = doc.id; feeConcessions.push(d); }); }
+
                     populateStudentsDropdown();
+                    populateConcessionFormDropdowns();
                     renderFeeHeadsSetupList();
                     renderReceiptsTable();
+                    renderConcessionsList();
                     updateNextReceiptNo();
 
                 } catch (error) {
@@ -2198,17 +2301,48 @@
                 });
             }
 
+            function populateConcessionFormDropdowns() {
+                const sSel = document.getElementById('conStudent');
+                if (sSel) {
+                    sSel.innerHTML = '<option value="">-- Select Student --</option>';
+                    allStudents.forEach(s => {
+                        sSel.innerHTML += `<option value="${s.regNo}">${s.regNo} - ${s.studentFirstName || s.studentName} (${s.studentClass})</option>`;
+                    });
+                }
+                const fhSel = document.getElementById('conFeeHead');
+                if (fhSel) {
+                    fhSel.innerHTML = '<option value="__ALL__">All Fee Heads</option>';
+                    feeHeads.forEach(fh => {
+                        fhSel.innerHTML += `<option value="${fh.Head_Name}">${fh.Head_Name} (${fh.Frequency})</option>`;
+                    });
+                }
+                const fromSel = document.getElementById('conFrom');
+                const toSel = document.getElementById('conTo');
+                if (fromSel) {
+                    fromSel.innerHTML = '';
+                    academicMonths.forEach(m => fromSel.innerHTML += `<option value="${m}">${m}</option>`);
+                }
+                if (toSel) {
+                    toSel.innerHTML = '';
+                    academicMonths.forEach(m => toSel.innerHTML += `<option value="${m}">${m}</option>`);
+                    toSel.value = academicMonths[academicMonths.length - 1];
+                }
+            }
+
             document.getElementById('feeStudentSelect')?.addEventListener('change', triggerTableGeneration);
             document.getElementById('feeMonthSelect')?.addEventListener('change', triggerTableGeneration);
 
             function triggerTableGeneration() {
-                const regNo = document.getElementById('feeStudentSelect').value; const selectedMonth = document.getElementById('feeMonthSelect').value;
+                const regNo = document.getElementById('feeStudentSelect').value;
+                const selectedMonth = document.getElementById('feeMonthSelect').value;
                 if (!regNo) { clearProfilePanel(); return; }
                 const student = allStudents.find(s => String(s.regNo) === String(regNo));
                 if (student) {
                     document.getElementById('profName').innerText = student.studentFirstName || student.studentName || 'N/A';
-                    document.getElementById('profReg').innerText = student.regNo; document.getElementById('profClass').innerText = student.studentClass || '-';
-                    document.getElementById('profFather').innerText = student.fatherName || '-'; document.getElementById('profMother').innerText = student.motherName || '-';
+                    document.getElementById('profReg').innerText = student.regNo;
+                    document.getElementById('profClass').innerText = student.studentClass || '-';
+                    document.getElementById('profFather').innerText = student.fatherName || '-';
+                    document.getElementById('profMother').innerText = student.motherName || '-';
                     generateFeeTable(student, selectedMonth);
                 }
             }
@@ -2223,55 +2357,165 @@
                 resetTotals();
             }
 
+            // ==========================================
+            // GENERATE FEE TABLE (with Quarterly + Concession logic)
+            // ==========================================
             function generateFeeTable(student, selectedMonthVal) {
-                const tbody = document.getElementById('feeHeadsTbody'); tbody.innerHTML = '';
+                const tbody = document.getElementById('feeHeadsTbody');
+                tbody.innerHTML = '';
                 let classFeeAmount = 0;
-                if (student.studentClass) { let cSetup = setupClasses.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass); if (cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); } }
+                if (student.studentClass) {
+                    let cSetup = setupClasses.find(c => `${c.name} (${c.section})` === student.studentClass || c.name === student.studentClass);
+                    if (cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); }
+                }
 
-                // ⭐ Fee Applicable Date + 50% Rule
                 const feeAppDate = (student && typeof student.feeApplicableDate === 'string') ? student.feeApplicableDate : '';
                 const fee50 = !!(student && student.fee50Rule === true);
 
                 let paidMap = {};
                 feeReceipts.forEach(r => {
                     if (String(r.Reg_No).trim() === String(student.regNo).trim()) {
-                        try { let details = JSON.parse(r.Paid_Heads || "[]"); details.forEach(d => { let uid = d.head + "_" + d.period; paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0); }); } catch (e) { }
+                        try {
+                            let details = JSON.parse(r.Paid_Heads || "[]");
+                            details.forEach(d => {
+                                let uid = d.head + "_" + d.period;
+                                paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
+                            });
+                        } catch (e) { }
                     }
                 });
 
-                let allRows = []; let selectedMonthIdx = academicMonths.indexOf(selectedMonthVal); if (selectedMonthIdx === -1) selectedMonthIdx = 0;
+                let allRows = [];
+                let selectedMonthIdx = academicMonths.indexOf(selectedMonthVal);
+                if (selectedMonthIdx === -1) selectedMonthIdx = 0;
 
+                // --- Monthly Tuition Fee (from class setup) ---
                 for (let i = 0; i <= selectedMonthIdx; i++) {
-                    // ⭐ Skip months before Fee Applicable Date
                     if (!shouldShowMonth(academicMonths[i], feeAppDate, fee50)) continue;
-
-                    let uid = "Monthly Tuition Fee_" + academicMonths[i]; let alreadyPaid = paidMap[uid] || 0; let remaining = classFeeAmount - alreadyPaid;
-                    if (remaining > 0) { allRows.push({ head: "Monthly Tuition Fee", period: academicMonths[i], amount: remaining }); }
+                    let uid = "Monthly Tuition Fee_" + academicMonths[i];
+                    let alreadyPaid = paidMap[uid] || 0;
+                    let remaining = classFeeAmount - alreadyPaid;
+                    if (remaining > 0) {
+                        allRows.push({
+                            head: "Monthly Tuition Fee",
+                            period: academicMonths[i],
+                            amount: remaining,
+                            feeHeadName: "Monthly Tuition Fee",
+                            frequency: 'Monthly',
+                            quartersPerYear: 0
+                        });
+                    }
                 }
 
+                // --- Custom Fee Heads ---
                 feeHeads.forEach(fh => {
-                    let amount = parseFloat(fh.Amount) || 0;
+                    const amount = parseFloat(fh.Amount) || 0;
+
                     if (fh.Frequency === "Monthly") {
                         for (let i = 0; i <= selectedMonthIdx; i++) {
-                            // ⭐ Skip months before Fee Applicable Date
                             if (!shouldShowMonth(academicMonths[i], feeAppDate, fee50)) continue;
-
-                            let uid = fh.Head_Name + "_" + academicMonths[i]; let alreadyPaid = paidMap[uid] || 0; let remaining = amount - alreadyPaid;
-                            if (remaining > 0) { allRows.push({ head: fh.Head_Name, period: academicMonths[i], amount: remaining }); }
+                            let uid = fh.Head_Name + "_" + academicMonths[i];
+                            let alreadyPaid = paidMap[uid] || 0;
+                            let remaining = amount - alreadyPaid;
+                            if (remaining > 0) {
+                                allRows.push({
+                                    head: fh.Head_Name,
+                                    period: academicMonths[i],
+                                    amount: remaining,
+                                    feeHeadName: fh.Head_Name,
+                                    frequency: 'Monthly',
+                                    quartersPerYear: 0
+                                });
+                            }
                         }
-                    } else {
-                        let uid = fh.Head_Name + "_" + fh.Frequency; let alreadyPaid = paidMap[uid] || 0; let remaining = amount - alreadyPaid;
-                        if (remaining > 0) { allRows.push({ head: fh.Head_Name, period: fh.Frequency, amount: remaining }); }
+                    }
+                    else if (fh.Frequency === "Quarterly") {
+                        const qpy = parseInt(fh.QuartersPerYear) === 3 ? 3 : 4;
+                        const qList = getQuarterStructure(qpy);
+                        qList.forEach(q => {
+                            const firstIdx = academicMonths.indexOf(q.months[0]);
+                            if (firstIdx > selectedMonthIdx) return; // quarter not yet reached
+                            // Skip if entire quarter falls before Fee Applicable Date
+                            const lastIdx = academicMonths.indexOf(q.months[q.months.length - 1]);
+                            if (feeAppDate) {
+                                const app = parseISODate(feeAppDate);
+                                if (app) {
+                                    const qFirst = parseAcademicMonthToken(q.months[0]);
+                                    const qLast = parseAcademicMonthToken(q.months[q.months.length - 1]);
+                                    if (qFirst && qLast) {
+                                        const qFirstKey = qFirst.year * 12 + qFirst.month;
+                                        const qLastKey = qLast.year * 12 + qLast.month;
+                                        const appKey = app.year * 12 + app.month;
+                                        // Skip if quarter ends before applicable month
+                                        if (qLastKey < appKey) return;
+                                        // 50% rule: if quarter starts in same month as applicable and day>15, skip
+                                        if (fee50 && qFirstKey === appKey && app.day > 15) return;
+                                    }
+                                }
+                            }
+                            let uid = fh.Head_Name + "_" + q.label;
+                            let alreadyPaid = paidMap[uid] || 0;
+                            let remaining = amount - alreadyPaid;
+                            if (remaining > 0) {
+                                allRows.push({
+                                    head: fh.Head_Name,
+                                    period: q.label,
+                                    amount: remaining,
+                                    feeHeadName: fh.Head_Name,
+                                    frequency: 'Quarterly',
+                                    quartersPerYear: qpy
+                                });
+                            }
+                        });
+                    }
+                    else {
+                        // One Time / Annually
+                        let uid = fh.Head_Name + "_" + fh.Frequency;
+                        let alreadyPaid = paidMap[uid] || 0;
+                        let remaining = amount - alreadyPaid;
+                        if (remaining > 0) {
+                            allRows.push({
+                                head: fh.Head_Name,
+                                period: fh.Frequency,
+                                amount: remaining,
+                                feeHeadName: fh.Head_Name,
+                                frequency: fh.Frequency,
+                                quartersPerYear: 0
+                            });
+                        }
                     }
                 });
 
-                if (allRows.length === 0) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:green; font-weight:bold;">All Fees Cleared / Paid up to selected month!</td></tr>'; resetTotals(); return; }
+                if (allRows.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:green; font-weight:bold;">All Fees Cleared / Paid up to selected month!</td></tr>';
+                    resetTotals();
+                    return;
+                }
 
-                allRows.forEach((r, idx) => {
-                    tbody.innerHTML += `<tr class="f-row" data-head="${r.head}" data-period="${r.period}"><td><input type="checkbox" class="f-chk" checked title="Check to delete/exclude row"></td><td class="f-head" style="text-align:left;"><b>${r.head}</b></td><td>${r.period}</td><td><input type="number" class="f-actual" value="${r.amount.toFixed(2)}" readonly style="border:none; background:transparent; font-weight:bold;"></td><td><input type="number" class="f-conc" value="0.00"></td><td><input type="number" class="f-waiver" value="0.00"></td><td><input type="number" class="f-net" value="${r.amount.toFixed(2)}" readonly style="font-weight:bold; color:#e74c3c; background:#f9f9f9; border:none;"></td><td><input type="number" class="f-paid" value="${r.amount.toFixed(2)}" style="background:#e8f4f8;"></td><td><input type="number" class="f-bal" value="0.00" readonly style="border:none; background:transparent; font-weight:bold;"></td></tr>`;
+                allRows.forEach(r => {
+                    // ⭐ Compute auto-concession/waiver from saved records
+                    const adj = calcAdjustmentFromRecords(
+                        student.regNo, r.feeHeadName, r.period, r.frequency, r.quartersPerYear, r.amount
+                    );
+                    const autoConc = adj.concession;
+                    const autoWaiv = adj.waiver;
+                    const netPayable = Math.max(0, r.amount - autoConc - autoWaiv);
+
+                    tbody.innerHTML += `<tr class="f-row" data-head="${r.head}" data-period="${r.period}">
+                        <td><input type="checkbox" class="f-chk" checked title="Check to delete/exclude row"></td>
+                        <td class="f-head" style="text-align:left;"><b>${r.head}</b></td>
+                        <td>${r.period}</td>
+                        <td><input type="number" class="f-actual" value="${r.amount.toFixed(2)}" readonly style="border:none; background:transparent; font-weight:bold;"></td>
+                        <td><input type="number" class="f-conc" value="${autoConc.toFixed(2)}"></td>
+                        <td><input type="number" class="f-waiver" value="${autoWaiv.toFixed(2)}"></td>
+                        <td><input type="number" class="f-net" value="${netPayable.toFixed(2)}" readonly style="font-weight:bold; color:#e74c3c; background:#f9f9f9; border:none;"></td>
+                        <td><input type="number" class="f-paid" value="${netPayable.toFixed(2)}" style="background:#e8f4f8;"></td>
+                        <td><input type="number" class="f-bal" value="0.00" readonly style="border:none; background:transparent; font-weight:bold;"></td>
+                    </tr>`;
                 });
 
-                attachCalculationListeners(); calculateTotals();
+                attachCalculationListeners();
+                calculateTotals();
             }
 
             function attachCalculationListeners() {
@@ -2281,7 +2525,8 @@
                     row.querySelector('.f-net').addEventListener('input', () => { row.querySelector('.f-paid').value = (parseFloat(row.querySelector('.f-net').value) || 0).toFixed(2); updateRowBal(row); calculateTotals(); });
                     row.querySelector('.f-paid').addEventListener('input', () => { updateRowBal(row); calculateTotals(); });
                     row.querySelector('.f-chk').addEventListener('change', function () {
-                        if (!this.checked) { row.classList.add('disabled-row'); row.querySelector('.f-paid').value = "0.00"; } else { row.classList.remove('disabled-row'); updateRowNetAndPaid(row); }
+                        if (!this.checked) { row.classList.add('disabled-row'); row.querySelector('.f-paid').value = "0.00"; }
+                        else { row.classList.remove('disabled-row'); updateRowNetAndPaid(row); }
                         calculateTotals();
                     });
                 });
@@ -2289,13 +2534,23 @@
             }
 
             function updateRowNetAndPaid(row) {
-                let act = parseFloat(row.querySelector('.f-actual').value) || 0; let conc = parseFloat(row.querySelector('.f-conc').value) || 0; let waiv = parseFloat(row.querySelector('.f-waiver').value) || 0;
-                let net = act - conc - waiv; if (net < 0) net = 0;
-                row.querySelector('.f-net').value = net.toFixed(2); row.querySelector('.f-paid').value = net.toFixed(2); row.querySelector('.f-bal').value = "0.00";
+                let act = parseFloat(row.querySelector('.f-actual').value) || 0;
+                let conc = parseFloat(row.querySelector('.f-conc').value) || 0;
+                let waiv = parseFloat(row.querySelector('.f-waiver').value) || 0;
+                if (conc < 0) conc = 0;
+                if (waiv < 0) waiv = 0;
+                if (conc > act) conc = act;
+                if (waiv > act - conc) waiv = act - conc;
+                let net = act - conc - waiv;
+                if (net < 0) net = 0;
+                row.querySelector('.f-net').value = net.toFixed(2);
+                row.querySelector('.f-paid').value = net.toFixed(2);
+                row.querySelector('.f-bal').value = "0.00";
             }
 
             function updateRowBal(row) {
-                let net = parseFloat(row.querySelector('.f-net').value) || 0; let paid = parseFloat(row.querySelector('.f-paid').value) || 0;
+                let net = parseFloat(row.querySelector('.f-net').value) || 0;
+                let paid = parseFloat(row.querySelector('.f-paid').value) || 0;
                 row.querySelector('.f-bal').value = (net - paid).toFixed(2);
             }
 
@@ -2303,17 +2558,27 @@
                 let totAct = 0, totConc = 0, totWaiv = 0, totNet = 0, totPaid = 0, totBal = 0;
                 document.querySelectorAll('.f-row').forEach(row => {
                     if (row.querySelector('.f-chk').checked) {
-                        totAct += parseFloat(row.querySelector('.f-actual').value) || 0; totConc += parseFloat(row.querySelector('.f-conc').value) || 0;
-                        totWaiv += parseFloat(row.querySelector('.f-waiver').value) || 0; totNet += parseFloat(row.querySelector('.f-net').value) || 0;
-                        totPaid += parseFloat(row.querySelector('.f-paid').value) || 0; totBal += parseFloat(row.querySelector('.f-bal').value) || 0;
+                        totAct += parseFloat(row.querySelector('.f-actual').value) || 0;
+                        totConc += parseFloat(row.querySelector('.f-conc').value) || 0;
+                        totWaiv += parseFloat(row.querySelector('.f-waiver').value) || 0;
+                        totNet += parseFloat(row.querySelector('.f-net').value) || 0;
+                        totPaid += parseFloat(row.querySelector('.f-paid').value) || 0;
+                        totBal += parseFloat(row.querySelector('.f-bal').value) || 0;
                     }
                 });
-                document.getElementById('totActual').innerText = totAct.toFixed(2); document.getElementById('totConcession').innerText = totConc.toFixed(2);
-                document.getElementById('totWaiver').innerText = totWaiv.toFixed(2); document.getElementById('totNet').innerText = totNet.toFixed(2);
-                document.getElementById('totPaid').innerText = totPaid.toFixed(2); document.getElementById('totBal').innerText = totBal.toFixed(2);
-                document.getElementById('profPayable').innerText = totNet.toFixed(2); document.getElementById('finalPayable').value = totNet.toFixed(2);
-                let advance = parseFloat(document.getElementById('finalAdvance').value) || 0; let finalPaid = totPaid + advance;
+                document.getElementById('totActual').innerText = totAct.toFixed(2);
+                document.getElementById('totConcession').innerText = totConc.toFixed(2);
+                document.getElementById('totWaiver').innerText = totWaiv.toFixed(2);
+                document.getElementById('totNet').innerText = totNet.toFixed(2);
+                document.getElementById('totPaid').innerText = totPaid.toFixed(2);
+                document.getElementById('totBal').innerText = totBal.toFixed(2);
+                document.getElementById('profPayable').innerText = totNet.toFixed(2);
+                document.getElementById('finalPayable').value = totNet.toFixed(2);
+                let advance = parseFloat(document.getElementById('finalAdvance').value) || 0;
+                let finalPaid = totPaid + advance;
                 document.getElementById('finalTotalPaid').value = finalPaid.toFixed(2);
+                let payAmountEl = document.getElementById('payAmount');
+                if (payAmountEl) payAmountEl.value = finalPaid.toFixed(2);
             }
 
             function resetTotals() {
@@ -2324,6 +2589,7 @@
                 if (document.getElementById('finalPayable')) document.getElementById('finalPayable').value = "0.00";
                 if (document.getElementById('finalAdvance')) document.getElementById('finalAdvance').value = "0.00";
                 if (document.getElementById('finalTotalPaid')) document.getElementById('finalTotalPaid').value = "0.00";
+                if (document.getElementById('payAmount')) document.getElementById('payAmount').value = "0.00";
             }
 
             function updateNextReceiptNo() {
@@ -2337,17 +2603,27 @@
                 if (rNoElem) rNoElem.value = `2026-27/${maxNo + 1}`;
             }
 
+            // ==========================================
+            // SAVE RECEIPT
+            // ==========================================
             async function saveReceipt(onSuccessAction) {
-                const regNo = document.getElementById('feeStudentSelect').value; if (!regNo) { alert("Please select a student first."); return; }
-                const month = document.getElementById('feeMonthSelect').value; if (!month) { alert("Please select Fee Installment Month."); return; }
+                const regNo = document.getElementById('feeStudentSelect').value;
+                if (!regNo) { alert("Please select a student first."); return; }
+                const month = document.getElementById('feeMonthSelect').value;
+                if (!month) { alert("Please select Fee Installment Month."); return; }
+
                 let paidDetails = [];
                 document.querySelectorAll('.f-row').forEach(row => {
                     if (row.querySelector('.f-chk').checked) {
+                        const conc = parseFloat(row.querySelector('.f-conc').value) || 0;
+                        const waiv = parseFloat(row.querySelector('.f-waiver').value) || 0;
                         paidDetails.push({
                             head: row.getAttribute('data-head'),
                             period: row.getAttribute('data-period'),
                             actual: row.querySelector('.f-actual').value,
-                            adj: (parseFloat(row.querySelector('.f-conc').value) || 0) + (parseFloat(row.querySelector('.f-waiver').value) || 0),
+                            concession: conc,
+                            waiver: waiv,
+                            adj: conc + waiv,
                             payable: row.querySelector('.f-net').value,
                             paid: row.querySelector('.f-paid').value,
                             bal: row.querySelector('.f-bal').value
@@ -2356,7 +2632,6 @@
                 });
                 if (paidDetails.length === 0) { alert("No fees selected to pay."); return; }
 
-                let safeRegNo = regNo.replace(/\//g, '-');
                 let rNoStr = document.getElementById('feeReceiptNo').value.replace(/\//g, '-');
                 let docId = `${schoolCode}_${rNoStr}`;
 
@@ -2377,7 +2652,9 @@
                 };
 
                 if (onSuccessAction === 'print') {
-                    populatePrintTemplate(receiptData, paidDetails, document.getElementById('profFather').innerText, document.getElementById('profMother').innerText);
+                    populatePrintTemplate(receiptData, paidDetails,
+                        document.getElementById('profFather').innerText,
+                        document.getElementById('profMother').innerText);
                 }
 
                 document.querySelectorAll('.btn-green').forEach(b => b.style.opacity = '0.5');
@@ -2423,17 +2700,12 @@
                     try {
                         let rawHeads = String(r.Paid_Heads || "").trim();
                         let rawSummary = String(r.Receipt_Summary || "").trim();
-
                         if (rawHeads !== "" && rawHeads !== "[]" && rawHeads.startsWith("[")) {
                             let details = JSON.parse(rawHeads);
                             let pList = [];
                             details.forEach(d => {
                                 let pName = d.head || "Fee";
-                                if (d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") {
-                                    pName += ` (${d.period})`;
-                                } else if (d.period) {
-                                    pName += ` (${d.period})`;
-                                }
+                                if (d.period) pName += ` (${d.period})`;
                                 pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
                             });
                             particularsStr = pList.join("<br>");
@@ -2447,7 +2719,9 @@
                         particularsStr = r.Receipt_Summary || "Details Unavailable";
                     }
 
-                    let rNo = String(r.Receipt_No).replace("'", ""); let rDate = String(r.Date).replace("'", ""); let safeReceipt = JSON.stringify(r).replace(/'/g, "&#39;");
+                    let rNo = String(r.Receipt_No).replace("'", "");
+                    let rDate = String(r.Date).replace("'", "");
+                    let safeReceipt = JSON.stringify(r).replace(/'/g, "&#39;");
 
                     let btnHTML = `<button class="btn-red" style="background:#3498db;" title="Print" onclick='printFromHistory(${safeReceipt})'>🖨️</button>`;
 
@@ -2473,11 +2747,17 @@
                 let student = allStudents.find(s => String(s.regNo) === String(r.Reg_No));
                 let fName = student ? (student.fatherName || '-') : '-';
                 let mName = student ? (student.motherName || '-') : '-';
-
                 let detailsArray = [];
                 try { if (typeof r.Paid_Heads === 'string') { detailsArray = JSON.parse(r.Paid_Heads || "[]"); } } catch (e) { }
-                let rData = { receiptNo: String(r.Receipt_No).replace("'", ""), regNo: r.Reg_No, studentName: r.Student_Name, classSec: r.Class_Section, installment: String(r.Installment).replace("'", ""), date: String(r.Date).replace("'", ""), totalAmount: r.Amount, paymentMode: r.Payment_Mode, bankName: r.Bank_Name || '-', refNo: String(r.Ref_No).replace("'", "") || '-' };
-
+                let rData = {
+                    receiptNo: String(r.Receipt_No).replace("'", ""),
+                    regNo: r.Reg_No, studentName: r.Student_Name, classSec: r.Class_Section,
+                    installment: String(r.Installment).replace("'", ""),
+                    date: String(r.Date).replace("'", ""),
+                    totalAmount: r.Amount, paymentMode: r.Payment_Mode,
+                    bankName: r.Bank_Name || '-',
+                    refNo: String(r.Ref_No).replace("'", "") || '-'
+                };
                 populatePrintTemplate(rData, detailsArray, fName, mName);
                 executePrint(rData.studentName, rData.receiptNo);
             }
@@ -2492,15 +2772,54 @@
                 document.getElementById('p-date').innerText = rData.date;
                 document.getElementById('p-period').innerText = rData.installment;
 
-                let pBody = document.getElementById('print-particulars-body'); pBody.innerHTML = ''; let tAct = 0, tAdj = 0, tPay = 0, tPaid = 0, tBal = 0;
+                let pBody = document.getElementById('print-particulars-body');
+                pBody.innerHTML = '';
+                let tAct = 0, tAdj = 0, tPay = 0, tPaid = 0, tBal = 0;
+
                 detailsArray.forEach(d => {
-                    let fee = parseFloat(d.actual) || 0; let adj = parseFloat(d.adj) || 0; let pay = parseFloat(d.payable) || 0; let pd = parseFloat(d.paid) || 0; let bal = parseFloat(d.bal) || 0;
+                    const fee = parseFloat(d.actual) || 0;
+                    const conc = parseFloat(d.concession) || 0;
+                    const waiv = parseFloat(d.waiver) || 0;
+                    const adj = conc + waiv;
+                    const pay = parseFloat(d.payable) || 0;
+                    const pd = parseFloat(d.paid) || 0;
+                    const bal = parseFloat(d.bal) || 0;
+
                     tAct += fee; tAdj += adj; tPay += pay; tPaid += pd; tBal += bal;
-                    let displayName = d.head;
-                    if (d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") { displayName += ` <span style="color:#555; font-size:11px;">(${d.period})</span>`; } else { displayName += ` <span style="color:#555; font-size:11px;">(${d.period})</span>`; }
-                    pBody.innerHTML += `<tr><td style="text-align:left; border:1px solid #333; padding:5px;">${displayName}</td><td style="border:1px solid #333; padding:5px;">${fee.toFixed(2)}</td><td style="border:1px solid #333; padding:5px;">${adj.toFixed(2)}</td><td style="border:1px solid #333; padding:5px;">${pay.toFixed(2)}</td><td style="border:1px solid #333; padding:5px;">${pd.toFixed(2)}</td><td style="border:1px solid #333; padding:5px;">${bal.toFixed(2)}</td></tr>`;
+
+                    let displayName = d.head || "Fee";
+                    if (d.period) displayName += ` <span style="color:#555; font-size:11px;">(${d.period})</span>`;
+
+                    // ⭐ Adjustment column with breakdown
+                    let adjCell = `${adj.toFixed(2)}`;
+                    if (conc > 0 || waiv > 0) {
+                        let parts = [];
+                        if (conc > 0) parts.push(`Conc: ₹${conc.toFixed(2)}`);
+                        if (waiv > 0) parts.push(`Waiv: ₹${waiv.toFixed(2)}`);
+                        adjCell += `<br><span style="font-size:10px; color:#555; font-weight:normal;">(${parts.join(' + ')})</span>`;
+                    }
+
+                    pBody.innerHTML += `<tr>
+                        <td style="text-align:left; border:1px solid #333; padding:5px;">${displayName}</td>
+                        <td style="border:1px solid #333; padding:5px;">${fee.toFixed(2)}</td>
+                        <td style="border:1px solid #333; padding:5px;">${adjCell}</td>
+                        <td style="border:1px solid #333; padding:5px;">${pay.toFixed(2)}</td>
+                        <td style="border:1px solid #333; padding:5px;">${pd.toFixed(2)}</td>
+                        <td style="border:1px solid #333; padding:5px;">${bal.toFixed(2)}</td>
+                    </tr>`;
                 });
-                document.getElementById('p-t-fees').innerText = tAct.toFixed(2); document.getElementById('p-t-adj').innerText = tAdj.toFixed(2); document.getElementById('p-t-pay').innerText = tPay.toFixed(2); document.getElementById('p-t-paid').innerText = tPaid.toFixed(2); document.getElementById('p-t-bal').innerText = tBal.toFixed(2); document.getElementById('p-words').innerText = tPaid.toFixed(2) + " /-"; document.getElementById('p-pmode').innerText = rData.paymentMode; document.getElementById('p-pbank').innerText = rData.bankName; document.getElementById('p-pdate').innerText = rData.date; document.getElementById('p-pdet').innerText = rData.refNo; document.getElementById('p-pamt').innerText = rData.totalAmount;
+
+                document.getElementById('p-t-fees').innerText = tAct.toFixed(2);
+                document.getElementById('p-t-adj').innerText = tAdj.toFixed(2);
+                document.getElementById('p-t-pay').innerText = tPay.toFixed(2);
+                document.getElementById('p-t-paid').innerText = tPaid.toFixed(2);
+                document.getElementById('p-t-bal').innerText = tBal.toFixed(2);
+                document.getElementById('p-words').innerText = tPaid.toFixed(2) + " /-";
+                document.getElementById('p-pmode').innerText = rData.paymentMode;
+                document.getElementById('p-pbank').innerText = rData.bankName;
+                document.getElementById('p-pdate').innerText = rData.date;
+                document.getElementById('p-pdet').innerText = rData.refNo;
+                document.getElementById('p-pamt').innerText = rData.totalAmount;
             }
 
             window.deleteReceipt = function (docId) {
@@ -2514,24 +2833,50 @@
                 }
             }
 
+            // ==========================================
+            // FEE HEADS SETUP
+            // ==========================================
+            const headFreqEl = document.getElementById('headFreq');
+            if (headFreqEl) {
+                headFreqEl.addEventListener('change', function () {
+                    const qw = document.getElementById('quartersWrap');
+                    if (this.value === 'Quarterly') qw.style.display = 'block';
+                    else qw.style.display = 'none';
+                });
+            }
+
             function renderFeeHeadsSetupList() {
                 const tbody = document.getElementById('feeHeadsListBody');
                 if (!tbody) return;
                 tbody.innerHTML = '';
-                if (feeHeads.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No Fee Heads Configured.</td></tr>'; return; }
+                if (feeHeads.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No Fee Heads Configured.</td></tr>';
+                    return;
+                }
                 feeHeads.forEach((f, idx) => {
-                    tbody.innerHTML += `<tr><td>${idx + 1}</td><td><b>${f.Head_Name}</b></td><td>${f.Frequency}</td><td>₹${f.Amount}</td><td><button class="btn-red" onclick="deleteFeeHead('${f.Head_Name}')">🗑️</button></td></tr>`;
+                    let freqDisplay = f.Frequency;
+                    if (f.Frequency === 'Quarterly') {
+                        let qpy = parseInt(f.QuartersPerYear) === 3 ? 3 : 4;
+                        freqDisplay = `Quarterly (${qpy} Qtr/Yr)`;
+                    }
+                    tbody.innerHTML += `<tr><td>${idx + 1}</td><td><b>${f.Head_Name}</b></td><td>${freqDisplay}</td><td>₹${f.Amount}</td><td><button class="btn-red" onclick="deleteFeeHead('${f.Head_Name}')">🗑️</button></td></tr>`;
                 });
             }
 
             document.getElementById('feeSetupForm')?.addEventListener('submit', async function (e) {
-                e.preventDefault(); const btnSubmit = document.getElementById('btnSubmitFeeHead'); btnSubmit.disabled = true; btnSubmit.innerText = "Adding..."; btnSubmit.style.opacity = '0.6';
+                e.preventDefault();
+                const btnSubmit = document.getElementById('btnSubmitFeeHead');
+                btnSubmit.disabled = true; btnSubmit.innerText = "Adding..."; btnSubmit.style.opacity = '0.6';
 
+                const freq = document.getElementById('headFreq').value;
                 let newHead = {
                     Head_Name: document.getElementById('headName').value.trim(),
-                    Frequency: document.getElementById('headFreq').value,
+                    Frequency: freq,
                     Amount: document.getElementById('headAmount').value || 0
                 };
+                if (freq === 'Quarterly') {
+                    newHead.QuartersPerYear = parseInt(document.getElementById('headQuarters').value) || 4;
+                }
 
                 let updatedHeads = [...feeHeads];
                 let exists = updatedHeads.findIndex(h => h.Head_Name === newHead.Head_Name);
@@ -2546,6 +2891,7 @@
                     await db.collection("setups").doc(schoolCode).set({ feeHeads: updatedHeads }, { merge: true });
                     alert("Fee Head Added Successfully!");
                     document.getElementById('feeSetupForm').reset();
+                    document.getElementById('quartersWrap').style.display = 'none';
                     initData();
                 } catch (error) {
                     alert("Error adding fee head: " + error.message);
@@ -2564,79 +2910,155 @@
             }
 
             // ==========================================
-            // EXPORT DROPDOWN LOGIC
+            // FEE CONCESSIONS MODULE
             // ==========================================
-            const exportToggle = document.getElementById('btnExportLedgerToggle');
-            const exportMenu = document.getElementById('ledgerExportMenu');
+            document.getElementById('feeConcessionForm')?.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const btn = document.getElementById('btnSaveConcession');
+                btn.disabled = true; btn.innerText = "Saving..."; btn.style.opacity = '0.6';
 
-            if (exportToggle && exportMenu) {
-                exportToggle.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    exportMenu.style.display = exportMenu.style.display === 'flex' ? 'none' : 'flex';
-                });
-                document.addEventListener('click', () => {
-                    exportMenu.style.display = 'none';
+                const studentRegNo = document.getElementById('conStudent').value;
+                const student = allStudents.find(s => String(s.regNo) === String(studentRegNo));
+                const feeHead = document.getElementById('conFeeHead').value;
+                const type = document.getElementById('conType').value;
+                const basis = document.getElementById('conBasis').value;
+                const value = parseFloat(document.getElementById('conValue').value) || 0;
+                const fromMonth = document.getElementById('conFrom').value;
+                const toMonth = document.getElementById('conTo').value;
+                const reason = document.getElementById('conReason').value.trim();
+
+                if (!student) { alert("Please select a valid student."); btn.disabled = false; btn.innerText = "Save Concession"; btn.style.opacity = '1'; return; }
+                if (value <= 0) { alert("Value must be greater than 0."); btn.disabled = false; btn.innerText = "Save Concession"; btn.style.opacity = '1'; return; }
+                const fromIdx = academicMonths.indexOf(fromMonth);
+                const toIdx = academicMonths.indexOf(toMonth);
+                if (fromIdx === -1 || toIdx === -1 || fromIdx > toIdx) { alert("Invalid month range."); btn.disabled = false; btn.innerText = "Save Concession"; btn.style.opacity = '1'; return; }
+                if (basis === 'Percent' && (value < 0 || value > 100)) { alert("Percent value must be between 0 and 100."); btn.disabled = false; btn.innerText = "Save Concession"; btn.style.opacity = '1'; return; }
+
+                const conData = {
+                    schoolCode: schoolCode,
+                    Student_RegNo: studentRegNo,
+                    Student_Name: student.studentFirstName || student.studentName || 'N/A',
+                    FeeHead_Name: feeHead,
+                    Type: type,
+                    Basis: basis,
+                    Value: value,
+                    From_Month: fromMonth,
+                    To_Month: toMonth,
+                    Reason: reason,
+                    Created_On: new Date().toISOString(),
+                    Created_By: activeUser.empName || 'System'
+                };
+
+                try {
+                    await db.collection("fee_concessions").add(conData);
+                    alert("Concession Saved Successfully!");
+                    document.getElementById('feeConcessionForm').reset();
+                    document.getElementById('conTo').value = academicMonths[academicMonths.length - 1];
+                    initData();
+                } catch (err) {
+                    alert("Error saving concession: " + err.message);
+                } finally {
+                    btn.disabled = false; btn.innerText = "Save Concession"; btn.style.opacity = '1';
+                }
+            });
+
+            function renderConcessionsList() {
+                const tbody = document.getElementById('concessionsListBody');
+                if (!tbody) return;
+                tbody.innerHTML = '';
+                if (feeConcessions.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No concessions granted yet.</td></tr>';
+                    return;
+                }
+                feeConcessions.forEach((c, idx) => {
+                    let valueDisplay = c.Basis === 'Percent' ? `${c.Value}%` : `₹${parseFloat(c.Value).toFixed(2)}`;
+                    let headDisplay = c.FeeHead_Name === '__ALL__' ? 'All Fee Heads' : c.FeeHead_Name;
+                    let typeColor = c.Type === 'Waiver' ? '#e74c3c' : '#27ae60';
+                    tbody.innerHTML += `<tr>
+                        <td>${idx + 1}</td>
+                        <td><b>${c.Student_Name}</b><br><span style="font-size:11px; color:#666;">Reg: ${c.Student_RegNo}</span></td>
+                        <td>${headDisplay}</td>
+                        <td><span style="color:${typeColor}; font-weight:bold;">${c.Type}</span></td>
+                        <td><b>${valueDisplay}</b> <span style="font-size:11px; color:#888;">(${c.Basis})</span></td>
+                        <td>${c.From_Month} → ${c.To_Month}</td>
+                        <td><button class="btn-red" title="Delete" onclick="deleteConcession('${c.id}')">🗑️</button></td>
+                    </tr>`;
                 });
             }
 
-            document.getElementById('exportLedgerPdfBtn')?.addEventListener('click', () => {
-                let sName = document.getElementById('l-name').innerText.replace(/[^a-zA-Z0-9]/g, "_");
-                let sReg = document.getElementById('l-reg').innerText.replace(/[^a-zA-Z0-9]/g, "_");
-                let sClass = document.getElementById('l-class').innerText.replace(/[^a-zA-Z0-9]/g, "_");
-                let fileName = `${sName}_${sReg}_${sClass}.pdf`;
-
-                let element = document.getElementById('ledgerExportArea');
-                let opt = {
-                    margin: 0.3,
-                    filename: fileName,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true },
-                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-                };
-                let originalBg = element.style.background;
-                element.style.background = "#fff";
-                html2pdf().set(opt).from(element).save().then(() => {
-                    element.style.background = originalBg;
+            window.deleteConcession = function (id) {
+                customConfirm("Delete this concession record? This will affect future receipts and ledger.", () => {
+                    db.collection("fee_concessions").doc(id).delete().then(() => {
+                        customAlert("Concession deleted.");
+                        initData();
+                    }).catch(err => alert("Error: " + err.message));
                 });
+            }
+
+            // ==========================================
+            // LEDGER EXPORT
+            // ==========================================
+            document.getElementById('exportLedgerPdfBtn')?.addEventListener('click', () => {
+                try {
+                    let sName = (document.getElementById('l-name').innerText || 'Student').replace(/[^a-zA-Z0-9]/g, "_");
+                    let sReg = (document.getElementById('l-reg').innerText || '').replace(/[^a-zA-Z0-9]/g, "_");
+                    let sClass = (document.getElementById('l-class').innerText || '').replace(/[^a-zA-Z0-9]/g, "_");
+                    let fileName = `${sName}_${sReg}_${sClass}_Ledger.pdf`;
+
+                    let element = document.getElementById('ledgerExportArea');
+                    let opt = {
+                        margin: 0.3,
+                        filename: fileName,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                        jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+                    };
+                    let originalBg = element.style.background;
+                    element.style.background = "#fff";
+                    html2pdf().set(opt).from(element).save().then(() => {
+                        element.style.background = originalBg;
+                    }).catch(err => {
+                        alert("PDF export error: " + err.message);
+                        element.style.background = originalBg;
+                    });
+                } catch (err) {
+                    alert("PDF export failed: " + err.message);
+                }
             });
 
             document.getElementById('exportLedgerExcelBtn')?.addEventListener('click', () => {
-                let sName = document.getElementById('l-name').innerText.replace(/[^a-zA-Z0-9]/g, "_");
-                let sReg = document.getElementById('l-reg').innerText.replace(/[^a-zA-Z0-9]/g, "_");
-                let sClass = document.getElementById('l-class').innerText.replace(/[^a-zA-Z0-9]/g, "_");
-                let fileName = `${sName}_${sReg}_${sClass}.xls`;
+                try {
+                    let sName = (document.getElementById('l-name').innerText || 'Student').replace(/[^a-zA-Z0-9]/g, "_");
+                    let sReg = (document.getElementById('l-reg').innerText || '').replace(/[^a-zA-Z0-9]/g, "_");
+                    let sClass = (document.getElementById('l-class').innerText || '').replace(/[^a-zA-Z0-9]/g, "_");
+                    let fileName = `${sName}_${sReg}_${sClass}_Ledger.xls`;
 
-                let exportDiv = document.getElementById('ledgerExportArea').cloneNode(true);
+                    let exportDiv = document.getElementById('ledgerExportArea').cloneNode(true);
 
-                let htmlContent = `
-        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-        <head>
-            <meta charset="utf-8">
-            <style>
-                table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
-                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                th { background-color: #2c3e50; color: white; font-weight: bold; }
-            </style>
-        </head>
-        <body>
-            ${exportDiv.innerHTML}
-        </body>
-        </html>
-        `;
+                    let htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                        <head><meta charset="utf-8">
+                        <style>
+                            table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #2c3e50; color: white; font-weight: bold; }
+                        </style>
+                        </head>
+                        <body>${exportDiv.innerHTML}</body>
+                        </html>`;
 
-                let blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
-                let url = URL.createObjectURL(blob);
-                let a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+                    let blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+                    let url = URL.createObjectURL(blob);
+                    let a = document.createElement('a');
+                    a.href = url; a.download = fileName;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } catch (err) {
+                    alert("Excel export failed: " + err.message);
+                }
             });
 
             // ==========================================
-            // THE "KUNDLI" - STUDENT FEE LEDGER 
-            // (Now respects Fee Applicable Date + 50% Rule)
+            // STUDENT FEE LEDGER (KUNDLI)
             // ==========================================
             window.openLedger = function (regNo) {
                 let student = allStudents ? allStudents.find(s => String(s.regNo) === String(regNo)) : null;
@@ -2651,10 +3073,7 @@
                     sFather = student.fatherName || '-';
                 } else {
                     let rec = feeReceipts.find(r => String(r.Reg_No) === String(regNo));
-                    if (rec) {
-                        sName = rec.Student_Name;
-                        sClass = rec.Class_Section;
-                    }
+                    if (rec) { sName = rec.Student_Name; sClass = rec.Class_Section; }
                 }
 
                 document.getElementById('l-name').innerText = sName;
@@ -2662,7 +3081,6 @@
                 document.getElementById('l-class').innerText = sClass;
                 document.getElementById('l-father').innerText = sFather;
 
-                // ⭐ Fee Applicable Date + 50% Rule (from student record)
                 const feeAppDate = (student && typeof student.feeApplicableDate === 'string') ? student.feeApplicableDate : '';
                 const fee50 = !!(student && student.fee50Rule === true);
 
@@ -2672,13 +3090,16 @@
                     if (cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); }
                 }
 
+                // Build paid map and adjustment map from receipts
                 let paidMap = {};
+                let concMap = {};
+                let waivMap = {};
+
                 let histBody = document.getElementById('ledgerHistoryBody');
                 histBody.innerHTML = '';
 
                 feeReceipts.forEach(r => {
                     if (String(r.Reg_No).trim() === String(regNo).trim()) {
-
                         let particularsStr = "";
                         try {
                             let rawHeads = String(r.Paid_Heads || "").trim();
@@ -2689,29 +3110,22 @@
                                 let pList = [];
                                 details.forEach(d => {
                                     let pName = d.head || "Fee";
-                                    if (d.period && d.period !== "Monthly" && d.period !== "Annually" && d.period !== "One Time" && d.period !== "Quarterly") {
-                                        pName += ` (${d.period})`;
-                                    } else if (d.period) {
-                                        pName += ` (${d.period})`;
-                                    }
+                                    if (d.period) pName += ` (${d.period})`;
                                     pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
 
                                     let uid = d.head + "_" + d.period;
                                     paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
+                                    concMap[uid] = (concMap[uid] || 0) + parseFloat(d.concession || 0);
+                                    waivMap[uid] = (waivMap[uid] || 0) + parseFloat(d.waiver || 0);
                                 });
                                 particularsStr = pList.join("<br>");
-
-                                if (particularsStr === "") {
-                                    particularsStr = rawSummary || "Fee Payment";
-                                }
+                                if (particularsStr === "") particularsStr = rawSummary || "Fee Payment";
                             } else if (rawSummary !== "") {
                                 particularsStr = rawSummary;
                             } else {
                                 particularsStr = "Fee Payment";
                             }
-                        } catch (e) {
-                            particularsStr = r.Receipt_Summary || "Details Unavailable";
-                        }
+                        } catch (e) { particularsStr = r.Receipt_Summary || "Details Unavailable"; }
 
                         let rNo = String(r.Receipt_No).replace("'", "");
                         let rDate = String(r.Date).replace("'", "");
@@ -2726,63 +3140,152 @@
 
                 let tbody = document.getElementById('ledgerTableBody');
                 tbody.innerHTML = '';
-                let totalDue = 0, totalPaid = 0;
+                let totalDue = 0, totalPaid = 0, totalAdj = 0;
 
+                // Monthly Tuition Fee
                 academicMonths.forEach(month => {
-                    // ⭐ Apply Fee Applicable Date + 50% Rule
-                    if (!shouldShowMonth(month, feeAppDate, fee50)) {
-                        return; // Hide this month's fee rows entirely
-                    }
+                    if (!shouldShowMonth(month, feeAppDate, fee50)) return;
 
-                    let tAmt = classFeeAmount;
-                    let tPaid = paidMap["Monthly Tuition Fee_" + month] || 0;
-                    let tBal = tAmt - tPaid;
-                    totalDue += tAmt;
-                    totalPaid += tPaid;
+                    let uid = "Monthly Tuition Fee_" + month;
+                    let actual = classFeeAmount;
+                    const autoAdj = student ? calcAdjustmentFromRecords(student.regNo, "Monthly Tuition Fee", month, 'Monthly', 0, actual) : { concession: 0, waiver: 0 };
+                    const conc = (concMap[uid] || 0) + autoAdj.concession;
+                    const waiv = (waivMap[uid] || 0) + autoAdj.waiver;
+                    const netApplicable = Math.max(0, actual - conc - waiv);
+                    let paid = paidMap[uid] || 0;
+                    let bal = netApplicable - paid;
 
-                    let rowBg = (tAmt > 0 && tBal <= 0) ? 'background-color:#e8f5e9;' : '';
-                    let tStyle = tBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
+                    totalDue += actual;
+                    totalPaid += paid;
+                    totalAdj += (conc + waiv);
 
-                    tbody.innerHTML += `<tr style="${rowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>Monthly Tuition Fee (${month})</b></td><td style="padding:10px; border:1px solid #ccc;">₹${tAmt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${tPaid.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${tStyle} font-weight:bold;">₹${tBal.toFixed(2)}</td></tr>`;
+                    let rowBg = (actual > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
+                    let tStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
 
-                    feeHeads.forEach(fh => {
-                        if (fh.Frequency === "Monthly") {
-                            let fhAmt = parseFloat(fh.Amount) || 0;
-                            let fhPaid = paidMap[fh.Head_Name + "_" + month] || 0;
-                            let fhBal = fhAmt - fhPaid;
-                            totalDue += fhAmt;
-                            totalPaid += fhPaid;
-
-                            let subRowBg = (fhAmt > 0 && fhBal <= 0) ? 'background-color:#e8f5e9;' : '';
-                            let fhStyle = fhBal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
-
-                            tbody.innerHTML += `<tr style="${subRowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (${month})</b></td><td style="padding:10px; border:1px solid #ccc;">₹${fhAmt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${fhPaid.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${fhStyle} font-weight:bold;">₹${fhBal.toFixed(2)}</td></tr>`;
-                        }
-                    });
+                    tbody.innerHTML += `<tr style="${rowBg}">
+                        <td style="padding:10px; border:1px solid #ccc;"><b>Monthly Tuition Fee (${month})</b></td>
+                        <td style="padding:10px; border:1px solid #ccc; text-align:right;">₹${actual.toFixed(2)}</td>
+                        <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#27ae60;">₹${conc.toFixed(2)}</td>
+                        <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#e67e22;">₹${waiv.toFixed(2)}</td>
+                        <td style="padding:10px; border:1px solid #ccc; text-align:right; font-weight:bold;">₹${netApplicable.toFixed(2)}</td>
+                        <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#2980b9;">₹${paid.toFixed(2)}</td>
+                        <td style="padding:10px; border:1px solid #ccc; text-align:right; ${tStyle} font-weight:bold;">₹${bal.toFixed(2)}</td>
+                    </tr>`;
                 });
 
+                // Custom Fee Heads
                 feeHeads.forEach(fh => {
-                    if (fh.Frequency === "Annually" || fh.Frequency === "One Time (Annually)") {
-                        let amt = parseFloat(fh.Amount) || 0;
-                        let pd = paidMap[fh.Head_Name + "_" + fh.Frequency] || paidMap[fh.Head_Name + "_Annually"] || 0;
-                        let bal = amt - pd;
-                        totalDue += amt;
-                        totalPaid += pd;
+                    const amount = parseFloat(fh.Amount) || 0;
 
-                        let anRowBg = (amt > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
-                        let balStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
+                    if (fh.Frequency === "Monthly") {
+                        academicMonths.forEach(month => {
+                            if (!shouldShowMonth(month, feeAppDate, fee50)) return;
+                            let uid = fh.Head_Name + "_" + month;
+                            const autoAdj = student ? calcAdjustmentFromRecords(student.regNo, fh.Head_Name, month, 'Monthly', 0, amount) : { concession: 0, waiver: 0 };
+                            const conc = (concMap[uid] || 0) + autoAdj.concession;
+                            const waiv = (waivMap[uid] || 0) + autoAdj.waiver;
+                            const netApplicable = Math.max(0, amount - conc - waiv);
+                            let paid = paidMap[uid] || 0;
+                            let bal = netApplicable - paid;
 
-                        tbody.innerHTML += `<tr style="${anRowBg}"><td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (Annual)</b></td><td style="padding:10px; border:1px solid #ccc;">₹${amt.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; color:#2980b9;">₹${pd.toFixed(2)}</td><td style="padding:10px; border:1px solid #ccc; ${balStyle} font-weight:bold;">₹${bal.toFixed(2)}</td></tr>`;
+                            totalDue += amount;
+                            totalPaid += paid;
+                            totalAdj += (conc + waiv);
+
+                            let rowBg = (amount > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
+                            let tStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
+
+                            tbody.innerHTML += `<tr style="${rowBg}">
+                                <td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (${month})</b></td>
+                                <td style="padding:10px; border:1px solid #ccc; text-align:right;">₹${amount.toFixed(2)}</td>
+                                <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#27ae60;">₹${conc.toFixed(2)}</td>
+                                <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#e67e22;">₹${waiv.toFixed(2)}</td>
+                                <td style="padding:10px; border:1px solid #ccc; text-align:right; font-weight:bold;">₹${netApplicable.toFixed(2)}</td>
+                                <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#2980b9;">₹${paid.toFixed(2)}</td>
+                                <td style="padding:10px; border:1px solid #ccc; text-align:right; ${tStyle} font-weight:bold;">₹${bal.toFixed(2)}</td>
+                            </tr>`;
+                        });
+                    }
+                    else if (fh.Frequency === "Quarterly") {
+                        const qpy = parseInt(fh.QuartersPerYear) === 3 ? 3 : 4;
+                        const qList = getQuarterStructure(qpy);
+                        qList.forEach(q => {
+                            // Skip if quarter entirely before fee applicable date
+                            if (feeAppDate) {
+                                const app = parseISODate(feeAppDate);
+                                const qFirst = parseAcademicMonthToken(q.months[0]);
+                                const qLast = parseAcademicMonthToken(q.months[q.months.length - 1]);
+                                if (app && qFirst && qLast) {
+                                    const qLastKey = qLast.year * 12 + qLast.month;
+                                    const appKey = app.year * 12 + app.month;
+                                    if (qLastKey < appKey) return;
+                                    const qFirstKey = qFirst.year * 12 + qFirst.month;
+                                    if (fee50 && qFirstKey === appKey && app.day > 15) return;
+                                }
+                            }
+                            let uid = fh.Head_Name + "_" + q.label;
+                            const autoAdj = student ? calcAdjustmentFromRecords(student.regNo, fh.Head_Name, q.label, 'Quarterly', qpy, amount) : { concession: 0, waiver: 0 };
+                            const conc = (concMap[uid] || 0) + autoAdj.concession;
+                            const waiv = (waivMap[uid] || 0) + autoAdj.waiver;
+                            const netApplicable = Math.max(0, amount - conc - waiv);
+                            let paid = paidMap[uid] || 0;
+                            let bal = netApplicable - paid;
+
+                            totalDue += amount;
+                            totalPaid += paid;
+                            totalAdj += (conc + waiv);
+
+                            let rowBg = (amount > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
+                            let tStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
+
+                            tbody.innerHTML += `<tr style="${rowBg}">
+                                <td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (${q.label})</b></td>
+                                <td style="padding:10px; border:1px solid #ccc; text-align:right;">₹${amount.toFixed(2)}</td>
+                                <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#27ae60;">₹${conc.toFixed(2)}</td>
+                                <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#e67e22;">₹${waiv.toFixed(2)}</td>
+                                <td style="padding:10px; border:1px solid #ccc; text-align:right; font-weight:bold;">₹${netApplicable.toFixed(2)}</td>
+                                <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#2980b9;">₹${paid.toFixed(2)}</td>
+                                <td style="padding:10px; border:1px solid #ccc; text-align:right; ${tStyle} font-weight:bold;">₹${bal.toFixed(2)}</td>
+                            </tr>`;
+                        });
+                    }
+                    else {
+                        // One Time / Annually
+                        let uid = fh.Head_Name + "_" + fh.Frequency;
+                        const autoAdj = student ? calcAdjustmentFromRecords(student.regNo, fh.Head_Name, fh.Frequency, fh.Frequency, 0, amount) : { concession: 0, waiver: 0 };
+                        const conc = (concMap[uid] || 0) + autoAdj.concession;
+                        const waiv = (waivMap[uid] || 0) + autoAdj.waiver;
+                        const netApplicable = Math.max(0, amount - conc - waiv);
+                        let paid = paidMap[uid] || 0;
+                        let bal = netApplicable - paid;
+
+                        totalDue += amount;
+                        totalPaid += paid;
+                        totalAdj += (conc + waiv);
+
+                        let rowBg = (amount > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
+                        let tStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
+
+                        tbody.innerHTML += `<tr style="${rowBg}">
+                            <td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (${fh.Frequency})</b></td>
+                            <td style="padding:10px; border:1px solid #ccc; text-align:right;">₹${amount.toFixed(2)}</td>
+                            <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#27ae60;">₹${conc.toFixed(2)}</td>
+                            <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#e67e22;">₹${waiv.toFixed(2)}</td>
+                            <td style="padding:10px; border:1px solid #ccc; text-align:right; font-weight:bold;">₹${netApplicable.toFixed(2)}</td>
+                            <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#2980b9;">₹${paid.toFixed(2)}</td>
+                            <td style="padding:10px; border:1px solid #ccc; text-align:right; ${tStyle} font-weight:bold;">₹${bal.toFixed(2)}</td>
+                        </tr>`;
                     }
                 });
 
                 if (tbody.innerHTML === '') {
-                    tbody.innerHTML = '<tr><td colspan="4" style="padding:16px; text-align:center; color:#888;">No applicable fees for the current academic session based on the Fee Applicable Date.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" style="padding:16px; text-align:center; color:#888;">No applicable fees for the current academic session based on the Fee Applicable Date.</td></tr>';
                 }
 
                 document.getElementById('l-tot-due').innerText = "₹" + totalDue.toFixed(2);
+                document.getElementById('l-tot-adj').innerText = "₹" + totalAdj.toFixed(2);
                 document.getElementById('l-tot-paid').innerText = "₹" + totalPaid.toFixed(2);
-                document.getElementById('l-tot-bal').innerText = "₹" + (totalDue - totalPaid).toFixed(2);
+                document.getElementById('l-tot-bal').innerText = "₹" + (totalDue - totalAdj - totalPaid).toFixed(2);
 
                 document.getElementById('ledgerModal').classList.add('active');
             }
