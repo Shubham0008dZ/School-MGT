@@ -60,6 +60,7 @@
             --shadow-2: 0 8px 28px rgba(20, 33, 61, .14);
             --sidebar-w: 258px;
             --sidebar-w-collapsed: 68px;
+            --sticky-toolbar-h: 120px;
         }
 
         * {
@@ -607,7 +608,8 @@
             z-index: 20;
             background: var(--paper);
             padding-top: 6px;
-            padding-bottom: 6px;
+            /* ✅ changed: padding-bottom 6px -> 0 to remove gap between toolbar & thead */
+            padding-bottom: 0;
             margin: 0 -6px;
             padding-left: 6px;
             padding-right: 6px;
@@ -626,6 +628,33 @@
         #module-profiles .sticky-top-section .table-toolbar {
             margin-bottom: 0;
             padding: 10px 14px !important;
+        }
+
+        /* ==================================================
+           ✅ STICKY TABLE HEADER (Profiles only)
+           - thead th sticks below the sticky toolbar
+           - top value dynamically set via JS (--sticky-toolbar-h)
+           ================================================== */
+        #module-profiles .data-table {
+            /* allow sticky thead to work (remove overflow clipping inside this module) */
+            overflow: visible;
+        }
+
+        #module-profiles .data-table thead th {
+            position: sticky;
+            top: var(--sticky-toolbar-h, 120px);
+            z-index: 15;
+            /* keep rounded corners on the outer table via table border */
+            box-shadow: 0 1px 0 0 var(--line);
+        }
+
+        /* Restore rounded corner effect for first/last cell in thead */
+        #module-profiles .data-table thead th:first-child {
+            border-top-left-radius: var(--radius-m);
+        }
+
+        #module-profiles .data-table thead th:last-child {
+            border-top-right-radius: var(--radius-m);
         }
 
         /* ==================================================
@@ -1436,10 +1465,6 @@
                 width: 250px;
             }
         }
-
-
-
-    
     </style>
 </head>
 
@@ -2320,7 +2345,7 @@
         // ============================================================
         // GLOBAL DATA
         // ============================================================
-        let appData = [];                          // Full student cache (lazy loaded)
+        let appData = [];
         let setupData = null;
         let feeHeads = [];
         let feeReceipts = [];
@@ -2334,10 +2359,10 @@
         // ============================================================
         const PAGE_SIZE = 50;
         let currentPage = 1;
-        let pageCursors = [null];        // pageCursors[i] = lastDoc of page i (cursor for page i+1)
-        let currentPageDocs = [];        // Current page's student data
+        let pageCursors = [null];
+        let currentPageDocs = [];
         let totalStudentsCount = 0;
-        let currentMode = 'browse';      // 'browse' (firestore paginated) | 'filter' (client-side on appData)
+        let currentMode = 'browse';
         let filteredStudents = [];
         let appDataLoaded = false;
 
@@ -2381,7 +2406,7 @@
         }
 
         // ============================================================
-        // ✅ LAZY LOAD: Fetch all students on demand
+        // ✅ LAZY LOAD
         // ============================================================
         async function ensureAppDataLoaded() {
             if (appDataLoaded) return appData;
@@ -2389,6 +2414,16 @@
             appData = snap.docs.map(d => d.data());
             appDataLoaded = true;
             return appData;
+        }
+
+        // ============================================================
+        // ✅ STICKY TABLE HEADER: dynamic top offset = toolbar height
+        // ============================================================
+        function updateStickyTableHead() {
+            const stickySec = document.querySelector('#module-profiles .sticky-top-section');
+            if (!stickySec) return;
+            const topOffset = stickySec.offsetHeight;
+            document.documentElement.style.setProperty('--sticky-toolbar-h', topOffset + 'px');
         }
 
         // ============================================================
@@ -2433,6 +2468,8 @@
                 currentPageDocs.forEach(student => renderStudentRow(student, tbody));
             }
             updatePaginationUI(totalStudentsCount);
+            // ✅ Recompute sticky offset after render
+            updateStickyTableHead();
         }
 
         function renderFilteredPage() {
@@ -2449,6 +2486,7 @@
                 pageSlice.forEach(student => renderStudentRow(student, tbody));
             }
             updatePaginationUI(total);
+            updateStickyTableHead();
         }
 
         function renderStudentRow(student, tbody) {
@@ -2491,7 +2529,7 @@
         }
 
         // ============================================================
-        // FIRESTORE SYNC (paginated)
+        // FIRESTORE SYNC
         // ============================================================
         let isSA = false;
         let userRights = [];
@@ -2500,7 +2538,6 @@
             const tbody = document.getElementById('studentTableBody');
             if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; font-weight:bold; padding:20px;">Syncing with Database... ⏳</td></tr>';
 
-            // Reset pagination
             currentPage = 1;
             pageCursors = [null];
             currentPageDocs = [];
@@ -2510,7 +2547,6 @@
             appDataLoaded = false;
 
             try {
-                // Parallel fetch: setup, fee_receipts, student count
                 const [setupDoc, feeSnap, countSnap] = await Promise.all([
                     db.collection("setups").doc(schoolCode).get().catch(() => null),
                     db.collection("fee_receipts").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] })),
@@ -2526,12 +2562,14 @@
 
                 totalStudentsCount = countSnap ? countSnap.size : 0;
 
-                // Load first page
                 await loadStudentPage(1);
 
                 loadSetupDropdowns();
                 updateNextRegNoLocal();
                 renderMasterSetup();
+
+                // ✅ After all rendering, measure and set sticky offset
+                setTimeout(updateStickyTableHead, 50);
 
             } catch (error) {
                 console.error("Firebase Sync Error:", error);
@@ -2540,7 +2578,6 @@
         }
 
         function updateNextRegNoLocal() {
-            // Compute max from current page + total (approx). Actually, for accuracy, we lazy-load all when Add Student is clicked.
             const maxKnown = Math.max(totalStudentsCount, 0);
             document.getElementById('lastRegNoDisplay').innerText = maxKnown;
             if (document.getElementById('editMode').value === "false") {
@@ -2608,7 +2645,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- UI NAVIGATION LOGIC ---
+            // --- UI NAVIGATION ---
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('appSidebar');
             if (sidebarToggle && sidebar) {
@@ -2625,7 +2662,6 @@
                     const targetId = this.getAttribute('data-target');
                     if (targetId) {
                         document.getElementById(targetId).classList.add('active-module');
-                        // ✅ Lazy load all students for modules that need complete data
                         if (targetId === 'module-dashboard') {
                             await ensureAppDataLoaded();
                             renderDashboard();
@@ -2633,6 +2669,10 @@
                         }
                         if (targetId === 'module-bulk-actions') {
                             await ensureAppDataLoaded();
+                        }
+                        if (targetId === 'module-profiles') {
+                            // ✅ Recompute sticky offset when navigating back to profiles
+                            setTimeout(updateStickyTableHead, 50);
                         }
                     }
                 });
@@ -2650,7 +2690,7 @@
                 });
             });
 
-            // --- AUTHENTICATION CHECK ---
+            // --- AUTH ---
             const activeUserStr = localStorage.getItem('erp_active_user');
             if (!activeUserStr) { window.location.href = 'login.html'; return; }
             const activeUser = JSON.parse(activeUserStr);
@@ -2712,7 +2752,7 @@
                 }
             });
 
-            // ✅ PAGINATION BUTTON HANDLERS
+            // ✅ PAGINATION HANDLERS
             document.getElementById('btnPrevPage')?.addEventListener('click', () => {
                 if (currentPage > 1) loadStudentPage(currentPage - 1);
             });
@@ -2755,7 +2795,6 @@
                 const fRel = document.getElementById('filterReligion').value;
                 const fName = searchNameInput.value.toLowerCase();
 
-                // ✅ Lazy load all students before filtering
                 const tbody = document.getElementById('studentTableBody');
                 if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:20px;">Loading all students to apply filter... ⏳</td></tr>';
                 await ensureAppDataLoaded();
@@ -2778,7 +2817,6 @@
                     return matchClass && matchSec && matchGender && matchHouse && matchCat && matchBlood && matchRel && matchName;
                 });
 
-                // Switch to filter mode
                 currentMode = 'filter';
                 filteredStudents = filtered;
                 currentPage = 1;
@@ -3013,7 +3051,6 @@
                     document.getElementById('feeApplicableDate').value = '';
                     document.getElementById('fee50Rule').checked = false;
                     formTabs[0].click();
-                    // ✅ Lazy load all students to compute accurate next regNo
                     await updateNextRegNoAccurate();
                     ['studentPhoto', 'fatherPhoto', 'motherPhoto'].forEach(p => {
                         document.getElementById(p + 'Base64').value = '';
@@ -3026,6 +3063,8 @@
             document.getElementById('btn-back-to-profiles')?.addEventListener('click', () => {
                 document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
                 document.getElementById('module-profiles').classList.add('active-module');
+                // ✅ recompute sticky offset
+                setTimeout(updateStickyTableHead, 50);
             });
 
             // EXPORT DROPDOWN
@@ -3220,7 +3259,6 @@
             window.deleteMasterSetup = function (cat, index) { customConfirm("Delete this setup entry?", () => { setupData[cat].splice(index, 1); saveMasterSetupToDB(); }); }
 
             window.renderMasterSetup = function () {
-
                 const area = document.getElementById('msDisplayArea'); if (!area) return; area.innerHTML = ''; if (!setupData) return;
                 const titles = { classes: "CLASSES", genders: "GENDERS", categories: "CATEGORIES", bloodGroups: "BLOOD GROUPS", houses: "HOUSES", religions: "RELIGIONS", salutations: "SALUTATIONS" };
                 Object.keys(titles).forEach(key => {
@@ -3301,7 +3339,6 @@
             // FEE LEDGER
             // ==========================================
             window.openLedger = function (regNo) {
-                // ✅ Search in currentPageDocs first, then fall back to appData
                 let student = currentPageDocs.find(s => String(s.regNo) === String(regNo))
                     || (appDataLoaded ? appData.find(s => String(s.regNo) === String(regNo)) : null);
                 let sName = "Unknown (Deleted)"; let sClass = "-"; let sFather = "-";
@@ -3418,7 +3455,6 @@
             // BULK ACTIONS
             // ==========================================
             window.populateBulkDropdowns = function () {
-
                 const fromClass = document.getElementById('bulkFromClass');
                 const toClass = document.getElementById('bulkToClass');
                 const rollClass = document.getElementById('bulkRollClass');
@@ -3588,6 +3624,20 @@
                 document.body.appendChild(a); a.click(); document.body.removeChild(a);
                 document.getElementById('reportConfigModal').classList.remove('active');
             });
+
+            // ✅ Window resize: recompute sticky offset
+            window.addEventListener('resize', () => {
+                updateStickyTableHead();
+            });
+
+            // ✅ ResizeObserver on the sticky top section itself
+            // (handles cases where the toolbar wraps on narrower screens)
+            const _stickySec = document.querySelector('#module-profiles .sticky-top-section');
+            if (_stickySec && 'ResizeObserver' in window) {
+                try {
+                    new ResizeObserver(() => updateStickyTableHead()).observe(_stickySec);
+                } catch (e) { /* silent */ }
+            }
 
             // Start fetching data
             setTimeout(() => { syncWithDatabase(); }, 100);
