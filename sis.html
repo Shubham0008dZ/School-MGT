@@ -1436,6 +1436,16 @@
                 width: 250px;
             }
         }
+
+
+
+        /* ✅ Table column headers bhi sticky top section ke turant niche chipke rahenge */
+        #module-profiles .data-table thead th {
+            position: sticky;
+            top: 118px;
+            /* sticky-top-section (title+toolbar) ki approx height */
+            z-index: 15;
+        }
     </style>
 </head>
 
@@ -3215,7 +3225,8 @@
 
             window.deleteMasterSetup = function (cat, index) { customConfirm("Delete this setup entry?", () => { setupData[cat].splice(index, 1); saveMasterSetupToDB(); }); }
 
-            function renderMasterSetup() {
+            window.renderMasterSetup = function () {
+
                 const area = document.getElementById('msDisplayArea'); if (!area) return; area.innerHTML = ''; if (!setupData) return;
                 const titles = { classes: "CLASSES", genders: "GENDERS", categories: "CATEGORIES", bloodGroups: "BLOOD GROUPS", houses: "HOUSES", religions: "RELIGIONS", salutations: "SALUTATIONS" };
                 Object.keys(titles).forEach(key => {
