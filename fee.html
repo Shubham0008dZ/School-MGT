@@ -583,33 +583,6 @@
                 font-weight: bold;
             }
 
-            .print-details-wrapper {
-                display: flex;
-                border: 1px solid #000;
-                margin-bottom: 0;
-            }
-
-            .print-info-table {
-                width: 50%;
-                border-collapse: collapse;
-                font-size: 13px;
-            }
-
-            .print-info-table:first-child {
-                border-right: 1px solid #000;
-            }
-
-            .print-info-table th {
-                border-bottom: 1px solid #000;
-                padding: 5px;
-                font-size: 14px;
-            }
-
-            .print-info-table td {
-                padding: 4px 8px;
-                vertical-align: top;
-            }
-
             .print-particulars-table {
                 width: 100%;
                 border-collapse: collapse;
@@ -622,10 +595,6 @@
             .print-particulars-table td {
                 border: 1px solid #000;
                 padding: 6px;
-            }
-
-            .print-particulars-table th {
-                font-weight: bold;
             }
 
             .print-particulars-table td {
@@ -663,7 +632,6 @@
             --warn-bg: #FAF0DE;
             --info: #2A5C8A;
             --info-bg: #E9F1F8;
-            --radius-s: 6px;
             --radius-m: 10px;
             --radius-l: 16px;
             --shadow-1: 0 1px 2px rgba(20, 33, 61, .06), 0 2px 8px rgba(20, 33, 61, .05);
@@ -719,10 +687,6 @@
         ::-webkit-scrollbar-thumb {
             background: #C9C3B0;
             border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
         }
 
         .top-navbar {
@@ -784,14 +748,6 @@
             font-size: 17px;
             letter-spacing: .01em;
             color: #F7F3E7;
-        }
-
-        .top-center {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            max-width: 640px;
-            margin: 0 auto;
         }
 
         .top-right {
@@ -1525,7 +1481,7 @@
                                         <th>Delete</th>
                                         <th>Fee Head</th>
                                         <th>Fee Period</th>
-                                        <th>Actual</th>
+                                        <th>Actual Due</th>
                                         <th>Concession</th>
                                         <th>Waiver</th>
                                         <th>Net Payable</th>
@@ -1715,8 +1671,7 @@
                                 </select>
                             </div>
                             <div style="margin-bottom:15px;"><label style="font-weight:bold;">Default Amount
-                                    (₹)</label><input type="number" id="headAmount" value="0" style="width:100%;">
-                            </div>
+                                    (₹)</label><input type="number" id="headAmount" value="0" style="width:100%;"></div>
                             <button type="submit" class="btn btn-green" style="width:100%;" id="btnSubmitFeeHead">Add
                                 Fee Head</button>
                         </form>
@@ -1747,7 +1702,7 @@
 
     <!-- LEDGER MODAL -->
     <div id="ledgerModal" class="modal-overlay">
-        <div class="modal-card" style="width:960px; max-height:95vh;">
+        <div class="modal-card" style="width:1060px; max-height:95vh;">
             <div class="modal-header"
                 style="display:flex; align-items:center; justify-content:space-between; padding:15px 20px; background:#2c3e50; border-radius:8px 8px 0 0;">
                 <div style="display:flex; align-items:center; gap:20px;">
@@ -1767,7 +1722,6 @@
 
             <div class="modal-body" style="padding:20px; overflow-y:auto; background:#f9f9f9;">
                 <div id="ledgerExportArea" style="background:#f9f9f9; padding:5px;">
-
                     <div
                         style="display:flex; justify-content:space-between; background:white; padding:15px; border-radius:5px; border-left:4px solid #3498db; border:1px solid #ddd; margin-bottom:20px; font-family:Arial,sans-serif;">
                         <div><strong style="color:#555;">Student Name:</strong> <span id="l-name"
@@ -1839,7 +1793,6 @@
                         </thead>
                         <tbody id="ledgerHistoryBody"></tbody>
                     </table>
-
                 </div>
             </div>
         </div>
@@ -1851,10 +1804,10 @@
             <div class="print-header">
                 <div class="print-logo">🏫</div>
                 <div class="print-school-info">
-                    <h2>Vinayak International Associates</h2>
-                    <p>Sector-3, Vasundhara, Ghaziabad, Uttar Pradesh</p>
-                    <p>0120-4111062, 4111061</p>
-                    <p>vpsvasundhara@gmail.com, www.vanasthalischool.in</p>
+                    <h2 id="p-school-name">School Name</h2>
+                    <p id="p-school-addr">Sector-3, Vasundhara, Ghaziabad, Uttar Pradesh</p>
+                    <p id="p-school-phone">0120-4111062, 4111061</p>
+                    <p id="p-school-email">vpsvasundhara@gmail.com, www.vanasthalischool.in</p>
                 </div>
             </div>
             <h3 class="print-title"><u>Fee Receipt</u></h3>
@@ -1969,8 +1922,8 @@
                         <td colspan="5" style="padding:30px 10px 10px 10px; border-bottom:none;">
                             <div style="display:flex; justify-content:space-between; align-items:flex-end;">
                                 <div>*Cheque/DD is subject to realization<br>Note:</div>
-                                <div style="text-align:right;"><b>For Vinayak International
-                                        Associates</b><br><br><br><b>AUTH.SIGNATORY</b></div>
+                                <div style="text-align:right;"><b id="p-sign-school">For
+                                        School</b><br><br><br><b>AUTH.SIGNATORY</b></div>
                             </div>
                         </td>
                     </tr>
@@ -1984,9 +1937,7 @@
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('appSidebar');
             if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', function () {
-                    sidebar.classList.toggle('collapsed');
-                });
+                sidebarToggle.addEventListener('click', function () { sidebar.classList.toggle('collapsed'); });
             }
         });
     </script>
@@ -2020,9 +1971,6 @@
         const academicMonths = ["Apr, 26", "May, 26", "Jun, 26", "Jul, 26", "Aug, 26", "Sep, 26", "Oct, 26", "Nov, 26", "Dec, 26", "Jan, 27", "Feb, 27", "Mar, 27"];
         let schoolCode = "";
 
-        // =============================================================
-        // FEE APPLICABLE DATE HELPERS
-        // =============================================================
         const MONTH_NAME_TO_INDEX = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
 
         function parseAcademicMonthToken(mStr) {
@@ -2058,15 +2006,10 @@
             const accKey = acc.year * 12 + acc.month;
             const appKey = app.year * 12 + app.month;
             if (accKey < appKey) return false;
-            if (accKey === appKey && fee50Rule === true) {
-                if (app.day > 15) return false;
-            }
+            if (accKey === appKey && fee50Rule === true) { if (app.day > 15) return false; }
             return true;
         }
 
-        // =============================================================
-        // QUARTER HELPERS
-        // =============================================================
         function getQuarterStructure(quartersPerYear) {
             if (quartersPerYear === 3) {
                 return [
@@ -2083,12 +2026,10 @@
             ];
         }
 
-        // Determine whether a concession applies to a given row (head + period)
         function doesConcessionApply(rowPeriod, rowFrequency, quartersPerYear, fromMonth, toMonth) {
             const fromIdx = academicMonths.indexOf(fromMonth);
             const toIdx = academicMonths.indexOf(toMonth);
             if (fromIdx === -1 || toIdx === -1) return false;
-
             if (rowFrequency === 'Monthly') {
                 const pIdx = academicMonths.indexOf(rowPeriod);
                 if (pIdx === -1) return false;
@@ -2100,33 +2041,26 @@
                 if (!q) return false;
                 const firstIdx = academicMonths.indexOf(q.months[0]);
                 const lastIdx = academicMonths.indexOf(q.months[q.months.length - 1]);
-                // Applies if quarter overlaps with range
                 return !(lastIdx < fromIdx || firstIdx > toIdx);
             }
-            // Annual / One Time — applies if the range overlaps with the year start
             return true;
         }
 
-        // Compute total concession/waiver amount for a given row (from saved concession records)
         function calcAdjustmentFromRecords(studentRegNo, feeHeadName, rowPeriod, rowFrequency, quartersPerYear, actualAmount) {
-            let concession = 0;
-            let waiver = 0;
+            let concession = 0, waiver = 0;
             feeConcessions.forEach(c => {
                 if (String(c.Student_RegNo) !== String(studentRegNo)) return;
                 const headMatch = (c.FeeHead_Name === "__ALL__" || c.FeeHead_Name === feeHeadName);
                 if (!headMatch) return;
                 if (!doesConcessionApply(rowPeriod, rowFrequency, quartersPerYear, c.From_Month, c.To_Month)) return;
-
                 const val = parseFloat(c.Value) || 0;
                 let amt = 0;
                 if (c.Basis === 'Amount') amt = val;
                 else if (c.Basis === 'Percent') amt = (val / 100) * actualAmount;
-
                 if (c.Type === 'Concession') concession += amt;
                 else if (c.Type === 'Waiver') waiver += amt;
             });
-            // Cap at actual
-            if (concession + waiver > actualAmount) {
+            if (concession + waiver > actualAmount && actualAmount > 0) {
                 const ratio = actualAmount / (concession + waiver);
                 concession *= ratio;
                 waiver *= ratio;
@@ -2184,22 +2118,14 @@
             const topRightSpans = document.querySelectorAll('.top-right span');
             if (topRightSpans.length > 0) { topRightSpans[0].innerHTML = `👤 Welcome, <b>${activeUser.empName}</b>`; }
 
-            // ==========================================
-            // 🛡️ SECURITY GUARD (RBAC STRICT ENFORCEMENT)
-            // ==========================================
             if (!isSA) {
-                if (!userRights.some(r => r.startsWith("FEE_"))) {
-                    window.location.href = 'index.html';
-                    return;
-                }
-
+                if (!userRights.some(r => r.startsWith("FEE_"))) { window.location.href = 'index.html'; return; }
                 if (!userRights.includes("FEE_View")) {
                     let menuView = document.querySelector('.nav-btn[data-target="module-receipts-list"]');
                     if (menuView) menuView.parentElement.remove();
                     let modReceipts = document.getElementById('module-receipts-list');
                     if (modReceipts) modReceipts.innerHTML = "<div style='padding:40px; text-align:center;'><h2 style='color:#e74c3c;'>Access Denied</h2><p>You do not have permission to view fee receipts.</p></div>";
                 }
-
                 if (!userRights.includes("FEE_Collect")) {
                     let addBtn = document.getElementById('btn-open-add-receipt');
                     let menuCollect = document.getElementById('sideAddReceipt');
@@ -2208,14 +2134,11 @@
                     let addMod = document.getElementById('module-add-receipt');
                     if (addMod) addMod.remove();
                 }
-
-                // Concessions — use FEE_Heads right
                 if (!userRights.includes("FEE_Heads")) {
                     let menuCon = document.getElementById('sideConcessions');
                     if (menuCon) menuCon.parentElement.remove();
                     let conMod = document.getElementById('module-fee-concessions');
                     if (conMod) conMod.remove();
-
                     let menuHeads = document.querySelector('.nav-btn[data-target="module-fee-setup"]');
                     if (menuHeads) menuHeads.parentElement.remove();
                     let setupMod = document.getElementById('module-fee-setup');
@@ -2233,7 +2156,9 @@
             }
 
             function formatToDDMMYYYY(dateString) {
-                if (!dateString) return ""; const d = new Date(dateString); if (isNaN(d.getTime())) return dateString;
+                if (!dateString) return "";
+                const d = new Date(dateString);
+                if (isNaN(d.getTime())) return dateString;
                 return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
             }
 
@@ -2249,9 +2174,6 @@
                 document.title = originalTitle;
             }
 
-            // ==========================================
-            // INIT DATA
-            // ==========================================
             window.initData = async function () {
                 const tbody = document.getElementById('receiptsTableBody');
                 if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">Fetching Database... ⏳</td></tr>';
@@ -2358,7 +2280,9 @@
             }
 
             // ==========================================
-            // GENERATE FEE TABLE (with Quarterly + Concession logic)
+            // ✅ FIXED: Fee Table Generation
+            // Correctly subtracts previous concessions/waivers/payments
+            // and applies auto-concession only for first-time rows.
             // ==========================================
             function generateFeeTable(student, selectedMonthVal) {
                 const tbody = document.getElementById('feeHeadsTbody');
@@ -2372,14 +2296,22 @@
                 const feeAppDate = (student && typeof student.feeApplicableDate === 'string') ? student.feeApplicableDate : '';
                 const fee50 = !!(student && student.fee50Rule === true);
 
-                let paidMap = {};
+                // Build cumulative paid / concession / waiver maps from all previous receipts
+                let paidMap = {}, concMap = {}, waivMap = {};
                 feeReceipts.forEach(r => {
                     if (String(r.Reg_No).trim() === String(student.regNo).trim()) {
                         try {
                             let details = JSON.parse(r.Paid_Heads || "[]");
                             details.forEach(d => {
                                 let uid = d.head + "_" + d.period;
+                                let conc = parseFloat(d.concession) || 0;
+                                let waiv = parseFloat(d.waiver) || 0;
+                                const adj = parseFloat(d.adj) || 0;
+                                // Backward compat: if only `adj` stored (old format), attribute to concession
+                                if (conc + waiv === 0 && adj > 0) conc = adj;
                                 paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
+                                concMap[uid] = (concMap[uid] || 0) + conc;
+                                waivMap[uid] = (waivMap[uid] || 0) + waiv;
                             });
                         } catch (e) { }
                     }
@@ -2389,44 +2321,52 @@
                 let selectedMonthIdx = academicMonths.indexOf(selectedMonthVal);
                 if (selectedMonthIdx === -1) selectedMonthIdx = 0;
 
-                // --- Monthly Tuition Fee (from class setup) ---
-                for (let i = 0; i <= selectedMonthIdx; i++) {
-                    if (!shouldShowMonth(academicMonths[i], feeAppDate, fee50)) continue;
-                    let uid = "Monthly Tuition Fee_" + academicMonths[i];
-                    let alreadyPaid = paidMap[uid] || 0;
-                    let remaining = classFeeAmount - alreadyPaid;
-                    if (remaining > 0) {
-                        allRows.push({
-                            head: "Monthly Tuition Fee",
-                            period: academicMonths[i],
-                            amount: remaining,
-                            feeHeadName: "Monthly Tuition Fee",
-                            frequency: 'Monthly',
-                            quartersPerYear: 0
-                        });
+                function addRow(feeHeadName, period, originalAmount, frequency, quartersPerYear) {
+                    if (originalAmount <= 0) return;
+                    const uid = feeHeadName + "_" + period;
+                    const prevPaid = paidMap[uid] || 0;
+                    const prevConc = concMap[uid] || 0;
+                    const prevWaiv = waivMap[uid] || 0;
+                    const totalPrevHandled = prevPaid + prevConc + prevWaiv;
+                    const remaining = originalAmount - totalPrevHandled;
+                    if (remaining <= 0) return;
+
+                    // Auto concession/waiver — only for FIRST TIME rows (no previous activity)
+                    let autoConc = 0, autoWaiv = 0;
+                    if (totalPrevHandled === 0) {
+                        const adj = calcAdjustmentFromRecords(student.regNo, feeHeadName, period, frequency, quartersPerYear, originalAmount);
+                        autoConc = adj.concession;
+                        autoWaiv = adj.waiver;
                     }
+                    // Cap so we don't exceed remaining
+                    autoConc = Math.min(autoConc, remaining);
+                    autoWaiv = Math.min(autoWaiv, Math.max(0, remaining - autoConc));
+
+                    const netPayable = Math.max(0, remaining - autoConc - autoWaiv);
+
+                    allRows.push({
+                        head: feeHeadName,
+                        period: period,
+                        amount: remaining,          // "Actual Due" = remaining after prev settlements
+                        autoConc: autoConc,
+                        autoWaiv: autoWaiv,
+                        netPayable: netPayable
+                    });
                 }
 
-                // --- Custom Fee Heads ---
+                // Monthly Tuition Fee (from class setup)
+                for (let i = 0; i <= selectedMonthIdx; i++) {
+                    if (!shouldShowMonth(academicMonths[i], feeAppDate, fee50)) continue;
+                    addRow("Monthly Tuition Fee", academicMonths[i], classFeeAmount, 'Monthly', 0);
+                }
+
+                // Custom Fee Heads
                 feeHeads.forEach(fh => {
                     const amount = parseFloat(fh.Amount) || 0;
-
                     if (fh.Frequency === "Monthly") {
                         for (let i = 0; i <= selectedMonthIdx; i++) {
                             if (!shouldShowMonth(academicMonths[i], feeAppDate, fee50)) continue;
-                            let uid = fh.Head_Name + "_" + academicMonths[i];
-                            let alreadyPaid = paidMap[uid] || 0;
-                            let remaining = amount - alreadyPaid;
-                            if (remaining > 0) {
-                                allRows.push({
-                                    head: fh.Head_Name,
-                                    period: academicMonths[i],
-                                    amount: remaining,
-                                    feeHeadName: fh.Head_Name,
-                                    frequency: 'Monthly',
-                                    quartersPerYear: 0
-                                });
-                            }
+                            addRow(fh.Head_Name, academicMonths[i], amount, 'Monthly', 0);
                         }
                     }
                     else if (fh.Frequency === "Quarterly") {
@@ -2434,55 +2374,24 @@
                         const qList = getQuarterStructure(qpy);
                         qList.forEach(q => {
                             const firstIdx = academicMonths.indexOf(q.months[0]);
-                            if (firstIdx > selectedMonthIdx) return; // quarter not yet reached
-                            // Skip if entire quarter falls before Fee Applicable Date
-                            const lastIdx = academicMonths.indexOf(q.months[q.months.length - 1]);
+                            if (firstIdx > selectedMonthIdx) return;
                             if (feeAppDate) {
                                 const app = parseISODate(feeAppDate);
-                                if (app) {
-                                    const qFirst = parseAcademicMonthToken(q.months[0]);
-                                    const qLast = parseAcademicMonthToken(q.months[q.months.length - 1]);
-                                    if (qFirst && qLast) {
-                                        const qFirstKey = qFirst.year * 12 + qFirst.month;
-                                        const qLastKey = qLast.year * 12 + qLast.month;
-                                        const appKey = app.year * 12 + app.month;
-                                        // Skip if quarter ends before applicable month
-                                        if (qLastKey < appKey) return;
-                                        // 50% rule: if quarter starts in same month as applicable and day>15, skip
-                                        if (fee50 && qFirstKey === appKey && app.day > 15) return;
-                                    }
+                                const qFirst = parseAcademicMonthToken(q.months[0]);
+                                const qLast = parseAcademicMonthToken(q.months[q.months.length - 1]);
+                                if (app && qFirst && qLast) {
+                                    const qFirstKey = qFirst.year * 12 + qFirst.month;
+                                    const qLastKey = qLast.year * 12 + qLast.month;
+                                    const appKey = app.year * 12 + app.month;
+                                    if (qLastKey < appKey) return;
+                                    if (fee50 && qFirstKey === appKey && app.day > 15) return;
                                 }
                             }
-                            let uid = fh.Head_Name + "_" + q.label;
-                            let alreadyPaid = paidMap[uid] || 0;
-                            let remaining = amount - alreadyPaid;
-                            if (remaining > 0) {
-                                allRows.push({
-                                    head: fh.Head_Name,
-                                    period: q.label,
-                                    amount: remaining,
-                                    feeHeadName: fh.Head_Name,
-                                    frequency: 'Quarterly',
-                                    quartersPerYear: qpy
-                                });
-                            }
+                            addRow(fh.Head_Name, q.label, amount, 'Quarterly', qpy);
                         });
                     }
                     else {
-                        // One Time / Annually
-                        let uid = fh.Head_Name + "_" + fh.Frequency;
-                        let alreadyPaid = paidMap[uid] || 0;
-                        let remaining = amount - alreadyPaid;
-                        if (remaining > 0) {
-                            allRows.push({
-                                head: fh.Head_Name,
-                                period: fh.Frequency,
-                                amount: remaining,
-                                feeHeadName: fh.Head_Name,
-                                frequency: fh.Frequency,
-                                quartersPerYear: 0
-                            });
-                        }
+                        addRow(fh.Head_Name, fh.Frequency, amount, fh.Frequency, 0);
                     }
                 });
 
@@ -2493,23 +2402,15 @@
                 }
 
                 allRows.forEach(r => {
-                    // ⭐ Compute auto-concession/waiver from saved records
-                    const adj = calcAdjustmentFromRecords(
-                        student.regNo, r.feeHeadName, r.period, r.frequency, r.quartersPerYear, r.amount
-                    );
-                    const autoConc = adj.concession;
-                    const autoWaiv = adj.waiver;
-                    const netPayable = Math.max(0, r.amount - autoConc - autoWaiv);
-
                     tbody.innerHTML += `<tr class="f-row" data-head="${r.head}" data-period="${r.period}">
                         <td><input type="checkbox" class="f-chk" checked title="Check to delete/exclude row"></td>
                         <td class="f-head" style="text-align:left;"><b>${r.head}</b></td>
                         <td>${r.period}</td>
                         <td><input type="number" class="f-actual" value="${r.amount.toFixed(2)}" readonly style="border:none; background:transparent; font-weight:bold;"></td>
-                        <td><input type="number" class="f-conc" value="${autoConc.toFixed(2)}"></td>
-                        <td><input type="number" class="f-waiver" value="${autoWaiv.toFixed(2)}"></td>
-                        <td><input type="number" class="f-net" value="${netPayable.toFixed(2)}" readonly style="font-weight:bold; color:#e74c3c; background:#f9f9f9; border:none;"></td>
-                        <td><input type="number" class="f-paid" value="${netPayable.toFixed(2)}" style="background:#e8f4f8;"></td>
+                        <td><input type="number" class="f-conc" value="${r.autoConc.toFixed(2)}"></td>
+                        <td><input type="number" class="f-waiver" value="${r.autoWaiv.toFixed(2)}"></td>
+                        <td><input type="number" class="f-net" value="${r.netPayable.toFixed(2)}" readonly style="font-weight:bold; color:#e74c3c; background:#f9f9f9; border:none;"></td>
+                        <td><input type="number" class="f-paid" value="${r.netPayable.toFixed(2)}" style="background:#e8f4f8;"></td>
                         <td><input type="number" class="f-bal" value="0.00" readonly style="border:none; background:transparent; font-weight:bold;"></td>
                     </tr>`;
                 });
@@ -2603,9 +2504,6 @@
                 if (rNoElem) rNoElem.value = `2026-27/${maxNo + 1}`;
             }
 
-            // ==========================================
-            // SAVE RECEIPT
-            // ==========================================
             async function saveReceipt(onSuccessAction) {
                 const regNo = document.getElementById('feeStudentSelect').value;
                 if (!regNo) { alert("Please select a student first."); return; }
@@ -2715,62 +2613,85 @@
                         } else {
                             particularsStr = "Fee Payment";
                         }
-                    } catch (e) {
-                        particularsStr = r.Receipt_Summary || "Details Unavailable";
-                    }
+                    } catch (e) { particularsStr = r.Receipt_Summary || "Details Unavailable"; }
 
-                    let rNo = String(r.Receipt_No).replace("'", "");
-                    let rDate = String(r.Date).replace("'", "");
-                    let safeReceipt = JSON.stringify(r).replace(/'/g, "&#39;");
+                    let rNo = String(r.Receipt_No || '').replace(/'/g, "");
+                    let rDate = String(r.Date || '').replace(/'/g, "");
 
-                    let btnHTML = `<button class="btn-red" style="background:#3498db;" title="Print" onclick='printFromHistory(${safeReceipt})'>🖨️</button>`;
+                    let btnHTML = `<button class="btn-red" style="background:#3498db;" title="Print" onclick="printFromHistoryById('${r.id}')">🖨️</button>`;
 
                     if (isSA || userRights.includes("FEE_Delete")) {
                         btnHTML += `<button class="btn-red" title="Delete" onclick="deleteReceipt('${r.id}')">🗑️</button>`;
                     }
 
-                    tbody.innerHTML += `
-                <tr>
-                    <td>${idx + 1}</td><td><b>${rNo}</b></td><td>${r.Reg_No}</td>
-                    <td><a href="#" class="student-ledger-link" onclick="openLedger('${r.Reg_No}')" title="View Fee Ledger">${r.Student_Name}</a></td>
-                    <td>${r.Class_Section}</td>
-                    <td style="text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td>
-                    <td>${r.Payment_Mode}</td><td style="color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td>
-                    <td>${rDate}</td><td>${r.Timestamp ? new Date(r.Timestamp).toLocaleString() : '-'}</td>
-                    <td>${btnHTML}</td>
-                </tr>
-            `;
+                    tbody.innerHTML += `<tr>
+                        <td>${idx + 1}</td><td><b>${rNo}</b></td><td>${r.Reg_No || '-'}</td>
+                        <td><a href="#" class="student-ledger-link" onclick="openLedger('${r.Reg_No}')" title="View Fee Ledger">${r.Student_Name || '-'}</a></td>
+                        <td>${r.Class_Section || '-'}</td>
+                        <td style="text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td>
+                        <td>${r.Payment_Mode || '-'}</td><td style="color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount || 0).toFixed(2)}</td>
+                        <td>${rDate}</td><td>${r.Timestamp ? new Date(r.Timestamp).toLocaleString() : '-'}</td>
+                        <td>${btnHTML}</td>
+                    </tr>`;
                 });
             }
 
-            window.printFromHistory = function (r) {
-                let student = allStudents.find(s => String(s.regNo) === String(r.Reg_No));
+            // ✅ FIXED: Lookup by docId, robust against missing fields
+            window.printFromHistoryById = function (docId) {
+                let r = feeReceipts.find(x => x.id === docId);
+                if (!r) { customAlert("Receipt not found in memory. Please click Sync Data and retry."); return; }
+
+                const regNo = r.Reg_No || '';
+                const studentName = r.Student_Name || 'Student';
+                const classSec = r.Class_Section || '-';
+                const receiptNo = String(r.Receipt_No || '').replace(/'/g, "");
+                const installment = String(r.Installment || '').replace(/'/g, "");
+                const receiptDate = String(r.Date || '').replace(/'/g, "");
+                const amount = r.Amount || '0';
+                const paymentMode = r.Payment_Mode || 'Cash';
+                const bankName = r.Bank_Name || '-';
+                const refNo = String(r.Ref_No || '-').replace(/'/g, "");
+
+                let student = allStudents.find(s => String(s.regNo) === String(regNo));
                 let fName = student ? (student.fatherName || '-') : '-';
                 let mName = student ? (student.motherName || '-') : '-';
+
                 let detailsArray = [];
-                try { if (typeof r.Paid_Heads === 'string') { detailsArray = JSON.parse(r.Paid_Heads || "[]"); } } catch (e) { }
+                try {
+                    if (typeof r.Paid_Heads === 'string') detailsArray = JSON.parse(r.Paid_Heads || "[]");
+                    else if (Array.isArray(r.Paid_Heads)) detailsArray = r.Paid_Heads;
+                } catch (e) { }
+
                 let rData = {
-                    receiptNo: String(r.Receipt_No).replace("'", ""),
-                    regNo: r.Reg_No, studentName: r.Student_Name, classSec: r.Class_Section,
-                    installment: String(r.Installment).replace("'", ""),
-                    date: String(r.Date).replace("'", ""),
-                    totalAmount: r.Amount, paymentMode: r.Payment_Mode,
-                    bankName: r.Bank_Name || '-',
-                    refNo: String(r.Ref_No).replace("'", "") || '-'
+                    receiptNo: receiptNo || '-',
+                    regNo: regNo || '-',
+                    studentName: studentName,
+                    classSec: classSec,
+                    installment: installment || '-',
+                    date: receiptDate || '-',
+                    totalAmount: amount,
+                    paymentMode: paymentMode,
+                    bankName: bankName,
+                    refNo: refNo
                 };
                 populatePrintTemplate(rData, detailsArray, fName, mName);
-                executePrint(rData.studentName, rData.receiptNo);
-            }
+                executePrint(studentName, receiptNo);
+            };
 
+            // ✅ FIXED: Print template now uses dynamic school name
             function populatePrintTemplate(rData, detailsArray, fName, mName) {
-                document.getElementById('p-adm').innerText = rData.regNo;
-                document.getElementById('p-name').innerText = rData.studentName;
-                document.getElementById('p-father').innerText = fName;
-                document.getElementById('p-mother').innerText = mName;
-                document.getElementById('p-class').innerText = rData.classSec;
-                document.getElementById('p-receipt').innerText = rData.receiptNo;
-                document.getElementById('p-date').innerText = rData.date;
-                document.getElementById('p-period').innerText = rData.installment;
+                const schoolName = localStorage.getItem('erp_school_name') || 'School Name';
+                document.getElementById('p-school-name').innerText = schoolName;
+                document.getElementById('p-sign-school').innerText = `For ${schoolName}`;
+
+                document.getElementById('p-adm').innerText = rData.regNo || '-';
+                document.getElementById('p-name').innerText = rData.studentName || '-';
+                document.getElementById('p-father').innerText = fName || '-';
+                document.getElementById('p-mother').innerText = mName || '-';
+                document.getElementById('p-class').innerText = rData.classSec || '-';
+                document.getElementById('p-receipt').innerText = rData.receiptNo || '-';
+                document.getElementById('p-date').innerText = rData.date || '-';
+                document.getElementById('p-period').innerText = rData.installment || '-';
 
                 let pBody = document.getElementById('print-particulars-body');
                 pBody.innerHTML = '';
@@ -2780,7 +2701,10 @@
                     const fee = parseFloat(d.actual) || 0;
                     const conc = parseFloat(d.concession) || 0;
                     const waiv = parseFloat(d.waiver) || 0;
-                    const adj = conc + waiv;
+                    const adjSum = parseFloat(d.adj) || 0;
+                    let finalConc = conc, finalWaiv = waiv;
+                    if (conc + waiv === 0 && adjSum > 0) finalConc = adjSum;
+                    const adj = finalConc + finalWaiv;
                     const pay = parseFloat(d.payable) || 0;
                     const pd = parseFloat(d.paid) || 0;
                     const bal = parseFloat(d.bal) || 0;
@@ -2790,12 +2714,11 @@
                     let displayName = d.head || "Fee";
                     if (d.period) displayName += ` <span style="color:#555; font-size:11px;">(${d.period})</span>`;
 
-                    // ⭐ Adjustment column with breakdown
                     let adjCell = `${adj.toFixed(2)}`;
-                    if (conc > 0 || waiv > 0) {
+                    if (finalConc > 0 || finalWaiv > 0) {
                         let parts = [];
-                        if (conc > 0) parts.push(`Conc: ₹${conc.toFixed(2)}`);
-                        if (waiv > 0) parts.push(`Waiv: ₹${waiv.toFixed(2)}`);
+                        if (finalConc > 0) parts.push(`Conc: ₹${finalConc.toFixed(2)}`);
+                        if (finalWaiv > 0) parts.push(`Waiv: ₹${finalWaiv.toFixed(2)}`);
                         adjCell += `<br><span style="font-size:10px; color:#555; font-weight:normal;">(${parts.join(' + ')})</span>`;
                     }
 
@@ -2815,11 +2738,11 @@
                 document.getElementById('p-t-paid').innerText = tPaid.toFixed(2);
                 document.getElementById('p-t-bal').innerText = tBal.toFixed(2);
                 document.getElementById('p-words').innerText = tPaid.toFixed(2) + " /-";
-                document.getElementById('p-pmode').innerText = rData.paymentMode;
-                document.getElementById('p-pbank').innerText = rData.bankName;
-                document.getElementById('p-pdate').innerText = rData.date;
-                document.getElementById('p-pdet').innerText = rData.refNo;
-                document.getElementById('p-pamt').innerText = rData.totalAmount;
+                document.getElementById('p-pmode').innerText = rData.paymentMode || '-';
+                document.getElementById('p-pbank').innerText = rData.bankName || '-';
+                document.getElementById('p-pdate').innerText = rData.date || '-';
+                document.getElementById('p-pdet').innerText = rData.refNo || '-';
+                document.getElementById('p-pamt').innerText = rData.totalAmount || '-';
             }
 
             window.deleteReceipt = function (docId) {
@@ -2827,15 +2750,10 @@
                     db.collection("fee_receipts").doc(docId).delete().then(() => {
                         alert("Receipt Deleted Successfully.");
                         initData();
-                    }).catch(err => {
-                        alert("Error deleting receipt: " + err.message);
-                    });
+                    }).catch(err => alert("Error deleting receipt: " + err.message));
                 }
             }
 
-            // ==========================================
-            // FEE HEADS SETUP
-            // ==========================================
             const headFreqEl = document.getElementById('headFreq');
             if (headFreqEl) {
                 headFreqEl.addEventListener('change', function () {
@@ -2849,10 +2767,7 @@
                 const tbody = document.getElementById('feeHeadsListBody');
                 if (!tbody) return;
                 tbody.innerHTML = '';
-                if (feeHeads.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No Fee Heads Configured.</td></tr>';
-                    return;
-                }
+                if (feeHeads.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No Fee Heads Configured.</td></tr>'; return; }
                 feeHeads.forEach((f, idx) => {
                     let freqDisplay = f.Frequency;
                     if (f.Frequency === 'Quarterly') {
@@ -2909,9 +2824,6 @@
                 }
             }
 
-            // ==========================================
-            // FEE CONCESSIONS MODULE
-            // ==========================================
             document.getElementById('feeConcessionForm')?.addEventListener('submit', async function (e) {
                 e.preventDefault();
                 const btn = document.getElementById('btnSaveConcession');
@@ -2966,10 +2878,7 @@
                 const tbody = document.getElementById('concessionsListBody');
                 if (!tbody) return;
                 tbody.innerHTML = '';
-                if (feeConcessions.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No concessions granted yet.</td></tr>';
-                    return;
-                }
+                if (feeConcessions.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No concessions granted yet.</td></tr>'; return; }
                 feeConcessions.forEach((c, idx) => {
                     let valueDisplay = c.Basis === 'Percent' ? `${c.Value}%` : `₹${parseFloat(c.Value).toFixed(2)}`;
                     let headDisplay = c.FeeHead_Name === '__ALL__' ? 'All Fee Heads' : c.FeeHead_Name;
@@ -2995,20 +2904,15 @@
                 });
             }
 
-            // ==========================================
-            // LEDGER EXPORT
-            // ==========================================
             document.getElementById('exportLedgerPdfBtn')?.addEventListener('click', () => {
                 try {
                     let sName = (document.getElementById('l-name').innerText || 'Student').replace(/[^a-zA-Z0-9]/g, "_");
                     let sReg = (document.getElementById('l-reg').innerText || '').replace(/[^a-zA-Z0-9]/g, "_");
                     let sClass = (document.getElementById('l-class').innerText || '').replace(/[^a-zA-Z0-9]/g, "_");
                     let fileName = `${sName}_${sReg}_${sClass}_Ledger.pdf`;
-
                     let element = document.getElementById('ledgerExportArea');
                     let opt = {
-                        margin: 0.3,
-                        filename: fileName,
+                        margin: 0.3, filename: fileName,
                         image: { type: 'jpeg', quality: 0.98 },
                         html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
                         jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
@@ -3021,9 +2925,7 @@
                         alert("PDF export error: " + err.message);
                         element.style.background = originalBg;
                     });
-                } catch (err) {
-                    alert("PDF export failed: " + err.message);
-                }
+                } catch (err) { alert("PDF export failed: " + err.message); }
             });
 
             document.getElementById('exportLedgerExcelBtn')?.addEventListener('click', () => {
@@ -3032,9 +2934,7 @@
                     let sReg = (document.getElementById('l-reg').innerText || '').replace(/[^a-zA-Z0-9]/g, "_");
                     let sClass = (document.getElementById('l-class').innerText || '').replace(/[^a-zA-Z0-9]/g, "_");
                     let fileName = `${sName}_${sReg}_${sClass}_Ledger.xls`;
-
                     let exportDiv = document.getElementById('ledgerExportArea').cloneNode(true);
-
                     let htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
                         <head><meta charset="utf-8">
                         <style>
@@ -3045,28 +2945,20 @@
                         </head>
                         <body>${exportDiv.innerHTML}</body>
                         </html>`;
-
                     let blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
                     let url = URL.createObjectURL(blob);
                     let a = document.createElement('a');
                     a.href = url; a.download = fileName;
                     document.body.appendChild(a); a.click(); document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-                } catch (err) {
-                    alert("Excel export failed: " + err.message);
-                }
+                } catch (err) { alert("Excel export failed: " + err.message); }
             });
 
-            // ==========================================
-            // STUDENT FEE LEDGER (KUNDLI)
-            // ==========================================
             window.openLedger = function (regNo) {
                 let student = allStudents ? allStudents.find(s => String(s.regNo) === String(regNo)) : null;
-
                 let sName = "Unknown (Deleted)";
                 let sClass = "-";
                 let sFather = "-";
-
                 if (student) {
                     sName = student.studentFirstName || student.studentName || 'N/A';
                     sClass = student.studentClass || '-';
@@ -3090,11 +2982,7 @@
                     if (cSetup && cSetup.fee) { classFeeAmount = parseFloat(cSetup.fee); }
                 }
 
-                // Build paid map and adjustment map from receipts
-                let paidMap = {};
-                let concMap = {};
-                let waivMap = {};
-
+                let paidMap = {}, concMap = {}, waivMap = {};
                 let histBody = document.getElementById('ledgerHistoryBody');
                 histBody.innerHTML = '';
 
@@ -3104,7 +2992,6 @@
                         try {
                             let rawHeads = String(r.Paid_Heads || "").trim();
                             let rawSummary = String(r.Receipt_Summary || "").trim();
-
                             if (rawHeads !== "" && rawHeads !== "[]" && rawHeads.startsWith("[")) {
                                 let details = JSON.parse(rawHeads);
                                 let pList = [];
@@ -3112,11 +2999,14 @@
                                     let pName = d.head || "Fee";
                                     if (d.period) pName += ` (${d.period})`;
                                     pList.push(`• ${pName}: ₹${parseFloat(d.paid || 0).toFixed(2)}`);
-
                                     let uid = d.head + "_" + d.period;
+                                    let conc = parseFloat(d.concession) || 0;
+                                    let waiv = parseFloat(d.waiver) || 0;
+                                    const adj = parseFloat(d.adj) || 0;
+                                    if (conc + waiv === 0 && adj > 0) conc = adj;
                                     paidMap[uid] = (paidMap[uid] || 0) + parseFloat(d.paid || 0);
-                                    concMap[uid] = (concMap[uid] || 0) + parseFloat(d.concession || 0);
-                                    waivMap[uid] = (waivMap[uid] || 0) + parseFloat(d.waiver || 0);
+                                    concMap[uid] = (concMap[uid] || 0) + conc;
+                                    waivMap[uid] = (waivMap[uid] || 0) + waiv;
                                 });
                                 particularsStr = pList.join("<br>");
                                 if (particularsStr === "") particularsStr = rawSummary || "Fee Payment";
@@ -3127,10 +3017,10 @@
                             }
                         } catch (e) { particularsStr = r.Receipt_Summary || "Details Unavailable"; }
 
-                        let rNo = String(r.Receipt_No).replace("'", "");
-                        let rDate = String(r.Date).replace("'", "");
+                        let rNo = String(r.Receipt_No || '').replace(/'/g, "");
+                        let rDate = String(r.Date || '').replace(/'/g, "");
 
-                        histBody.innerHTML += `<tr><td style="padding:10px; border:1px solid #ccc;">${rDate}</td><td style="padding:10px; border:1px solid #ccc;">${rNo}</td><td style="padding:10px; border:1px solid #ccc;">${r.Payment_Mode}</td><td style="padding:10px; border:1px solid #ccc; text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td><td style="padding:10px; border:1px solid #ccc; color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount).toFixed(2)}</td></tr>`;
+                        histBody.innerHTML += `<tr><td style="padding:10px; border:1px solid #ccc;">${rDate}</td><td style="padding:10px; border:1px solid #ccc;">${rNo}</td><td style="padding:10px; border:1px solid #ccc;">${r.Payment_Mode || '-'}</td><td style="padding:10px; border:1px solid #ccc; text-align:left; line-height:1.4; font-size:11px;">${particularsStr}</td><td style="padding:10px; border:1px solid #ccc; color:#27ae60; font-weight:bold;">₹${parseFloat(r.Amount || 0).toFixed(2)}</td></tr>`;
                     }
                 });
 
@@ -3142,139 +3032,77 @@
                 tbody.innerHTML = '';
                 let totalDue = 0, totalPaid = 0, totalAdj = 0;
 
-                // Monthly Tuition Fee
-                academicMonths.forEach(month => {
-                    if (!shouldShowMonth(month, feeAppDate, fee50)) return;
+                function addLedgerRow(feeHeadName, period, actualAmount, frequency, qpy) {
+                    const uid = feeHeadName + "_" + period;
+                    const prevConc = concMap[uid] || 0;
+                    const prevWaiv = waivMap[uid] || 0;
+                    const prevPaid = paidMap[uid] || 0;
 
-                    let uid = "Monthly Tuition Fee_" + month;
-                    let actual = classFeeAmount;
-                    const autoAdj = student ? calcAdjustmentFromRecords(student.regNo, "Monthly Tuition Fee", month, 'Monthly', 0, actual) : { concession: 0, waiver: 0 };
-                    const conc = (concMap[uid] || 0) + autoAdj.concession;
-                    const waiv = (waivMap[uid] || 0) + autoAdj.waiver;
-                    const netApplicable = Math.max(0, actual - conc - waiv);
-                    let paid = paidMap[uid] || 0;
-                    let bal = netApplicable - paid;
+                    // Compute policy-based auto adjustment (for months where no receipt exists yet)
+                    const autoAdj = student ? calcAdjustmentFromRecords(student.regNo, feeHeadName, period, frequency, qpy, actualAmount) : { concession: 0, waiver: 0 };
 
-                    totalDue += actual;
+                    // Use max of (recorded, policy) so we don't double count
+                    const conc = Math.max(prevConc, autoAdj.concession);
+                    const waiv = Math.max(prevWaiv, autoAdj.waiver);
+
+                    const netApplicable = Math.max(0, actualAmount - conc - waiv);
+                    const paid = prevPaid;
+                    const bal = netApplicable - paid;
+
+                    totalDue += actualAmount;
                     totalPaid += paid;
                     totalAdj += (conc + waiv);
 
-                    let rowBg = (actual > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
+                    let rowBg = (actualAmount > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
                     let tStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
 
                     tbody.innerHTML += `<tr style="${rowBg}">
-                        <td style="padding:10px; border:1px solid #ccc;"><b>Monthly Tuition Fee (${month})</b></td>
-                        <td style="padding:10px; border:1px solid #ccc; text-align:right;">₹${actual.toFixed(2)}</td>
+                        <td style="padding:10px; border:1px solid #ccc;"><b>${feeHeadName} (${period})</b></td>
+                        <td style="padding:10px; border:1px solid #ccc; text-align:right;">₹${actualAmount.toFixed(2)}</td>
                         <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#27ae60;">₹${conc.toFixed(2)}</td>
                         <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#e67e22;">₹${waiv.toFixed(2)}</td>
                         <td style="padding:10px; border:1px solid #ccc; text-align:right; font-weight:bold;">₹${netApplicable.toFixed(2)}</td>
                         <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#2980b9;">₹${paid.toFixed(2)}</td>
                         <td style="padding:10px; border:1px solid #ccc; text-align:right; ${tStyle} font-weight:bold;">₹${bal.toFixed(2)}</td>
                     </tr>`;
+                }
+
+                // Monthly Tuition Fee
+                academicMonths.forEach(month => {
+                    if (!shouldShowMonth(month, feeAppDate, fee50)) return;
+                    addLedgerRow("Monthly Tuition Fee", month, classFeeAmount, 'Monthly', 0);
                 });
 
                 // Custom Fee Heads
                 feeHeads.forEach(fh => {
                     const amount = parseFloat(fh.Amount) || 0;
-
                     if (fh.Frequency === "Monthly") {
                         academicMonths.forEach(month => {
                             if (!shouldShowMonth(month, feeAppDate, fee50)) return;
-                            let uid = fh.Head_Name + "_" + month;
-                            const autoAdj = student ? calcAdjustmentFromRecords(student.regNo, fh.Head_Name, month, 'Monthly', 0, amount) : { concession: 0, waiver: 0 };
-                            const conc = (concMap[uid] || 0) + autoAdj.concession;
-                            const waiv = (waivMap[uid] || 0) + autoAdj.waiver;
-                            const netApplicable = Math.max(0, amount - conc - waiv);
-                            let paid = paidMap[uid] || 0;
-                            let bal = netApplicable - paid;
-
-                            totalDue += amount;
-                            totalPaid += paid;
-                            totalAdj += (conc + waiv);
-
-                            let rowBg = (amount > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
-                            let tStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
-
-                            tbody.innerHTML += `<tr style="${rowBg}">
-                                <td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (${month})</b></td>
-                                <td style="padding:10px; border:1px solid #ccc; text-align:right;">₹${amount.toFixed(2)}</td>
-                                <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#27ae60;">₹${conc.toFixed(2)}</td>
-                                <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#e67e22;">₹${waiv.toFixed(2)}</td>
-                                <td style="padding:10px; border:1px solid #ccc; text-align:right; font-weight:bold;">₹${netApplicable.toFixed(2)}</td>
-                                <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#2980b9;">₹${paid.toFixed(2)}</td>
-                                <td style="padding:10px; border:1px solid #ccc; text-align:right; ${tStyle} font-weight:bold;">₹${bal.toFixed(2)}</td>
-                            </tr>`;
+                            addLedgerRow(fh.Head_Name, month, amount, 'Monthly', 0);
                         });
                     }
                     else if (fh.Frequency === "Quarterly") {
                         const qpy = parseInt(fh.QuartersPerYear) === 3 ? 3 : 4;
                         const qList = getQuarterStructure(qpy);
                         qList.forEach(q => {
-                            // Skip if quarter entirely before fee applicable date
                             if (feeAppDate) {
                                 const app = parseISODate(feeAppDate);
                                 const qFirst = parseAcademicMonthToken(q.months[0]);
                                 const qLast = parseAcademicMonthToken(q.months[q.months.length - 1]);
                                 if (app && qFirst && qLast) {
+                                    const qFirstKey = qFirst.year * 12 + qFirst.month;
                                     const qLastKey = qLast.year * 12 + qLast.month;
                                     const appKey = app.year * 12 + app.month;
                                     if (qLastKey < appKey) return;
-                                    const qFirstKey = qFirst.year * 12 + qFirst.month;
                                     if (fee50 && qFirstKey === appKey && app.day > 15) return;
                                 }
                             }
-                            let uid = fh.Head_Name + "_" + q.label;
-                            const autoAdj = student ? calcAdjustmentFromRecords(student.regNo, fh.Head_Name, q.label, 'Quarterly', qpy, amount) : { concession: 0, waiver: 0 };
-                            const conc = (concMap[uid] || 0) + autoAdj.concession;
-                            const waiv = (waivMap[uid] || 0) + autoAdj.waiver;
-                            const netApplicable = Math.max(0, amount - conc - waiv);
-                            let paid = paidMap[uid] || 0;
-                            let bal = netApplicable - paid;
-
-                            totalDue += amount;
-                            totalPaid += paid;
-                            totalAdj += (conc + waiv);
-
-                            let rowBg = (amount > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
-                            let tStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
-
-                            tbody.innerHTML += `<tr style="${rowBg}">
-                                <td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (${q.label})</b></td>
-                                <td style="padding:10px; border:1px solid #ccc; text-align:right;">₹${amount.toFixed(2)}</td>
-                                <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#27ae60;">₹${conc.toFixed(2)}</td>
-                                <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#e67e22;">₹${waiv.toFixed(2)}</td>
-                                <td style="padding:10px; border:1px solid #ccc; text-align:right; font-weight:bold;">₹${netApplicable.toFixed(2)}</td>
-                                <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#2980b9;">₹${paid.toFixed(2)}</td>
-                                <td style="padding:10px; border:1px solid #ccc; text-align:right; ${tStyle} font-weight:bold;">₹${bal.toFixed(2)}</td>
-                            </tr>`;
+                            addLedgerRow(fh.Head_Name, q.label, amount, 'Quarterly', qpy);
                         });
                     }
                     else {
-                        // One Time / Annually
-                        let uid = fh.Head_Name + "_" + fh.Frequency;
-                        const autoAdj = student ? calcAdjustmentFromRecords(student.regNo, fh.Head_Name, fh.Frequency, fh.Frequency, 0, amount) : { concession: 0, waiver: 0 };
-                        const conc = (concMap[uid] || 0) + autoAdj.concession;
-                        const waiv = (waivMap[uid] || 0) + autoAdj.waiver;
-                        const netApplicable = Math.max(0, amount - conc - waiv);
-                        let paid = paidMap[uid] || 0;
-                        let bal = netApplicable - paid;
-
-                        totalDue += amount;
-                        totalPaid += paid;
-                        totalAdj += (conc + waiv);
-
-                        let rowBg = (amount > 0 && bal <= 0) ? 'background-color:#e8f5e9;' : '';
-                        let tStyle = bal > 0 ? 'color:#e74c3c;' : 'color:#27ae60;';
-
-                        tbody.innerHTML += `<tr style="${rowBg}">
-                            <td style="padding:10px; border:1px solid #ccc;"><b>${fh.Head_Name} (${fh.Frequency})</b></td>
-                            <td style="padding:10px; border:1px solid #ccc; text-align:right;">₹${amount.toFixed(2)}</td>
-                            <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#27ae60;">₹${conc.toFixed(2)}</td>
-                            <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#e67e22;">₹${waiv.toFixed(2)}</td>
-                            <td style="padding:10px; border:1px solid #ccc; text-align:right; font-weight:bold;">₹${netApplicable.toFixed(2)}</td>
-                            <td style="padding:10px; border:1px solid #ccc; text-align:right; color:#2980b9;">₹${paid.toFixed(2)}</td>
-                            <td style="padding:10px; border:1px solid #ccc; text-align:right; ${tStyle} font-weight:bold;">₹${bal.toFixed(2)}</td>
-                        </tr>`;
+                        addLedgerRow(fh.Head_Name, fh.Frequency, amount, fh.Frequency, 0);
                     }
                 });
 
@@ -3285,7 +3113,7 @@
                 document.getElementById('l-tot-due').innerText = "₹" + totalDue.toFixed(2);
                 document.getElementById('l-tot-adj').innerText = "₹" + totalAdj.toFixed(2);
                 document.getElementById('l-tot-paid').innerText = "₹" + totalPaid.toFixed(2);
-                document.getElementById('l-tot-bal').innerText = "₹" + (totalDue - totalAdj - totalPaid).toFixed(2);
+                document.getElementById('l-tot-bal').innerText = "₹" + Math.max(0, totalDue - totalAdj - totalPaid).toFixed(2);
 
                 document.getElementById('ledgerModal').classList.add('active');
             }
@@ -3294,7 +3122,6 @@
                 document.getElementById('ledgerModal').classList.remove('active');
             });
 
-            // Search Receipts
             let searchBox = document.getElementById('searchReceipt');
             if (searchBox) {
                 searchBox.addEventListener('keyup', function () {
