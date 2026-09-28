@@ -1064,41 +1064,191 @@
     </script>
 
     <!-- ==========================================
-     APPLICATION LOGIC (Firebase)
+     APPLICATION LOGIC (Firebase) — with cache layer
      ========================================== -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // ==========================================
+
+            // ==========================================================
+            // 0. DIAGNOSTIC MODE (?diag=1)
+            //    Skips all auto-redirects, logs everything, so you can see
+            //    exactly why a redirect would have happened.
+            // ==========================================================
+            const DIAG = new URLSearchParams(window.location.search).get('diag') === '1';
+            if (DIAG) {
+                console.log('%c[SHUBH ERP · DIAG MODE]', 'color:#C08A2E;font-weight:bold;font-size:14px;');
+                console.log('URL:', window.location.href);
+                console.log('localStorage keys:', Object.keys(localStorage));
+            }
+
+            // ==========================================================
             // 1. SESSION & SECURITY INITIALIZATION
-            // ==========================================
-            const activeUserStr = localStorage.getItem('erp_active_user');
-            if (!activeUserStr) {
-                window.location.href = 'login.html';
+            //    - Multi-key + multi-storage lookup (login page can store
+            //      under any of these names, all are supported)
+            //    - Case-insensitive property lookup so Is_SuperAdmin /
+            //      Is_Super_admin / isSuperAdmin all work
+            //    - Rights tolerant of: array | JSON string | CSV string
+            // ==========================================================
+            const SESSION_KEYS = [
+                'erp_active_user', 'erp_user', 'erpActiveUser', 'activeUser',
+                'currentUser', 'user', 'loggedInUser', 'erp_logged_in_user',
+                'erp_session', 'session'
+            ];
+
+            function looksLikeUser(p) {
+                if (!p || typeof p !== 'object') return false;
+                return !!(p.empId || p.Emp_ID || p.empName || p.Name ||
+                    p.Is_SuperAdmin || p.Is_Super_admin || p.isSuperAdmin ||
+                    p.Rights_JSON || p.email || p.Email);
+            }
+
+            function tryParseUser(raw) {
+                if (!raw) return null;
+                try {
+                    const p = JSON.parse(raw);
+                    if (!p || typeof p !== 'object') return null;
+                    if (p.user && looksLikeUser(p.user)) return p.user;
+                    if (p.data && looksLikeUser(p.data)) return p.data;
+                    if (looksLikeUser(p)) return p;
+                    return null;
+                } catch (e) { return null; }
+            }
+
+            function findSession() {
+                const stores = [];
+                try { stores.push({ name: 'localStorage', ref: window.localStorage }); } catch (e) {}
+                try { stores.push({ name: 'sessionStorage', ref: window.sessionStorage }); } catch (e) {}
+
+                for (let s = 0; s < stores.length; s++) {
+                    const st = stores[s];
+                    for (let k = 0; k < SESSION_KEYS.length; k++) {
+                        const key = SESSION_KEYS[k];
+                        let raw = null;
+                        try { raw = st.ref.getItem(key); } catch (e) { continue; }
+                        const user = tryParseUser(raw);
+                        if (user) return { user: user, storeRef: st.ref, storeName: st.name, key: key };
+                    }
+                }
+                return null;
+            }
+
+            const session = findSession();
+
+            if (!session) {
+                if (DIAG) {
+                    alert('DIAG: No session found in any key.\n\nKeys checked: ' + SESSION_KEYS.join(', ') +
+                        '\nlocalStorage has: ' + Object.keys(localStorage).join(', '));
+                    return;
+                }
+                window.location.replace('login.html');
                 return;
             }
 
-            const activeUser = JSON.parse(activeUserStr);
-            const isSA = activeUser.Is_SuperAdmin === "Yes";
-            const schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode;
-            let userRights = [];
+            const activeUser = session.user;
+            console.log('[SHUBH ERP] Session from', session.storeName, 'key', session.key, activeUser);
 
+            // Mirror to canonical key (baaki modules isi par bharosa karte hain)
             try {
-                userRights = JSON.parse(activeUser.Rights_JSON || "[]");
-            } catch (e) {
-                console.error("Failed to parse user rights:", e);
+                if (session.key !== 'erp_active_user' || session.storeRef !== window.localStorage) {
+                    window.localStorage.setItem('erp_active_user', JSON.stringify(activeUser));
+                }
+            } catch (e) { /* ignore */ }
+
+            // ---------- tolerant property getter ----------
+            function pick(obj, keys) {
+                if (!obj || typeof obj !== 'object') return undefined;
+                for (let i = 0; i < keys.length; i++) {
+                    if (obj[keys[i]] !== undefined && obj[keys[i]] !== null) return obj[keys[i]];
+                }
+                const lowered = {};
+                Object.keys(obj).forEach(k => { lowered[k.toLowerCase()] = obj[k]; });
+                for (let i = 0; i < keys.length; i++) {
+                    const v = lowered[keys[i].toLowerCase()];
+                    if (v !== undefined && v !== null) return v;
+                }
+                return undefined;
             }
 
-            // DYNAMIC NAVBAR UPDATE LOGIC
+            function isSuperAdminFlag(v) {
+                if (v === true) return true;
+                if (v === false || v === null || v === undefined) return false;
+                const s = String(v).trim().toLowerCase();
+                return (s === 'yes' || s === 'true' || s === '1' || s === 'y' || s === 'super' || s === 'superadmin');
+            }
+
+            function normalizeRights(src) {
+                if (!src) return [];
+                if (Array.isArray(src)) return src.map(String);
+                if (typeof src === 'object') return Object.keys(src).filter(k => !!src[k]).map(String);
+                const t = String(src).trim();
+                if (!t) return [];
+                if (t.charAt(0) === '[') {
+                    try {
+                        const arr = JSON.parse(t);
+                        return Array.isArray(arr) ? arr.map(String) : [];
+                    } catch (e) { return []; }
+                }
+                return t.split(',').map(x => x.trim()).filter(Boolean);
+            }
+
+            const saRaw = pick(activeUser, ['Is_SuperAdmin', 'Is_Super_admin', 'isSuperAdmin', 'superAdmin', 'SuperAdmin', 'is_super_admin']);
+            const rightsRaw = pick(activeUser, ['Rights_JSON', 'Rights', 'rights', 'rights_json', 'RightsJSON']);
+
+            const isSA = isSuperAdminFlag(saRaw);
+            const userRights = normalizeRights(rightsRaw);
+
+            console.log('[SHUBH ERP] Is_SuperAdmin raw =', saRaw, '| parsed =', isSA);
+            console.log('[SHUBH ERP] Rights =', userRights);
+
+            // Safe redirect helper (DIAG mode = no redirect)
+            function safeRedirect(url, reason) {
+                if (DIAG) {
+                    alert('DIAG: Would redirect to ' + url + '\nReason: ' + reason);
+                    return;
+                }
+                window.location.replace(url);
+            }
+
+            // Restrict this module to Super Admin / SUPER_ right holders
+            if (!isSA && !userRights.some(r => String(r).toUpperCase().startsWith('SUPER'))) {
+                safeRedirect('index.html', 'Not a Super Admin and no SUPER_* right. saRaw=' + JSON.stringify(saRaw) + ', rights=' + JSON.stringify(userRights));
+                return;
+            }
+
+            // ---------- School code (multi-tenant filter) ----------
+            const schoolCode = localStorage.getItem('erp_school_code') || activeUser.schoolCode || activeUser.School_Code;
+
+            if (!schoolCode) {
+                if (DIAG) {
+                    alert('DIAG: schoolCode missing.\nlocalStorage keys: ' + Object.keys(localStorage).join(', ') + '\nactiveUser keys: ' + Object.keys(activeUser).join(', '));
+                    return;
+                }
+                console.error('[SHUBH ERP] Missing schoolCode — cannot filter Firestore collections.');
+                alert('Configuration error: school code missing. Please re-login.');
+                window.location.replace('login.html');
+                return;
+            }
+
+            const btnLogout = document.getElementById('btnLogout');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', () => {
+                    if (confirm("Are you sure you want to logout?")) {
+                        auth.signOut().then(() => {
+                            try { localStorage.removeItem('erp_active_user'); } catch (e) {}
+                            window.location.replace('login.html');
+                        });
+                    }
+                });
+            }
+
+            // ---------- DYNAMIC NAVBAR UPDATE ----------
             try {
                 let savedName = localStorage.getItem('erp_school_name');
                 let savedLogo = localStorage.getItem('erp_school_logo');
-
                 let navNameEl = document.getElementById('dynamicNavName');
                 let navLogoImg = document.getElementById('dynamicNavLogo');
                 let navLogoDefault = document.getElementById('defaultNavLogo');
-
                 if (savedName && navNameEl) navNameEl.innerText = savedName;
-
                 if (savedLogo && savedLogo.startsWith('http') && navLogoImg) {
                     navLogoImg.src = savedLogo;
                     navLogoImg.style.display = 'inline-block';
@@ -1108,30 +1258,61 @@
                 console.error("Navbar logic failed:", error);
             }
 
-            // This module is restricted to Super Admins / users with a SUPER_ right.
-            if (!isSA && !userRights.some(r => r.startsWith("SUPER"))) {
-                window.location.href = 'index.html';
-                return;
-            }
+            // ==========================================================
+            // 2. CACHE LAYER (localStorage + TTL)
+            //    Firebase reads drastically kam karne ke liye.
+            //    - Page load: cache se turant render, network sirf tab jab
+            //      cache stale ho (15 min) ya user khud "Sync Data" dabaye.
+            //    - Post-write (Save Rights / Create Login / Edit Student):
+            //      sirf local cache patch, koi re-read nahi.
+            // ==========================================================
+            const CACHE_PREFIX = 'erp_um_cache_v1::';
+            const CACHE_TTL_MS = 15 * 60 * 1000;
+            const cacheKey = CACHE_PREFIX + encodeURIComponent(schoolCode);
 
-            const btnLogout = document.getElementById('btnLogout');
-            if (btnLogout) {
-                btnLogout.addEventListener('click', () => {
-                    if (confirm("Are you sure you want to logout?")) {
-                        auth.signOut().then(() => {
-                            localStorage.removeItem('erp_active_user');
-                            window.location.href = 'login.html';
-                        });
+            function pruneOldCaches() {
+                try {
+                    for (let i = localStorage.length - 1; i >= 0; i--) {
+                        const k = localStorage.key(i);
+                        if (k && k.indexOf(CACHE_PREFIX) === 0 && k !== cacheKey) {
+                            localStorage.removeItem(k);
+                        }
                     }
-                });
+                } catch (e) {}
             }
 
-            let allEmployees = [];
-            let allStudents = [];
+            function readCache() {
+                try {
+                    const raw = localStorage.getItem(cacheKey);
+                    if (!raw) return null;
+                    const obj = JSON.parse(raw);
+                    if (!obj || typeof obj !== 'object') return null;
+                    if (obj.schoolCode !== schoolCode) return null;
+                    return obj;
+                } catch (e) { return null; }
+            }
 
-            // ==========================================
-            // 2. NAVIGATION TABS LOGIC
-            // ==========================================
+            function writeCache() {
+                const payload = JSON.stringify({
+                    schoolCode: schoolCode,
+                    ts: Date.now(),
+                    employees: allEmployeesRaw,
+                    students: allStudents,
+                    authUsers: allAuthUsersRaw
+                });
+                try {
+                    localStorage.setItem(cacheKey, payload);
+                    return true;
+                } catch (e) {
+                    pruneOldCaches();
+                    try { localStorage.setItem(cacheKey, payload); return true; }
+                    catch (e2) { return false; }
+                }
+            }
+
+            // ==========================================================
+            // 3. NAVIGATION TABS LOGIC
+            // ==========================================================
             document.querySelectorAll('.nav-btn').forEach(link => {
                 link.addEventListener('click', function (e) {
                     if (this.getAttribute('href') !== '#') return;
@@ -1146,56 +1327,142 @@
                 });
             });
 
-            // ==========================================
-            // 3. DATA FETCH & INITIALIZATION (Firestore)
-            // ==========================================
-            async function initData() {
-                document.getElementById('userTableBody').innerHTML = '<tr><td colspan="8" style="text-align: center;">Fetching Database... ⏳</td></tr>';
-                document.getElementById('studentUserTableBody').innerHTML = '<tr><td colspan="7" style="text-align: center;">Fetching Database... ⏳</td></tr>';
+            // ==========================================================
+            // 4. STATE  (raw collections + merged employees)
+            // ==========================================================
+            let allEmployeesRaw = [];       // raw docs from "employees"
+            let allStudents = [];           // raw docs from "students"
+            let allAuthUsersRaw = [];       // raw docs from "users"
+            let allEmployees = [];          // merged view (employees + auth info) — used by UI
+            let isFetching = false;
 
-                try {
-                    // Employees
-                    let empSnap = await db.collection("employees").where("schoolCode", "==", schoolCode).get();
-                    allEmployees = [];
-                    empSnap.forEach(doc => { let d = doc.data(); d.docId = doc.id; allEmployees.push(d); });
+            // Merge auth data onto employee records (same logic as original)
+            function mergeAuthIntoEmployees() {
+                allEmployees = allEmployeesRaw.map(emp => {
+                    const match = allAuthUsersRaw.find(u => String(u.empId).trim() === String(emp.empId).trim());
+                    if (match) {
+                        return Object.assign({}, emp, {
+                            registeredEmail: match.email,
+                            Rights_JSON: match.Rights_JSON,
+                            Is_SuperAdmin: match.Is_SuperAdmin,
+                            authUid: match.uid
+                        });
+                    }
+                    return Object.assign({}, emp);
+                });
+            }
 
-                    // Students
-                    let stuSnap = await db.collection("students").where("schoolCode", "==", schoolCode).get();
-                    allStudents = [];
-                    stuSnap.forEach(doc => { let d = doc.data(); d.docId = doc.id; allStudents.push(d); });
+            function renderAll() {
+                renderEmployeeTable(currentFilteredEmployees());
+                renderStudentTable(currentFilteredStudents());
+            }
 
-                    // Auth/rights records ("users" collection, keyed by Firebase Auth UID)
-                    let userSnap = await db.collection("users").where("schoolCode", "==", schoolCode).get();
-                    let authUsers = [];
-                    userSnap.forEach(doc => { let d = doc.data(); d.uid = doc.id; authUsers.push(d); });
+            function currentFilteredEmployees() {
+                const el = document.getElementById('searchEmpUser');
+                const f = el ? String(el.value || '').trim().toLowerCase() : '';
+                if (!f) return allEmployees;
+                return allEmployees.filter(e =>
+                    String(e.empName || '').toLowerCase().includes(f) ||
+                    String(e.empId || '').toLowerCase().includes(f)
+                );
+            }
 
-                    // Merge auth/rights info onto each employee record
-                    allEmployees.forEach(emp => {
-                        let match = authUsers.find(u => String(u.empId).trim() === String(emp.empId).trim());
-                        if (match) {
-                            emp.registeredEmail = match.email;
-                            emp.Rights_JSON = match.Rights_JSON;
-                            emp.Is_SuperAdmin = match.Is_SuperAdmin;
-                            emp.authUid = match.uid;
-                        }
-                    });
+            function currentFilteredStudents() {
+                const el = document.getElementById('searchStudentUser');
+                const f = el ? String(el.value || '').trim().toLowerCase() : '';
+                if (!f) return allStudents;
+                return allStudents.filter(s =>
+                    String(s.studentFirstName || s.studentName || '').toLowerCase().includes(f) ||
+                    String(s.portalId || '').toLowerCase().includes(f) ||
+                    String(s.regNo || '').toLowerCase().includes(f)
+                );
+            }
 
-                    renderEmployeeTable(allEmployees);
-                    renderStudentTable(allStudents);
-
-                } catch (e) {
-                    console.error("Firebase sync error:", e);
-                    document.getElementById('userTableBody').innerHTML = `<tr><td colspan="8" style="text-align:center; color:#c0392b;">Error: ${e.message}</td></tr>`;
+            function showLoadingRows() {
+                const empBody = document.getElementById('userTableBody');
+                const stuBody = document.getElementById('studentUserTableBody');
+                if (empBody && !allEmployees.length) {
+                    empBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Fetching Database... ⏳</td></tr>';
+                }
+                if (stuBody && !allStudents.length) {
+                    stuBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Fetching Database... ⏳</td></tr>';
                 }
             }
 
-            if (document.getElementById('btnSyncUsers')) {
-                document.getElementById('btnSyncUsers').addEventListener('click', initData);
+            // ==========================================================
+            // 5. FIRESTORE FETCH (only when cache empty / stale / manual sync)
+            // ==========================================================
+            async function fetchFromFirestore(silent) {
+                if (isFetching) return;
+                isFetching = true;
+                if (!silent) showLoadingRows();
+
+                try {
+                    const [empSnap, stuSnap, userSnap] = await Promise.all([
+                        db.collection("employees").where("schoolCode", "==", schoolCode).get(),
+                        db.collection("students").where("schoolCode", "==", schoolCode).get(),
+                        db.collection("users").where("schoolCode", "==", schoolCode).get()
+                    ]);
+
+                    allEmployeesRaw = [];
+                    empSnap.forEach(doc => { let d = doc.data(); d.docId = doc.id; allEmployeesRaw.push(d); });
+
+                    allStudents = [];
+                    stuSnap.forEach(doc => { let d = doc.data(); d.docId = doc.id; allStudents.push(d); });
+
+                    allAuthUsersRaw = [];
+                    userSnap.forEach(doc => { let d = doc.data(); d.uid = doc.id; allAuthUsersRaw.push(d); });
+
+                    mergeAuthIntoEmployees();
+                    renderAll();
+                    writeCache();
+                } catch (e) {
+                    console.error("Firebase sync error:", e);
+                    if (!silent) {
+                        const empBody = document.getElementById('userTableBody');
+                        if (empBody && !allEmployees.length) {
+                            empBody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#c0392b;">Error: ${e.message}</td></tr>`;
+                        }
+                        alert("Failed to sync database: " + e.message);
+                    }
+                } finally {
+                    isFetching = false;
+                }
             }
 
-            // ==========================================
-            // 4. EMPLOYEE TABLE RENDER & SEARCH
-            // ==========================================
+            // forceNetwork = true  -> manual Sync button (Firestore se fresh)
+            // forceNetwork = false -> normal page load (cache-first)
+            function loadData(forceNetwork) {
+                const cached = readCache();
+                const hasCache = !!(cached && (Array.isArray(cached.employees) || Array.isArray(cached.students)));
+
+                if (hasCache) {
+                    allEmployeesRaw = Array.isArray(cached.employees) ? cached.employees : [];
+                    allStudents = Array.isArray(cached.students) ? cached.students : [];
+                    allAuthUsersRaw = Array.isArray(cached.authUsers) ? cached.authUsers : [];
+                    mergeAuthIntoEmployees();
+                    renderAll();
+                } else {
+                    showLoadingRows();
+                }
+
+                const isFresh = hasCache && (Date.now() - (cached.ts || 0) < CACHE_TTL_MS);
+                if (isFresh && !forceNetwork) return;    // zero Firestore reads
+
+                // Silent background refresh if we already had something to show,
+                // otherwise non-silent (user sees loading / error).
+                fetchFromFirestore(hasCache);
+            }
+
+            if (document.getElementById('btnSyncUsers')) {
+                document.getElementById('btnSyncUsers').addEventListener('click', function () {
+                    loadData(true);
+                });
+            }
+
+            // ==========================================================
+            // 6. EMPLOYEE TABLE RENDER & SEARCH
+            // ==========================================================
             function renderEmployeeTable(list) {
                 const tbody = document.getElementById('userTableBody');
                 tbody.innerHTML = '';
@@ -1205,42 +1472,43 @@
                     return;
                 }
 
+                let html = '';
                 list.forEach((emp, idx) => {
-                    let badge = emp.Is_SuperAdmin === "Yes" ? `<span class="badge-admin">Yes</span>` : `<span class="badge-user">No</span>`;
-                    let loginBadge = emp.authUid ? `<span class="badge-set">Login Set</span>` : `<span class="badge-unset">Not Set</span>`;
+                    const empIsSA = isSuperAdminFlag(pick(emp, ['Is_SuperAdmin', 'Is_Super_admin', 'isSuperAdmin']));
+                    let badge = empIsSA
+                        ? '<span class="badge-admin">Yes</span>'
+                        : '<span class="badge-user">No</span>';
+                    let loginBadge = emp.authUid
+                        ? '<span class="badge-set">Login Set</span>'
+                        : '<span class="badge-unset">Not Set</span>';
 
                     let safeEmpId = String(emp.empId).trim();
 
-                    tbody.innerHTML += `<tr>
-                <td>${idx + 1}</td>
-                <td><b>${safeEmpId}</b></td>
-                <td>${emp.empName}</td>
-                <td>${emp.empDept || '-'}</td>
-                <td>${emp.empDesig || '-'}</td>
-                <td>${badge}</td>
-                <td>${loginBadge}</td>
-                <td>
-                    <button class="btn-action-rights" onclick='openDetailedRightsModal("${safeEmpId}")'>✏️ Assign Rights</button>
-                    <button class="btn-action-auth" onclick='openDetailedAuthModal("${safeEmpId}")'>🔑 Send Auth</button>
-                </td>
-            </tr>`;
+                    html += '<tr>' +
+                        '<td>' + (idx + 1) + '</td>' +
+                        '<td><b>' + safeEmpId + '</b></td>' +
+                        '<td>' + (emp.empName || '-') + '</td>' +
+                        '<td>' + (emp.empDept || '-') + '</td>' +
+                        '<td>' + (emp.empDesig || '-') + '</td>' +
+                        '<td>' + badge + '</td>' +
+                        '<td>' + loginBadge + '</td>' +
+                        '<td>' +
+                            '<button class="btn-action-rights" onclick=\'openDetailedRightsModal("' + safeEmpId + '")\'>✏️ Assign Rights</button>' +
+                            '<button class="btn-action-auth" onclick=\'openDetailedAuthModal("' + safeEmpId + '")\'>🔑 Send Auth</button>' +
+                        '</td>' +
+                    '</tr>';
                 });
+                tbody.innerHTML = html;
             }
 
             if (document.getElementById('searchEmpUser')) {
                 document.getElementById('searchEmpUser').addEventListener('input', function () {
-                    let filterText = this.value.toLowerCase();
-                    let filteredList = allEmployees.filter(e => {
-                        let nameMatch = String(e.empName || "").toLowerCase().includes(filterText);
-                        let idMatch = String(e.empId || "").toLowerCase().includes(filterText);
-                        return nameMatch || idMatch;
-                    });
-                    renderEmployeeTable(filteredList);
+                    renderEmployeeTable(currentFilteredEmployees());
                 });
             }
 
             // =======================================================
-            // 5. ASSIGN RIGHTS (Firestore "users" collection)
+            // 7. ASSIGN RIGHTS (Firestore "users")
             // =======================================================
             let currentRightsEmp = null;
 
@@ -1269,7 +1537,7 @@
                     chk.disabled = false;
                 });
 
-                if (emp.Is_SuperAdmin === "Yes") {
+                if (isSuperAdminFlag(pick(emp, ['Is_SuperAdmin', 'Is_Super_admin', 'isSuperAdmin']))) {
                     document.getElementById('toggleSuperAdmin').checked = true;
                     document.querySelectorAll('.right-chk').forEach(chk => {
                         chk.checked = true;
@@ -1277,15 +1545,11 @@
                     });
                 }
 
-                try {
-                    let currentRights = JSON.parse(emp.Rights_JSON || "[]");
-                    if (Array.isArray(currentRights)) {
-                        document.querySelectorAll('.right-chk').forEach(chk => {
-                            if (currentRights.includes(chk.value)) chk.checked = true;
-                        });
-                    }
-                } catch (e) {
-                    console.error("Rights parsing error:", e);
+                const currentRights = normalizeRights(pick(emp, ['Rights_JSON', 'Rights', 'rights']));
+                if (currentRights.length) {
+                    document.querySelectorAll('.right-chk').forEach(chk => {
+                        if (currentRights.indexOf(chk.value) > -1) chk.checked = true;
+                    });
                 }
 
                 document.getElementById('assignRightsModal').style.display = 'flex';
@@ -1316,8 +1580,9 @@
                         document.querySelectorAll('.right-chk:checked').forEach(chk => selectedRights.push(chk.value));
                     }
 
-                    this.innerText = "Saving...";
-                    this.disabled = true;
+                    const btn = this;
+                    btn.innerText = "Saving...";
+                    btn.disabled = true;
 
                     try {
                         await db.collection("users").doc(currentRightsEmp.authUid).set({
@@ -1327,18 +1592,27 @@
 
                         alert("Rights updated successfully.");
                         document.getElementById('assignRightsModal').style.display = 'none';
-                        initData();
+
+                        // ✅ Patch local cache — no Firestore re-read
+                        const uIdx = allAuthUsersRaw.findIndex(u => u.uid === currentRightsEmp.authUid);
+                        if (uIdx > -1) {
+                            allAuthUsersRaw[uIdx].Is_SuperAdmin = isSuper;
+                            allAuthUsersRaw[uIdx].Rights_JSON = JSON.stringify(selectedRights);
+                        }
+                        mergeAuthIntoEmployees();
+                        renderAll();
+                        writeCache();
                     } catch (e) {
                         alert("Error updating rights: " + e.message);
                     } finally {
-                        this.innerText = "💾 Save Rights";
-                        this.disabled = false;
+                        btn.innerText = "💾 Save Rights";
+                        btn.disabled = false;
                     }
                 });
             }
 
             // =======================================================
-            // 6. SEND AUTH / CREATE LOGIN (Firebase Auth, secondary app)
+            // 8. SEND AUTH / CREATE LOGIN (Firebase Auth, secondary app)
             // =======================================================
             function generateSecurePassword() {
                 const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#";
@@ -1396,21 +1670,23 @@
                         password = generateSecurePassword();
                     }
 
-                    this.innerText = "Processing...";
-                    this.disabled = true;
+                    const btn = this;
+                    btn.innerText = "Processing...";
+                    btn.disabled = true;
 
                     try {
                         const userCred = await secondaryApp.auth().createUserWithEmailAndPassword(email, password);
                         const newUid = userCred.user.uid;
 
-                        await db.collection("users").doc(newUid).set({
+                        const newUserDoc = {
                             schoolCode: schoolCode,
                             empId: emp.empId,
                             empName: emp.empName,
                             email: email,
                             Is_SuperAdmin: emp.Is_SuperAdmin || "No",
                             Rights_JSON: emp.Rights_JSON || "[]"
-                        }, { merge: true });
+                        };
+                        await db.collection("users").doc(newUid).set(newUserDoc, { merge: true });
 
                         await secondaryApp.auth().signOut();
 
@@ -1421,18 +1697,24 @@
                         }
 
                         document.getElementById('authModal').style.display = 'none';
-                        initData();
+
+                        // ✅ Patch local cache — no Firestore re-read
+                        newUserDoc.uid = newUid;
+                        allAuthUsersRaw.push(newUserDoc);
+                        mergeAuthIntoEmployees();
+                        renderAll();
+                        writeCache();
                     } catch (e) {
                         alert("Error: " + e.message);
                     } finally {
-                        this.innerText = "✉️ Create & Send Access";
-                        this.disabled = false;
+                        btn.innerText = "✉️ Create & Send Access";
+                        btn.disabled = false;
                     }
                 });
             }
 
             // ==========================================
-            // 7. STUDENT TABLE RENDER & SEARCH
+            // 9. STUDENT TABLE RENDER & SEARCH
             // ==========================================
             function renderStudentTable(list) {
                 const tbody = document.getElementById('studentUserTableBody');
@@ -1443,10 +1725,11 @@
                     return;
                 }
 
+                let html = '';
                 list.forEach((st, idx) => {
-                    let uid = st.portalId || `<span style="color:#e74c3c;">Not Set</span>`;
-                    let pin = st.pin || st.password || `---`;
-                    let maskPin = pin !== `---` ? `********` : `---`;
+                    let uid = st.portalId || '<span style="color:#e74c3c;">Not Set</span>';
+                    let pin = st.pin || st.password || '---';
+                    let maskPin = pin !== '---' ? '********' : '---';
 
                     let sClass = "-";
                     if (st.studentClass) {
@@ -1457,30 +1740,24 @@
 
                     let safeRegNo = String(st.regNo).trim();
 
-                    tbody.innerHTML += `<tr>
-                <td>${idx + 1}</td>
-                <td><b>${safeRegNo}</b></td>
-                <td>${st.studentFirstName || st.studentName}</td>
-                <td>${sClass}</td>
-                <td><b style="color:#2980b9;">${uid}</b></td>
-                <td><span style="letter-spacing:1px; background:#f1f1f1; padding:3px 6px; border:1px solid #ddd;">${maskPin}</span></td>
-                <td>
-                    <button class="btn-action-auth" onclick='resendStudentAuth("${safeRegNo}")'>🔑 Edit Login</button>
-                </td>
-            </tr>`;
+                    html += '<tr>' +
+                        '<td>' + (idx + 1) + '</td>' +
+                        '<td><b>' + safeRegNo + '</b></td>' +
+                        '<td>' + (st.studentFirstName || st.studentName || '-') + '</td>' +
+                        '<td>' + sClass + '</td>' +
+                        '<td><b style="color:#2980b9;">' + uid + '</b></td>' +
+                        '<td><span style="letter-spacing:1px; background:#f1f1f1; padding:3px 6px; border:1px solid #ddd;">' + maskPin + '</span></td>' +
+                        '<td>' +
+                            '<button class="btn-action-auth" onclick=\'resendStudentAuth("' + safeRegNo + '")\'>🔑 Edit Login</button>' +
+                        '</td>' +
+                    '</tr>';
                 });
+                tbody.innerHTML = html;
             }
 
             if (document.getElementById('searchStudentUser')) {
                 document.getElementById('searchStudentUser').addEventListener('input', function () {
-                    let filterText = this.value.toLowerCase();
-                    let filteredList = allStudents.filter(s => {
-                        let nameMatch = String(s.studentFirstName || s.studentName || "").toLowerCase().includes(filterText);
-                        let loginMatch = String(s.portalId || "").toLowerCase().includes(filterText);
-                        let regMatch = String(s.regNo || "").toLowerCase().includes(filterText);
-                        return nameMatch || loginMatch || regMatch;
-                    });
-                    renderStudentTable(filteredList);
+                    renderStudentTable(currentFilteredStudents());
                 });
             }
 
@@ -1507,14 +1784,25 @@
                         password: newPin
                     }, { merge: true });
                     alert("Student login credentials updated.");
-                    initData();
+
+                    // ✅ Patch local cache — no Firestore re-read
+                    const sIdx = allStudents.findIndex(s => s.docId === student.docId);
+                    if (sIdx > -1) {
+                        allStudents[sIdx].portalId = newPortalId;
+                        allStudents[sIdx].pin = newPin;
+                        allStudents[sIdx].password = newPin;
+                    }
+                    renderAll();
+                    writeCache();
                 } catch (e) {
                     alert("Error updating student login: " + e.message);
                 }
             };
 
-            // Trigger initial data load
-            initData();
+            // ==========================================
+            // 10. BOOT — cache-first load
+            // ==========================================
+            loadData(false);
         });
     </script>
 </body>
