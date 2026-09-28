@@ -319,196 +319,398 @@
 </script>
 
 <!-- ==========================================
-     APPLICATION LOGIC (unchanged)
+     APPLICATION LOGIC
      ========================================== -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // ==========================================
+
+    // ==========================================================
     // 1. SESSION & SECURITY INITIALIZATION
-    // ==========================================
-    const activeUserStr = localStorage.getItem('erp_active_user');
-    if (!activeUserStr) { 
-        window.location.href = 'login.html'; 
-        return; 
+    //    (tolerant lookup — ek hi key par depend nahi karta, isliye
+    //     login ke turant baad logout/redirect loop nahi hota)
+    // ==========================================================
+    const SESSION_KEYS = ['erp_active_user', 'erp_user', 'erpActiveUser', 'activeUser', 'currentUser', 'user'];
+
+    function findSession() {
+        const stores = [];
+        try { stores.push(window.localStorage); } catch (e) {}
+        try { stores.push(window.sessionStorage); } catch (e) {}
+
+        for (let s = 0; s < stores.length; s++) {
+            const store = stores[s];
+            for (let k = 0; k < SESSION_KEYS.length; k++) {
+                const key = SESSION_KEYS[k];
+                let raw = null;
+                try { raw = store.getItem(key); } catch (e) { continue; }
+                if (!raw) continue;
+                try {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && typeof parsed === 'object') {
+                        return { user: parsed, store: store, key: key };
+                    }
+                } catch (e) { /* not a valid session object — skip */ }
+            }
+        }
+        return null;
     }
-    
-    const activeUser = JSON.parse(activeUserStr);
-    const isSA = activeUser.Is_SuperAdmin === "Yes";
-    let userRights = [];
-    
-    try { 
-        userRights = JSON.parse(activeUser.Rights_JSON || "[]"); 
-    } catch(e) {
-        console.error("Failed to parse user rights:", e);
+
+    const session = findSession();
+    if (!session) {
+        window.location.replace('login.html');
+        return;
     }
 
-    // REPLACE WITH YOUR ACTUAL GOOGLE SCRIPT URL
-// DYNAMIC SCRIPT URL FROM MULTI-TENANT LOGIN
-const scriptURL = localStorage.getItem('erp_school_url');
-if(!scriptURL) { window.location.href = 'login.html'; }
+    const activeUser = session.user;
 
+    // Canonical key mirror — baaki saare ERP modules isi key ko padhte hain.
+    try {
+        if (session.key !== 'erp_active_user' || session.store !== window.localStorage) {
+            window.localStorage.setItem('erp_active_user', JSON.stringify(activeUser));
+        }
+    } catch (e) { /* storage full / blocked — ignore */ }
 
-
-
-
-
-
-// DYNAMIC NAVBAR UPDATE LOGIC (Immediate Execution Fix)
-try {
-    let savedName = localStorage.getItem('erp_school_name');
-    let savedLogo = localStorage.getItem('erp_school_logo');
-    
-    let navNameEl = document.getElementById('dynamicNavName');
-    let navLogoImg = document.getElementById('dynamicNavLogo');
-    let navLogoDefault = document.getElementById('defaultNavLogo');
-    
-    // School Name Update
-    if(savedName && navNameEl) {
-        navNameEl.innerText = savedName; 
+    // Super Admin flag ke alag-alag formats (Yes / true / 1) support karo
+    function isSuperAdminFlag(v) {
+        if (v === true) return true;
+        if (v === false || v === null || v === undefined) return false;
+        const s = String(v).trim().toLowerCase();
+        return (s === 'yes' || s === 'true' || s === '1' || s === 'y');
     }
-    
-    // School Logo Update
-    if(savedLogo && savedLogo.startsWith('http') && navLogoImg) {
-        navLogoImg.src = savedLogo;
-        navLogoImg.style.display = 'inline-block';
-        if(navLogoDefault) navLogoDefault.style.display = 'none';
+
+    // Rights kabhi JSON string, kabhi array, kabhi comma-separated aata hai
+    function normalizeRights(src) {
+        if (!src) return [];
+        if (Array.isArray(src)) return src.map(String);
+        if (typeof src === 'object') return Object.keys(src).filter(k => !!src[k]).map(String);
+        const t = String(src).trim();
+        if (!t) return [];
+        if (t.charAt(0) === '[') {
+            try {
+                const arr = JSON.parse(t);
+                return Array.isArray(arr) ? arr.map(String) : [];
+            } catch (e) { return []; }
+        }
+        return t.split(',').map(x => x.trim()).filter(Boolean);
     }
-} catch(error) {
-    console.error("Navbar logic failed:", error);
-}
 
+    const isSA = isSuperAdminFlag(activeUser.Is_SuperAdmin);
+    let userRights = normalizeRights(activeUser.Rights_JSON);
 
-    
-
-    
-    if (!isSA && !userRights.some(r => r.startsWith("SUPER"))) { 
-        window.location.href = 'index.html'; 
-        return; 
+    if (!isSA && !userRights.some(r => String(r).toUpperCase().startsWith("SUPER"))) {
+        window.location.replace('index.html');
+        return;
     }
 
     const btnLogout = document.getElementById('btnLogout');
-    if(btnLogout) {
-        btnLogout.addEventListener('click', () => { 
-            if(confirm("Are you sure you want to logout?")) {
-                localStorage.removeItem('erp_active_user'); 
-                window.location.href = 'login.html'; 
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            if (confirm("Are you sure you want to logout?")) {
+                try { localStorage.removeItem('erp_active_user'); } catch (e) {}
+                window.location.replace('login.html');
             }
         });
     }
 
-    let allEmployees = [];
-    let allStudents = [];
+    // DYNAMIC SCRIPT URL FROM MULTI-TENANT LOGIN
+    const scriptURL = localStorage.getItem('erp_school_url');
+    if (!scriptURL) {
+        window.location.replace('login.html');
+        return;
+    }
 
-    // ==========================================
-    // 2. NAVIGATION TABS LOGIC
-    // ==========================================
+    // DYNAMIC NAVBAR UPDATE LOGIC (Immediate Execution Fix)
+    try {
+        let savedName = localStorage.getItem('erp_school_name');
+        let savedLogo = localStorage.getItem('erp_school_logo');
+
+        let navNameEl = document.getElementById('dynamicNavName');
+        let navLogoImg = document.getElementById('dynamicNavLogo');
+        let navLogoDefault = document.getElementById('defaultNavLogo');
+
+        // School Name Update
+        if (savedName && navNameEl) {
+            navNameEl.innerText = savedName;
+        }
+
+        // School Logo Update
+        if (savedLogo && savedLogo.startsWith('http') && navLogoImg) {
+            navLogoImg.src = savedLogo;
+            navLogoImg.style.display = 'inline-block';
+            if (navLogoDefault) navLogoDefault.style.display = 'none';
+        }
+    } catch (error) {
+        console.error("Navbar logic failed:", error);
+    }
+
+    // ==========================================================
+    // 2. LOCAL CACHE LAYER
+    //    Server se data sirf tabhi mangwaya jayega jab:
+    //      (a) cache hi na ho, ya
+    //      (b) cache TTL se purana ho, ya
+    //      (c) user ne khud "Sync Data" dabaya ho.
+    //    Isse Apps Script par read/write load minimum rehta hai.
+    // ==========================================================
+    const CACHE_PREFIX = 'erp_um_cache_v1::';
+    const CACHE_TTL_MS = 10 * 60 * 1000;   // 10 minutes
+    const cacheKey = CACHE_PREFIX + encodeURIComponent(scriptURL);
+
+    function pruneOtherCaches() {
+        try {
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const k = localStorage.key(i);
+                if (k && k.indexOf(CACHE_PREFIX) === 0 && k !== cacheKey) {
+                    localStorage.removeItem(k);
+                }
+            }
+        } catch (e) { /* ignore */ }
+    }
+
+    function readCache() {
+        try {
+            const raw = localStorage.getItem(cacheKey);
+            if (!raw) return null;
+            const obj = JSON.parse(raw);
+            if (!obj || typeof obj !== 'object') return null;
+            if (obj.url !== scriptURL) return null;   // tenant safety
+            return obj;
+        } catch (e) { return null; }
+    }
+
+    function writeCache(employees, students, ts) {
+        const payload = JSON.stringify({
+            url: scriptURL,
+            ts: ts || Date.now(),
+            employees: employees || [],
+            students: students || []
+        });
+        try {
+            localStorage.setItem(cacheKey, payload);
+            return true;
+        } catch (e) {
+            // Quota full — doosre school ka purana cache hata ke retry karo
+            pruneOtherCaches();
+            try { localStorage.setItem(cacheKey, payload); return true; }
+            catch (e2) { return false; }
+        }
+    }
+
+    // ==========================================================
+    // 3. NAVIGATION TABS LOGIC
+    // ==========================================================
     document.querySelectorAll('.nav-btn').forEach(link => {
-        link.addEventListener('click', function(e) {
-            if(this.getAttribute('href') !== '#') return; 
+        link.addEventListener('click', function (e) {
+            if (this.getAttribute('href') !== '#') return;
             e.preventDefault();
-            
+
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active'); 
-            
-            const targetId = this.getAttribute('data-target'); 
+            this.classList.add('active');
+
+            const targetId = this.getAttribute('data-target');
             document.querySelectorAll('.app-module').forEach(m => m.classList.remove('active-module'));
             document.getElementById(targetId).classList.add('active-module');
         });
     });
 
-    // ==========================================
-    // 3. DATA FETCH & INITIALIZATION
-    // ==========================================
-    function initData() {
-        document.getElementById('userTableBody').innerHTML = '<tr><td colspan="7" style="text-align: center;">Fetching Database... ⏳</td></tr>';
-        document.getElementById('studentUserTableBody').innerHTML = '<tr><td colspan="7" style="text-align: center;">Fetching Database... ⏳</td></tr>';
-        
-        fetch(scriptURL, { redirect: "follow" })
-        .then(res => res.json())
-        .then(res => {
-            if(res.status === "Success") {
-                allEmployees = res.employees || [];
-                allStudents = res.data || [];
-                renderEmployeeTable(allEmployees);
-                renderStudentTable(allStudents);
-            } else {
-                console.error("Database sync failed.", res.message);
-                alert("Failed to sync database: " + res.message);
-            }
-        }).catch(err => {
-            console.error("Network issue during sync.", err);
-        });
-    }
+    // ==========================================================
+    // 4. STATE
+    // ==========================================================
+    let allEmployees = [];
+    let allStudents = [];
+    let isFetching = false;
 
-    if(document.getElementById('btnSyncUsers')) {
-        document.getElementById('btnSyncUsers').addEventListener('click', initData);
-    }
-
-    // ==========================================
-    // 4. EMPLOYEE TABLE RENDER & SEARCH
-    // ==========================================
-    function renderEmployeeTable(list) {
-        const tbody = document.getElementById('userTableBody'); 
-        tbody.innerHTML = '';
-        
-        if(list.length === 0) { 
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No employees found.</td></tr>'; 
-            return; 
+    // ==========================================================
+    // 5. DATA LOADING  (cache-first, network-second)
+    // ==========================================================
+    function showLoadingRows() {
+        const empBody = document.getElementById('userTableBody');
+        const stuBody = document.getElementById('studentUserTableBody');
+        if (empBody && !allEmployees.length) {
+            empBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Fetching Database... ⏳</td></tr>';
         }
-        
-        list.forEach((emp, idx) => {
-            let badge = emp.Is_SuperAdmin === "Yes" ? `<span class="badge-admin">Yes</span>` : `<span class="badge-user">No</span>`;
-            
-            // Explicitly converting empId to String to ensure HTML template literals do not break on numbers
-            let safeEmpId = String(emp.empId).trim();
-            
-            tbody.innerHTML += `<tr>
-                <td>${idx + 1}</td>
-                <td><b>${safeEmpId}</b></td>
-                <td>${emp.empName}</td>
-                <td>${emp.empDept || '-'}</td>
-                <td>${emp.empDesig || '-'}</td>
-                <td>${badge}</td>
-                <td>
-                    <button class="btn-action-rights" onclick='openDetailedRightsModal("${safeEmpId}")'>✏️ Assign Rights</button>
-                    <button class="btn-action-auth" onclick='openDetailedAuthModal("${safeEmpId}")'>🔑 Send Auth</button>
-                </td>
-            </tr>`;
+        if (stuBody && !allStudents.length) {
+            stuBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Fetching Database... ⏳</td></tr>';
+        }
+    }
+
+    function showErrorRows(msg) {
+        const empBody = document.getElementById('userTableBody');
+        const stuBody = document.getElementById('studentUserTableBody');
+        if (empBody && !allEmployees.length) {
+            empBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#B23A2E;">' + msg + '</td></tr>';
+        }
+        if (stuBody && !allStudents.length) {
+            stuBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#B23A2E;">' + msg + '</td></tr>';
+        }
+    }
+
+    function applyData(employees, students) {
+        allEmployees = Array.isArray(employees) ? employees : [];
+        allStudents = Array.isArray(students) ? students : [];
+    }
+
+    function currentFilteredEmployees() {
+        const el = document.getElementById('searchEmpUser');
+        const f = el ? String(el.value || '').trim().toLowerCase() : '';
+        if (!f) return allEmployees;
+        return allEmployees.filter(e =>
+            String(e.empName || '').toLowerCase().includes(f) ||
+            String(e.empId || '').toLowerCase().includes(f)
+        );
+    }
+
+    function currentFilteredStudents() {
+        const el = document.getElementById('searchStudentUser');
+        const f = el ? String(el.value || '').trim().toLowerCase() : '';
+        if (!f) return allStudents;
+        return allStudents.filter(s =>
+            String(s.studentFirstName || s.studentName || '').toLowerCase().includes(f) ||
+            String(s.Login_ID || '').toLowerCase().includes(f) ||
+            String(s.regNo || '').toLowerCase().includes(f)
+        );
+    }
+
+    function renderAll() {
+        renderEmployeeTable(currentFilteredEmployees());
+        renderStudentTable(currentFilteredStudents());
+    }
+
+    function fetchFromServer(silent) {
+        if (isFetching) return;
+        isFetching = true;
+        if (!silent) showLoadingRows();
+
+        fetch(scriptURL, { method: 'GET', redirect: 'follow', cache: 'no-store' })
+            .then(res => res.json())
+            .then(res => {
+                if (res && res.status === "Success") {
+                    applyData(res.employees, res.data);
+                    renderAll();
+                    writeCache(allEmployees, allStudents, Date.now());
+                } else {
+                    console.error("Database sync failed.", res && res.message);
+                    if (!silent) {
+                        alert("Failed to sync database: " + ((res && res.message) || "Unknown error"));
+                        showErrorRows("Sync failed. Press 🔄 Sync Data to retry.");
+                    }
+                }
+            })
+            .catch(err => {
+                console.error("Network issue during sync.", err);
+                if (!silent) {
+                    alert("Network error: could not sync database.");
+                    showErrorRows("Network error. Press 🔄 Sync Data to retry.");
+                }
+            })
+            .finally(() => { isFetching = false; });
+    }
+
+    // forceNetwork = true  -> manual Sync button (server se fresh laao)
+    // forceNetwork = false -> normal page load (cache-first)
+    function loadData(forceNetwork) {
+        const cached = readCache();
+        const hasCache = !!(cached && (Array.isArray(cached.employees) || Array.isArray(cached.students)));
+
+        if (hasCache) {
+            applyData(cached.employees, cached.students);
+            renderAll();
+        } else {
+            showLoadingRows();
+        }
+
+        const isFresh = hasCache && (Date.now() - (cached.ts || 0) < CACHE_TTL_MS);
+
+        // Cache fresh hai aur user ne force nahi kiya -> koi server read nahi
+        if (isFresh && !forceNetwork) return;
+
+        // Cache stale hai -> pehle UI paint ho chuka hai, ab silent background refresh
+        fetchFromServer(hasCache);
+    }
+
+    if (document.getElementById('btnSyncUsers')) {
+        document.getElementById('btnSyncUsers').addEventListener('click', function () {
+            loadData(true);
         });
     }
 
-    // FIXED: Search filter crashing on numbers bug resolved via explicit String conversion
-    if(document.getElementById('searchEmpUser')) {
-        document.getElementById('searchEmpUser').addEventListener('input', function() {
-            let filterText = this.value.toLowerCase();
-            let filteredList = allEmployees.filter(e => {
-                let nameMatch = String(e.empName || "").toLowerCase().includes(filterText);
-                let idMatch = String(e.empId || "").toLowerCase().includes(filterText);
-                return nameMatch || idMatch;
-            });
-            renderEmployeeTable(filteredList);
+    // Cache me ek employee ko locally patch karo (bina server read ke)
+    function patchEmployeeLocal(empId, patch) {
+        const key = String(empId).trim();
+        const i = allEmployees.findIndex(e => String(e.empId).trim() === key);
+        if (i > -1) allEmployees[i] = Object.assign({}, allEmployees[i], patch);
+
+        const c = readCache();
+        if (c && Array.isArray(c.employees)) {
+            const ci = c.employees.findIndex(e => String(e.empId).trim() === key);
+            if (ci > -1) {
+                c.employees[ci] = Object.assign({}, c.employees[ci], patch);
+                writeCache(c.employees, c.students, c.ts);  // original server ts preserve
+            }
+        }
+        renderAll();
+    }
+
+    // ==========================================================
+    // 6. EMPLOYEE TABLE RENDER & SEARCH
+    // ==========================================================
+    function renderEmployeeTable(list) {
+        const tbody = document.getElementById('userTableBody');
+        tbody.innerHTML = '';
+
+        if (!list || list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No employees found.</td></tr>';
+            return;
+        }
+
+        let html = '';
+        list.forEach((emp, idx) => {
+            let badge = emp.Is_SuperAdmin === "Yes"
+                ? '<span class="badge-admin">Yes</span>'
+                : '<span class="badge-user">No</span>';
+
+            // Explicitly converting empId to String so template literals never break
+            let safeEmpId = String(emp.empId).trim();
+
+            html += '<tr>' +
+                '<td>' + (idx + 1) + '</td>' +
+                '<td><b>' + safeEmpId + '</b></td>' +
+                '<td>' + (emp.empName || '-') + '</td>' +
+                '<td>' + (emp.empDept || '-') + '</td>' +
+                '<td>' + (emp.empDesig || '-') + '</td>' +
+                '<td>' + badge + '</td>' +
+                '<td>' +
+                    '<button class="btn-action-rights" onclick=\'openDetailedRightsModal("' + safeEmpId + '")\'>✏️ Assign Rights</button>' +
+                    '<button class="btn-action-auth" onclick=\'openDetailedAuthModal("' + safeEmpId + '")\'>🔑 Send Auth</button>' +
+                '</td>' +
+            '</tr>';
+        });
+        tbody.innerHTML = html;
+    }
+
+    // Search filter — DOM only, koi server read nahi
+    if (document.getElementById('searchEmpUser')) {
+        document.getElementById('searchEmpUser').addEventListener('input', function () {
+            renderEmployeeTable(currentFilteredEmployees());
         });
     }
 
     // =======================================================
-    // 5. COMPLEX ASSIGN RIGHTS LOGIC (CAPSULES & ARRAYS)
+    // 7. COMPLEX ASSIGN RIGHTS LOGIC (CAPSULES & ARRAYS)
     // =======================================================
     let currentRightsEmpId = null;
 
-    window.openDetailedRightsModal = function(empId) {
-        // FIXED: Universal Type Caster to support both old numeric IDs and new string IDs
+    window.openDetailedRightsModal = function (empId) {
+        // Universal Type Caster — old numeric IDs and new string IDs both
         let targetIdStr = String(empId).trim();
-        
         let emp = allEmployees.find(e => String(e.empId).trim() === targetIdStr);
-        
-        if(!emp) {
+
+        if (!emp) {
             console.error("Modal Error: Employee not found in dataset for ID:", targetIdStr);
             alert("Error: Employee data could not be found.");
             return;
         }
 
-        currentRightsEmpId = emp.empId; // Preserve original type for backend
-        
+        currentRightsEmpId = emp.empId; // preserve original type for backend
+
         document.getElementById('rightsEmpId').innerText = String(emp.empId);
         document.getElementById('rightsEmpName').innerText = emp.empName || "Unknown";
 
@@ -520,25 +722,23 @@ try {
         });
 
         // Set Super Admin Status Override
-        if(emp.Is_SuperAdmin === "Yes") {
+        if (emp.Is_SuperAdmin === "Yes") {
             document.getElementById('toggleSuperAdmin').checked = true;
-            document.querySelectorAll('.right-chk').forEach(chk => { 
-                chk.checked = true; 
-                chk.disabled = true; 
-            }); 
+            document.querySelectorAll('.right-chk').forEach(chk => {
+                chk.checked = true;
+                chk.disabled = true;
+            });
         }
 
         // Set Granular Array Rights
         try {
-            let currentRights = JSON.parse(emp.Rights_JSON || "[]");
-            if(Array.isArray(currentRights)) {
+            let currentRights = normalizeRights(emp.Rights_JSON);
+            if (currentRights.length) {
                 document.querySelectorAll('.right-chk').forEach(chk => {
-                    if(currentRights.includes(chk.value)) {
-                        chk.checked = true;
-                    }
+                    if (currentRights.indexOf(chk.value) > -1) chk.checked = true;
                 });
             }
-        } catch(e) {
+        } catch (e) {
             console.error("Rights parsing error:", e);
         }
 
@@ -547,40 +747,36 @@ try {
 
     // Super Admin Toggle override behavior
     let toggleSuperAdminEl = document.getElementById('toggleSuperAdmin');
-    if(toggleSuperAdminEl) {
-        toggleSuperAdminEl.addEventListener('change', function() {
+    if (toggleSuperAdminEl) {
+        toggleSuperAdminEl.addEventListener('change', function () {
             let isSuper = this.checked;
             document.querySelectorAll('.right-chk').forEach(chk => {
-                if(isSuper) { 
-                    chk.checked = true; 
-                    chk.disabled = true; 
-                } else { 
-                    chk.checked = false; 
-                    chk.disabled = false; 
-                }
+                if (isSuper) { chk.checked = true; chk.disabled = true; }
+                else { chk.checked = false; chk.disabled = false; }
             });
         });
     }
 
     let btnSaveRightsEl = document.getElementById('btnSaveRights');
-    if(btnSaveRightsEl) {
-        btnSaveRightsEl.addEventListener('click', function() {
-            if(!currentRightsEmpId) {
+    if (btnSaveRightsEl) {
+        btnSaveRightsEl.addEventListener('click', function () {
+            if (!currentRightsEmpId) {
                 alert("Missing Employee ID context.");
                 return;
             }
-            
+
             let isSuper = document.getElementById('toggleSuperAdmin').checked;
             let selectedRights = [];
-            
-            if(!isSuper) {
+
+            if (!isSuper) {
                 document.querySelectorAll('.right-chk:checked').forEach(chk => {
                     selectedRights.push(chk.value);
                 });
             }
 
-            this.innerText = "Saving..."; 
-            this.disabled = true;
+            const btn = this;
+            btn.innerText = "Saving...";
+            btn.disabled = true;
 
             fetch(scriptURL, {
                 method: 'POST',
@@ -595,10 +791,15 @@ try {
             })
             .then(res => res.json())
             .then(data => {
-                if(data.status === "Success") {
+                if (data.status === "Success") {
                     alert(data.message);
                     document.getElementById('assignRightsModal').style.display = 'none';
-                    initData(); // Refresh table to show updated status
+
+                    // Cache ko locally patch karo — poora DB dobara nahi padha jayega
+                    patchEmployeeLocal(currentRightsEmpId, {
+                        Is_SuperAdmin: isSuper ? "Yes" : "No",
+                        Rights_JSON: isSuper ? [] : selectedRights
+                    });
                 } else {
                     alert("Error: " + data.message);
                 }
@@ -607,46 +808,43 @@ try {
                 console.error("Error saving rights:", err);
                 alert("Network error occurred while saving rights.");
             })
-            .finally(() => { 
-                this.innerText = "💾 Save Rights"; 
-                this.disabled = false; 
+            .finally(() => {
+                btn.innerText = "💾 Save Rights";
+                btn.disabled = false;
             });
         });
     }
 
     // =======================================================
-    // 6. COMPLEX SEND AUTH LOGIC (2 OPTIONS)
+    // 8. COMPLEX SEND AUTH LOGIC (2 OPTIONS)
     // =======================================================
-    window.openDetailedAuthModal = function(empId) {
-        // FIXED: Universal Type Caster applied here as well
+    window.openDetailedAuthModal = function (empId) {
         let targetIdStr = String(empId).trim();
-        
         let emp = allEmployees.find(e => String(e.empId).trim() === targetIdStr);
-        
-        if(!emp) {
+
+        if (!emp) {
             console.error("Auth Modal Error: Employee not found for ID:", targetIdStr);
             alert("Error: Employee data could not be found.");
             return;
         }
-        
-        if(!emp.empEmail || String(emp.empEmail).trim() === "") {
+
+        if (!emp.empEmail || String(emp.empEmail).trim() === "") {
             alert("Error: This employee does not have a registered Email ID in the system.");
             return;
         }
 
         document.getElementById('authEmpName').innerText = emp.empName;
-        document.getElementById('authTargetId').value = emp.empId; // Original format
+        document.getElementById('authTargetId').value = emp.empId; // original format
         document.getElementById('authTargetEmail').value = emp.empEmail;
-        
+
         // Reset modal fields strictly
         let autoOpt = document.querySelector('input[name="authOpt"][value="auto"]');
-        if(autoOpt) autoOpt.checked = true;
-        
+        if (autoOpt) autoOpt.checked = true;
+
         document.getElementById('customUid').value = "";
         document.getElementById('customPass').value = "";
-        
-        // Explicitly call toggle to hide manual inputs
-        if(typeof toggleManualAuthInputs === 'function') {
+
+        if (typeof toggleManualAuthInputs === 'function') {
             toggleManualAuthInputs();
         }
 
@@ -654,34 +852,34 @@ try {
     };
 
     let btnSendAuthNowEl = document.getElementById('btnSendAuthNow');
-    if(btnSendAuthNowEl) {
-        btnSendAuthNowEl.addEventListener('click', function() {
+    if (btnSendAuthNowEl) {
+        btnSendAuthNowEl.addEventListener('click', function () {
             const rawEmpId = document.getElementById('authTargetId').value;
-            
-            // Re-verify existence using string matching
+
             const emp = allEmployees.find(e => String(e.empId).trim() === String(rawEmpId).trim());
-            if(!emp) return;
+            if (!emp) return;
 
             let checkedOpt = document.querySelector('input[name="authOpt"]:checked');
-            if(!checkedOpt) return;
-            
+            if (!checkedOpt) return;
+
             const authOptValue = checkedOpt.value;
-            let selectedOptionId = (authOptValue === "auto") ? 2 : 1; 
-            
+            let selectedOptionId = (authOptValue === "auto") ? 2 : 1;
+
             let customUid = "";
             let customPass = "";
 
-            if(authOptValue === "manual") {
+            if (authOptValue === "manual") {
                 customUid = document.getElementById('customUid').value.trim();
                 customPass = document.getElementById('customPass').value.trim();
-                if(!customUid || !customPass) {
+                if (!customUid || !customPass) {
                     alert("Validation Error: Please fill both Custom User ID and Custom Password.");
                     return;
                 }
             }
 
-            this.innerText = "Sending..."; 
-            this.disabled = true;
+            const btn = this;
+            btn.innerText = "Sending...";
+            btn.disabled = true;
 
             const loginUrl = window.location.origin + window.location.pathname.replace('user.html', 'login.html');
 
@@ -704,10 +902,11 @@ try {
             })
             .then(res => res.json())
             .then(data => {
-                if(data.status === "Success") {
+                if (data.status === "Success") {
                     alert(data.message);
                     document.getElementById('authModal').style.display = 'none';
-                    initData(); 
+                    // NOTE: Employee row me koi visible field change nahi hoti,
+                    // isliye poora DB refetch nahi kiya — server read bacha.
                 } else {
                     alert("Server Error: " + data.message);
                 }
@@ -716,78 +915,74 @@ try {
                 console.error("Auth send error:", err);
                 alert("Network Error: Could not send credentials.");
             })
-            .finally(() => { 
-                this.innerText = "✉️ Send Credentials"; 
-                this.disabled = false; 
+            .finally(() => {
+                btn.innerText = "✉️ Send Credentials";
+                btn.disabled = false;
             });
         });
     }
 
     // ==========================================
-    // 7. STUDENT TABLE RENDER & SEARCH
+    // 9. STUDENT TABLE RENDER & SEARCH
     // ==========================================
     function renderStudentTable(list) {
-        const tbody = document.getElementById('studentUserTableBody'); 
+        const tbody = document.getElementById('studentUserTableBody');
         tbody.innerHTML = '';
-        
-        if(list.length === 0) { 
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No students found in SIS.</td></tr>'; 
-            return; 
+
+        if (!list || list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No students found in SIS.</td></tr>';
+            return;
         }
-        
+
+        let html = '';
         list.forEach((st, idx) => {
-            let uid = st.Login_ID || `<span style="color:#e74c3c;">Pending Sync</span>`;
-            let pin = st.Password || `---`;
-            let maskPin = pin !== `---` ? `********` : `---`;
-            
+            let uid = st.Login_ID || '<span style="color:#e74c3c;">Pending Sync</span>';
+            let pin = st.Password || '---';
+            let maskPin = pin !== '---' ? '********' : '---';
+
             let sClass = "-";
-            if(st.studentClass) {
+            if (st.studentClass) {
                 let match = String(st.studentClass).match(/(.*?)\s*\((.*?)\)/);
-                if(match) { 
-                    sClass = match[1].trim() + " (" + match[2].trim() + ")"; 
-                } else { 
-                    sClass = st.studentClass; 
+                if (match) {
+                    sClass = match[1].trim() + " (" + match[2].trim() + ")";
+                } else {
+                    sClass = st.studentClass;
                 }
             }
 
             let safeRegNo = String(st.regNo).trim();
 
-            tbody.innerHTML += `<tr>
-                <td>${idx + 1}</td>
-                <td><b>${safeRegNo}</b></td>
-                <td>${st.studentFirstName || st.studentName}</td>
-                <td>${sClass}</td>
-                <td><b style="color:#2980b9;">${uid}</b></td>
-                <td><span style="letter-spacing:1px; background:#f1f1f1; padding:3px 6px; border:1px solid #ddd;">${maskPin}</span></td>
-                <td>
-                    <button style="background:#f39c12; color:white; border:none; padding:6px 12px; border-radius:3px; cursor:pointer; font-weight:bold;" onclick='resendStudentAuth("${safeRegNo}")'>🔑 Resend Credentials</button>
-                </td>
-            </tr>`;
+            html += '<tr>' +
+                '<td>' + (idx + 1) + '</td>' +
+                '<td><b>' + safeRegNo + '</b></td>' +
+                '<td>' + (st.studentFirstName || st.studentName || '-') + '</td>' +
+                '<td>' + sClass + '</td>' +
+                '<td><b style="color:#2980b9;">' + uid + '</b></td>' +
+                '<td><span style="letter-spacing:1px; background:#f1f1f1; padding:3px 6px; border:1px solid #ddd;">' + maskPin + '</span></td>' +
+                '<td>' +
+                    '<button style="background:#f39c12; color:white; border:none; padding:6px 12px; border-radius:3px; cursor:pointer; font-weight:bold;" onclick=\'resendStudentAuth("' + safeRegNo + '")\'>🔑 Resend Credentials</button>' +
+                '</td>' +
+            '</tr>';
+        });
+        tbody.innerHTML = html;
+    }
+
+    if (document.getElementById('searchStudentUser')) {
+        document.getElementById('searchStudentUser').addEventListener('input', function () {
+            renderStudentTable(currentFilteredStudents());
         });
     }
 
-    // FIXED: Search filter crashing on numbers bug resolved via explicit String conversion
-    if(document.getElementById('searchStudentUser')) {
-        document.getElementById('searchStudentUser').addEventListener('input', function() {
-            let filterText = this.value.toLowerCase();
-            let filteredList = allStudents.filter(s => {
-                let nameMatch = String(s.studentFirstName || s.studentName || "").toLowerCase().includes(filterText);
-                let loginMatch = String(s.Login_ID || "").toLowerCase().includes(filterText);
-                let regMatch = String(s.regNo || "").toLowerCase().includes(filterText);
-                return nameMatch || loginMatch || regMatch;
-            });
-            renderStudentTable(filteredList);
-        });
-    }
-
-    // Student Credentials Resend Logic (Uses same API concept as SIS admission)
-    window.resendStudentAuth = function(regNo) {
+    // Student Credentials Resend Logic (same API concept as SIS admission)
+    window.resendStudentAuth = function (regNo) {
         let safeRegNo = String(regNo).trim();
         alert("Action triggered for Reg No: " + safeRegNo + ". Auto-emailing capabilities are handled strictly inside the SIS add/update flow to prevent accidental spam.");
     };
 
-    // Trigger initial data load
-    initData();
+    // ==========================================
+    // 10. BOOT — cache-first load (zero unnecessary server reads)
+    // ==========================================
+    loadData(false);
 });
 </script>
 </body>
