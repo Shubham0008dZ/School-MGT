@@ -30,7 +30,6 @@
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.firestore();
-        const auth = firebase.auth();
     </script>
 
     <style>
@@ -108,7 +107,7 @@
             align-items: start;
         }
 
-        /* LEFT SIDEBAR */
+        /* LEFT SIDEBAR (White Version as per Screenshot) */
         .sidebar {
             background: white;
             border-radius: 12px;
@@ -118,6 +117,7 @@
             overflow-y: auto;
             position: sticky;
             top: 75px;
+            border: 1px solid #e2e8f0;
         }
 
         .sidebar-group {
@@ -152,7 +152,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: 0.2s;
-            color: #475569;
+            color: #64748b;
             font-size: 11px;
             font-weight: 600;
             text-align: center;
@@ -160,7 +160,7 @@
 
         .nav-btn:hover {
             background: #f1f5f9;
-            color: #3498db;
+            color: #3b82f6;
         }
 
         .nav-btn.active {
@@ -183,7 +183,7 @@
 
         .app-view {
             display: none;
-            animation: fadeIn 0.4s ease;
+            animation: fadeIn 0.3s ease;
         }
 
         .app-view.active {
@@ -251,12 +251,6 @@
             font-size: 20px;
             font-weight: bold;
             overflow: hidden;
-        }
-
-        .stu-avatar-circle img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
 
         .stu-details-mini h4 {
@@ -532,7 +526,7 @@
             font-weight: 500;
         }
 
-        /* CALENDAR DOTS & ANIMATED HOVER TOOLTIPS */
+        /* CALENDAR */
         .cal-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -611,45 +605,7 @@
             transform: translateX(-50%);
         }
 
-        .hover-card {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(10px);
-            background: #1e293b;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-size: 12px;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 10;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            white-space: normal;
-            width: max-content;
-            max-width: 250px;
-            word-wrap: break-word;
-        }
-
-        .hover-card::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: #1e293b transparent transparent transparent;
-        }
-
-        .cal-cell:hover .hover-card {
-            opacity: 1;
-            transform: translateX(-50%) translateY(-5px);
-        }
-
-        /* SUB-VIEWS (ATTENDANCE & FEES) */
+        /* SUB-VIEWS */
         .view-header {
             margin-bottom: 20px;
             border-bottom: 2px solid #e2e8f0;
@@ -842,7 +798,6 @@
             background: #229954;
         }
 
-        /* HIDDEN RECEIPT TEMPLATE FOR PDF */
         #printSection {
             display: none;
             background: white;
@@ -873,7 +828,7 @@
                     <button class="nav-btn active" onclick="switchView('view-dashboard')">
                         <span class="nav-icon">🏠</span><span>Home</span>
                     </button>
-                    <button class="nav-btn" onclick="alert('Feature coming soon')">
+                    <button class="nav-btn" onclick="alert('Search Feature coming soon')">
                         <span class="nav-icon">🔍</span><span>Search</span>
                     </button>
                 </div>
@@ -886,8 +841,8 @@
                             class="nav-icon">📢</span><span>Circular</span></button>
                     <button class="nav-btn" onclick="filterFeed('PTM')"><span
                             class="nav-icon">🤝</span><span>PTM</span></button>
-                    <button class="nav-btn" onclick="alert('Coming soon')"><span class="nav-icon">✉️</span><span>Mail
-                            Box</span></button>
+                    <button class="nav-btn" onclick="alert('Mail Box coming soon')"><span
+                            class="nav-icon">✉️</span><span>Mail Box</span></button>
                     <button class="nav-btn" onclick="filterFeed('School News')"><span
                             class="nav-icon">📰</span><span>School News</span></button>
                 </div>
@@ -904,9 +859,9 @@
                             class="nav-icon">📚</span><span>Homework</span></button>
                     <button class="nav-btn" onclick="filterFeed('Remarks')"><span
                             class="nav-icon">📝</span><span>Remark</span></button>
-                    <button class="nav-btn" onclick="alert('Coming soon')"><span
+                    <button class="nav-btn" onclick="alert('Result coming soon')"><span
                             class="nav-icon">📊</span><span>Result</span></button>
-                    <button class="nav-btn" onclick="alert('Coming soon')"><span
+                    <button class="nav-btn" onclick="alert('Syllabus coming soon')"><span
                             class="nav-icon">📋</span><span>Syllabus</span></button>
                 </div>
             </div>
@@ -916,7 +871,7 @@
                 <div class="sidebar-grid">
                     <button class="nav-btn" onclick="switchView('view-fees')"><span class="nav-icon">💳</span><span>Fee
                             Ledger</span></button>
-                    <button class="nav-btn" onclick="alert('Coming soon')"><span
+                    <button class="nav-btn" onclick="alert('E-Learning coming soon')"><span
                             class="nav-icon">💻</span><span>E-Learning</span></button>
                 </div>
             </div>
@@ -1133,28 +1088,27 @@
     </div>
 
     <!-- ==========================================
-         INTERNAL JAVASCRIPT
+         INTERNAL JAVASCRIPT & EXTREME CACHING
          ========================================== -->
     <script>
-        // =======================================================
-        // AUTO-LOGOUT FIX: Support both keys safely
-        // =======================================================
+        // 1. AUTO-LOGOUT FIX
         const studentStrRaw = localStorage.getItem('student_active_session') || localStorage.getItem('erp_active_user');
         if (!studentStrRaw) {
             window.location.href = 'login.html';
         } else {
-            // Re-sync session if needed so next reloads work perfectly
             if (!localStorage.getItem('student_active_session') && localStorage.getItem('erp_active_user')) {
                 localStorage.setItem('student_active_session', localStorage.getItem('erp_active_user'));
             }
         }
 
-        let studentData = JSON.parse(studentStrRaw);
+        let studentData = {};
+        try { studentData = JSON.parse(studentStrRaw); } catch (e) { }
+
         let schoolCode = studentData.schoolCode || "VIS";
         let myId = studentData.portalId || studentData.regNo;
-        let sClassRaw = studentData.studentClass ? studentData.studentClass.split('(')[0].trim() : "";
+        let sClassRaw = studentData.studentClass ? studentData.studentClass.split('(')[0].trim() : "Class X";
 
-        // DYNAMIC NAVBAR
+        // Dynamic Setup
         try {
             let savedName = localStorage.getItem('erp_school_name') || schoolCode;
             document.getElementById('dynamicNavName').innerText = savedName;
@@ -1167,58 +1121,52 @@
         let attMap = {};
         let eventMap = {};
 
+        // Menu Switch Logic
         window.switchView = function (viewId) {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.app-view').forEach(p => p.classList.remove('active'));
             let target = document.getElementById(viewId);
             if (target) target.classList.add('active');
+            if (event && event.currentTarget) event.currentTarget.classList.add('active');
         };
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Safe UI loading
+            try {
+                let hr = new Date().getHours();
+                let greet = "Good Evening!";
+                if (hr < 12) greet = "Good Morning!";
+                else if (hr < 17) greet = "Good Afternoon!";
+                document.getElementById('greetMsg').innerText = greet;
 
-            // Dynamic Greeting
-            let hr = new Date().getHours();
-            let greet = "Good Evening!";
-            if (hr < 12) greet = "Good Morning!";
-            else if (hr < 17) greet = "Good Afternoon!";
-            document.getElementById('greetMsg').innerText = greet;
+                let fullName = (studentData.studentFirstName || studentData.studentName || "Student") + " " + (studentData.studentLastName || "");
+                document.getElementById('dashName').innerText = fullName;
+                document.getElementById('dashRegNo').innerText = studentData.portalId || studentData.regNo || "N/A";
+                document.getElementById('dashAvatarBox').innerText = fullName.charAt(0).toUpperCase() || "S";
 
-            // Profile Info setup
-            let fullName = (studentData.studentFirstName || studentData.studentName || "Student") + " " + (studentData.studentLastName || "");
-            document.getElementById('dashName').innerText = fullName;
-            document.getElementById('dashRegNo').innerText = studentData.portalId || studentData.regNo || "N/A";
-
-            document.getElementById('dashAvatarBox').innerText = fullName.charAt(0).toUpperCase() || "S";
-
-            let sClass = "-";
-            if (studentData.studentClass) {
-                let match = studentData.studentClass.match(/(.*?)\s*\((.*?)\)/);
-                if (match) { sClass = match[1].trim() + " (" + match[2].trim() + ")"; }
-                else { sClass = studentData.studentClass; }
-            }
-            document.getElementById('dashClass').innerText = sClass;
-            document.getElementById('ttDateStr').innerText = new Date().toLocaleDateString('en-GB');
+                let sClass = "-";
+                if (studentData.studentClass) {
+                    let match = studentData.studentClass.match(/(.*?)\s*\((.*?)\)/);
+                    if (match) { sClass = match[1].trim() + " (" + match[2].trim() + ")"; }
+                    else { sClass = studentData.studentClass; }
+                }
+                document.getElementById('dashClass').innerText = sClass;
+                document.getElementById('ttDateStr').innerText = new Date().toLocaleDateString('en-GB');
+            } catch (e) { console.error("UI Init error", e); }
 
             document.getElementById('btnStudentLogout').addEventListener('click', () => {
                 if (confirm("Are you sure you want to log out?")) {
                     localStorage.removeItem('student_active_session');
                     localStorage.removeItem('erp_active_user');
-                    sessionStorage.removeItem(`stu_cache_data_${schoolCode}_${myId}`);
-                    sessionStorage.removeItem(`stu_cache_time_${schoolCode}_${myId}`);
+                    sessionStorage.removeItem(`STU_CACHE_${schoolCode}_${myId}`); // Clear Cache
                     window.location.href = 'login.html';
                 }
             });
 
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
+            // Start Data Fetch
+            loadDashboardData();
 
-            // SECURE & CACHED DATA FETCHING
-            fetchAllStudentDataSecurely();
-
+            // Calendar Controls
             document.getElementById('calPrevMonth')?.addEventListener('click', () => { currDate.setMonth(currDate.getMonth() - 1); renderCalendar(); });
             document.getElementById('calNextMonth')?.addEventListener('click', () => { currDate.setMonth(currDate.getMonth() + 1); renderCalendar(); });
             document.getElementById('bigCalPrevMonth')?.addEventListener('click', () => { currDate.setMonth(currDate.getMonth() - 1); renderCalendar(); });
@@ -1226,43 +1174,36 @@
         });
 
         // =======================================================
-        // HIGH PERFORMANCE DATA SYNC & CACHE ENGINE
+        // EXTREME CACHING ENGINE (ZERO DB READS ON RELOAD)
         // =======================================================
-        const CACHE_EXPIRY = 15 * 60 * 1000; // 15 mins cache
-        const cacheKeyTime = `stu_cache_time_${schoolCode}_${myId}`;
-        const cacheKeyData = `stu_cache_data_${schoolCode}_${myId}`;
+        const CACHE_KEY = `STU_CACHE_${schoolCode}_${myId}`;
 
-        async function fetchAllStudentDataSecurely(forceSync = false) {
+        async function loadDashboardData() {
+            // 1. Check Session Cache (Valid until browser close)
+            let cached = sessionStorage.getItem(CACHE_KEY);
+            if (cached) {
+                try {
+                    globalDbData = JSON.parse(cached);
+                    renderAllModules();
+                    return; // EXITS HERE! No Firebase Call!
+                } catch (e) { console.warn("Cache parse failed", e); }
+            }
+
+            // 2. Fetch from Firebase (Only happens once per session)
+            document.getElementById('mainFeedContainer').innerHTML = `<p style="text-align:center; padding:30px; color:#94a3b8;">Fetching secure data from server... ⏳</p>`;
+
             try {
-                const cacheTime = sessionStorage.getItem(cacheKeyTime);
-
-                // 🚀 CACHE FIRST LOGIC: Load instantly without touching database
-                if (!forceSync && cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY)) {
-                    const cachedData = sessionStorage.getItem(cacheKeyData);
-                    if (cachedData) {
-                        globalDbData = JSON.parse(cachedData);
-                        console.log("Loaded student dashboard from session cache.");
-
-                        processEventsWidget(globalDbData.events);
-                        renderFeed(globalDbData.assignments, globalDbData.submissions);
-                        processAttendance(globalDbData.attendance);
-                        processFeeLedger(globalDbData.receipts, globalDbData.setup);
-                        return; // Exit early! Zero database hits!
-                    }
-                }
-
-                // 📡 NETWORK FALLBACK: Fetch from Firestore only if cache is missing/expired
-                let setupDoc = await db.collection("setups").doc(schoolCode).get();
-                if (setupDoc.exists) globalDbData.setup = setupDoc.data();
-
-                const [evtSnap, asgSnap, subSnap, attSnap, feeSnap] = await Promise.all([
-                    db.collection("events").where("schoolCode", "==", schoolCode).get(),
-                    db.collection("assignments").where("schoolCode", "==", schoolCode).get(),
-                    db.collection("submissions").where("schoolCode", "==", schoolCode).where("Reg_No", "==", myId).get(),
-                    db.collection("attendance").where("schoolCode", "==", schoolCode).get(),
-                    db.collection("fee_receipts").where("schoolCode", "==", schoolCode).where("Reg_No", "==", myId).get()
+                // 🚀 CRASH-PROOF FETCHING: If one table is blocked by rules, others still load!
+                const [evtSnap, asgSnap, subSnap, attSnap, feeSnap, setupDoc] = await Promise.all([
+                    db.collection("events").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] })),
+                    db.collection("assignments").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] })),
+                    db.collection("submissions").where("schoolCode", "==", schoolCode).where("Reg_No", "==", myId).get().catch(() => ({ docs: [] })),
+                    db.collection("attendance").where("schoolCode", "==", schoolCode).get().catch(() => ({ docs: [] })),
+                    db.collection("fee_receipts").where("schoolCode", "==", schoolCode).where("Reg_No", "==", myId).get().catch(() => ({ docs: [] })),
+                    db.collection("setups").doc(schoolCode).get().catch(() => ({ exists: false, data: () => null }))
                 ]);
 
+                globalDbData.setup = setupDoc.exists ? setupDoc.data() : null;
                 globalDbData.events = evtSnap.docs.map(d => d.data());
 
                 let allFeedItems = asgSnap.docs.map(d => { let obj = d.data(); obj.Assignment_ID = d.id; return obj; });
@@ -1273,7 +1214,7 @@
                 globalDbData.receipts = feeSnap.docs.map(d => d.data());
 
                 let myAttendance = [];
-                attSnap.forEach(doc => {
+                attSnap.docs.forEach(doc => {
                     let sessionData = doc.data();
                     if (sessionData.Records) {
                         let myRecord = sessionData.Records.find(r => String(r.regNo) === String(myId));
@@ -1282,20 +1223,22 @@
                 });
                 globalDbData.attendance = myAttendance;
 
-                // 💾 SAVE TO CACHE FOR NEXT TIME
-                sessionStorage.setItem(cacheKeyData, JSON.stringify(globalDbData));
-                sessionStorage.setItem(cacheKeyTime, Date.now().toString());
+                // 💾 STORE IN CACHE
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify(globalDbData));
 
-                // RENDER UI
-                processEventsWidget(globalDbData.events);
-                renderFeed(globalDbData.assignments, globalDbData.submissions);
-                processAttendance(globalDbData.attendance);
-                processFeeLedger(globalDbData.receipts, globalDbData.setup);
+                renderAllModules();
 
             } catch (err) {
-                console.error("Fetch Error:", err);
-                document.getElementById('mainFeedContainer').innerHTML = `<p style="color:red; text-align:center;">Database Sync Error. Connection failed or access denied.</p>`;
+                console.error("Critical Fetch Error:", err);
+                document.getElementById('mainFeedContainer').innerHTML = `<p style="color:red; text-align:center;">Network Error. Please refresh the page.</p>`;
             }
+        }
+
+        function renderAllModules() {
+            processEventsWidget(globalDbData.events);
+            renderFeed(globalDbData.assignments, globalDbData.submissions);
+            processAttendance(globalDbData.attendance);
+            processFeeLedger(globalDbData.receipts, globalDbData.setup);
         }
 
         // ============================================================================
@@ -1304,7 +1247,7 @@
         function processEventsWidget(events) {
             let evtCont = document.getElementById('eventListContainer');
             evtCont.innerHTML = '';
-            eventMap = {}; // Reset global map so we don't duplicate on re-renders
+            eventMap = {};
 
             let validEvents = events.filter(e => {
                 if (e.Audience === "Employees") return false;
@@ -1323,7 +1266,6 @@
                             if (pts[0].length === 4) iso = `${pts[0]}-${pts[1]}-${pts[2]}`;
                             else iso = `${pts[2]}-${pts[1]}-${pts[0]}`;
 
-                            // Map holiday feature securely 
                             let isHol = (e.Is_Holiday_Student === "Yes") || (e.Is_Holiday === "Yes");
                             eventMap[iso] = { title: e.Title, desc: e.Description, isHoliday: isHol };
                         }
@@ -1345,13 +1287,14 @@
         }
 
         // ============================================================================
-        // TIMELINE FEED RENDERING (Assignments + Events Mixed)
+        // TIMELINE FEED RENDERING
         // ============================================================================
         window.filterFeed = function(filterVal) {
             switchView('view-dashboard');
             document.querySelectorAll('.comm-pill').forEach(t => t.classList.remove('active-pill'));
-            if(event && event.target && event.target.classList.contains('comm-pill')) { event.target.classList.add('active-pill'); } 
-            else {
+            if(event && event.currentTarget && event.currentTarget.classList.contains('comm-pill')) { 
+                event.currentTarget.classList.add('active-pill'); 
+            } else {
                 let pill = document.querySelector(`.comm - pill[onclick = "filterFeed('${filterVal}')"]`);
                 if(pill) pill.classList.add('active-pill');
             }
@@ -1362,11 +1305,6 @@
         function renderFeed(allFeedItems, submissions) {
             const feedCont = document.getElementById('mainFeedContainer');
             feedCont.innerHTML = ''; 
-
-            if(!allFeedItems || allFeedItems.length === 0) { 
-                feedCont.innerHTML = '<p style="text-align:center; padding:30px; color:#94a3b8;">No updates found on database timeline.</p>';
-                return; 
-            }
 
             let myItems = allFeedItems.filter(a => {
                 let matchClass = true;
@@ -1411,7 +1349,6 @@
                 let descHtml = `< p class= "f-desc" > ${ a.Description || '' }</p > `;
 
                 let hwActionHtml = "";
-                // If it's homework, show submit button
                 if(themeClass === "hw") {
                     let mySub = (submissions || []).find(s => String(s.Assignment_ID) === String(a.Assignment_ID) && String(s.Reg_No) === String(myId));
                     let statusLabel = "Pending"; let statusClass = "pending";
@@ -1429,7 +1366,7 @@
         }
 
         // ============================================================================
-        // HOMEWORK MODAL & SUBMISSION (Updates Cache)
+        // HOMEWORK SUBMISSION (UPDATING CACHE LOCALLY)
         // ============================================================================
         let currentHwSelection = null;
         window.openHwModal = function(hwData, subData) {
@@ -1459,7 +1396,7 @@
             const btn = document.getElementById('btnActualSubmit'); 
             btn.innerText = "Submitting..."; btn.disabled = true;
 
-            let safeMyId = myId.replace(/\//g, '-');
+            let safeMyId = String(myId).replace(/\//g, '-');
             let docId = `${ schoolCode }_${ currentHwSelection.Assignment_ID }_${ safeMyId }`;
 
             const submissionData = {
@@ -1473,9 +1410,9 @@
                 alert("Homework Submitted Successfully!");
                 document.getElementById('hwModal').classList.remove('active'); 
                 
-                // Add to local data & update cache instantly
+                // 💾 LOCAL CACHE UPDATE (Prevents reloading entire database)
                 globalDbData.submissions.push(submissionData);
-                sessionStorage.setItem(cacheKeyData, JSON.stringify(globalDbData));
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify(globalDbData));
                 
                 renderFeed(globalDbData.assignments, globalDbData.submissions);
             }).catch(err => { alert("Error: " + err.message); }).finally(() => { btn.innerText = "Submit Homework"; btn.disabled = false; });
@@ -1492,7 +1429,6 @@
                 let mySetup = setupData.classes.find(c => `${ c.name }(${ c.section })` === studentData.studentClass || c.name === studentData.studentClass);
                 if(mySetup && mySetup.fee) { classFeeAmount = parseFloat(mySetup.fee); }
             }
-            // 1 Year projection dummy
             let totalApplicable = classFeeAmount * 12;
 
             if(!receipts || receipts.length === 0) {
@@ -1513,7 +1449,7 @@
             } `;
                 
                 let rDataStr = JSON.stringify(r).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
-                let actionBtn = `< button class="btn-download-pdf" onclick = 'downloadReceiptPDF(${rDataStr})' >🖨️ Download Receipt</button > `;
+                let actionBtn = `< button class="btn-download-pdf" onclick = 'downloadReceiptPDF(${rDataStr})' >🖨️ PDF</button > `;
 
                 tbody.innerHTML += `< tr ><td>${particularsStr} (Rec: ${r.Receipt_No})</td><td>${dateStr}</td><td style="color:#27ae60; font-weight:bold;">${amtStr}</td><td><span class="status-badge checked">Paid</span></td><td>${actionBtn}</td></tr > `;
             });
@@ -1531,7 +1467,6 @@
             document.getElementById('p-rec-no').innerText = rData.Receipt_No;
             document.getElementById('p-stu-class').innerText = rData.Class_Section || document.getElementById('dashClass').innerText;
             document.getElementById('p-rec-date').innerText = rData.Date;
-            
             document.getElementById('p-part').innerText = rData.Installment || "Fee Payment";
             document.getElementById('p-amt').innerText = rData.Amount;
             document.getElementById('p-tot').innerText = `₹${ rData.Amount } `;
@@ -1548,9 +1483,7 @@
                 jsPDF: { unit: 'in', format: 'a5', orientation: 'landscape' }
             };
             
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.style.display = 'none'; 
-            });
+            html2pdf().set(opt).from(element).save().then(() => { element.style.display = 'none'; });
         };
 
         // ============================================================================
@@ -1558,7 +1491,7 @@
         // ============================================================================
         function processAttendance(records) {
             if(!records) return; let totP = 0; let totA = 0; let totL = 0;
-            attMap = {}; // Reset global map so we don't duplicate on re-renders
+            attMap = {};
             records.forEach(r => {
                 let parts = String(r.Date).split('-');
                 if(parts.length === 3) { 
