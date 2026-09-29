@@ -15,7 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script>
-        // YOUR FIREBASE CONFIGURATION
+        // YOUR REAL FIREBASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyAHS0Xk5o-PZK_bBGtsQqGlS9TLOcnXCsM",
             authDomain: "school-erp-3bd0a.firebaseapp.com",
@@ -130,21 +130,10 @@
         .dot.a { background: #ef4444; box-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
         .dot.l { background: #f59e0b; box-shadow: 0 0 5px rgba(245, 158, 11, 0.5); }
         .cal-dot { width: 4px; height: 4px; border-radius: 50%; position: absolute; bottom: 1px; left: 50%; transform: translateX(-50%); }
-        
-        .hover-card {
-            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
-            background: #1e293b; color: white; padding: 10px 15px; border-radius: 6px;
-            font-size: 12px; opacity: 0; pointer-events: none;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            z-index: 10; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center;
-            white-space: normal; width: max-content; max-width: 250px; word-wrap: break-word;
-        }
-        .hover-card::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #1e293b transparent transparent transparent; }
-        .cal-cell:hover .hover-card { opacity: 1; transform: translateX(-50%) translateY(-5px); }
 
         /* SUB-VIEWS */
-        .view-header { margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
-        .view-header h2 { color: #1e293b; font-size: 20px; }
+        .view-header { margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
+        .view-header h2 { color: #1e293b; font-size: 20px; margin:0;}
         .att-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
         .att-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.02); text-align: center; }
         .att-card h3 { font-size: 28px; margin: 10px 0; color: #0f172a; }
@@ -182,7 +171,10 @@
         <div class="logo">
             <span id="dynamicNavName" style="margin-left: 5px;">SHUBH ERP</span>
         </div>
-        <button class="btn-logout" id="btnStudentLogout">Log Out</button>
+        <div>
+            <button id="btnSyncStu" class="btn-logout" onclick="forceRefresh()" style="background:#3b82f6; margin-right:10px;">🔄 Sync Data</button>
+            <button class="btn-logout" id="btnStudentLogout">Log Out</button>
+        </div>
     </div>
 
     <!-- MAIN 3-COLUMN LAYOUT -->
@@ -287,7 +279,9 @@
 
             <!-- 3. FEES VIEW -->
             <div id="view-fees" class="app-view">
-                <div class="view-header"><h2>Fee Details & Ledger</h2></div>
+                <div class="view-header">
+                    <h2>Fee Details & Ledger</h2>
+                </div>
                 <div class="fee-summary-grid">
                     <div class="fee-card"><h4 style="color:#8e44ad;">Total Fee</h4><h2 id="feeTotApplicable">₹0.00</h2></div>
                     <div class="fee-card"><h4 style="color:#27ae60;">Paid Fees</h4><h2 id="feeTotPaid">₹0.00</h2></div>
@@ -435,6 +429,17 @@
             if(event && event.currentTarget) event.currentTarget.classList.add('active');
         };
 
+        // Cache busting function attached to Sync button
+        window.forceRefresh = function() {
+            let btn = document.getElementById('btnSyncStu');
+            if(btn) btn.innerText = "⏳...";
+            sessionStorage.removeItem("STU_CACHE_DATA_" + schoolCode + "_" + myId);
+            sessionStorage.removeItem("STU_CACHE_TIME_" + schoolCode + "_" + myId);
+            loadDashboardData().then(() => {
+                if(btn) btn.innerText = "🔄 Sync Data";
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             // Safe UI loading
             try {
@@ -474,7 +479,8 @@
                     if(confirm("Are you sure you want to log out?")) { 
                         localStorage.removeItem('student_active_session'); 
                         localStorage.removeItem('erp_active_user'); 
-                        sessionStorage.removeItem("STU_CACHE_" + schoolCode + "_" + myId);
+                        sessionStorage.removeItem("STU_CACHE_DATA_" + schoolCode + "_" + myId);
+                        sessionStorage.removeItem("STU_CACHE_TIME_" + schoolCode + "_" + myId);
                         window.location.href = 'login.html'; 
                     }
                 });
@@ -499,26 +505,24 @@
             const CACHE_KEY_DATA = "STU_CACHE_DATA_" + schoolCode + "_" + myId;
             const CACHE_EXPIRY = 15 * 60 * 1000; 
 
-            // 1. Check Session Cache (Valid until browser close)
+            // 1. Check Session Cache
             try {
                 let cacheTime = sessionStorage.getItem(CACHE_KEY_TIME);
                 if (cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY)) {
                     let cachedData = sessionStorage.getItem(CACHE_KEY_DATA);
                     if (cachedData) {
                         globalDbData = JSON.parse(cachedData);
-                        console.log("Loaded student dashboard from session cache.");
                         renderAllModules();
                         return; // EXITS HERE! No Firebase Call!
                     }
                 }
             } catch(e) { console.warn("Cache parse failed", e); }
 
-            // 2. Fetch from Firebase (Only happens once per session)
+            // 2. Fetch from Firebase
             let feedContainer = document.getElementById('mainFeedContainer');
             if(feedContainer) feedContainer.innerHTML = "<p style='text-align:center; padding:30px; color:#94a3b8;'>Fetching secure data from server... ⏳</p>";
 
             try {
-                // CRASH-PROOF FETCHING: If one table is blocked by rules, others still load!
                 const [evtSnap, asgSnap, subSnap, attSnap, feeSnap, setupDoc] = await Promise.all([
                     db.collection("events").where("schoolCode", "==", schoolCode).get().catch(()=>({docs:[]})),
                     db.collection("assignments").where("schoolCode", "==", schoolCode).get().catch(()=>({docs:[]})),
@@ -529,14 +533,14 @@
                 ]);
 
                 globalDbData.setup = setupDoc.exists ? setupDoc.data() : null;
-                globalDbData.events = evtSnap.docs.map(d => d.data());
+                globalDbData.events = evtSnap.docs ? evtSnap.docs.map(d => d.data()) : [];
                 
-                let allFeedItems = asgSnap.docs.map(d => { let obj = d.data(); obj.Assignment_ID = d.id; return obj; });
+                let allFeedItems = asgSnap.docs ? asgSnap.docs.map(d => { let obj = d.data(); obj.Assignment_ID = d.id; return obj; }) : [];
                 globalDbData.events.forEach(e => { allFeedItems.push(e); }); 
                 globalDbData.assignments = allFeedItems;
 
-                globalDbData.submissions = subSnap.docs.map(d => d.data());
-                globalDbData.receipts = feeSnap.docs.map(d => d.data());
+                globalDbData.submissions = subSnap.docs ? subSnap.docs.map(d => d.data()) : [];
+                globalDbData.receipts = feeSnap.docs ? feeSnap.docs.map(d => d.data()) : [];
                 
                 let myAttendance = [];
                 if(attSnap.docs) {
@@ -761,24 +765,47 @@
         };
 
         // ============================================================================
-        // FINANCIAL LEDGER 
+        // 💰 SMART FINANCIAL LEDGER (Matches exact Class names & calculates all heads)
         // ============================================================================
         function processFeeLedger(receipts, setupData) {
             let tbody = document.getElementById('feeStatementBody'); 
             if(!tbody) return;
             
             let classFeeAmount = 0;
-            if(setupData && setupData.classes && studentData.studentClass) {
-                let mySetup = setupData.classes.find(c => (c.name + " (" + c.section + ")") === studentData.studentClass || c.name === studentData.studentClass);
-                if(mySetup && mySetup.fee) { classFeeAmount = parseFloat(mySetup.fee); }
+            let totalApplicable = 0;
+
+            if (setupData) {
+                // Tuition Fee match (ignoring spaces/brackets for robustness)
+                if (setupData.classes && studentData.studentClass) {
+                    let sClassClean = String(studentData.studentClass).toLowerCase().replace(/[^a-z0-9]/g, '');
+                    let mySetup = setupData.classes.find(c => {
+                        let n1 = String(c.name).toLowerCase().replace(/[^a-z0-9]/g, '');
+                        let n2 = (String(c.name) + String(c.section)).toLowerCase().replace(/[^a-z0-9]/g, '');
+                        return sClassClean === n1 || sClassClean === n2;
+                    });
+                    if (mySetup && mySetup.fee) { classFeeAmount = parseFloat(mySetup.fee) || 0; }
+                }
+                totalApplicable += classFeeAmount * 12;
+
+                // Add other Fee Heads
+                if (setupData.feeHeads) {
+                    setupData.feeHeads.forEach(fh => {
+                        let amt = parseFloat(fh.Amount) || 0;
+                        if (fh.Frequency === "Monthly") {
+                            totalApplicable += amt * 12;
+                        } else {
+                            totalApplicable += amt;
+                        }
+                    });
+                }
             }
-            let totalApplicable = classFeeAmount * 12;
 
             if(!receipts || receipts.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No fee records found.</td></tr>';
-                let dueStr = totalApplicable > 0 ? totalApplicable.toFixed(2) : "0.00";
-                document.getElementById('feeTotApplicable').innerText = "₹" + dueStr;
-                document.getElementById('feeTotDue').innerText = "₹" + dueStr;
+                document.getElementById('feeTotApplicable').innerText = "₹" + totalApplicable.toFixed(2);
+                document.getElementById('feeTotDue').innerText = "₹" + totalApplicable.toFixed(2);
+                document.getElementById('feeTotPaid').innerText = "₹0.00";
+                document.getElementById('feeTotAdv').innerText = "₹0.00";
                 return;
             }
             
