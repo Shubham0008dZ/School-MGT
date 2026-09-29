@@ -611,6 +611,44 @@
             transform: translateX(-50%);
         }
 
+        .hover-card {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: #1e293b;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            white-space: normal;
+            width: max-content;
+            max-width: 250px;
+            word-wrap: break-word;
+        }
+
+        .hover-card::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1e293b transparent transparent transparent;
+        }
+
+        .cal-cell:hover .hover-card {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+
         /* SUB-VIEWS */
         .view-header {
             margin-bottom: 20px;
@@ -1063,41 +1101,151 @@
         </div>
     </div>
 
-    <!-- HIDDEN RECEIPT TEMPLATE -->
+    <!-- HIDDEN RECEIPT TEMPLATE (EXACT ADMIN REPLICA) -->
     <div id="printSection">
-        <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
-            <h2 id="p-school-name" style="margin: 0;">School Name</h2>
-            <p style="margin: 5px 0 0 0; font-size: 14px;">Official Fee Receipt</p>
-        </div>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-            <tr>
-                <td style="padding: 5px;"><b>Student Name:</b> <span id="p-stu-name"></span></td>
-                <td style="padding: 5px; text-align: right;"><b>Receipt No:</b> <span id="p-rec-no"></span></td>
-            </tr>
-            <tr>
-                <td style="padding: 5px;"><b>Class:</b> <span id="p-stu-class"></span></td>
-                <td style="padding: 5px; text-align: right;"><b>Date:</b> <span id="p-rec-date"></span></td>
-            </tr>
-        </table>
-        <table style="width: 100%; border-collapse: collapse; border: 1px solid #000;">
-            <tr style="background: #f0f0f0;">
-                <th style="border: 1px solid #000; padding: 10px; text-align: left;">Particulars</th>
-                <th style="border: 1px solid #000; padding: 10px; text-align: right;">Amount (₹)</th>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #000; padding: 10px;" id="p-part"></td>
-                <td style="border: 1px solid #000; padding: 10px; text-align: right; font-weight: bold;" id="p-amt">
-                </td>
-            </tr>
-            <tr style="background: #f0f0f0;">
-                <td style="border: 1px solid #000; padding: 10px; text-align: right;"><b>Total Paid:</b></td>
-                <td style="border: 1px solid #000; padding: 10px; text-align: right; font-weight: bold;" id="p-tot">
-                </td>
-            </tr>
-        </table>
-        <div style="margin-top: 30px; display: flex; justify-content: space-between;">
-            <p style="font-size: 12px; color: #555;">Payment Mode: <span id="p-mode"></span></p>
-            <p style="font-size: 12px; font-weight: bold;">Authorized Signatory</p>
+        <div class="print-container">
+            <div class="print-header"
+                style="display:flex; align-items:center; justify-content:center; gap:20px; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:10px;">
+                <div class="print-logo" style="font-size:50px;">🏫</div>
+                <div class="print-school-info" style="text-align:center;">
+                    <h2 id="p-school-name" style="margin: 0 0 5px 0; font-size: 24px; color:#000;">School Name</h2>
+                    <p style="margin:2px 0; font-size:13px; color:#333;">Sector-3, Vasundhara, Ghaziabad, Uttar Pradesh
+                    </p>
+                    <p style="margin:2px 0; font-size:13px; color:#333;">0120-4111062, 4111061</p>
+                    <p style="margin:2px 0; font-size:13px; color:#333;">vpsvasundhara@gmail.com,
+                        www.vanasthalischool.in</p>
+                </div>
+            </div>
+
+            <h3 class="print-title" style="text-align:center; font-size:16px; margin:10px 0; font-weight:bold;"><u>Fee
+                    Receipt</u></h3>
+
+            <div class="print-details-wrapper" style="display:flex; border:1px solid #000; margin-bottom:0;">
+                <table class="print-info-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <tr>
+                        <th colspan="2"
+                            style="background:#e4e4e4; width:50%; border:1px solid #333; padding: 6px 10px; text-align: left; font-size: 13px;">
+                            Student Details</th>
+                        <th colspan="2"
+                            style="background:#e4e4e4; width:50%; border:1px solid #333; padding: 6px 10px; text-align: left; font-size: 13px;">
+                            Receipt Details</th>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Admission No.</b></td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span
+                                id="p-adm">-</span></td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Receipt No.</b></td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span
+                                id="p-rec-no">-</span></td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Student Name</b></td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span
+                                id="p-stu-name">-</span></td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Receipt Date</b></td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span
+                                id="p-rec-date">-</span></td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Father Name</b></td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span
+                                id="p-father">-</span></td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Billing Period</b>
+                        </td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span
+                                id="p-period">-</span></td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Mother Name</b></td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span
+                                id="p-mother">-</span></td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Session</b></td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: 2026-2027</td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"><b>Class - Section</b>
+                        </td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;">: <span
+                                id="p-stu-class">-</span></td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"></td>
+                        <td style="border:1px solid #333; padding: 6px 10px; font-size: 13px;"></td>
+                    </tr>
+                </table>
+            </div>
+
+            <table class="print-particulars-table"
+                style="width: 100%; border-collapse: collapse; font-size: 13px; border: 1px solid #000;">
+                <thead>
+                    <tr>
+                        <th colspan="6"
+                            style="background:#e4e4e4; text-align:center; border: 1px solid #000; padding: 6px;">FEES
+                            PARTICULARS</th>
+                    </tr>
+                    <tr>
+                        <th style="border: 1px solid #000; padding: 6px; text-align:left;">Particulars</th>
+                        <th style="border: 1px solid #000; padding: 6px; text-align:right;">Fees</th>
+                        <th style="border: 1px solid #000; padding: 6px; text-align:right;">Adjustment</th>
+                        <th style="border: 1px solid #000; padding: 6px; text-align:right;">Payable</th>
+                        <th style="border: 1px solid #000; padding: 6px; text-align:right;">Paid Amount</th>
+                        <th style="border: 1px solid #000; padding: 6px; text-align:right;">Balance</th>
+                    </tr>
+                </thead>
+                <tbody id="print-particulars-body"></tbody>
+                <tfoot>
+                    <tr style="font-weight:bold;">
+                        <td style="text-align:right; border: 1px solid #000; padding: 6px;">Total Amount</td>
+                        <td id="p-t-fees" style="text-align:right; border: 1px solid #000; padding: 6px;">0.00</td>
+                        <td id="p-t-adj" style="text-align:right; border: 1px solid #000; padding: 6px;">0.00</td>
+                        <td id="p-t-pay" style="text-align:right; border: 1px solid #000; padding: 6px;">0.00</td>
+                        <td id="p-t-paid" style="text-align:right; border: 1px solid #000; padding: 6px;">0.00</td>
+                        <td id="p-t-bal" style="text-align:right; border: 1px solid #000; padding: 6px;">0.00</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:right; font-weight:bold; border: 1px solid #000; padding: 6px;">Paid
+                            Amount</td>
+                        <td colspan="5" style="text-align:right; border: 1px solid #000; padding: 6px;"><span
+                                id="p-words" style="font-weight:bold;">-</span></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <table class="print-particulars-table"
+                style="margin-top:0; width: 100%; border-collapse: collapse; font-size: 13px; border: 1px solid #000; border-top: none;">
+                <thead>
+                    <tr>
+                        <th colspan="5"
+                            style="background:#e4e4e4; text-align:center; border: 1px solid #000; padding: 6px;">PAYMENT
+                            DETAILS</th>
+                    </tr>
+                    <tr>
+                        <th style="border: 1px solid #000; padding: 6px; text-align:left;">Payment Mode</th>
+                        <th style="border: 1px solid #000; padding: 6px; text-align:left;">Bank Name</th>
+                        <th style="border: 1px solid #000; padding: 6px; text-align:left;">Date</th>
+                        <th style="border: 1px solid #000; padding: 6px; text-align:left;">Details</th>
+                        <th style="border: 1px solid #000; padding: 6px; text-align:right;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="p-pmode" style="border: 1px solid #000; padding: 6px; text-align:left;">-</td>
+                        <td id="p-pbank" style="border: 1px solid #000; padding: 6px; text-align:left;">-</td>
+                        <td id="p-pdate" style="border: 1px solid #000; padding: 6px; text-align:left;">-</td>
+                        <td id="p-pdet" style="border: 1px solid #000; padding: 6px; text-align:left;">-</td>
+                        <td id="p-pamt" style="border: 1px solid #000; padding: 6px; text-align:right;">-</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5"
+                            style="padding:30px 10px 10px 10px; border-bottom:none; border: 1px solid #000;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                                <div style="text-align:left; font-size:11px;">*Cheque/DD is subject to
+                                    realization<br>Note:</div>
+                                <div style="text-align:right;"><b>For <span id="p-school-name-auth">School
+                                            Name</span></b><br><br><br><b>AUTH.SIGNATORY</b></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -1124,11 +1272,9 @@
 
         // Dynamic Setup
         try {
-            let savedName = localStorage.getItem('erp_school_name') || schoolCode;
+            let savedName = localStorage.getItem('erp_school_name') || schoolCode + " Public School";
             let elName = document.getElementById('dynamicNavName');
-            let elPName = document.getElementById('p-school-name');
             if (elName) elName.innerText = savedName;
-            if (elPName) elPName.innerText = savedName;
         } catch (error) { }
 
         let globalDbData = { assignments: [], submissions: [], attendance: [], receipts: [], events: [], setup: null };
@@ -1426,7 +1572,7 @@
         }
 
         // ============================================================================
-        // HOMEWORK SUBMISSION (UPDATING CACHE LOCALLY)
+        // HOMEWORK SUBMISSION 
         // ============================================================================
         let currentHwSelection = null;
         window.openHwModal = function (hwData, subData) {
@@ -1470,7 +1616,6 @@
                 alert("Homework Submitted Successfully!");
                 document.getElementById('hwModal').classList.remove('active');
 
-                // LOCAL CACHE UPDATE 
                 globalDbData.submissions.push(submissionData);
                 try {
                     const CACHE_KEY_DATA = "STU_CACHE_DATA_" + schoolCode + "_" + myId;
@@ -1482,7 +1627,7 @@
         };
 
         // ============================================================================
-        // 💰 SMART FINANCIAL LEDGER (Matches exact Class names & calculates all heads)
+        // 💰 SMART FINANCIAL LEDGER (Matches exact Class names & calculates actual paid)
         // ============================================================================
         function processFeeLedger(receipts, setupData) {
             let tbody = document.getElementById('feeStatementBody');
@@ -1492,7 +1637,7 @@
             let totalApplicable = 0;
 
             if (setupData) {
-                // Tuition Fee match (ignoring spaces/brackets for robustness)
+                // Determine Base Tuition Fee
                 if (setupData.classes && studentData.studentClass) {
                     let sClassClean = String(studentData.studentClass).toLowerCase().replace(/[^a-z0-9]/g, '');
                     let mySetup = setupData.classes.find(c => {
@@ -1504,7 +1649,7 @@
                 }
                 totalApplicable += classFeeAmount * 12;
 
-                // Add other Fee Heads
+                // Add configured Fee Heads
                 if (setupData.feeHeads) {
                     setupData.feeHeads.forEach(fh => {
                         let amt = parseFloat(fh.Amount) || 0;
@@ -1528,18 +1673,40 @@
 
             tbody.innerHTML = '';
             let totalPaid = 0;
+            let totalBilledInReceipts = 0;
 
             receipts.forEach(r => {
-                totalPaid += parseFloat(r.Amount) || 0;
+                let amtPaid = parseFloat(r.Amount) || 0;
+                totalPaid += amtPaid;
+
+                // Smartly calculate actual billed amount from JSON Array (Fix for 0.00 Total Issue)
+                try {
+                    if (typeof r.Paid_Heads === 'string' && r.Paid_Heads.startsWith('[')) {
+                        let detailsArray = JSON.parse(r.Paid_Heads);
+                        detailsArray.forEach(d => {
+                            totalBilledInReceipts += parseFloat(d.actual) || 0;
+                        });
+                    } else {
+                        totalBilledInReceipts += amtPaid;
+                    }
+                } catch (e) {
+                    totalBilledInReceipts += amtPaid;
+                }
+
                 let dateStr = r.Date || "-";
                 let particularsStr = r.Installment || "Fee Payment";
-                let amtStr = "₹" + parseFloat(r.Amount).toFixed(2);
+                let amtStr = "₹" + amtPaid.toFixed(2);
 
                 let rDataStr = JSON.stringify(r).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
                 let actionBtn = '<button class="btn-download-pdf" onclick=\'downloadReceiptPDF(' + rDataStr + ')\'>🖨️ PDF</button>';
 
                 tbody.innerHTML += '<tr><td>' + particularsStr + ' (Rec: ' + r.Receipt_No + ')</td><td>' + dateStr + '</td><td style="color:#27ae60; font-weight:bold;">' + amtStr + '</td><td><span class="status-badge checked">Paid</span></td><td>' + actionBtn + '</td></tr>';
             });
+
+            // If actual billed in receipts is more than setup total (e.g. Master Setup Missing), use Billed!
+            if (totalApplicable < totalBilledInReceipts) {
+                totalApplicable = totalBilledInReceipts;
+            }
 
             document.getElementById('feeTotApplicable').innerText = "₹" + totalApplicable.toFixed(2);
             document.getElementById('feeTotPaid').innerText = "₹" + totalPaid.toFixed(2);
@@ -1551,39 +1718,40 @@
             document.getElementById('feeTotAdv').innerText = "₹" + advStr;
         }
 
-
-
-
-
-
-
-
+        // ============================================================================
+        // DETAILED PDF GENERATOR (Exact replica of Admin Fee.html)
+        // ============================================================================
         window.downloadReceiptPDF = function (rData) {
-            // Setup Basic Info
+            let schoolName = localStorage.getItem('erp_school_name') || schoolCode + " Public School";
+            document.getElementById('p-school-name').innerText = schoolName;
+            document.getElementById('p-school-name-auth').innerText = schoolName;
+
+            document.getElementById('p-adm').innerText = studentData.regNo || rData.Reg_No || "-";
             document.getElementById('p-stu-name').innerText = rData.Student_Name || document.getElementById('dashName').innerText;
             document.getElementById('p-rec-no').innerText = rData.Receipt_No;
             document.getElementById('p-stu-class').innerText = rData.Class_Section || document.getElementById('dashClass').innerText;
             document.getElementById('p-rec-date').innerText = rData.Date;
-            document.getElementById('p-mode').innerText = rData.Payment_Mode || "Cash";
 
-            // Generate Particulars Table Properly from JSON Array
+            let fName = studentData.fatherName || "-";
+            let mName = studentData.motherName || "-";
+            document.getElementById('p-father').innerText = fName;
+            document.getElementById('p-mother').innerText = mName;
+            document.getElementById('p-period').innerText = rData.Installment || "Fee Payment";
+
             let pBody = document.getElementById('print-particulars-body');
             pBody.innerHTML = '';
 
             let tAct = 0, tAdj = 0, tPay = 0, tPaid = 0, tBal = 0;
             let detailsArray = [];
 
+            // Extract Detailed Particulars from JSON
             try {
-                // Parse the Paid_Heads JSON saved from Admin Panel
                 if (typeof rData.Paid_Heads === 'string' && rData.Paid_Heads.startsWith('[')) {
                     detailsArray = JSON.parse(rData.Paid_Heads);
                 }
-            } catch (e) {
-                console.error("Failed to parse Paid_Heads", e);
-            }
+            } catch (e) { console.error("PDF Parsing Error", e); }
 
             if (detailsArray.length > 0) {
-                // If detailed heads exist, print them row by row
                 detailsArray.forEach(d => {
                     let fee = parseFloat(d.actual) || 0;
                     let adj = parseFloat(d.adj) || 0;
@@ -1594,58 +1762,43 @@
                     tAct += fee; tAdj += adj; tPay += pay; tPaid += pd; tBal += bal;
 
                     let displayName = d.head;
-                    if (d.period) {
-                        displayName += ' <span style="color:#555; font-size:11px;">(' + d.period + ')</span>';
-                    }
+                    if (d.period) { displayName += ' <span style="color:#555; font-size:11px;">(' + d.period + ')</span>'; }
 
-                    pBody.innerHTML += '<tr><td style="text-align:left; border:1px solid #000; padding:5px;">' + displayName + '</td>' +
-                        '<td style="border:1px solid #000; padding:5px; text-align:right;">' + fee.toFixed(2) + '</td>' +
-                        '<td style="border:1px solid #000; padding:5px; text-align:right;">' + adj.toFixed(2) + '</td>' +
-                        '<td style="border:1px solid #000; padding:5px; text-align:right;">' + pay.toFixed(2) + '</td>' +
-                        '<td style="border:1px solid #000; padding:5px; text-align:right;">' + pd.toFixed(2) + '</td>' +
-                        '<td style="border:1px solid #000; padding:5px; text-align:right;">' + bal.toFixed(2) + '</td></tr>';
+                    pBody.innerHTML += '<tr><td style="text-align:left; border:1px solid #000; padding:6px;">' + displayName + '</td>' +
+                        '<td style="border:1px solid #000; padding:6px; text-align:right;">' + fee.toFixed(2) + '</td>' +
+                        '<td style="border:1px solid #000; padding:6px; text-align:right;">' + adj.toFixed(2) + '</td>' +
+                        '<td style="border:1px solid #000; padding:6px; text-align:right;">' + pay.toFixed(2) + '</td>' +
+                        '<td style="border:1px solid #000; padding:6px; text-align:right;">' + pd.toFixed(2) + '</td>' +
+                        '<td style="border:1px solid #000; padding:6px; text-align:right;">' + bal.toFixed(2) + '</td></tr>';
                 });
             } else {
-                // Fallback if no detailed heads exist
+                // Fallback if no array found
                 let amt = parseFloat(rData.Amount) || 0;
                 tAct = amt; tPay = amt; tPaid = amt;
                 let fallbackName = rData.Installment || "Fee Payment";
-                pBody.innerHTML = '<tr><td style="text-align:left; border:1px solid #000; padding:5px;">' + fallbackName + '</td>' +
-                    '<td style="border:1px solid #000; padding:5px; text-align:right;">' + amt.toFixed(2) + '</td>' +
-                    '<td style="border:1px solid #000; padding:5px; text-align:right;">0.00</td>' +
-                    '<td style="border:1px solid #000; padding:5px; text-align:right;">' + amt.toFixed(2) + '</td>' +
-                    '<td style="border:1px solid #000; padding:5px; text-align:right;">' + amt.toFixed(2) + '</td>' +
-                    '<td style="border:1px solid #000; padding:5px; text-align:right;">0.00</td></tr>';
+                pBody.innerHTML = '<tr><td style="text-align:left; border:1px solid #000; padding:6px;">' + fallbackName + '</td>' +
+                    '<td style="border:1px solid #000; padding:6px; text-align:right;">' + amt.toFixed(2) + '</td>' +
+                    '<td style="border:1px solid #000; padding:6px; text-align:right;">0.00</td>' +
+                    '<td style="border:1px solid #000; padding:6px; text-align:right;">' + amt.toFixed(2) + '</td>' +
+                    '<td style="border:1px solid #000; padding:6px; text-align:right;">' + amt.toFixed(2) + '</td>' +
+                    '<td style="border:1px solid #000; padding:6px; text-align:right;">0.00</td></tr>';
             }
 
-            // Update Totals
             document.getElementById('p-t-fees').innerText = tAct.toFixed(2);
             document.getElementById('p-t-adj').innerText = tAdj.toFixed(2);
             document.getElementById('p-t-pay').innerText = tPay.toFixed(2);
             document.getElementById('p-t-paid').innerText = tPaid.toFixed(2);
             document.getElementById('p-t-bal').innerText = tBal.toFixed(2);
 
-            // We use the total amount passed from rData to show actual cash paid (including advances if any)
             let finalPaidAmt = parseFloat(rData.Amount) || tPaid;
-            document.getElementById('p-tot').innerText = "Rs. " + finalPaidAmt.toFixed(2) + " /-";
+            document.getElementById('p-words').innerText = "Rs. " + finalPaidAmt.toFixed(2) + " /-";
 
-            // Payment details table below
-            let pmodeElem = document.getElementById('p-pmode');
-            if (pmodeElem) pmodeElem.innerText = rData.Payment_Mode || "Cash";
+            document.getElementById('p-pmode').innerText = rData.Payment_Mode || "Cash";
+            document.getElementById('p-pbank').innerText = rData.Bank_Name || "-";
+            document.getElementById('p-pdate').innerText = rData.Date || "-";
+            document.getElementById('p-pdet').innerText = rData.Ref_No || "-";
+            document.getElementById('p-pamt').innerText = finalPaidAmt.toFixed(2);
 
-            let pbankElem = document.getElementById('p-pbank');
-            if (pbankElem) pbankElem.innerText = rData.Bank_Name || "-";
-
-            let pdateElem = document.getElementById('p-pdate');
-            if (pdateElem) pdateElem.innerText = rData.Date || "-";
-
-            let pdetElem = document.getElementById('p-pdet');
-            if (pdetElem) pdetElem.innerText = rData.Ref_No || "-";
-
-            let pamtElem = document.getElementById('p-pamt');
-            if (pamtElem) pamtElem.innerText = finalPaidAmt.toFixed(2);
-
-            // Execute PDF Generation
             let element = document.getElementById('printSection');
             element.style.display = 'block';
 
@@ -1661,12 +1814,6 @@
 
             html2pdf().set(opt).from(element).save().then(() => { element.style.display = 'none'; });
         };
-
-
-
-
-
-
 
         // ============================================================================
         // ATTENDANCE CALENDAR ENGINE
